@@ -1,3 +1,4 @@
 /target
-.env
+/.env
 scripty_src.zip
+/.idea
