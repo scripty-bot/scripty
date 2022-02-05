@@ -1,0 +1,18 @@
+[package]
+name = "scripty_commands"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+poise = { git = "https://github.com/kangalioo/poise/" }
+serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [
+  "tokio",
+  "voice",
+  "dashmap",
+  "parking_lot",
+  "rustls_backend",
+  "native_tls_backend",
+] }
+tracing = "0.1"
