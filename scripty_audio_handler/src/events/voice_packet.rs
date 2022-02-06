@@ -1,23 +1,28 @@
 use crate::types::{SsrcIgnoredMap, SsrcStreamMap};
-use serenity::client::Context;
-use songbird::events::context_data::VoiceData;
-use songbird::packet::rtp::{Rtp, RtpType};
-use std::sync::Arc;
+
+use songbird::packet::rtp::RtpType;
 
 const SIZE_OF_I16: usize = std::mem::size_of::<i16>();
 
 pub async fn voice_packet(
-    VoiceData { audio, packet, .. }: &VoiceData,
+    audio: Option<Vec<i16>>,
+    ssrc: u32,
+    payload_type: RtpType,
     ssrc_stream_map: SsrcStreamMap,
     ssrc_ignored_map: SsrcIgnoredMap,
 ) {
-    let ssrc: u32 = packet.ssrc;
+    let ssrc: u32 = ssrc;
+
+    if ssrc_ignored_map.get(&ssrc).map_or(false, |x| *x.value()) {
+        return;
+    }
+
     if let (Some(audio), Some(mut stream)) = (audio, ssrc_stream_map.get_mut(&ssrc)) {
         debug!(%ssrc, "got {} bytes of audio", audio.len() * SIZE_OF_I16);
-        let (sample_rate, stereo) = packet_type_to_data(packet.payload_type);
+        let (sample_rate, stereo) = packet_type_to_data(payload_type);
 
         let audio = scripty_audio::process_audio(
-            audio,
+            &audio,
             sample_rate,
             stereo,
             stream.model().get_sample_rate() as f64,

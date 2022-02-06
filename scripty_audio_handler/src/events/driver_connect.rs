@@ -1,12 +1,17 @@
 use crate::types::SsrcIgnoredMap;
-use songbird::events::context_data::ConnectData;
+use songbird::id::GuildId;
 
-pub async fn driver_connect(connect_data: &ConnectData, ssrc_ignored_map: SsrcIgnoredMap) {
+pub async fn driver_connect(
+    session_id: String,
+    guild_id: GuildId,
+    ssrc: u32,
+    ssrc_ignored_map: SsrcIgnoredMap,
+) {
     debug!(
-        "reconnected to Discord voice gateway: session ID {} for guild {}, with ssrc {}",
-        connect_data.session_id, connect_data.guild_id, connect_data.ssrc
+        "connected to Discord voice gateway: session ID {} for guild {}, with ssrc {}",
+        session_id, guild_id, ssrc
     );
 
     // ignore self
-    ssrc_ignored_map.insert(connect_data.ssrc, true);
+    ssrc_ignored_map.insert(ssrc, true);
 }

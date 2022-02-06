@@ -1,14 +1,9 @@
-use crate::types::{SsrcIgnoredMap, SsrcStreamMap, SsrcUserIdMap};
-use ahash::RandomState;
-use dashmap::mapref::one::Ref;
+use crate::types::{SsrcIgnoredMap, SsrcUserIdMap};
 use serenity::prelude::Context;
-use songbird::model::id::UserId;
 use songbird::model::payload::Speaking;
-use songbird::model::SpeakingState;
-use std::sync::Arc;
 
 pub async fn speaking_state_update(
-    state_update: &Speaking,
+    state_update: Speaking,
     ctx: Context,
     ssrc_user_id_map: SsrcUserIdMap,
     ssrc_ignored_map: SsrcIgnoredMap,
@@ -26,7 +21,6 @@ pub async fn speaking_state_update(
             return;
         }
     };
-    let speaking = state_update.speaking;
 
     if !ssrc_ignored_map.contains_key(&ssrc) {
         let ignored = serenity::model::id::UserId(user_id.0)

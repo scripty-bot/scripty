@@ -1,16 +1,13 @@
 use crate::types::{
     ActiveUserSet, NextUserList, SsrcIgnoredMap, SsrcStreamMap, SsrcUserDataMap, SsrcUserIdMap,
 };
-use serenity::client::Context;
-use serenity::model::webhook::Webhook;
-use songbird::events::context_data::SpeakingUpdateData;
-use songbird::model::id::UserId;
 use songbird::model::payload::ClientDisconnect;
 use std::sync::atomic::{AtomicU8, Ordering};
 use std::sync::Arc;
 
+#[allow(clippy::too_many_arguments)]
 pub async fn client_disconnect(
-    client_disconnect_data: &ClientDisconnect,
+    client_disconnect_data: ClientDisconnect,
     ssrc_user_id_map: SsrcUserIdMap,
     ssrc_stream_map: SsrcStreamMap,
     ssrc_user_data_map: SsrcUserDataMap,
@@ -40,6 +37,7 @@ pub async fn client_disconnect(
     ssrc_user_data_map.remove(&ssrc);
     ssrc_ignored_map.remove(&ssrc);
 
+    #[allow(clippy::wildcard_in_or_patterns)]
     let max_users = match premium_level.load(Ordering::Relaxed) {
         0 => 10,
         1 => 25,

@@ -8,7 +8,6 @@ use parking_lot::RwLock;
 use serenity::client::Context;
 use serenity::model::id::GuildId;
 use serenity::model::webhook::Webhook;
-use songbird::model::id::UserId;
 use songbird::{Event, EventContext, EventHandler};
 use std::collections::VecDeque;
 use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
@@ -34,7 +33,7 @@ impl AudioHandler {
         guild_id: GuildId,
         webhook: Webhook,
         context: Context,
-    ) -> Result<Self, scripty_db::Error> {
+    ) -> Result<Self, sqlx::Error> {
         let this = Self {
             ssrc_user_id_map: Arc::new(DashMap::with_hasher(RandomState::new())),
             ssrc_stream_map: Arc::new(DashMap::with_hasher(RandomState::new())),
@@ -52,18 +51,23 @@ impl AudioHandler {
         Ok(this)
     }
 
-    pub async fn reload_config(&self) -> Result<(), scripty_db::Error> {
+    pub async fn reload_config(&self) -> Result<(), sqlx::Error> {
         let db = scripty_db::get_db();
-        let guild_res = scripty_db::query!(
-            "SELECT (be_verbose, premium_level) FROM guilds WHERE guild_id = $1",
-            self.guild_id.0
+        let guild_res = sqlx::query!(
+            "SELECT be_verbose, premium_level FROM guilds WHERE guild_id = $1",
+            self.guild_id.0 as i64
         )
         .fetch_one(db)
         .await?;
 
-        self.verbose.store(guild_res.verbose, Ordering::Relaxed);
-        self.premium_level
-            .store(guild_res.premium_level, Ordering::Relaxed);
+        self.verbose.store(
+            guild_res.be_verbose.ok_or(sqlx::Error::RowNotFound)?,
+            Ordering::Relaxed,
+        );
+        self.premium_level.store(
+            guild_res.premium_level.ok_or(sqlx::Error::RowNotFound)? as u8,
+            Ordering::Relaxed,
+        );
 
         Ok(())
     }
@@ -74,25 +78,28 @@ impl EventHandler for AudioHandler {
     async fn act(&self, ctx: &EventContext<'_>) -> Option<Event> {
         match ctx {
             EventContext::SpeakingStateUpdate(state_update) => tokio::spawn(speaking_state_update(
-                state_update,
+                *state_update,
                 self.context.clone(),
                 Arc::clone(&self.ssrc_user_id_map),
                 Arc::clone(&self.ssrc_ignored_map),
             )),
             EventContext::SpeakingUpdate(update) => tokio::spawn(speaking_update(
-                update,
+                update.clone(),
                 self.context.clone(),
                 Arc::clone(&self.webhook),
                 Arc::clone(&self.ssrc_user_data_map),
                 Arc::clone(&self.ssrc_stream_map),
+                Arc::clone(&self.verbose),
             )),
             EventContext::VoicePacket(voice_data) => tokio::spawn(voice_packet(
-                voice_data,
+                voice_data.audio.clone(),
+                voice_data.packet.ssrc,
+                voice_data.packet.payload_type,
                 Arc::clone(&self.ssrc_stream_map),
                 Arc::clone(&self.ssrc_ignored_map),
             )),
             EventContext::ClientConnect(client_connect_data) => tokio::spawn(client_connect(
-                client_connect_data,
+                *client_connect_data,
                 self.context.clone(),
                 Arc::clone(&self.ssrc_user_id_map),
                 Arc::clone(&self.ssrc_ignored_map),
@@ -102,7 +109,7 @@ impl EventHandler for AudioHandler {
             )),
             EventContext::ClientDisconnect(client_disconnect_data) => {
                 tokio::spawn(client_disconnect(
-                    client_disconnect_data,
+                    *client_disconnect_data,
                     Arc::clone(&self.ssrc_user_id_map),
                     Arc::clone(&self.ssrc_stream_map),
                     Arc::clone(&self.ssrc_user_data_map),
@@ -112,21 +119,21 @@ impl EventHandler for AudioHandler {
                     Arc::clone(&self.premium_level),
                 ))
             }
-            EventContext::DriverConnect(connect_data) => tokio::spawn(driver_connect(
-                connect_data,
-                Arc::clone(&self.ssrc_ignored_map),
-            )),
-            EventContext::DriverReconnect(connect_data) => tokio::spawn(driver_reconnect(
-                connect_data,
+            EventContext::DriverConnect(connect_data)
+            | EventContext::DriverReconnect(connect_data) => tokio::spawn(driver_connect(
+                connect_data.session_id.to_owned(),
+                connect_data.guild_id,
+                connect_data.ssrc,
                 Arc::clone(&self.ssrc_ignored_map),
             )),
             EventContext::DriverDisconnect(disconnect_data) => tokio::spawn(driver_disconnect(
-                disconnect_data,
+                disconnect_data.guild_id,
+                disconnect_data.reason,
                 self.context.clone(),
                 Arc::clone(&self.webhook),
             )),
             _ => return None,
-        }
+        };
         None
     }
 }

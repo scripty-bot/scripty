@@ -1,18 +1,19 @@
-use crate::types::SsrcIgnoredMap;
 use serenity::client::Context;
 use serenity::model::webhook::Webhook;
-use songbird::events::context_data::{DisconnectData, DisconnectKind, DisconnectReason};
+use songbird::events::context_data::DisconnectReason;
+use songbird::id::GuildId;
 use songbird::model::CloseCode;
 use std::borrow::Cow;
 use std::sync::Arc;
 
 pub async fn driver_disconnect(
-    disconnect_data: &DisconnectData,
+    guild_id: GuildId,
+    reason: Option<DisconnectReason>,
     ctx: Context,
     webhook: Arc<Webhook>,
 ) {
     debug!(?guild_id, "handler disconnected");
-    let (should_reconnect, reason) = match disconnect_data.reason {
+    let (should_reconnect, reason) = match reason {
         Some(DisconnectReason::AttemptDiscarded) => {
             warn!(?guild_id, "reconnection failed due to another request");
             (false, None)
@@ -46,13 +47,13 @@ pub async fn driver_disconnect(
                 Some("discord closed connection without reason".into()),
             )
         }
-        Some(DisconnectReason::WsClosed(Some(code))) => check_ws_close_err(code),
+        Some(DisconnectReason::WsClosed(Some(code))) => check_ws_close_err(code, guild_id),
         Some(_) => {
             warn!(?guild_id, "disconnected for unknown reason");
             (true, Some("disconnected for unknown reason".into()))
         }
         None => {
-            debug!("requested disconnection from {}", disconnect_data.guild_id);
+            debug!("requested disconnection from {}", guild_id);
             (false, None)
         }
     };
@@ -60,7 +61,7 @@ pub async fn driver_disconnect(
     if should_reconnect {
         debug!(?guild_id, "scheduling reconnect");
         // retry connection in 30 seconds
-        tokio::spawn(async {
+        tokio::spawn(async move {
             debug!(?guild_id, "sleeping 30 seconds");
             tokio::time::sleep(std::time::Duration::from_secs(30)).await;
             debug!(?guild_id, "attempting reconnect");
@@ -92,7 +93,7 @@ pub async fn driver_disconnect(
     }
 }
 
-fn check_ws_close_err(reason: CloseCode) -> (bool, Option<Cow<str>>) {
+fn check_ws_close_err(reason: CloseCode, guild_id: GuildId) -> (bool, Option<Cow<'static, str>>) {
     match reason {
         CloseCode::UnknownOpcode => {
             error!(?guild_id, "voice session WebSocket closed: unknown opcode");

@@ -1,13 +1,11 @@
-use crate::types::{ActiveUserSet, NextUserList, SsrcIgnoredMap, SsrcStreamMap, SsrcUserIdMap};
+use crate::types::{ActiveUserSet, NextUserList, SsrcIgnoredMap, SsrcUserIdMap};
 use serenity::client::Context;
-use serenity::model::webhook::Webhook;
-use songbird::events::context_data::SpeakingUpdateData;
 use songbird::model::payload::ClientConnect;
 use std::sync::atomic::{AtomicU8, Ordering};
 use std::sync::Arc;
 
 pub async fn client_connect(
-    client_connect_data: &ClientConnect,
+    client_connect_data: ClientConnect,
     ctx: Context,
     ssrc_user_id_map: SsrcUserIdMap,
     ssrc_ignored_map: SsrcIgnoredMap,
@@ -15,7 +13,10 @@ pub async fn client_connect(
     active_user_set: ActiveUserSet,
     next_user_list: NextUserList,
 ) {
-    ssrc_user_id_map.insert(client_connect_data.audio_ssrc, client_connect_data.user_id);
+    let user_id = client_connect_data.user_id;
+    let ssrc = client_connect_data.audio_ssrc;
+
+    ssrc_user_id_map.insert(ssrc, user_id);
 
     let ignored = serenity::model::id::UserId(user_id.0)
         .to_user(ctx)
@@ -28,6 +29,7 @@ pub async fn client_connect(
         return;
     }
 
+    #[allow(clippy::wildcard_in_or_patterns)]
     let max_users = match premium_level.load(Ordering::Relaxed) {
         0 => 10,
         1 => 25,

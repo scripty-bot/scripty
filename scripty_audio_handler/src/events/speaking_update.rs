@@ -1,19 +1,19 @@
 use crate::types::{SsrcStreamMap, SsrcUserDataMap};
-use ahash::RandomState;
-use serenity::builder::{CreateEmbed, ExecuteWebhook};
+use serenity::builder::ExecuteWebhook;
 use serenity::client::Context;
 use serenity::model::channel::Embed;
 use serenity::model::webhook::Webhook;
-use serenity::utils::Color;
 use songbird::events::context_data::SpeakingUpdateData;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 pub async fn speaking_update(
-    update: &SpeakingUpdateData,
+    update: SpeakingUpdateData,
     ctx: Context,
     webhook: Arc<Webhook>,
     ssrc_user_data_map: SsrcUserDataMap,
     ssrc_stream_map: SsrcStreamMap,
+    verbose: Arc<AtomicBool>,
 ) {
     let ssrc = update.ssrc;
     debug!(?ssrc, ?update.speaking, "got SpeakingUpdate event");
@@ -30,15 +30,16 @@ pub async fn speaking_update(
         };
         debug!(?ssrc, "found Stream for SSRC");
 
-        let (username, avatar_url) = match ssrc_user_data_map.get(&ssrc) {
-            Some(d) => d.value(),
+        let user_data = ssrc_user_data_map.get(&ssrc);
+        let (username, avatar_url) = match user_data {
+            Some(ref d) => d.value(),
             None => return,
         };
         debug!(?ssrc, "found user data for SSRC");
 
         let mut webhook_execute = ExecuteWebhook::default();
 
-        if verbose {
+        if verbose.load(Ordering::Relaxed) {
             let res = scripty_audio::run_stt_with_metadata(old_stream, 1).await;
             debug!(?ssrc, "ran stream transcription");
             match res {
@@ -76,7 +77,9 @@ pub async fn speaking_update(
             debug!(?ssrc, "ran stream transcription");
 
             match res {
-                Ok(Ok(res)) if res.len() != 0 => webhook_execute.content(res),
+                Ok(Ok(res)) if !res.is_empty() => {
+                    webhook_execute.content(res);
+                }
                 Ok(Err(e)) => {
                     error!(?ssrc, "stream transcription errored: {}", e);
 

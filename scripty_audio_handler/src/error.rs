@@ -1,8 +1,9 @@
+use scripty_db::sqlx;
 use songbird::error::JoinError;
 
 pub enum Error {
     Join(JoinError),
-    Database(scripty_db::Error),
+    Database(sqlx::Error),
     Serenity(serenity::Error),
 }
 
@@ -13,9 +14,9 @@ impl From<JoinError> for Error {
     }
 }
 
-impl From<scripty_db::Error> for Error {
+impl From<sqlx::Error> for Error {
     #[inline]
-    fn from(e: scripty_db::Error) -> Self {
+    fn from(e: sqlx::Error) -> Self {
         Self::Database(e)
     }
 }

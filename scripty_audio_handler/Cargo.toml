@@ -16,3 +16,4 @@ scripty_audio = { path = "../scripty_audio" }
 tokio = { version = "1.16", features = ["parking_lot"] }
 songbird = { git = "https://github.com/serenity-rs/songbird", branch = "next" }
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next" }
+sqlx = { version = "0.5", features = ["postgres", "macros", "migrate", "offline", "runtime-tokio-rustls"] }

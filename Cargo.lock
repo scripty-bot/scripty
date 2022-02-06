@@ -1701,6 +1701,7 @@ dependencies = [
  "scripty_db",
  "serenity",
  "songbird",
+ "sqlx",
  "tokio",
  "tracing",
 ]
