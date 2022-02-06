@@ -1,4 +1,4 @@
-use crate::types::{SsrcStreamMap, SsrcUserIdMap};
+use crate::types::{SsrcIgnoredMap, SsrcStreamMap};
 use serenity::client::Context;
 use songbird::events::context_data::VoiceData;
 use songbird::packet::rtp::{Rtp, RtpType};
@@ -9,6 +9,7 @@ const SIZE_OF_I16: usize = std::mem::size_of::<i16>();
 pub async fn voice_packet(
     VoiceData { audio, packet, .. }: &VoiceData,
     ssrc_stream_map: SsrcStreamMap,
+    ssrc_ignored_map: SsrcIgnoredMap,
 ) {
     let ssrc: u32 = packet.ssrc;
     if let (Some(audio), Some(mut stream)) = (audio, ssrc_stream_map.get_mut(&ssrc)) {
