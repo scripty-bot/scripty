@@ -17,7 +17,7 @@ pub async fn run_stt_with_metadata(
 ) -> Result<coqui_stt::Result<Metadata>, RecvError> {
     crate::threadpool::submit_job_async(Box::new(move |rx| {
         let res = stream.finish_stream_with_metadata(num_results);
-        rx.send(res);
+        rx.send(res).unwrap_or_else(|_| panic!("sender hung up"));
     }))
     .await
 }
@@ -26,7 +26,7 @@ pub async fn run_stt_with_metadata(
 pub async fn run_stt(stream: Stream) -> Result<coqui_stt::Result<String>, RecvError> {
     crate::threadpool::submit_job_async(Box::new(move |rx| {
         let res = stream.finish_stream();
-        rx.send(res);
+        rx.send(res).expect("sender hung up");
     }))
     .await
 }

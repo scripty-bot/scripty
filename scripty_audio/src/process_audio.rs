@@ -4,7 +4,7 @@ use dasp_signal::{from_iter, Signal};
 
 #[inline]
 pub fn process_audio(
-    src: &Vec<i16>,
+    src: &[i16],
     src_sample_rate: f64,
     src_stereo: bool,
     dest_sample_rate: f64,
@@ -16,9 +16,8 @@ pub fn process_audio(
         stereo_to_mono(src, &mut dest);
         dest
     } else {
-        let mut dest = Vec::with_capacity(src.len());
-        dest.resize(src.len(), 0);
-        dest.copy_from_slice(&src[..]);
+        let mut dest = vec![0; src.len()];
+        dest.copy_from_slice(src);
         dest
     };
 
@@ -31,7 +30,7 @@ pub fn process_audio(
     }
 }
 
-fn stereo_to_mono(input_data: &Vec<i16>, target: &mut Vec<i16>) {
+fn stereo_to_mono(input_data: &[i16], target: &mut Vec<i16>) {
     // there's other things we could use but this is a const so should be faster
     let (chunks, _) = input_data.as_chunks::<4>();
 

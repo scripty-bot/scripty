@@ -6,7 +6,7 @@ use std::path::Path;
 pub static MODELS: OnceCell<DashMap<String, Stream>> = OnceCell::new();
 
 pub fn load_models(model_dir: &Path) {
-    let models = MODELS.get_or_init(|| DashMap::new());
+    let models = MODELS.get_or_init(DashMap::new);
     for dir in model_dir.read_dir().expect("IO error") {
         let dir = dir.expect("IO error");
         let dir_path = dir.path();
@@ -48,7 +48,9 @@ pub fn load_models(model_dir: &Path) {
             let mut model = Model::new(model_path).expect("failed to load model");
             if let Some(scorer_path) = scorer_path {
                 info!("found scorer: {:?}", scorer_path);
-                model.enable_external_scorer(scorer_path);
+                model
+                    .enable_external_scorer(scorer_path)
+                    .expect("failed to load scorer");
             }
             let stream = model
                 .into_streaming()
@@ -56,7 +58,7 @@ pub fn load_models(model_dir: &Path) {
             models.insert(name.to_string(), stream);
         }
     }
-    if models.len() == 0 {
+    if models.is_empty() {
         panic!(
             "no models found:\
              they must be in a subdirectory with their language name like `en/model.pbmm`"

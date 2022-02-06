@@ -8,6 +8,7 @@ mod process_audio;
 mod stt;
 mod threadpool;
 
+pub use crate::threadpool::{get_completed_jobs, init_threadpool};
 pub use coqui_stt::Stream;
 pub use init::init_stt;
 pub use process_audio::process_audio;
