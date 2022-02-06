@@ -11,4 +11,4 @@ mod threadpool;
 pub use coqui_stt::Stream;
 pub use init::init_stt;
 pub use process_audio::process_audio;
-pub use stt::{get_stream, run_stt_with_metadata};
+pub use stt::{get_stream, run_stt, run_stt_with_metadata};
