@@ -5,7 +5,7 @@ use std::sync::mpsc;
 use tokio::sync::oneshot;
 use tokio::sync::oneshot::error::RecvError as TokioRecvError;
 
-static THREADPOOL_SUBMIT: OnceCell<mpsc::SyncSender<Pin<Box<dyn FnOnce() + Send + Sync>>>> =
+static THREADPOOL_SUBMIT: OnceCell<mpsc::SyncSender<Box<dyn FnOnce() + Send + Sync>>> =
     OnceCell::new();
 static COMPLETED_JOBS: AtomicU64 = AtomicU64::new(0);
 
@@ -17,7 +17,7 @@ pub fn init_threadpool() {
     THREADPOOL_SUBMIT.set(tx);
 
     std::thread::spawn(move || match rx.recv() {
-        Ok(rx) => pool.execute(|| {
+        Ok(rx) => pool.execute(move || {
             rx();
             COMPLETED_JOBS.fetch_add(1, Ordering::Relaxed);
         }),
@@ -33,7 +33,7 @@ pub fn submit_job<T: 'static + Send + Sync>(
     THREADPOOL_SUBMIT
         .get()
         .expect("failed to fetch threadpool submitter")
-        .send(Box::pin(|| f(tx)));
+        .send(Box::new(|| f(tx)));
 
     rx.blocking_recv()
 }
@@ -46,7 +46,7 @@ pub async fn submit_job_async<T: 'static + Send + Sync>(
     THREADPOOL_SUBMIT
         .get()
         .expect("failed to fetch threadpool submitter")
-        .send(Box::pin(|| f(tx)));
+        .send(Box::new(|| f(tx)));
 
     rx.await
 }

@@ -3,7 +3,7 @@ use sqlx::{Pool, Postgres};
 
 static DATABASE_POOL: OnceCell<Pool<Postgres>> = OnceCell::new();
 
-pub fn get_db() -> &Pool<Postgres> {
+pub fn get_db() -> &'static Pool<Postgres> {
     DATABASE_POOL
         .get()
         .expect("called `get_db()` before initializing db")

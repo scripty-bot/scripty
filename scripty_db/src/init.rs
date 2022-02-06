@@ -1,6 +1,5 @@
 use scripty_config::DatabaseConnection;
 use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
-use sqlx::Pool;
 
 pub async fn init_db() {
     let cfg = scripty_config::get_config();

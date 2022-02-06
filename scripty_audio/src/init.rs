@@ -1,3 +1,7 @@
+use std::path::Path;
+
 pub fn init_stt() {
-    crate::models::load_models()
+    let cfg = scripty_config::get_config();
+
+    crate::models::load_models(Path::new(&cfg.model_dir))
 }

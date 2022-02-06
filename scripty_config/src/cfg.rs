@@ -28,6 +28,10 @@ pub struct BotConfig {
     ///   └─ model.scorer
     /// ```
     pub model_dir: String,
+
+    pub token: String,
+
+    pub support_invite: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

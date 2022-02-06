@@ -13,7 +13,8 @@ pub fn load_models(model_dir: &Path) {
         if !dir_path.is_dir() {
             continue;
         }
-        let name = dir.file_name().to_string_lossy();
+        let file_name = dir.file_name();
+        let name = file_name.to_string_lossy();
         if name.len() != 2 {
             continue;
         }
@@ -29,9 +30,17 @@ pub fn load_models(model_dir: &Path) {
                 None => continue,
             };
             if ext == "pb" || ext == "pbmm" {
-                model_path = Some(path);
+                model_path = Some(
+                    path.to_str()
+                        .expect("non-utf-8 chars found in filename")
+                        .to_owned(),
+                );
             } else if ext == "scorer" {
-                scorer_path = Some(path);
+                scorer_path = Some(
+                    path.to_str()
+                        .expect("non-utf-8 chars found in filename")
+                        .to_owned(),
+                );
             }
         }
         if let Some(model_path) = model_path {

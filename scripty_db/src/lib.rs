@@ -1,6 +1,3 @@
-#[macro_use]
-pub extern crate sqlx;
-
 mod init;
 mod store;
 
