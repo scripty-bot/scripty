@@ -14,6 +14,7 @@ use std::collections::VecDeque;
 use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use std::sync::Arc;
 
+#[derive(Clone)]
 pub struct AudioHandler {
     ssrc_user_id_map: SsrcUserIdMap,
     ssrc_stream_map: SsrcStreamMap,
