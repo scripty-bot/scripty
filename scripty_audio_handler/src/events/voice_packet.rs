@@ -28,7 +28,7 @@ pub async fn voice_packet(
             stream.model().get_sample_rate() as f64,
         );
 
-        stream.feed_audio(&audio[..]);
+        tokio::task::block_in_place(|| stream.feed_audio(&audio[..]))
     }
 }
 
