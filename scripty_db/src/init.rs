@@ -22,5 +22,10 @@ pub async fn init_db() {
         .await
         .expect("failed to connect to db");
 
+    sqlx::migrate!("../migrations")
+        .run(&pool)
+        .await
+        .expect("failed to run migrations");
+
     crate::store::set_db(pool);
 }

@@ -9,8 +9,14 @@ static THREADPOOL_SUBMIT: OnceCell<mpsc::SyncSender<Box<dyn FnOnce() + Send + Sy
 static COMPLETED_JOBS: AtomicU64 = AtomicU64::new(0);
 
 pub fn init_threadpool() {
+    let cfg = scripty_config::get_config();
+
     let pool = threadpool::Builder::new()
-        .num_threads(num_cpus::get() / 2)
+        .num_threads(
+            (num_cpus::get() as f32 * cfg.pct_stt_threads)
+                .floor()
+                .min(1.0) as usize,
+        )
         .build();
     let (tx, rx) = mpsc::sync_channel(usize::MAX);
     THREADPOOL_SUBMIT

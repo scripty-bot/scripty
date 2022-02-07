@@ -6,6 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+num_cpus = "1.13"
 scripty_db = { path = "../scripty_db" }
+scripty_audio = { path = "../scripty_audio" }
 scripty_config = { path = "../scripty_config" }
 scripty_commands = { path = "../scripty_commands" }
+scripty_webserver = { path = "../scripty_webserver" }
+tokio = { version = "1.16", features = ["parking_lot"] }

@@ -1767,9 +1767,13 @@ dependencies = [
 name = "scripty_core"
 version = "0.1.0"
 dependencies = [
+ "num_cpus",
+ "scripty_audio",
  "scripty_commands",
  "scripty_config",
  "scripty_db",
+ "scripty_webserver",
+ "tokio",
 ]
 
 [[package]]

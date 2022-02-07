@@ -17,6 +17,10 @@ type Data = ();
 pub async fn entrypoint() {
     let cfg = scripty_config::get_config();
 
+    crate::entity_block::init_blocked()
+        .await
+        .expect("failed to init blocked entities");
+
     let builder = FrameworkBuilder::default()
         .token(&cfg.token)
         .client_settings(|b| {
@@ -24,4 +28,6 @@ pub async fn entrypoint() {
         })
         .user_data_setup(move |_, _, _| Box::pin(async move { Ok(()) }))
         .options(crate::framework_opts::get_framework_opts());
+
+    builder.run_autosharded().await.expect("failed to run bot");
 }
