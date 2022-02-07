@@ -1,4 +1,6 @@
 pub fn start() {
+    init_logging();
+
     load_config();
 
     scripty_audio::init_stt();
@@ -8,6 +10,10 @@ pub fn start() {
     rt.block_on(async_init());
     rt.spawn(scripty_webserver::entrypoint());
     rt.block_on(scripty_commands::entrypoint());
+}
+
+fn init_logging() {
+    tracing_subscriber::fmt().init();
 }
 
 async fn async_init() {

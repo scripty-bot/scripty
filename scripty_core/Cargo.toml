@@ -13,3 +13,4 @@ scripty_config = { path = "../scripty_config" }
 scripty_commands = { path = "../scripty_commands" }
 scripty_webserver = { path = "../scripty_webserver" }
 tokio = { version = "1.16", features = ["parking_lot"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "tracing-log"] }

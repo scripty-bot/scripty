@@ -6,7 +6,9 @@ use std::path::Path;
 pub static MODELS: OnceCell<DashMap<String, Stream>> = OnceCell::new();
 
 pub fn load_models(model_dir: &Path) {
+    info!("initializing global model map");
     let models = MODELS.get_or_init(DashMap::new);
+    info!("finding models in model dir");
     for dir in model_dir.read_dir().expect("IO error") {
         let dir = dir.expect("IO error");
         let dir_path = dir.path();
@@ -29,7 +31,7 @@ pub fn load_models(model_dir: &Path) {
                 Some(ext) => ext,
                 None => continue,
             };
-            if ext == "pb" || ext == "pbmm" {
+            if ext == "tflite" {
                 model_path = Some(
                     path.to_str()
                         .expect("non-utf-8 chars found in filename")
@@ -52,6 +54,7 @@ pub fn load_models(model_dir: &Path) {
                     .enable_external_scorer(scorer_path)
                     .expect("failed to load scorer");
             }
+            info!("converting model into streaming object");
             let stream = model
                 .into_streaming()
                 .expect("failed to convert Model into Stream");
@@ -61,7 +64,7 @@ pub fn load_models(model_dir: &Path) {
     if models.is_empty() {
         panic!(
             "no models found:\
-             they must be in a subdirectory with their language name like `en/model.pbmm`"
+             they must be in a subdirectory with their language name like `en/model.tflite`"
         )
     }
 }

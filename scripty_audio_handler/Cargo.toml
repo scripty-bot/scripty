@@ -15,5 +15,19 @@ scripty_db = { path = "../scripty_db" }
 scripty_audio = { path = "../scripty_audio" }
 tokio = { version = "1.16", features = ["parking_lot"] }
 songbird = { git = "https://github.com/serenity-rs/songbird", branch = "next" }
-serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next" }
+serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [
+  "tokio",
+  "voice",
+  "dashmap",
+  "parking_lot",
+  "rustls_backend",
+  "native_tls_backend",
+  "model",
+  "gateway",
+  "client",
+  "cache",
+  "builder",
+  "collector",
+  "utils",
+], default-features = false }
 sqlx = { version = "0.5", features = ["postgres", "macros", "migrate", "offline", "runtime-tokio-rustls"] }

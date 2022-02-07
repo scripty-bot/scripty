@@ -14,17 +14,17 @@ pub struct BotConfig {
     ///
     /// Note that the naming of the model and scorer files does not matter. The only requirements are:
     /// * for models:
-    ///   * the filename must end with `.pb` or `.pbmm`
+    ///   * the filename must end with `.tflite`
     /// * for scorers:
     ///   * the filename must end with `.scorer`
     ///
     /// For example:
     /// ```not_rust
     /// ├─ en
-    /// │ ├─ model.pbmm
+    /// │ ├─ model.tflite
     /// │ └─ en.scorer
     /// └─ fr
-    ///   ├─ fr.pbmm
+    ///   ├─ fr.tflite
     ///   └─ model.scorer
     /// ```
     pub model_dir: String,

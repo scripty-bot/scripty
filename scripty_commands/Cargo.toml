@@ -20,5 +20,12 @@ serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", f
   "parking_lot",
   "rustls_backend",
   "native_tls_backend",
-] }
+  "model",
+  "gateway",
+  "client",
+  "cache",
+  "builder",
+  "collector",
+  "utils",
+], default-features = false }
 sqlx = { version = "0.5", features = ["postgres", "macros", "migrate", "offline", "runtime-tokio-rustls", "time"] }
