@@ -7,26 +7,26 @@ pub fn process_audio(
     src: &[i16],
     src_sample_rate: f64,
     src_stereo: bool,
-    dest_sample_rate: f64,
+    dst_sample_rate: f64,
 ) -> Vec<i16> {
     // if we need to convert from stereo to mono, do so
     // otherwise just copy the source into dest
-    let dest = if src_stereo {
-        let mut dest = Vec::with_capacity(src.len() / 4_usize);
-        stereo_to_mono(src, &mut dest);
-        dest
+    let dst = if src_stereo {
+        let mut dst = Vec::with_capacity(src.len() / 4_usize);
+        stereo_to_mono(src, &mut dst);
+        dst
     } else {
-        let mut dest = vec![0; src.len()];
-        dest.copy_from_slice(src);
-        dest
+        let mut dst = vec![0; src.len()];
+        dst.copy_from_slice(src);
+        dst
     };
 
     // if we need to resample this, do so
     // otherwise just return the copied vec since we're done
-    if src_sample_rate != dest_sample_rate {
-        hz_to_hz(dest, src_sample_rate, dest_sample_rate)
+    if src_sample_rate != dst_sample_rate {
+        hz_to_hz(dst, src_sample_rate, dst_sample_rate)
     } else {
-        dest
+        dst
     }
 }
 
