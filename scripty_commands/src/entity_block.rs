@@ -7,24 +7,23 @@ use std::borrow::Cow;
 static BLOCKED_USERS: OnceCell<DashMap<UserId, Option<String>>> = OnceCell::new();
 static BLOCKED_GUILDS: OnceCell<DashMap<GuildId, Option<String>>> = OnceCell::new();
 
-pub fn init_blocked() -> Result<(), scripty_db::Error> {
+pub async fn init_blocked() -> Result<(), sqlx::Error> {
     let blocked_guilds = DashMap::new();
     let blocked_users = DashMap::new();
+    let db = scripty_db::get_db();
 
-    for blocked_user in
-        scripty_db::query!("SELECT (user_id, reason, blocked_since) FROM blocked_users")
-            .fetch_all(db)
-            .await?
+    for blocked_user in sqlx::query!("SELECT user_id, reason, blocked_since FROM blocked_users")
+        .fetch_all(db)
+        .await?
     {
-        blocked_users.insert(blocked.user_id, blocked.reason);
+        blocked_users.insert(UserId(blocked_user.user_id as u64), blocked_user.reason);
     }
 
-    for blocked_guild in
-        scripty_db::query!("SELECT (guild_id, reason, blocked_since) FROM blocked_guilds")
-            .fetch_all(db)
-            .await?
+    for blocked_guild in sqlx::query!("SELECT guild_id, reason, blocked_since FROM blocked_guilds")
+        .fetch_all(db)
+        .await?
     {
-        blocked_guilds.insert(blocked.guild_id, blocked.reason);
+        blocked_guilds.insert(GuildId(blocked_guild.guild_id as u64), blocked_guild.reason);
     }
 
     BLOCKED_GUILDS
@@ -79,5 +78,5 @@ async fn _check_block(
 pub fn check_block(
     ctx: poise::Context<'_, crate::Data, crate::Error>,
 ) -> BoxFuture<Result<bool, crate::Error>> {
-    BoxFuture::new(box _check_block(ctx))
+    Box::pin(_check_block(ctx))
 }

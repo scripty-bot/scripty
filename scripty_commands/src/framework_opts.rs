@@ -1,6 +1,6 @@
 use crate::error::on_error;
 use poise::FrameworkOptions;
-use serenity::builder::CreateAllowedMentions;
+use serenity::builder::{CreateAllowedMentions, ParseValue};
 
 pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
     FrameworkOptions {
@@ -11,9 +11,9 @@ pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
         post_command: |_| Box::pin(async {}),
         command_check: Some(crate::entity_block::check_block),
         allowed_mentions: Some({
-            let mut f = serenity::CreateAllowedMentions::default();
+            let mut f = CreateAllowedMentions::default();
             // Only support direct user pings by default
-            f.empty_parse().parse(serenity::ParseValue::Users);
+            f.empty_parse().parse(ParseValue::Users);
             f
         }),
         prefix_options: Default::default(),

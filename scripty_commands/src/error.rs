@@ -1,9 +1,7 @@
 use crate::Data;
-use poise::serenity_prelude::Permissions;
-use poise::{Context, CreateReply, FrameworkError, ReplyHandle};
+use poise::{Context, FrameworkError};
 use serenity::builder::CreateEmbed;
 use serenity::model::id::GuildId;
-use serenity::model::webhook::Webhook;
 use std::borrow::Cow;
 use std::fmt::{Display, Formatter};
 
@@ -24,6 +22,12 @@ impl Display for Error {
 
 impl std::error::Error for Error {}
 
+impl From<serenity::Error> for Error {
+    fn from(e: serenity::Error) -> Self {
+        Self::SerenityError(e)
+    }
+}
+
 pub async fn on_error(error: poise::FrameworkError<'_, crate::Data, crate::Error>) {
     info!("handling error event");
     #[allow(unreachable_patterns)]
@@ -33,7 +37,7 @@ pub async fn on_error(error: poise::FrameworkError<'_, crate::Data, crate::Error
             error!("error in listener for event {}: {}", event.name(), error)
         }
         FrameworkError::Command { error, ctx } => {
-            let cmd_name = ctx.command.qualified_name;
+            let cmd_name = &ctx.command().qualified_name;
 
             send_err_msg(
                 ctx,
@@ -51,7 +55,7 @@ pub async fn on_error(error: poise::FrameworkError<'_, crate::Data, crate::Error
 
             let guild_id = ctx.guild_id().unwrap_or(GuildId(0));
             let guild_name = cache
-                .guild_field(guild_id, |guild| guild.name)
+                .guild_field(guild_id, |guild| guild.name.clone())
                 .unwrap_or_else(|| "unknown guild".to_string());
 
             let channel_id = ctx.channel_id();
@@ -62,7 +66,7 @@ pub async fn on_error(error: poise::FrameworkError<'_, crate::Data, crate::Error
 
             error!(
                 %guild_id, %guild_name, %channel_id, %author, %author_id, %author_name, %cmd_name,
-                "error encountered while running command: {}", e
+                "error encountered while running command: {}", error
             )
         }
         FrameworkError::ArgumentParse { error, input, ctx } => {
@@ -70,7 +74,7 @@ pub async fn on_error(error: poise::FrameworkError<'_, crate::Data, crate::Error
                 ctx,
                 format!(
                     "Invalid arguments while parsing {}",
-                    ctx.command.qualified_name
+                    ctx.command().qualified_name
                 ),
                 match input {
                     Some(input) => format!("Failed to parse `{}` because `{}`", input, error),
@@ -83,7 +87,7 @@ pub async fn on_error(error: poise::FrameworkError<'_, crate::Data, crate::Error
             let mut root_embed = CreateEmbed::default();
 
             let mut args = String::new();
-            for param in ctx.command.parameters {
+            for param in &ctx.command.parameters {
                 if param.required {
                     args.push_str(&format!("<{}> ", param.name))
                 } else {
@@ -112,7 +116,7 @@ pub async fn on_error(error: poise::FrameworkError<'_, crate::Data, crate::Error
                 .channel_id()
                 .send_message(&ctx.discord, |msg| {
                     msg.embed(|embed| {
-                        root_embed.0.clone_into(&mut embed.0);
+                        *embed = root_embed.clone();
                         embed
                     })
                 })
@@ -120,10 +124,11 @@ pub async fn on_error(error: poise::FrameworkError<'_, crate::Data, crate::Error
             if let Err(e) = response {
                 warn!("failed to send message while handling error: {}", e);
                 let response = ctx
-                    .author()
-                    .direct_message(ctx.discord(), |msg| {
+                    .interaction
+                    .user()
+                    .direct_message(ctx.discord, |msg| {
                         msg.embed(move |embed| {
-                            *embed.0 = root_embed.0;
+                            *embed = root_embed;
                             embed
                         })
                     })
@@ -139,7 +144,7 @@ pub async fn on_error(error: poise::FrameworkError<'_, crate::Data, crate::Error
         } => {
             send_err_msg(
                 ctx,
-                format!("Cooldown hit on {}", ctx.command.qualified_name),
+                format!("Cooldown hit on {}", ctx.command().qualified_name),
                 format!(
                     "{:.2} seconds remaining on cooldown",
                     remaining_cooldown.as_secs_f32()
@@ -153,7 +158,7 @@ pub async fn on_error(error: poise::FrameworkError<'_, crate::Data, crate::Error
         } => {
             send_err_msg(
                 ctx,
-                format!("I am missing perms to run {}", ctx.command.qualified_name),
+                format!("I am missing perms to run {}", ctx.command().qualified_name),
                 format!("Permissions missing: {}", missing_permissions),
             )
             .await;
@@ -166,7 +171,7 @@ pub async fn on_error(error: poise::FrameworkError<'_, crate::Data, crate::Error
                 ctx,
                 format!(
                     "You are missing perms to run {}",
-                    ctx.command.qualified_name
+                    ctx.command().qualified_name
                 ),
                 match missing_permissions {
                     Some(p) => Cow::from(format!("Permissions missing: {}", p)),
@@ -180,7 +185,7 @@ pub async fn on_error(error: poise::FrameworkError<'_, crate::Data, crate::Error
                 ctx,
                 format!(
                     "You are missing perms to run {}",
-                    ctx.command.qualified_name
+                    ctx.command().qualified_name
                 ),
                 "Not an owner of this bot",
             )
@@ -189,7 +194,7 @@ pub async fn on_error(error: poise::FrameworkError<'_, crate::Data, crate::Error
         FrameworkError::CommandCheckFailed { error, ctx } => {
             send_err_msg(
                 ctx,
-                format!("A precondition for {} failed", ctx.command.qualified_name),
+                format!("A precondition for {} failed", ctx.command().qualified_name),
                 match error {
                     Some(e) => Cow::from(format!("{}", e)),
                     None => Cow::from("no reason provided"),
@@ -198,14 +203,18 @@ pub async fn on_error(error: poise::FrameworkError<'_, crate::Data, crate::Error
             .await;
         }
         _ => {
-            if let Err(e) = poise::builtins::on_error(error) {
+            if let Err(e) = poise::builtins::on_error(error).await {
                 println!("error while handling error: {}", e)
             }
         }
     }
 }
 
-async fn send_err_msg(ctx: Context<Data, Error>, title: impl ToString, description: impl ToString) {
+async fn send_err_msg(
+    ctx: Context<'_, Data, Error>,
+    title: impl ToString,
+    description: impl ToString,
+) {
     let mut root_embed = CreateEmbed::default();
     root_embed
         .title(title)
@@ -226,7 +235,7 @@ async fn send_err_msg(ctx: Context<Data, Error>, title: impl ToString, descripti
             .author()
             .direct_message(ctx.discord(), |msg| {
                 msg.embed(move |embed| {
-                    *embed.0 = root_embed.0;
+                    *embed = root_embed;
                     embed
                 })
             })

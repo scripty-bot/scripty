@@ -1,9 +1,10 @@
 #![feature(box_syntax)]
+#![feature(async_closure)]
+
 #[macro_use]
 extern crate tracing;
 
-use poise::{BoxFuture, FrameworkBuilder, FrameworkOptions};
-use serenity::builder::CreateAllowedMentions;
+use poise::FrameworkBuilder;
 
 mod cmds;
 mod entity_block;
@@ -21,6 +22,6 @@ pub async fn entrypoint() {
         .client_settings(|b| {
             scripty_audio_handler::register_songbird(b).cache_settings(|s| s.max_messages(0))
         })
-        .user_data_setup(BoxFuture::new(box async |_, _, _| Ok(())))
+        .user_data_setup(move |_, _, _| Box::pin(async move { Ok(()) }))
         .options(crate::framework_opts::get_framework_opts());
 }
