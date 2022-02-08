@@ -11,18 +11,20 @@ static COMPLETED_JOBS: AtomicU64 = AtomicU64::new(0);
 pub fn init_threadpool() {
     let cfg = scripty_config::get_config();
 
-    let pool = threadpool::Builder::new()
-        .num_threads(
-            (num_cpus::get() as f32 * cfg.pct_stt_threads)
-                .floor()
-                .min(1.0) as usize,
-        )
-        .build();
-    let (tx, rx) = mpsc::sync_channel(usize::MAX);
+    let num_threads = (num_cpus::get() as f32 * cfg.pct_stt_threads)
+        .floor()
+        .max(1.0) as usize;
+    info!("spawning {} threads for STT", num_threads);
+
+    let pool = threadpool::Builder::new().num_threads(num_threads).build();
+
+    info!("allowing 1024 jobs to pile up");
+    let (tx, rx) = mpsc::sync_channel(1024);
     THREADPOOL_SUBMIT
         .set(tx)
         .unwrap_or_else(|_| panic!("don't call `init_threadpool()` more than once"));
 
+    info!("spawning job processor background thread");
     std::thread::spawn(move || loop {
         match rx.recv() {
             Ok(rx) => pool.execute(move || {

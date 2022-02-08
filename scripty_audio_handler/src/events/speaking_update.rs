@@ -26,14 +26,20 @@ pub async fn speaking_update(
             scripty_audio::get_stream("en").expect("en invalid lang?"),
         ) {
             Some(s) => s,
-            None => return,
+            None => {
+                warn!(?ssrc, "stream not found in ssrc_stream_map, bailing");
+                return;
+            }
         };
         debug!(?ssrc, "found Stream for SSRC");
 
         let user_data = ssrc_user_data_map.get(&ssrc);
         let (username, avatar_url) = match user_data {
             Some(ref d) => d.value(),
-            None => return,
+            None => {
+                warn!(?ssrc, "user data not found in ssrc_user_data_map, bailing");
+                return;
+            }
         };
         debug!(?ssrc, "found user data for SSRC");
 

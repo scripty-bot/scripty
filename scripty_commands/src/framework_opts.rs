@@ -1,14 +1,17 @@
+use crate::cmds;
 use crate::error::on_error;
-use poise::FrameworkOptions;
+use poise::{FrameworkOptions, PrefixFrameworkOptions};
 use serenity::builder::{CreateAllowedMentions, ParseValue};
 
 pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
     FrameworkOptions {
-        commands: Vec::new(),
+        commands: vec![
+            cmds::setup(),
+            cmds::register_cmds(),
+            cmds::help(),
+            cmds::join(),
+        ],
         on_error: |error| Box::pin(on_error(error)),
-        listener: |_, _, _, _| Box::pin(async { Ok(()) }),
-        pre_command: |_| Box::pin(async {}),
-        post_command: |_| Box::pin(async {}),
         command_check: Some(crate::entity_block::check_block),
         allowed_mentions: Some({
             let mut f = CreateAllowedMentions::default();
@@ -16,7 +19,13 @@ pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
             f.empty_parse().parse(ParseValue::Users);
             f
         }),
-        prefix_options: Default::default(),
-        owners: Default::default(),
+        prefix_options: PrefixFrameworkOptions {
+            prefix: Some("~".to_string()),
+            execute_self_messages: false,
+            execute_untracked_edits: true,
+            mention_as_prefix: true,
+            ..Default::default()
+        },
+        ..Default::default()
     }
 }

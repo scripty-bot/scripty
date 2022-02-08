@@ -21,6 +21,7 @@ pub async fn voice_packet(
         debug!(%ssrc, "got {} bytes of audio", audio.len() * SIZE_OF_I16);
         let (sample_rate, stereo) = packet_type_to_data(payload_type);
 
+        debug!("processing audio");
         let audio = scripty_audio::process_audio(
             &audio,
             sample_rate,
@@ -28,7 +29,9 @@ pub async fn voice_packet(
             stream.model().get_sample_rate() as f64,
         );
 
-        tokio::task::block_in_place(|| stream.feed_audio(&audio[..]))
+        debug!("feeding audio to stream");
+        tokio::task::block_in_place(|| stream.feed_audio(&audio[..]));
+        debug!("done processing pkt");
     }
 }
 
@@ -54,6 +57,12 @@ fn packet_type_to_data(pkt_type: songbird::packet::rtp::RtpType) -> (f64, bool) 
         RtpType::L16Stereo => (44100.0, false),
         RtpType::L16Mono => (44100.0, true),
         RtpType::Mpa => (90000.0, false),
-        _ => panic!("invalid pkt type"),
+        _ => {
+            debug!(
+                "got invalid pkt type {:?}, defaulting to 48KHz stereo",
+                pkt_type
+            );
+            (48000.0, true)
+        }
     }
 }

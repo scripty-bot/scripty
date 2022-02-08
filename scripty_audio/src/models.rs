@@ -66,5 +66,27 @@ pub fn load_models(model_dir: &Path) {
             "no models found:\
              they must be in a subdirectory with their language name like `en/model.tflite`"
         )
+    } else {
+        info!("loaded {} models", models.len());
     }
+}
+
+/// Get all the currently registered model languages.
+pub fn get_model_languages() -> Vec<String> {
+    MODELS
+        .get()
+        .expect("load models before fetching names")
+        .iter()
+        .map(|x| x.key().clone())
+        .collect()
+}
+
+/// Check if a model language is supported.
+///
+/// Cheaper than `get_model_languages()`.
+pub fn check_model_language(lang: &str) -> bool {
+    MODELS
+        .get()
+        .expect("load models before fetching names")
+        .contains_key(lang)
 }

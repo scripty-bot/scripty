@@ -1,3 +1,5 @@
+use tracing_subscriber::EnvFilter;
+
 pub fn start() {
     init_logging();
 
@@ -13,7 +15,9 @@ pub fn start() {
 }
 
 fn init_logging() {
-    tracing_subscriber::fmt().init();
+    tracing_subscriber::fmt()
+        .with_env_filter(EnvFilter::from_default_env())
+        .init();
 }
 
 async fn async_init() {
@@ -27,7 +31,7 @@ fn get_tokio_rt() -> tokio::runtime::Runtime {
         .worker_threads(
             (num_cpus::get() as f32 * (1.0 - cfg.pct_stt_threads))
                 .floor()
-                .min(1.0) as usize,
+                .max(1.0) as usize,
         )
         .enable_all()
         .build()

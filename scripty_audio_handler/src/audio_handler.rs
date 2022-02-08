@@ -60,14 +60,9 @@ impl AudioHandler {
         .fetch_one(db)
         .await?;
 
-        self.verbose.store(
-            guild_res.be_verbose.ok_or(sqlx::Error::RowNotFound)?,
-            Ordering::Relaxed,
-        );
-        self.premium_level.store(
-            guild_res.premium_level.ok_or(sqlx::Error::RowNotFound)? as u8,
-            Ordering::Relaxed,
-        );
+        self.verbose.store(guild_res.be_verbose, Ordering::Relaxed);
+        self.premium_level
+            .store(guild_res.premium_level as u8, Ordering::Relaxed);
 
         Ok(())
     }
@@ -81,6 +76,7 @@ impl EventHandler for AudioHandler {
                 *state_update,
                 self.context.clone(),
                 Arc::clone(&self.ssrc_user_id_map),
+                Arc::clone(&self.ssrc_user_data_map),
                 Arc::clone(&self.ssrc_ignored_map),
             )),
             EventContext::SpeakingUpdate(update) => tokio::spawn(speaking_update(
@@ -98,15 +94,21 @@ impl EventHandler for AudioHandler {
                 Arc::clone(&self.ssrc_stream_map),
                 Arc::clone(&self.ssrc_ignored_map),
             )),
-            EventContext::ClientConnect(client_connect_data) => tokio::spawn(client_connect(
+            // so guess what?
+            // discord, in their infinite wisdom, randomly removed ClientConnect
+            // great job shitcord
+            /*
+            EventContext::ClientConnect(_) => tokio::spawn(client_connect(
                 *client_connect_data,
                 self.context.clone(),
                 Arc::clone(&self.ssrc_user_id_map),
+                Arc::clone(&self.ssrc_user_data_map),
                 Arc::clone(&self.ssrc_ignored_map),
                 Arc::clone(&self.premium_level),
                 Arc::clone(&self.active_user_set),
                 Arc::clone(&self.next_user_list),
             )),
+            */
             EventContext::ClientDisconnect(client_disconnect_data) => {
                 tokio::spawn(client_disconnect(
                     *client_disconnect_data,

@@ -1,20 +1,43 @@
 use crate::Data;
 use poise::{Context, FrameworkError};
+use scripty_audio_handler::JoinError;
 use serenity::builder::CreateEmbed;
+use serenity::model::channel::ChannelType;
 use serenity::model::id::GuildId;
 use std::borrow::Cow;
 use std::fmt::{Display, Formatter};
 
 #[derive(Debug)]
+#[non_exhaustive]
 pub enum Error {
-    SerenityError(serenity::Error),
+    Serenity(serenity::Error),
+    InvalidChannelType {
+        expected: ChannelType,
+        got: ChannelType,
+    },
+    MissingWebhookToken,
+    Db(sqlx::Error),
+    MissingReplyHandle,
+    ExpectedGuild,
+    Join(JoinError),
 }
 
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         use self::Error::*;
         let res: Cow<str> = match self {
-            SerenityError(e) => format!("Discord/wrapper returned an error: {}", e).into(), // _ => "an unknown error happened".into(),
+            Serenity(e) => format!("Discord/wrapper returned an error: {}", e).into(),
+            InvalidChannelType { expected, got } => format!(
+                "Got an invalid channel type {:?} when expected {:?}",
+                got, expected
+            )
+            .into(),
+            MissingWebhookToken => "webhook token was not sent by discord".into(),
+            MissingReplyHandle => "interaction response data was not sent by discord".into(),
+            Db(e) => format!("Database returned an error: {:?}", e).into(),
+            // _ => "an unknown error happened".into(),
+            ExpectedGuild => "expected this to be in a guild".into(),
+            Join(e) => format!("failed to join VC: {}", e).into(),
         };
         f.write_str(res.as_ref())
     }
@@ -23,8 +46,27 @@ impl Display for Error {
 impl std::error::Error for Error {}
 
 impl From<serenity::Error> for Error {
+    #[inline]
     fn from(e: serenity::Error) -> Self {
-        Self::SerenityError(e)
+        Self::Serenity(e)
+    }
+}
+
+impl From<sqlx::Error> for Error {
+    #[inline]
+    fn from(e: sqlx::Error) -> Self {
+        Self::Db(e)
+    }
+}
+
+impl From<scripty_audio_handler::Error> for Error {
+    #[inline]
+    fn from(e: scripty_audio_handler::Error) -> Self {
+        match e {
+            scripty_audio_handler::Error::Join(e) => Self::Join(e),
+            scripty_audio_handler::Error::Database(e) => Self::Db(e),
+            scripty_audio_handler::Error::Serenity(e) => Self::Serenity(e),
+        }
     }
 }
 

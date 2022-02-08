@@ -16,11 +16,14 @@ pub async fn client_disconnect(
     next_user_list: NextUserList,
     premium_level: Arc<AtomicU8>,
 ) {
+    let user_id = client_disconnect_data.user_id;
+
+    debug!(?user_id, "got ClientDisconnect event");
     // i hate this so much but i don't see a better way of doing it
     let ssrc = {
         let mut ssrc = None;
         for val in ssrc_user_id_map.iter() {
-            if val.value() == &client_disconnect_data.user_id {
+            if val.value() == &user_id {
                 ssrc = Some(*val.key());
                 break;
             }
@@ -30,7 +33,7 @@ pub async fn client_disconnect(
             None => return,
         }
     };
-    debug!(?ssrc, "got ClientDisconnect event");
+    debug!(?ssrc, ?user_id, "got ClientDisconnect event");
 
     assert!(ssrc_user_id_map.remove(&ssrc).is_some());
     ssrc_stream_map.remove(&ssrc);
