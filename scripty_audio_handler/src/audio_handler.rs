@@ -3,12 +3,13 @@ use crate::types::{
     ActiveUserSet, NextUserList, SsrcIgnoredMap, SsrcStreamMap, SsrcUserDataMap, SsrcUserIdMap,
 };
 use ahash::RandomState;
+use dashmap::{DashMap, DashSet};
 use parking_lot::RwLock;
 use serenity::client::Context;
 use serenity::model::id::GuildId;
 use serenity::model::webhook::Webhook;
 use songbird::{Event, EventContext, EventHandler};
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::VecDeque;
 use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use std::sync::Arc;
 
@@ -34,11 +35,11 @@ impl AudioHandler {
         context: Context,
     ) -> Result<Self, sqlx::Error> {
         let this = Self {
-            ssrc_user_id_map: Arc::new(RwLock::new(HashMap::with_hasher(RandomState::new()))),
-            ssrc_stream_map: Arc::new(RwLock::new(HashMap::with_hasher(RandomState::new()))),
-            ssrc_user_data_map: Arc::new(RwLock::new(HashMap::with_hasher(RandomState::new()))),
-            ssrc_ignored_map: Arc::new(RwLock::new(HashMap::with_hasher(RandomState::new()))),
-            active_user_set: Arc::new(RwLock::new(HashSet::with_hasher(RandomState::new()))),
+            ssrc_user_id_map: Arc::new(DashMap::with_hasher(RandomState::new())),
+            ssrc_stream_map: Arc::new(DashMap::with_hasher(RandomState::new())),
+            ssrc_user_data_map: Arc::new(DashMap::with_hasher(RandomState::new())),
+            ssrc_ignored_map: Arc::new(DashMap::with_hasher(RandomState::new())),
+            active_user_set: Arc::new(DashSet::with_hasher(RandomState::new())),
             next_user_list: Arc::new(RwLock::new(VecDeque::with_capacity(10))),
             guild_id,
             webhook: Arc::new(webhook),

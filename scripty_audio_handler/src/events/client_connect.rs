@@ -20,7 +20,7 @@ pub async fn client_connect(
 
     debug!("user {} connected with ssrc {}", user_id, ssrc);
 
-    ssrc_user_id_map.write().insert(ssrc, user_id);
+    ssrc_user_id_map.insert(ssrc, user_id);
 
     let user = match serenity::model::id::UserId(user_id.0).to_user(ctx).await {
         Ok(u) => u,
@@ -31,15 +31,13 @@ pub async fn client_connect(
     };
 
     let ignored = user.bot;
-    ssrc_ignored_map.write().insert(ssrc, ignored);
+    ssrc_ignored_map.insert(ssrc, ignored);
 
     if ignored {
         return;
     }
 
-    ssrc_user_data_map
-        .write()
-        .insert(ssrc, (user.tag(), user.face()));
+    ssrc_user_data_map.insert(ssrc, (user.tag(), user.face()));
 
     #[allow(clippy::wildcard_in_or_patterns)]
     let max_users = match premium_level.load(Ordering::Relaxed) {
@@ -50,8 +48,8 @@ pub async fn client_connect(
         4 | _ => usize::MAX,
     };
 
-    if active_user_set.read().len() < max_users {
-        active_user_set.write().insert(ssrc);
+    if active_user_set.len() < max_users {
+        active_user_set.insert(ssrc);
     } else {
         next_user_list.write().push_back(ssrc);
     }

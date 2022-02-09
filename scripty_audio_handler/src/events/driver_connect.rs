@@ -13,5 +13,5 @@ pub async fn driver_connect(
     );
 
     // ignore self
-    ssrc_ignored_map.write().insert(ssrc, true);
+    ssrc_ignored_map.insert(ssrc, true);
 }
