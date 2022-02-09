@@ -45,6 +45,7 @@ pub async fn speaking_update(
 
         let mut webhook_execute = ExecuteWebhook::default();
 
+        debug!(?ssrc, "running transcription");
         if verbose.load(Ordering::Relaxed) {
             let res = old_stream.finish_stream_with_metadata_async(3).await;
             debug!(?ssrc, "ran stream transcription");

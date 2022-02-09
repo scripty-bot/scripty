@@ -18,6 +18,8 @@ pub type SsrcUserDataMap = Arc<DashMap<u32, (String, String), RandomState>>;
 pub type SsrcStreamMap = Arc<DashMap<u32, ThreadSafeStream, RandomState>>;
 /// Type alias for a `DashMap` containing SSRCs mapped to whether they should be ignored
 pub type SsrcIgnoredMap = Arc<DashMap<u32, bool, RandomState>>;
+/// Type alias for a `DashMap` containing SSRCs mapped to the sequence ID of the last packet received
+pub type SsrcLastPktIdMap = Arc<DashMap<u32, u16, RandomState>>;
 /// Type alias for a `DashSet` containing the current list of active users
 pub type ActiveUserSet = Arc<DashSet<u32, RandomState>>;
 /// Type alias for a `RwLock<Vec>` containing the next users to be added

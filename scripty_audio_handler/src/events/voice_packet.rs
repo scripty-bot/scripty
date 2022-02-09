@@ -1,4 +1,4 @@
-use crate::types::{SsrcIgnoredMap, SsrcStreamMap};
+use crate::types::{SsrcIgnoredMap, SsrcLastPktIdMap, SsrcStreamMap};
 
 use songbird::packet::rtp::RtpType;
 
@@ -8,13 +8,27 @@ pub async fn voice_packet(
     audio: Option<Vec<i16>>,
     ssrc: u32,
     payload_type: RtpType,
+    sequence: u16,
     ssrc_stream_map: SsrcStreamMap,
     ssrc_ignored_map: SsrcIgnoredMap,
+    ssrc_last_pkt_id_map: SsrcLastPktIdMap,
 ) {
-    let ssrc: u32 = ssrc;
-
     if ssrc_ignored_map.get(&ssrc).map_or(false, |x| *x.value()) {
         return;
+    }
+
+    if let Some(mut pkt_id) = ssrc_last_pkt_id_map.get_mut(&ssrc) {
+        let expected = *pkt_id.value() + 1;
+        *pkt_id.value_mut() = expected;
+        if expected != sequence {
+            warn!(
+                "got out of order audio packet! expected {}, got {}",
+                expected, sequence
+            );
+            return;
+        }
+    } else {
+        ssrc_last_pkt_id_map.insert(ssrc, sequence);
     }
 
     if let (Some(audio), Some(stream)) = (audio, ssrc_stream_map.get(&ssrc)) {
