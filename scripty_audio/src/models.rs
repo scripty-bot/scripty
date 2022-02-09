@@ -1,9 +1,10 @@
-use coqui_stt::{Model, Stream};
+use coqui_stt::{Model, ThreadSafeStream};
 use dashmap::DashMap;
 use once_cell::sync::OnceCell;
 use std::path::Path;
+use std::sync::Arc;
 
-pub static MODELS: OnceCell<DashMap<String, Stream>> = OnceCell::new();
+pub static MODELS: OnceCell<DashMap<String, Arc<Model>>> = OnceCell::new();
 
 pub fn load_models(model_dir: &Path) {
     info!("initializing global model map");
@@ -54,11 +55,7 @@ pub fn load_models(model_dir: &Path) {
                     .enable_external_scorer(scorer_path)
                     .expect("failed to load scorer");
             }
-            info!("converting model into streaming object");
-            let stream = model
-                .into_streaming()
-                .expect("failed to convert Model into Stream");
-            models.insert(name.to_string(), stream);
+            models.insert(name.to_string(), Arc::new(model));
         }
     }
     if models.is_empty() {
@@ -89,4 +86,13 @@ pub fn check_model_language(lang: &str) -> bool {
         .get()
         .expect("load models before fetching names")
         .contains_key(lang)
+}
+
+/// Get a stream for the selected language.
+pub fn get_stream(lang: &str) -> Option<ThreadSafeStream> {
+    MODELS
+        .get()
+        .expect("models should've been initialized before attempting to get a stream")
+        .get(lang)
+        .and_then(|x| ThreadSafeStream::new(x.value().clone()).ok())
 }

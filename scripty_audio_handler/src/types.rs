@@ -1,7 +1,7 @@
 use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
 use parking_lot::RwLock;
-use scripty_audio::Stream;
+use scripty_audio::ThreadSafeStream;
 use songbird::model::id::UserId;
 use std::collections::VecDeque;
 use std::sync::Arc;
@@ -15,7 +15,7 @@ pub type SsrcUserIdMap = Arc<DashMap<u32, UserId, RandomState>>;
 /// Field 1 of the internal tuple is the user's avatar URL
 pub type SsrcUserDataMap = Arc<DashMap<u32, (String, String), RandomState>>;
 /// Type alias for a `DashMap` containing SSRCs mapped to `Stream`s
-pub type SsrcStreamMap = Arc<DashMap<u32, Stream, RandomState>>;
+pub type SsrcStreamMap = Arc<DashMap<u32, ThreadSafeStream, RandomState>>;
 /// Type alias for a `DashMap` containing SSRCs mapped to whether they should be ignored
 pub type SsrcIgnoredMap = Arc<DashMap<u32, bool, RandomState>>;
 /// Type alias for a `DashSet` containing the current list of active users

@@ -43,7 +43,7 @@ fn stereo_to_mono(input_data: &[i16], target: &mut Vec<i16>) {
             // SAFETY: see above
             chunk.get_unchecked(1)
         };
-        target.push((left + right) / 2_i16);
+        target.push(((*left as i32 + *right as i32) / 2_i32) as i16);
     }
 }
 

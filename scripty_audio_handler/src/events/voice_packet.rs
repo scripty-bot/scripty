@@ -17,20 +17,15 @@ pub async fn voice_packet(
         return;
     }
 
-    if let (Some(audio), Some(mut stream)) = (audio, ssrc_stream_map.get_mut(&ssrc)) {
+    if let (Some(audio), Some(stream)) = (audio, ssrc_stream_map.get(&ssrc)) {
         debug!(%ssrc, "got {} bytes of audio", audio.len() * SIZE_OF_I16);
         let (sample_rate, stereo) = packet_type_to_data(payload_type);
 
         debug!("processing audio");
-        let audio = scripty_audio::process_audio(
-            &audio,
-            sample_rate,
-            stereo,
-            stream.model().get_sample_rate() as f64,
-        );
+        let audio = scripty_audio::process_audio(&audio, sample_rate, stereo, 16_000.0);
 
         debug!("feeding audio to stream");
-        tokio::task::block_in_place(|| stream.feed_audio(&audio[..]));
+        stream.feed_audio_async(audio).await;
         debug!("done processing pkt");
     }
 }
