@@ -17,10 +17,12 @@ pub async fn voice_packet(
         return;
     }
 
+    // TODO: if current - 1 is in the out of order pkts, add it before this one
     if let Some(mut pkt_id) = ssrc_last_pkt_id_map.get_mut(&ssrc) {
         let expected = *pkt_id.value() + 1;
         if expected != sequence {
             warn!(
+                ?ssrc
                 "got out of order audio packet! expected {}, got {}",
                 expected, sequence
             );
