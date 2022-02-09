@@ -13,11 +13,11 @@ pub async fn voice_packet(
 ) {
     let ssrc: u32 = ssrc;
 
-    if ssrc_ignored_map.get(&ssrc).map_or(false, |x| *x.value()) {
+    if ssrc_ignored_map.read().get(&ssrc).map_or(false, |x| *x) {
         return;
     }
 
-    if let (Some(audio), Some(mut stream)) = (audio, ssrc_stream_map.get_mut(&ssrc)) {
+    if let (Some(audio), Some(stream)) = (audio, ssrc_stream_map.write().get_mut(&ssrc)) {
         debug!(%ssrc, "got {} bytes of audio", audio.len() * SIZE_OF_I16);
         let (sample_rate, stereo) = packet_type_to_data(payload_type);
 

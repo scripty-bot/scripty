@@ -21,7 +21,7 @@ pub async fn speaking_update(
         // user has started speaking, begin a new model
     } else {
         // user has finished speaking, run the STT algo
-        let old_stream = match ssrc_stream_map.insert(
+        let old_stream = match ssrc_stream_map.write().insert(
             ssrc,
             scripty_audio::get_stream("en").expect("en invalid lang?"),
         ) {
@@ -33,9 +33,8 @@ pub async fn speaking_update(
         };
         debug!(?ssrc, "found Stream for SSRC");
 
-        let user_data = ssrc_user_data_map.get(&ssrc);
-        let (username, avatar_url) = match user_data {
-            Some(ref d) => d.value(),
+        let (username, avatar_url) = match ssrc_user_data_map.read().get(&ssrc) {
+            Some(d) => d.clone(),
             None => {
                 warn!(?ssrc, "user data not found in ssrc_user_data_map, bailing");
                 return;

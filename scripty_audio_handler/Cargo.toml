@@ -7,7 +7,6 @@ edition = "2021"
 
 [dependencies]
 ahash = "0.7"
-dashmap = "3"
 tracing = "0.1"
 async-trait = "0.1"
 parking_lot = "0.12"
