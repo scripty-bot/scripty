@@ -19,13 +19,15 @@ pub async fn voice_packet(
 
     if let Some(mut pkt_id) = ssrc_last_pkt_id_map.get_mut(&ssrc) {
         let expected = *pkt_id.value() + 1;
-        *pkt_id.value_mut() = expected;
         if expected != sequence {
             warn!(
                 "got out of order audio packet! expected {}, got {}",
                 expected, sequence
             );
+            *pkt_id.value_mut() = sequence + 1;
             return;
+        } else {
+            *pkt_id.value_mut() = expected;
         }
     } else {
         ssrc_last_pkt_id_map.insert(ssrc, sequence);
