@@ -15,7 +15,8 @@ members = [
   "scripty_audio_handler",
   "scripty_commands",
   "scripty_i18n",
-  "scripty_db"
+  "scripty_db",
+  "scripty_tts"
 ]
 
 [dependencies]

@@ -1782,6 +1782,10 @@ name = "scripty_premium"
 version = "0.1.0"
 
 [[package]]
+name = "scripty_tts"
+version = "0.1.0"
+
+[[package]]
 name = "scripty_v2"
 version = "0.1.0"
 dependencies = [

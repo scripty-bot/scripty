@@ -90,7 +90,7 @@ pub async fn setup(
         .content(
             "By setting up Scripty, you agree to both its Privacy Policy and Terms of Service.\n\
             Privacy Policy: https://scripty.org/privacy\n\
-            Terms of Service: https://scripty.org/terms_of_service",
+            Terms of Service: https://scripty.org/terms",
         )
         })
         .await?
