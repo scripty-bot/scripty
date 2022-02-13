@@ -22,9 +22,8 @@ pub async fn voice_packet(
         let expected = *pkt_id.value() + 1;
         if expected != sequence {
             warn!(
-                ?ssrc
-                "got out of order audio packet! expected {}, got {}",
-                expected, sequence
+                ?ssrc,
+                "got out of order audio packet! expected {}, got {}", expected, sequence
             );
             *pkt_id.value_mut() = sequence + 1;
             return;
