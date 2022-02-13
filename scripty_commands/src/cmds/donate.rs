@@ -14,7 +14,8 @@ const DONATION_DESCRIPTION: &str =
     tiers ranging in price from $5 USD to $100 USD per month. The $100 tier comes with its own \
     managed instance of Scripty for your own server, with a custom name, and profile picture.\n\n\
     We also support one-time donations directly through GitHub Sponsors: \
-    https://github.com/sponsors/tazz4843?frequency=one-time&sponsor=tazz4843\n\n\n\
+    [https://github.com/sponsors/tazz4843]\
+    (https://github.com/sponsors/tazz4843?frequency=one-time&sponsor=tazz4843)\n\n\n\
     https://scripty.org/premium";
 
 /// Get information on donating to support Scripty.
