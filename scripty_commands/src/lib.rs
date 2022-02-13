@@ -16,6 +16,7 @@ mod cmds;
 mod entity_block;
 mod error;
 mod framework_opts;
+mod handler;
 mod models;
 
 type Error = error::Error;
