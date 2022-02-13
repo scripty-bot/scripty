@@ -10,6 +10,7 @@ pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
             cmds::register_cmds(),
             cmds::help(),
             cmds::join(),
+            cmds::train_storage(),
         ],
         on_error: |error| Box::pin(on_error(error)),
         command_check: Some(crate::entity_block::check_block),

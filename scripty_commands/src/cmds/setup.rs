@@ -20,7 +20,7 @@ const POST_SETUP_DESCRIPTION: &str = "A couple notes:\n\n\n\
     due to inherent bias within the model, and the only thing we can do about it is train more \
     accurate models (again, see note 5).\n\n\
     5) To help us train more accurate models, consider allowing us to store your audio and \
-    transcriptions for training. See the `~storage` command.\n\n\
+    transcriptions for training. See the `~train_storage` command.\n\n\
     6) I don't exactly want to ask again, but please consider donating. It takes an ***insane*** \
     amount of processing power to train new models (we're talking multiple Nvidia RTX 3090 GPUs), \
     and every little bit of money helps a lot. Again, if you're interested, check out the \
