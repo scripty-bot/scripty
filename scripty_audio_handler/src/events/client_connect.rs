@@ -41,11 +41,13 @@ pub async fn client_connect(
 
     #[allow(clippy::wildcard_in_or_patterns)]
     let max_users = match premium_level.load(Ordering::Relaxed) {
-        0 => 10,
-        1 => 25,
-        2 => 50,
-        3 => 100,
-        4 | _ => usize::MAX,
+        0 => 5,
+        1 => 10,
+        2 => 25,
+        3 => 50,
+        4 => 100,
+        5 => 250,
+        6 | _ => usize::MAX,
     };
 
     if active_user_set.len() < max_users {
