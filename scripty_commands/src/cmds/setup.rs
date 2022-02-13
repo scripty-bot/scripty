@@ -11,7 +11,7 @@ const POST_SETUP_DESCRIPTION: &str = "A couple notes:\n\n\n\
     1) Do not delete the webhook that was created in the target channel.\n\n\
     2) The bot is extremely expensive to run, and requires a serious amount of processing power, \
     so it'd be amazing if you could donate a bit. We offer premium tiers that boost the limit on \
-    the number of users transcripted, which defaults to 10. The core features will stay free \
+    the number of users transcripted, which defaults to 5. The core features will stay free \
     forever, though. If you're interested, check out the `~donate` command.\n\n\
     3) If you chose a language other than English (the default) note that transcriptions for it \
     will be much, much lower quality. Soon we will be adding a feature that allows you to help \
