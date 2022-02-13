@@ -1,9 +1,11 @@
+mod donate;
 mod help;
 mod join;
 mod register_cmds;
 mod setup;
 mod train_storage;
 
+pub use donate::donate;
 pub use help::help;
 pub use join::join;
 pub use register_cmds::register_cmds;

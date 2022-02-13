@@ -11,6 +11,7 @@ pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
             cmds::help(),
             cmds::join(),
             cmds::train_storage(),
+            cmds::donate(),
         ],
         on_error: |error| Box::pin(on_error(error)),
         command_check: Some(crate::entity_block::check_block),
