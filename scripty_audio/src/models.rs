@@ -55,6 +55,7 @@ pub fn load_models(model_dir: &Path) {
                     .enable_external_scorer(scorer_path)
                     .expect("failed to load scorer");
             }
+            info!("loaded model, inserting into map");
             models.insert(name.to_string(), Arc::new(model));
         }
     }

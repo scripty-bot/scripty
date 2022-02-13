@@ -223,8 +223,7 @@ checksum = "fbdcdcb6d86f71c5e97409ad45898af11cbc995b4ee8112d59095a28d376c935"
 [[package]]
 name = "coqui-stt"
 version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e848077879cbe0fea54468ddb1a734489ddb03b69205dbc9a6d7e4f90b03f86d"
+source = "git+https://github.com/tazz4843/coqui-stt#2cb789b89435fcf30dede8b41861a00bdb4f57f3"
 dependencies = [
  "coqui-stt-sys",
  "flume",
