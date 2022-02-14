@@ -38,7 +38,7 @@ pub async fn speaking_update(
         if let Some(pkts) =
             ssrc_audio_map.insert(ssrc, (Vec::with_capacity(EXPECTED_PKT_SIZE * 5), 0))
         {
-            if !pkts.is_empty() {
+            if !pkts.0.is_empty() {
                 debug!(?ssrc, "found audio packets for SSRC, feeding before ending");
                 old_stream.feed_audio_async(pkts.0).await;
             } else {
