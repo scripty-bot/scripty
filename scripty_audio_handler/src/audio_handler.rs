@@ -93,7 +93,6 @@ impl EventHandler for AudioHandler {
             EventContext::VoicePacket(voice_data) => tokio::spawn(voice_packet(
                 voice_data.audio.clone(),
                 voice_data.packet.ssrc,
-                voice_data.packet.payload_type,
                 voice_data.packet.sequence.0 .0,
                 Arc::clone(&self.ssrc_stream_map),
                 Arc::clone(&self.ssrc_ignored_map),
