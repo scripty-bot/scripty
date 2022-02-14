@@ -14,9 +14,7 @@ pub async fn event_listener(
 ) -> Result<(), Error> {
     let event = event.clone();
     match event {
-        Event::CacheReady { guilds } => {
-            tokio::spawn(cache_ready::cache_ready(guilds));
-        }
+        Event::CacheReady { guilds } => cache_ready::cache_ready(guilds).await,
         Event::ChannelCreate { channel } => {}
         Event::CategoryCreate { category } => {}
         Event::CategoryDelete { category } => {}
@@ -66,9 +64,7 @@ pub async fn event_listener(
         } => {}
         Event::InviteCreate { data } => {}
         Event::InviteDelete { data } => {}
-        Event::Message { new_message } => {
-            tokio::spawn(message::message(new_message));
-        }
+        Event::Message { new_message } => message::message(new_message).await,
         Event::MessageDelete {
             channel_id,
             deleted_message_id,
@@ -92,12 +88,8 @@ pub async fn event_listener(
         } => {}
         Event::PresenceReplace { new_presences } => {}
         Event::PresenceUpdate { new_data } => {}
-        Event::Ready { data_about_bot } => {
-            tokio::spawn(ready::ready(data_about_bot));
-        }
-        Event::Resume { event } => {
-            tokio::spawn(resume::resume(event));
-        }
+        Event::Ready { data_about_bot } => ready::ready(data_about_bot).await,
+        Event::Resume { event } => resume::resume(event).await,
         Event::ShardStageUpdate { update } => {}
         Event::TypingStart { event } => {}
         Event::Unknown { name, raw } => {}
