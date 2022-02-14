@@ -1,7 +1,5 @@
 use crate::types::{SsrcIgnoredMap, SsrcLastPktIdMap, SsrcStreamMap};
 
-use songbird::packet::rtp::RtpType;
-
 const SIZE_OF_I16: usize = std::mem::size_of::<i16>();
 
 pub async fn voice_packet(
