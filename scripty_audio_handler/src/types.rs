@@ -8,14 +8,18 @@ use std::sync::Arc;
 
 /// Type alias for a `DashMap` containing SSRCs mapped to `UserId`s.
 pub type SsrcUserIdMap = Arc<DashMap<u32, UserId, RandomState>>;
+/// Type alias for a `DashMap` containing SSRCs mapped to `Stream`s
+pub type SsrcStreamMap = Arc<DashMap<u32, ThreadSafeStream, RandomState>>;
 /// Type alias for a `DashMap` containing SSRCs mapped to user data.
 ///
 /// Field 0 of the internal tuple is the formatted username (name#0000)
 ///
 /// Field 1 of the internal tuple is the user's avatar URL
 pub type SsrcUserDataMap = Arc<DashMap<u32, (String, String), RandomState>>;
-/// Type alias for a `DashMap` containing SSRCs mapped to `Stream`s
-pub type SsrcStreamMap = Arc<DashMap<u32, ThreadSafeStream, RandomState>>;
+/// Type alias for a `DashMap` containing SSRCs mapped to
+/// * at most 100ms of audio and:
+/// * the number of audio packets that have been fed.
+pub type SsrcAudioMap = Arc<DashMap<u32, (Vec<i16>, u8), RandomState>>;
 /// Type alias for a `DashMap` containing SSRCs mapped to whether they should be ignored
 pub type SsrcIgnoredMap = Arc<DashMap<u32, bool, RandomState>>;
 /// Type alias for a `DashMap` containing SSRCs mapped to the sequence ID of the last packet received

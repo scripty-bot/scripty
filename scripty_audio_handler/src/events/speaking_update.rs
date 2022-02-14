@@ -1,4 +1,5 @@
-use crate::types::{SsrcStreamMap, SsrcUserDataMap};
+use crate::consts::EXPECTED_PKT_SIZE;
+use crate::types::{SsrcAudioMap, SsrcStreamMap, SsrcUserDataMap};
 use serenity::builder::ExecuteWebhook;
 use serenity::client::Context;
 use serenity::model::channel::Embed;
@@ -13,6 +14,7 @@ pub async fn speaking_update(
     webhook: Arc<Webhook>,
     ssrc_user_data_map: SsrcUserDataMap,
     ssrc_stream_map: SsrcStreamMap,
+    ssrc_audio_map: SsrcAudioMap,
     verbose: Arc<AtomicBool>,
 ) {
     let ssrc = update.ssrc;
@@ -32,6 +34,17 @@ pub async fn speaking_update(
             }
         };
         debug!(?ssrc, "found Stream for SSRC");
+
+        if let Some(pkts) =
+            ssrc_audio_map.insert(ssrc, (Vec::with_capacity(EXPECTED_PKT_SIZE * 5), 0))
+        {
+            if !pkts.is_empty() {
+                debug!(?ssrc, "found audio packets for SSRC, feeding before ending");
+                old_stream.feed_audio_async(pkts.0).await;
+            } else {
+                debug!(?ssrc, "no extra audio packets to feed");
+            }
+        }
 
         let user_data = ssrc_user_data_map.get(&ssrc);
         let (username, avatar_url) = match user_data {

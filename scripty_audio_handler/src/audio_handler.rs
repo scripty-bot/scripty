@@ -1,7 +1,7 @@
 use crate::events::*;
 use crate::types::{
-    ActiveUserSet, NextUserList, SsrcIgnoredMap, SsrcLastPktIdMap, SsrcStreamMap, SsrcUserDataMap,
-    SsrcUserIdMap,
+    ActiveUserSet, NextUserList, SsrcAudioMap, SsrcIgnoredMap, SsrcLastPktIdMap, SsrcStreamMap,
+    SsrcUserDataMap, SsrcUserIdMap,
 };
 use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
@@ -19,6 +19,7 @@ pub struct AudioHandler {
     ssrc_user_id_map: SsrcUserIdMap,
     ssrc_stream_map: SsrcStreamMap,
     ssrc_user_data_map: SsrcUserDataMap,
+    ssrc_audio_map: SsrcAudioMap,
     ssrc_ignored_map: SsrcIgnoredMap,
     ssrc_last_pkt_id_map: SsrcLastPktIdMap,
     active_user_set: ActiveUserSet,
@@ -40,6 +41,7 @@ impl AudioHandler {
             ssrc_user_id_map: Arc::new(DashMap::with_hasher(RandomState::new())),
             ssrc_stream_map: Arc::new(DashMap::with_hasher(RandomState::new())),
             ssrc_user_data_map: Arc::new(DashMap::with_hasher(RandomState::new())),
+            ssrc_audio_map: Arc::new(DashMap::with_hasher(RandomState::new())),
             ssrc_ignored_map: Arc::new(DashMap::with_hasher(RandomState::new())),
             ssrc_last_pkt_id_map: Arc::new(DashMap::with_hasher(RandomState::new())),
             active_user_set: Arc::new(DashSet::with_hasher(RandomState::new())),
@@ -88,6 +90,7 @@ impl EventHandler for AudioHandler {
                 Arc::clone(&self.webhook),
                 Arc::clone(&self.ssrc_user_data_map),
                 Arc::clone(&self.ssrc_stream_map),
+                Arc::clone(&self.ssrc_audio_map),
                 Arc::clone(&self.verbose),
             )),
             EventContext::VoicePacket(voice_data) => tokio::spawn(voice_packet(
@@ -95,6 +98,7 @@ impl EventHandler for AudioHandler {
                 voice_data.packet.ssrc,
                 voice_data.packet.sequence.0 .0,
                 Arc::clone(&self.ssrc_stream_map),
+                Arc::clone(&self.ssrc_audio_map),
                 Arc::clone(&self.ssrc_ignored_map),
                 Arc::clone(&self.ssrc_last_pkt_id_map),
             )),

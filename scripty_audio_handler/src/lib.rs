@@ -3,6 +3,7 @@ extern crate tracing;
 
 mod audio_handler;
 mod connect;
+mod consts;
 mod error;
 mod events;
 mod types;
