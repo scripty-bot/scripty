@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate tracing;
+
 use tracing_subscriber::EnvFilter;
 
 pub fn start() {
@@ -25,14 +28,11 @@ async fn async_init() {
 }
 
 fn get_tokio_rt() -> tokio::runtime::Runtime {
-    let cfg = scripty_config::get_config();
+    let threads = num_cpus::get();
+    info!("spawning tokio rt with {} threads", threads);
 
     tokio::runtime::Builder::new_multi_thread()
-        .worker_threads(
-            (num_cpus::get() as f32 * (1.0 - cfg.pct_stt_threads))
-                .floor()
-                .max(1.0) as usize,
-        )
+        .worker_threads(threads)
         .enable_all()
         .build()
         .expect("failed to build new tokio rt")

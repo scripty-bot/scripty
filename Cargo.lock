@@ -1760,6 +1760,7 @@ dependencies = [
  "scripty_db",
  "scripty_webserver",
  "tokio",
+ "tracing",
  "tracing-subscriber",
 ]
 
