@@ -1,7 +1,7 @@
 use crate::events::*;
 use crate::types::{
-    ActiveUserSet, NextUserList, SsrcAudioMap, SsrcIgnoredMap, SsrcLastPktIdMap, SsrcStreamMap,
-    SsrcUserDataMap, SsrcUserIdMap,
+    ActiveUserSet, NextUserList, SsrcAudioMap, SsrcIgnoredMap, SsrcLastPktIdMap, SsrcMissedPktMap,
+    SsrcStreamMap, SsrcUserDataMap, SsrcUserIdMap,
 };
 use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
@@ -22,6 +22,7 @@ pub struct AudioHandler {
     ssrc_audio_map: SsrcAudioMap,
     ssrc_ignored_map: SsrcIgnoredMap,
     ssrc_last_pkt_id_map: SsrcLastPktIdMap,
+    ssrc_missed_pkt_map: SsrcMissedPktMap,
     active_user_set: ActiveUserSet,
     next_user_list: NextUserList,
     guild_id: GuildId,
@@ -44,6 +45,7 @@ impl AudioHandler {
             ssrc_audio_map: Arc::new(DashMap::with_hasher(RandomState::new())),
             ssrc_ignored_map: Arc::new(DashMap::with_hasher(RandomState::new())),
             ssrc_last_pkt_id_map: Arc::new(DashMap::with_hasher(RandomState::new())),
+            ssrc_missed_pkt_map: Arc::new(DashMap::with_hasher(RandomState::new())),
             active_user_set: Arc::new(DashSet::with_hasher(RandomState::new())),
             next_user_list: Arc::new(RwLock::new(VecDeque::with_capacity(10))),
             guild_id,
@@ -101,6 +103,7 @@ impl EventHandler for AudioHandler {
                 Arc::clone(&self.ssrc_audio_map),
                 Arc::clone(&self.ssrc_ignored_map),
                 Arc::clone(&self.ssrc_last_pkt_id_map),
+                Arc::clone(&self.ssrc_missed_pkt_map),
             )),
             // so guess what?
             // discord, in their infinite wisdom, randomly removed ClientConnect

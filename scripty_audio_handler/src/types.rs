@@ -19,7 +19,10 @@ pub type SsrcUserDataMap = Arc<DashMap<u32, (String, String), RandomState>>;
 /// Type alias for a `DashMap` containing SSRCs mapped to
 /// * at most 100ms of audio and:
 /// * the number of audio packets that have been fed.
-pub type SsrcAudioMap = Arc<DashMap<u32, (Vec<i16>, u8), RandomState>>;
+pub type SsrcAudioMap = Arc<DashMap<u32, (Vec<i16>, u16), RandomState>>;
+/// Type alias for a `DashMap` containing SSRCs and out-of-order packet IDs
+/// mapped to their audio packet data.
+pub type SsrcMissedPktMap = Arc<DashMap<(u32, u16), Vec<i16>, RandomState>>;
 /// Type alias for a `DashMap` containing SSRCs mapped to whether they should be ignored
 pub type SsrcIgnoredMap = Arc<DashMap<u32, bool, RandomState>>;
 /// Type alias for a `DashMap` containing SSRCs mapped to the sequence ID of the last packet received
