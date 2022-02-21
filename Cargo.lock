@@ -1776,6 +1776,13 @@ dependencies = [
 [[package]]
 name = "scripty_i18n"
 version = "0.1.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "scripty_metrics"
+version = "0.1.0"
 
 [[package]]
 name = "scripty_premium"
