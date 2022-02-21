@@ -4,3 +4,4 @@ scripty_src.zip
 /.idea
 /config.toml
 /config.local.toml
+/flamegraph.svg
