@@ -45,7 +45,7 @@ pub async fn voice_packet(
         audio.resize(EXPECTED_PKT_SIZE, 0);
 
         debug!("processing audio");
-        let mut audio = scripty_audio::process_audio(&audio, 48_000.0, false, 16_000.0);
+        let mut audio = scripty_audio::process_audio(audio, 48_000.0, 16_000.0);
 
         // we have fed another 20ms of audio
         let mut ms_fed = 20;
@@ -90,8 +90,7 @@ fn handle_missed_packets(
     let last_pkt = sequence - 1;
     if let Some(last_pkt_audio) = ssrc_missed_pkt_map.remove(&(ssrc, last_pkt)) {
         debug!(?ssrc, "found out-of-order packet with ID {}", last_pkt);
-        let processed_audio =
-            scripty_audio::process_audio(&last_pkt_audio.1[..], 48_000.0, false, 16_000.0);
+        let processed_audio = scripty_audio::process_audio(last_pkt_audio.1, 48_000.0, 16_000.0);
         audio.reserve(processed_audio.len());
         audio.extend(processed_audio);
         handle_missed_packets(ssrc, last_pkt, audio, ssrc_missed_pkt_map) + 20
