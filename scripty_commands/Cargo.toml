@@ -20,7 +20,6 @@ serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", f
   "dashmap",
   "parking_lot",
   "rustls_backend",
-  "native_tls_backend",
   "model",
   "gateway",
   "client",
