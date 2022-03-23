@@ -21,7 +21,7 @@ command-not-found-suggestions = Did you mean `{$suggestion}`?
 no-help-found = No help found for command `{$commandName}`.
 default-category-name = Commands
 # Context menu command translation strings
-context-menu-command-title = Context Menu Commands
+context-menu-command-title = \nContext menu commands:\n
 context-menu-command-user =   {$commandName} (on user)\n
 context-menu-command-message =   {$commandName} (on message)\n
-more-info-on-command = For more information on a specific command, type `{$contextPrefix}help {$commandName}`
+more-info-on-command = \nFor more information on a specific command, type `{$contextPrefix}help <name>`\n```

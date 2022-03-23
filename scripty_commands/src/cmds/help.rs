@@ -1,5 +1,6 @@
 use crate::{Context, Error};
 use indexmap::IndexMap;
+use scripty_i18n::LanguageIdentifier;
 use std::borrow::Cow;
 
 /// Show this help menu
@@ -10,17 +11,23 @@ pub async fn help(
     #[autocomplete = "autocomplete_command"]
     command: Option<String>,
 ) -> Result<(), Error> {
+    let resolved_language =
+        scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
+
     match command {
-        Some(command_name) => help_single_command(ctx, command_name.as_ref()).await,
-        None => help_global(ctx).await,
+        Some(command_name) => {
+            help_single_command(ctx, command_name.as_ref(), resolved_language).await
+        }
+        None => help_global(ctx, resolved_language).await,
     }?;
     Ok(())
 }
 
-async fn help_single_command(ctx: Context<'_>, command_name: &str) -> Result<(), serenity::Error> {
-    let resolved_language =
-        scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
-
+async fn help_single_command(
+    ctx: Context<'_>,
+    command_name: &str,
+    resolved_language: LanguageIdentifier,
+) -> Result<(), serenity::Error> {
     let command = ctx.framework().options().commands.iter().find(|command| {
         if command.name.eq_ignore_ascii_case(command_name) {
             return true;
@@ -36,21 +43,29 @@ async fn help_single_command(ctx: Context<'_>, command_name: &str) -> Result<(),
 
     let reply = if let Some(command) = command {
         match command.multiline_help {
-            Some(f) => Cow::Owned(f()),
-            None => command
-                .inline_help
-                .map(Cow::Borrowed)
-                .unwrap_or_else(|| Cow::Owned(format_message!(resolved_language, "no-help-found", commandName: command.name)))
-                .to_owned(),
+            Some(f) => Cow::from(f()),
+            None => command.inline_help.map(Cow::from).unwrap_or_else(|| {
+                Cow::from(
+                    format_message!(resolved_language, "no-help-found", commandName: command.name),
+                )
+            }),
         }
     } else {
-        Cow::Owned(format!("No such command `{}`", command_name))
+        Cow::from(format_message!(
+            resolved_language,
+            "command-not-found",
+            commandName: command_name
+        ))
     };
 
     ctx.send(|f| f.content(reply).ephemeral(true)).await?;
     Ok(())
 }
-async fn help_global(ctx: Context<'_>) -> Result<(), serenity::Error> {
+
+async fn help_global(
+    ctx: Context<'_>,
+    resolved_language: LanguageIdentifier,
+) -> Result<(), serenity::Error> {
     let mut categories: IndexMap<_, _> = IndexMap::new();
     for cmd in &ctx.framework().options().commands {
         categories
@@ -61,7 +76,9 @@ async fn help_global(ctx: Context<'_>) -> Result<(), serenity::Error> {
 
     let mut menu = String::from("```\n");
     for (category_name, commands) in categories {
-        menu += category_name.unwrap_or("Commands");
+        menu += &category_name.map(Cow::Borrowed).unwrap_or_else(|| {
+            Cow::Owned(format_message!(resolved_language, "default-category-name"))
+        });
         menu += ":\n";
         for command in commands {
             if command.hide_in_help {
@@ -103,21 +120,28 @@ async fn help_global(ctx: Context<'_>) -> Result<(), serenity::Error> {
         }
     }
 
-    menu += "\nContext menu commands:\n";
+    menu += format_message!(resolved_language, "context-menu-command-title").as_str();
 
     for command in &ctx.framework().options().commands {
-        let kind = match command.context_menu_action {
-            Some(poise::ContextMenuCommandAction::User(_)) => "user",
-            Some(poise::ContextMenuCommandAction::Message(_)) => "message",
-            None => continue,
-        };
         let name = command.context_menu_name.unwrap_or(command.name);
-        menu += &format!("  {} (on {})\n", name, kind);
+        menu += match command.context_menu_action {
+            Some(poise::ContextMenuCommandAction::User(_)) => format_message!(
+                resolved_language,
+                "context-menu-command-user",
+                commandName: name
+            ),
+            Some(poise::ContextMenuCommandAction::Message(_)) => format_message!(
+                resolved_language,
+                "context-menu-command-message",
+                commandName: name
+            ),
+            None => continue,
+        }
+        .as_ref();
     }
 
-    menu += "\n";
-    menu += "For more information on a specific command, type `help <command>`\n";
-    menu += "\n```";
+    menu += format_message!(resolved_language, "more-info-on-command", contextPrefix: ctx.prefix())
+        .as_str();
 
     ctx.send(|f| f.content(menu).ephemeral(true)).await?;
     Ok(())

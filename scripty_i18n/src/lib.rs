@@ -13,3 +13,4 @@ pub use fluent::FluentArgs;
 pub use init::*;
 pub use store::*;
 pub use strings::*;
+pub use unic_langid::LanguageIdentifier;
