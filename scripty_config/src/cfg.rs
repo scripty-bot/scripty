@@ -32,6 +32,9 @@ pub struct BotConfig {
     pub token: String,
 
     pub support_invite: String,
+
+    /// Path to i18n files. Must be available at runtime.
+    pub i18n_dir: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

@@ -3,6 +3,8 @@
 
 #[macro_use]
 extern crate tracing;
+#[macro_use]
+extern crate scripty_i18n;
 
 use poise::FrameworkBuilder;
 use scripty_audio_handler::SerenityInit;
