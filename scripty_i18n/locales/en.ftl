@@ -46,8 +46,7 @@ guild-language-set-success-description = To return to English, type `{$contextPr
 # This message is shown as the embed title when an entity tries to set their language to an unsupported language.
 language-set-failure-title-unsupported = The language you specified is not supported by the bot.
 # This message is shown as the embed description when an entity tries to set their language to an unsupported language.
-language-set-failure-description-unsupported = If you'd like to help with adding support for this
- language, please join the support server at {$supportServerInvite}.
+language-set-failure-description-unsupported = If you'd like to help with adding support for this language, please join the support server at {$supportServerInvite}.
 
 # This message is shown as the embed title when an entity tries to set their language to an invalid language.
 language-set-failure-title-invalid = Language `{$language}` not found.
@@ -57,21 +56,18 @@ language-set-failure-description-invalid = The language you specified is an inva
 # This message is shown as the embed title when the database returns an error when setting the language for an entity.
 language-set-failure-title-db = Database error.
 # This message is shown as the embed description when the database returns an error when setting the language for an entity.
-language-set-failure-description-db = The database encountered an error while attempting to set your language.
- This error has been reported, and we'll look into it. Please do not spam this command. (If you're curious, here's the error: {$error})
+language-set-failure-description-db = The database encountered an error while attempting to set your language. This error has been reported, and we'll look into it. Please do not spam this command. (If you're curious, here's the error: {$error})
 
 ## Command invocation contexts
 # This message is shown as the embed title when a user tries to invoke the root command of a group.
 root-command-invoked-title = This is a root command!
 # This message is shown as the embed description when a user tries to invoke the root command of a group.
-root-command-invoked-description = Please invoke only this command's subcommands to use it.
- See `{$contextPrefix}help {$commandName}` for more info.
+root-command-invoked-description = Please invoke only this command's subcommands to use it. See `{$contextPrefix}help {$commandName}` for more info.
 
 
 ## join command
 # This message is shown when the user is not in a voice channel, nor was a voice channel specified.
-no-channel-specified = You're not in a voice chat, nor did you tell me a channel to join. Try
- `{$contextPrefix}join <channel>` to specify a voice chat, or join a voice chat yourself and re-run this command.
+no-channel-specified = You're not in a voice chat, nor did you tell me a channel to join. Try `{$contextPrefix}join <channel>` to specify a voice chat, or join a voice chat yourself and re-run this command.
 
 # This message is shown when the user tries to invite the bot to a voice channel, but the bot has not been set up.
 bot-not-set-up = Looks like you haven't set up the bot yet. Do that first with `{$contextPrefix}setup`.
@@ -82,8 +78,7 @@ join-success = Successfully joined {$targetMention}.
 
 # This message is shown when the user tries to invite the bot to a voice channel,
 # but the webhook used by the bot has been deleted.
-webhook-deleted = Looks like you deleted the webhook I use! *bonk*
- Re-run `{$contextPrefix}setup` to fix this.
+webhook-deleted = Looks like you deleted the webhook I use! *bonk* Re-run `{$contextPrefix}setup` to fix this.
 
 
 ## ping command
