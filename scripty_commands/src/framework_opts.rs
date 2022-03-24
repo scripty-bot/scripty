@@ -13,6 +13,7 @@ pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
             cmds::join(),
             cmds::train_storage(),
             cmds::donate(),
+            cmds::ping(),
             poise::Command {
                 subcommands: vec![cmds::user_language(), cmds::guild_language()],
                 ..cmds::language()
