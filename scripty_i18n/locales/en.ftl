@@ -85,5 +85,5 @@ webhook-deleted = Looks like you deleted the webhook I use! *bonk*
 latency-description = WebSocket latency: {$wsLatencyMs}ms ({$wsLatencyNs}ns)\n
  HTTP latency: {$httpLatencyMs}ms ({$httpLatencyNs}ns)\n
  Database latency: {$pgLatencyMs}ms ({$pgLatencyNs}ns)\n\n
- Note: if any latency is equal to -1ms, it means that specific latency could not be calculated right now.\n
+ Note: if any latency is equal to 0ms, it means that specific latency could not be calculated right now.\n
  Try again later.
