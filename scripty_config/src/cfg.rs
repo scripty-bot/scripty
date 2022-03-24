@@ -2,11 +2,6 @@
 pub struct BotConfig {
     pub database: DatabaseConfig,
 
-    /// What percentage of system cores should be dedicated to speech-to-text?
-    ///
-    /// The minimum number of threads is constrained to 1 for both.
-    pub pct_stt_threads: f32,
-
     /// Path to a directory containing models.
     ///
     /// This should contain directories specifying the two-letter ISO language code,
@@ -29,8 +24,10 @@ pub struct BotConfig {
     /// ```
     pub model_dir: String,
 
+    /// Bot token.
     pub token: String,
 
+    /// Support server invite link.
     pub support_invite: String,
 
     /// Path to i18n files. Must be available at runtime.
