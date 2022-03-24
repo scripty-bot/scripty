@@ -23,8 +23,8 @@ pub async fn ping(ctx: Context<'_>) -> Result<(), Error> {
     let db_latency_ns = get_db_latency().await;
     let db_latency_ms = (db_latency_ns as f64 / 1_000_000.0).round();
 
-    let mut builder = CreateEmbed::default();
-    builder.title("🏓").description(format_message!(
+    let mut embed = CreateEmbed::default();
+    embed.title("🏓").description(format_message!(
         resolved_language,
         "latency-description",
         wsLatencyMs: ws_latency_ms,
@@ -34,6 +34,13 @@ pub async fn ping(ctx: Context<'_>) -> Result<(), Error> {
         dbLatencyMs: db_latency_ms,
         dbLatencyNs: db_latency_ns
     ));
+    ctx.send(|resp| {
+        resp.embed(|e| {
+            *e = embed;
+            e
+        })
+    })
+    .await?;
 
     Ok(())
 }
