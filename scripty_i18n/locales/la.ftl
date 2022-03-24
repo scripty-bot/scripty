@@ -15,4 +15,12 @@ language-set-failure-description-unsupported =
        Si vis iuvare converte programmatem ex Anglicum ad Latiam,
     ad { $supportServerInvite } it.
 language-set-failure-title-invalid = Lingua `{ $language }` non habeo.
-None =
+# Context menu command translation strings
+context-menu-command-title = \nImperium tabulae\n
+context-menu-command-user = { $commandName } (ad homo)\n
+context-menu-command-message = { $commandName } (ad nuntium)\n
+language-set-failure-description-invalid = Linguam vis non validam est.
+language-set-failure-title-db = Ubi informationem est non potest dare informationem quid vis.
+language-set-failure-description-db =
+    Ubi informationem est, erratum habet quando lingua tua confirmat.
+    Quaeso imperium desistite. Erratum { $error } est.
