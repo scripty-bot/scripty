@@ -19,8 +19,8 @@ pub async fn ping(ctx: Context<'_>) -> Result<(), Error> {
     let http_latency_ns = get_http_latency(dctx, ctx.channel_id()).await;
     let http_latency_ms = (http_latency_ns as f64 / 1_000_000.0).round();
     // get Postgres latency in nanoseconds and milliseconds
-    let db_latency_ns = get_db_latency().await;
-    let db_latency_ms = (db_latency_ns as f64 / 1_000_000.0).round();
+    let pg_latency_ns = get_db_latency().await;
+    let pg_latency_ms = (pg_latency_ns as f64 / 1_000_000.0).round();
 
     let mut embed = CreateEmbed::default();
     embed.title("🏓").description(format_message!(
@@ -30,8 +30,8 @@ pub async fn ping(ctx: Context<'_>) -> Result<(), Error> {
         wsLatencyNs: ws_latency_ns,
         httpLatencyMs: http_latency_ms,
         httpLatencyNs: http_latency_ns,
-        dbLatencyMs: db_latency_ms,
-        dbLatencyNs: db_latency_ns
+        pgLatencyMs: pg_latency_ms,
+        pgLatencyNs: pg_latency_ns
     ));
     ctx.send(|resp| {
         resp.embed(|e| {
