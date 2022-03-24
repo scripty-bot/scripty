@@ -800,7 +800,7 @@
     "english": "Chinese (Singapore)"
   },
   "zh-tw": {
-    "native": "中文 (中国台湾省)",
-    "english": "Chinese (Taiwan, Province of China)"
+    "native": "中文 (台灣)",
+    "english": "Chinese (Taiwan)"
   }
 }
