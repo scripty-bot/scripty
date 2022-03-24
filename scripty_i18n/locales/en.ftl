@@ -14,46 +14,73 @@ donation-description = Scripty is not cheap to run. It is currently running on a
  {"[https://github.com/sponsors/tazz4843](https://github.com/sponsors/tazz4843?frequency=one-time&sponsor=tazz4843)"}\n\n\n
  https://scripty.org/premium
 
-# Help menu translation strings
+## Help menu translation strings
 command-not-found = No command with name `{ $commandName }` found.
 command-not-found-suggestions = Did you mean `{ $suggestion }`?
 no-help-found = No help found for command `{ $commandName }`.
 default-category-name = Commands
-# Context menu command translation strings
+## Context menu command translation strings
 context-menu-command-title = \nContext menu commands:\n
 context-menu-command-user =   {$commandName} (on user)\n
 context-menu-command-message =   {$commandName} (on message)\n
 more-info-on-command = \nFor more information on a specific command, type `{$contextPrefix}help <name>`\n```
 
-# Language configuration strings
+## Language configuration strings
+# This message is shown as the embed title when the user sets their language successfully.
 user-language-set-success = User language set to `{$language}`.
+# This message is shown as the embed description when the user sets their language successfully.
 user-language-set-success-description = To return to English, type `{$contextPrefix}language user_language en`.
+
+# This message is shown as the embed title when the guild sets their language successfully.
 guild-language-set-success = Guild language set to `{$language}`.
+# This message is shown as the embed description when the guild sets their language successfully.
 guild-language-set-success-description = To return to English, type `{$contextPrefix}language guild_language en`.
 
+# This message is shown as the embed title when an entity tries to set their language to an unsupported language.
 language-set-failure-title-unsupported = The language you specified is not supported by the bot.
+# This message is shown as the embed description when an entity tries to set their language to an unsupported language.
 language-set-failure-description-unsupported = If you'd like to help with adding support for this
  language, please join the support server at {$supportServerInvite}.
+
+# This message is shown as the embed title when an entity tries to set their language to an invalid language.
 language-set-failure-title-invalid = Language `{$language}` not found.
+# This message is shown as the embed description when an entity tries to set their language to an invalid language.
 language-set-failure-description-invalid = The language you specified is an invalid language identifier.
+
+# This message is shown as the embed title when the database returns an error when setting the language for an entity.
 language-set-failure-title-db = Database error.
+# This message is shown as the embed description when the database returns an error when setting the language for an entity.
 language-set-failure-description-db = The database encountered an error while attempting to set your language.
  This error has been reported, and we'll look into it. Please do not spam this command. (If you're curious, here's the error: {$error})
 
-# Command invocation contexts
+## Command invocation contexts
+# This message is shown as the embed title when a user tries to invoke the root command of a group.
 root-command-invoked-title = This is a root command!
+# This message is shown as the embed description when a user tries to invoke the root command of a group.
 root-command-invoked-description = Please invoke only this command's subcommands to use it.\nSee
  `{$contextPrefix}help {$commandName}` for more info.
 
-# join command
+
+## join command
+# This message is shown when the user is not in a voice channel, nor was a voice channel specified.
 no-channel-specified = You're not in a voice chat, nor did you tell me a channel to join. Try
  `{$contextPrefix}join <channel>` to specify a voice chat, or join a voice chat yourself and re-run this command.
+
+# This message is shown when the user tries to invite the bot to a voice channel, but the bot has not been set up.
 bot-not-set-up = Looks like you haven't set up the bot yet. Do that first with `{$contextPrefix}setup`.
+
+# This message is shown on successfuly joining a voice channel.
+# {$targetMention} is the mention of the channel the bot joined.
 join-success = Successfully joined {$targetMention}.
+
+# This message is shown when the user tries to invite the bot to a voice channel,
+# but the webhook used by the bot has been deleted.
 webhook-deleted = Looks like you deleted the webhook I use! *bonk*
  Re-run `{$contextPrefix}setup` to fix this.
 
+
 ## ping command
+# This message is shown when the user requests latency information.
 # Note: the numbers here will be formatted according to the language set for the context.
 latency-description = WebSocket latency: {$wsLatencyMs}ms ({$wsLatencyNs}ns)\n
  HTTP latency: {$httpLatencyMs}ms ({$httpLatencyNs}ns)\n
