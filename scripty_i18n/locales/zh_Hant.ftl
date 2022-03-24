@@ -13,3 +13,7 @@ donation-description =
     你還能夠直接通過 GitHub 贊助一次性捐贈:
     { "[https://github.com/sponsors/tazz4843](https://github.com/sponsors/tazz4843?frequency=one-time&sponsor=tazz4843)" }\n\n\n
     https://scripty.org/premium
+# Help menu translation strings
+command-not-found = 沒有名為 `{ $commandName }` 的指令。
+command-not-found-suggestions = 你是指 `{ $suggestion }` 嗎？
+no-help-found = 沒有給`{ $commandName }`的幫助。
