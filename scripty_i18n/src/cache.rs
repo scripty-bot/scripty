@@ -124,7 +124,7 @@ pub async fn set_user_language(user_id: u64, language: &str) -> Result<(), Inval
 /// Get a guild's language from the cache, falling back to a database query if not cached,
 /// and if not in database, falling back to English (`en`).
 /// This is a guild-specific language, and is not the same as the user's language.
-pub async fn get_language_guild(guild_id: u64) -> LanguageIdentifier {
+pub async fn get_guild_language(guild_id: u64) -> LanguageIdentifier {
     let cache = get_cache();
     if let Some(lang) = cache.get(&guild_id) {
         return lang.value().clone();
@@ -154,7 +154,7 @@ pub async fn get_language_guild(guild_id: u64) -> LanguageIdentifier {
 /// Remove a guild's language from the cache.
 ///
 /// Not sure when this would be useful, but it's here just in case.
-pub fn remove_language_guild(guild_id: u64) {
+pub fn remove_guild_language(guild_id: u64) {
     get_cache().remove(&guild_id);
 }
 
@@ -167,7 +167,7 @@ pub fn remove_language_guild(guild_id: u64) {
 /// * An invalid language code was provided.
 /// * The language code is not supported by the bot.
 /// * A database error occurred.
-pub async fn set_language_guild(guild_id: u64, language: &str) -> Result<(), InvalidLanguageError> {
+pub async fn set_guild_language(guild_id: u64, language: &str) -> Result<(), InvalidLanguageError> {
     let lang_id = InvalidLanguageError::check_validity(language)?;
 
     let db = scripty_db::get_db();
@@ -197,7 +197,7 @@ pub async fn set_language_guild(guild_id: u64, language: &str) -> Result<(), Inv
 pub async fn get_resolved_language(user_id: u64, guild_id: Option<u64>) -> LanguageIdentifier {
     match (get_user_language(user_id).await, guild_id) {
         (Some(lang), _) => lang,
-        (None, Some(guild_id)) => get_language_guild(guild_id).await,
+        (None, Some(guild_id)) => get_guild_language(guild_id).await,
         (None, None) => LanguageIdentifier::from_str("en").expect("invalid language"),
     }
 }
