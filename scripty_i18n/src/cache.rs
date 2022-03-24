@@ -9,7 +9,7 @@ static I18N_CACHE_STORAGE: OnceCell<DashMap<u64, LanguageIdentifier>> = OnceCell
 
 /// Initialize the cache. This should be called once at the start of the bot.
 /// Do not call this more than once. Unexpected behavior may occur.
-pub fn init_cache() {
+pub(crate) fn init_cache() {
     I18N_CACHE_STORAGE.get_or_init(DashMap::new);
 }
 
@@ -48,7 +48,7 @@ impl InvalidLanguageError {
     /// * Attempt to parse the language code. If it fails, return `Self::Invalid`.
     /// * Check if the language code is supported by the bot. If it is not, return `Self::Unsupported`.
     /// * Return `Ok(LanguageIdentifier)` if all checks pass, where `LanguageIdentifier` is the parsed language code.
-    pub fn check_validity(language: &str) -> Result<LanguageIdentifier, Self> {
+    pub(crate) fn check_validity(language: &str) -> Result<LanguageIdentifier, Self> {
         // check if the language code is valid
         let lang_id = LanguageIdentifier::from_str(language)?;
 
