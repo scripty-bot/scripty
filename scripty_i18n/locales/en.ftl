@@ -25,3 +25,18 @@ context-menu-command-title = \nContext menu commands:\n
 context-menu-command-user =   {$commandName} (on user)\n
 context-menu-command-message =   {$commandName} (on message)\n
 more-info-on-command = \nFor more information on a specific command, type `{$contextPrefix}help <name>`\n```
+
+# Language configuration strings
+user-language-set-success = User language set to `{$language}`.
+user-language-set-success-description = To return to English, type `{$contextPrefix}language user_language en`.
+guild-language-set-success = Guild language set to `{$language}`.
+guild-language-set-success-description = To return to English, type `{$contextPrefix}language guild_language en`.
+
+language-set-failure-title-unsupported = The language you specified is not supported by the bot.
+language-set-failure-description-unsupported = If you'd like to help with adding support for this
+ language, please join the support server at {$supportServerInvite}.
+language-set-failure-title-invalid = Language `{$language}` not found.
+language-set-failure-description-invalid = The language you specified is an invalid language identifier.
+language-set-failure-title-db = Database error.
+language-set-failure-description-db = The database encountered an error while attempting to set your language.
+ This error has been reported, and we'll look into it. Please do not spam this command. (If you're curious, here's the error: {$error})
