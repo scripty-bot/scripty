@@ -40,4 +40,3 @@ language-set-failure-title-db = Database error.
 language-set-failure-description-db =
     The database encountered an error while attempting to set your language.
     This error has been reported, and we'll look into it. Please do not spam this command. (If you're curious, here's the error: { $error })
-test = test
