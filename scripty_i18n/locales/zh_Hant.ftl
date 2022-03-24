@@ -16,4 +16,18 @@ donation-description =
 # Help menu translation strings
 command-not-found = 沒有名為 `{ $commandName }` 的指令。
 command-not-found-suggestions = 你是指 `{ $suggestion }` 嗎？
-no-help-found = 沒有給`{ $commandName }`的幫助。
+no-help-found = 沒有給指令`{ $commandName }`的幫助。
+language-set-failure-description-unsupported = 如果你想幫助我們添加對該語言的支持，請加入我們的支援伺服器 { $supportServerInvite }。
+default-category-name = 指令
+# Context menu command translation strings
+context-menu-command-title = \n菜單命令:\n
+context-menu-command-user = { $commandName } (在用戶上)\n
+context-menu-command-message = { $commandName } (發送信息時)\n
+more-info-on-command = \n有關特定命令的更多信息，發送 `{ $contextPrefix }help <name>`\n```
+# Language configuration strings
+user-language-set-success = 成功將用戶語言設置為 `{ $language }`。
+user-language-set-success-description = 要將用戶語言重置為英語，發送 `{ $contextPrefix }language user_language en`。
+guild-language-set-success = 成功將伺服器語言設置為 `{ $language }`。
+guild-language-set-success-description = 要將伺服器語言重置為英語，發送 `{ $contextPrefix }language guild_language en`。
+language-set-failure-title-unsupported = Scripty 暫時還不支持你指定的語言。
+language-set-failure-title-invalid = 語言 `{ $language }` 並不存在。
