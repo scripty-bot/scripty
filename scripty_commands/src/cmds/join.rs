@@ -82,7 +82,7 @@ pub async fn join(
     .await;
     match res {
         Ok(true) => {
-            ctx.say(format_message!(resolved_language, "join-success", targetMention: voice_channel.mention())).await?;
+            ctx.say(format_message!(resolved_language, "join-success", targetMention: voice_channel.mention().to_string())).await?;
         }
         Ok(false) => {
             ctx.say(

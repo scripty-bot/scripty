@@ -45,7 +45,7 @@ language-set-failure-description-unsupported = If you'd like to help with adding
 # This message is shown as the embed title when an entity tries to set their language to an invalid language.
 language-set-failure-title-invalid = Language `{$language}` not found.
 # This message is shown as the embed description when an entity tries to set their language to an invalid language.
-language-set-failure-description-invalid = The language you specified is an invalid language identifier.
+language-set-failure-description-invalid = The language you specified is an invalid language identifier. Reason: {$error}
 
 # This message is shown as the embed title when the database returns an error when setting the language for an entity.
 language-set-failure-title-db = Database error.
