@@ -39,3 +39,10 @@ language-set-failure-description-invalid = The language you specified is an inva
 language-set-failure-title-db = Database error.
 language-set-failure-description-db = The database encountered an error while attempting to set your language.
  This error has been reported, and we'll look into it. Please do not spam this command. (If you're curious, here's the error: {$error})
+
+# Command invocation contexts
+root-command-invoked-title = This is a root command!
+root-command-invoked-description = Please invoke only this command's subcommands to use it.\nSee
+ `{$contextPrefix}help {$commandName}` for more info.
+
+
