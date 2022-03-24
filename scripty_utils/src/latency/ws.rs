@@ -1,14 +1,13 @@
-use crate::ShardManagerWrapper;
+use crate::{ShardManagerWrapper, TypeMapKey};
 use serenity::client::bridge::gateway::ShardId;
-use serenity::client::Context;
 
-pub async fn get_ws_latency(ctx: &Context) -> Option<u128> {
-    let data = ctx.data.read().await;
-
-    let mgr = data.get::<ShardManagerWrapper>()?;
+pub async fn get_ws_latency(
+    mgr: &<ShardManagerWrapper as TypeMapKey>::Value,
+    shard_id: u64,
+) -> Option<u128> {
     let mgr_lock = mgr.lock().await;
     let runners = mgr_lock.runners.lock().await;
     runners
-        .get(&ShardId(ctx.shard_id))
+        .get(&ShardId(shard_id))
         .and_then(|x| x.latency.map(|d| d.as_nanos()))
 }

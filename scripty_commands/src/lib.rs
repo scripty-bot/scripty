@@ -8,9 +8,10 @@ extern crate scripty_i18n;
 
 use poise::FrameworkBuilder;
 use scripty_audio_handler::SerenityInit;
+use scripty_utils::ShardManagerWrapper;
 use serenity::async_trait;
 use serenity::model::prelude::Ready;
-use serenity::prelude::{Context as SerenityContext, EventHandler};
+use serenity::prelude::{Context as SerenityContext, EventHandler, TypeMapKey};
 use std::sync::Arc;
 
 mod checks;
@@ -22,7 +23,7 @@ mod handler;
 mod models;
 
 type Error = error::Error;
-type Data = ();
+type Data = <ShardManagerWrapper as TypeMapKey>::Value;
 type Context<'a> = poise::Context<'a, Data, Error>;
 
 struct Handler;
@@ -46,7 +47,7 @@ pub async fn entrypoint() {
             b.event_handler(Handler)
                 .register_songbird_from_config(scripty_audio_handler::get_songbird())
         })
-        .user_data_setup(move |_, _, _| Box::pin(async move { Ok(()) }))
+        .user_data_setup(move |_, _, c| Box::pin(async move { Ok(c.shard_manager()) }))
         .options(crate::framework_opts::get_framework_opts())
         .build()
         .await
