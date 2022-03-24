@@ -15,9 +15,9 @@ donation-description = Scripty is not cheap to run. It is currently running on a
  https://scripty.org/premium
 
 # Help menu translation strings
-command-not-found = No command with name `{$commandName}` found.
-command-not-found-suggestions = Did you mean `{$suggestion}`?
-no-help-found = No help found for command `{$commandName}`.
+command-not-found = No command with name `{ $commandName }` found.
+command-not-found-suggestions = Did you mean `{ $suggestion }`?
+no-help-found = No help found for command `{ $commandName }`.
 default-category-name = Commands
 # Context menu command translation strings
 context-menu-command-title = \nContext menu commands:\n
