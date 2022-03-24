@@ -2,6 +2,7 @@ use crate::checks::is_guild;
 use crate::{Context, Error};
 use serenity::http::StatusCode;
 use serenity::model::channel::{ChannelType, GuildChannel};
+use serenity::prelude::Mentionable;
 use serenity::Error as SerenityError;
 
 /// Join a voice chat.
@@ -15,6 +16,9 @@ pub async fn join(
     #[channel_types("Voice")]
     voice_channel: Option<GuildChannel>,
 ) -> Result<(), Error> {
+    let resolved_language =
+        scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
+
     let _typing = ctx.defer_or_broadcast();
 
     let discord_ctx = ctx.discord();
@@ -34,8 +38,7 @@ pub async fn join(
                 .guild()
                 .expect("asserted we are already in guild"),
             None => {
-                ctx.say("you're not in a voice chat, nor did you tell me a channel to join")
-                    .await?;
+                ctx.say(format_message!(resolved_language, "no-channel-specified", contextPrefix: ctx.prefix())).await?;
                 return Ok(());
             }
         },
@@ -61,8 +64,10 @@ pub async fn join(
     let channel_id = match channel_id {
         Some(id) => id.into(),
         None => {
-            ctx.say("looks like you haven't set up the bot yet: do that first with `~setup`")
-                .await?;
+            ctx.say(
+                format_message!(resolved_language, "bot-not-set-up", contextPrefix: ctx.prefix()),
+            )
+            .await?;
             return Ok(());
         }
     };
@@ -77,17 +82,18 @@ pub async fn join(
     .await;
     match res {
         Ok(true) => {
-            ctx.say(format!("joined <#{}> successfully", voice_channel.id))
-                .await?;
+            ctx.say(format_message!(resolved_language, "join-success", targetMention: voice_channel.mention())).await?;
         }
         Ok(false) => {
-            ctx.say("looks like you haven't set up the bot yet: do that first with `~setup`")
-                .await?;
+            ctx.say(
+                format_message!(resolved_language, "bot-not-set-up", contextPrefix: ctx.prefix()),
+            )
+            .await?;
         }
         Err(scripty_audio_handler::Error::Serenity(SerenityError::Http(e))) => {
             if let Some(code) = e.status_code() {
                 if code == StatusCode::NOT_FOUND {
-                    ctx.say("looks like you deleted the webhook i use! *bonk*\nre-run `~setup` to fix this.").await?;
+                    ctx.say(format_message!(resolved_language, "webhook-deleted", contextPrefix: ctx.prefix())).await?;
                 }
             }
         }

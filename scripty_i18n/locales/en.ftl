@@ -45,4 +45,10 @@ root-command-invoked-title = This is a root command!
 root-command-invoked-description = Please invoke only this command's subcommands to use it.\nSee
  `{$contextPrefix}help {$commandName}` for more info.
 
-
+# join command
+no-channel-specified = You're not in a voice chat, nor did you tell me a channel to join. Try
+ `{$contextPrefix}join <channel>` to specify a voice chat, or join a voice chat yourself and re-run this command.
+bot-not-set-up = Looks like you haven't set up the bot yet. Do that first with `{$contextPrefix}setup`.
+join-success = Successfully joined {$targetMention}.
+webhook-deleted = Looks like you deleted the webhook I use! *bonk*
+ Re-run `{$contextPrefix}setup` to fix this.
