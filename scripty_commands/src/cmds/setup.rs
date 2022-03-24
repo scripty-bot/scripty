@@ -40,6 +40,7 @@ const POST_SETUP_DESCRIPTION: &str = "A couple notes:\n\n\n\
     slash_command,
     guild_cooldown = 60,
     required_bot_permissions = "MANAGE_WEBHOOKS",
+    required_permissions = "MANAGE_GUILD",
     check = "is_guild"
 )]
 pub async fn setup(
