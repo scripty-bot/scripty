@@ -89,5 +89,5 @@ latency-description =
  HTTP latency: {$httpLatencyMs}ms ({$httpLatencyNs}ns)
  Database latency: {$pgLatencyMs}ms ({$pgLatencyNs}ns)
 
- Note: if any latency is equal to 0ms, it means that specific latency could not be calculated right now.\n
+ Note: if any latency is equal to 0ms, it means that specific latency could not be calculated right now.
  Try again later.
