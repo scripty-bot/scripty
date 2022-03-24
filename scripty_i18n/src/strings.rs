@@ -1,5 +1,6 @@
 use crate::bundles::get_bundle_for_language;
 use fluent::{FluentArgs, FluentError};
+use std::str::FromStr;
 use unic_langid::LanguageIdentifier;
 
 /// Given a language ID and a message ID, returns the formatted message in the given language, or fall back to English.
@@ -13,8 +14,14 @@ pub fn get_formatted_message<'l>(
     args: Option<&'l FluentArgs<'_>>,
 ) -> Option<(String, Vec<FluentError>)> {
     let bundle_temp = get_bundle_for_language(language);
+    let en_bundle_temp = get_bundle_for_language(
+        &LanguageIdentifier::from_str("en").expect("english invalid identifier?"),
+    );
     let bundle = bundle_temp.value();
-    let message = bundle.get_message(message_id)?;
+    let en_bundle = en_bundle_temp.value();
+    let message = bundle
+        .get_message(message_id)
+        .or_else(|| en_bundle.get_message(message_id))?;
     let message_pattern = message.value()?;
     let mut errors = Vec::new();
     let res = bundle
