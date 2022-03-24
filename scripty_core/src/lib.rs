@@ -8,6 +8,8 @@ pub fn start() {
 
     load_config();
 
+    scripty_i18n::init_i18n();
+
     scripty_audio::init_stt();
 
     let rt = get_tokio_rt();
