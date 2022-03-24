@@ -52,3 +52,11 @@ bot-not-set-up = Looks like you haven't set up the bot yet. Do that first with `
 join-success = Successfully joined {$targetMention}.
 webhook-deleted = Looks like you deleted the webhook I use! *bonk*
  Re-run `{$contextPrefix}setup` to fix this.
+
+## ping command
+# Note: the numbers here will be formatted according to the language set for the context.
+latency-description = WebSocket latency: {$wsLatencyMs}ms ({$wsLatencyNs}ns)\n
+ HTTP latency: {$httpLatencyMs}ms ({$httpLatencyNs}ns)\n
+ Database latency: {$pgLatencyMs}ms ({$pgLatencyNs}ns)\n\n
+ Note: if any latency is equal to -1ms, it means that specific latency could not be calculated right now.\n
+ Try again later.
