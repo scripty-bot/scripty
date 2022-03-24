@@ -60,7 +60,7 @@ pub async fn join(
     )
     .fetch_optional(db)
     .await?
-    .map(|id| id.target_channel as u64);
+    .and_then(|id| id.target_channel.map(|id| id as u64));
     let channel_id = match channel_id {
         Some(id) => id.into(),
         None => {
