@@ -133,3 +133,31 @@ setup-success-description = A couple notes:
 
  Thanks for checking out Scripty! <3
  ~ 0/0 + valkyrie_pilot
+
+## train_storage command
+data-storage-embed-title = Data Storage
+data-storage-embed-description =
+ **NOTE**: everything that follows is **entirely optional**, and opting out **will not**, in any way, affect your experience with Scripty.
+ That said, here goes.
+
+ Scripty requires a lot of audio and text data to train a proper speech-to-text model. Not everyone is able to donate or buy premium to help us out, so a big way you can help out is by allowing us to store your data like audio and messages for training a model.
+ We understand this data can be extremely personal, so this is entirely opt-in and will not affect your experience in any way.
+
+ Here's what we'd do with it:
+ * With stored messages, we would feed them into a scorer targeted to your language. This scorer would allow the algorithm to select the most likely words for a given set of sounds. Although immensely helpful, this isn't as important as audio.
+ * With stored audio, we would feed it and the transcript of it into a model to increase the accuracy of the speech-to-text model. This is insanely helpful, even if you have a poor microphone and lots of background noise: in fact, the more noise, the better, as long as a human can still make out what you are saying.
+
+ If you are opted in, and you decide later to opt out, your data is still stored, but you can request deletion by contacting the core devs in the support server: {$supportServerInvite}. We will wipe all of your data permanently.
+ Your data is stored on hardware owned by the core devs, and is locked down tightly. It would be extremely difficult for anyone attempting to gain access to successfully do so.
+
+ You can toggle your choices using the below buttons.
+data-storage-toggle-audio-btn = Toggle Audio Storage
+data-storage-toggle-msgs-btn = Toggle Message Storage
+
+data-storage-opted-in-audio = You are now opted into storing your audio for model training.
+data-storage-opted-out-audio = You are now opted out of storing your audio for model training.
+data-storage-opted-in-msgs = You are now opted into storing your messages for scorer training.
+data-storage-opted-out-msgs = You are now opted out of storing your messages for scorer training.
+data-storage-command-timed-out = Timed out. Rerun this command if you still want to manage settings.
+
+## blocked entities description
