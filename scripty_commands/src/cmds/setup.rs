@@ -35,6 +35,10 @@ const POST_SETUP_DESCRIPTION: &str = "A couple notes:\n\n\n\
 /// allowing you to use `~join` to bind the bot to a voice chat.
 ///
 /// Argument 1 is the channel to send all transcriptions to.
+///
+/// Argument 2 is optional, and is the language to use for transcription.
+///
+/// Argument 3 is optional, and defines whether or not the bot should be verbose.
 #[poise::command(
     prefix_command,
     slash_command,
@@ -56,6 +60,9 @@ pub async fn setup(
     #[description = "During transcriptions, be verbose? This adds no extra overhead."]
     verbose: Option<bool>,
 ) -> Result<(), Error> {
+    let resolved_language =
+        scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
+
     if !text_channel.is_text_based() {
         return Err(Error::InvalidChannelType {
             expected: ChannelType::Text,
@@ -71,28 +78,24 @@ pub async fn setup(
     let mut msg = ctx
         .send(|msg| {
             msg.components(|comp| {
-            comp.create_action_row(|row| {
-                row.create_button(|button| {
-                    button
-                        .custom_id("privacy_agree")
-                        .emoji('✅')
-                        .label("Agree")
-                        .style(ButtonStyle::Success)
-                })
-                .create_button(|button| {
-                    button
-                        .custom_id("privacy_disagree")
-                        .emoji('❎')
-                        .label("Disagree")
-                        .style(ButtonStyle::Danger)
+                comp.create_action_row(|row| {
+                    row.create_button(|button| {
+                        button
+                            .custom_id("privacy_agree")
+                            .emoji('✅')
+                            .label("Agree")
+                            .style(ButtonStyle::Success)
+                    })
+                    .create_button(|button| {
+                        button
+                            .custom_id("privacy_disagree")
+                            .emoji('❎')
+                            .label("Disagree")
+                            .style(ButtonStyle::Danger)
+                    })
                 })
             })
-        })
-        .content(
-            "By setting up Scripty, you agree to both its Privacy Policy and Terms of Service.\n\
-            Privacy Policy: https://scripty.org/privacy\n\
-            Terms of Service: https://scripty.org/terms",
-        )
+            .content(format_message!(resolved_language, "setup-tos-agree"))
         })
         .await?
         .ok_or(Error::MissingReplyHandle)?
@@ -110,8 +113,13 @@ pub async fn setup(
             msg.delete(discord_ctx).await?;
             break;
         } else if custom_id == "privacy_disagree" {
-            msg.edit(discord_ctx, |d| d.content("Cancelling setup."))
-                .await?;
+            msg.edit(discord_ctx, |d| {
+                d.content(format_message!(
+                    resolved_language,
+                    "setup-tos-agree-failure"
+                ))
+            })
+            .await?;
             return Ok(());
         }
     }
@@ -162,8 +170,11 @@ ON CONFLICT
 
     ctx.send(|resp| {
         resp.embed(|e| {
-            e.title("Set up successfully!")
-                .description(POST_SETUP_DESCRIPTION)
+            e.title(format_message!(resolved_language, "setup-success-title"))
+                .description(format_message!(
+                    resolved_language,
+                    "setup-success-description"
+                ))
         })
     })
     .await?;
