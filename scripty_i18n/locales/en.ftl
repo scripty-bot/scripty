@@ -161,3 +161,7 @@ data-storage-opted-out-msgs = You are now opted out of storing your messages for
 data-storage-command-timed-out = Timed out. Rerun this command if you still want to manage settings.
 
 ## blocked entities description
+blocked-entity-no-reason-given = No reason was given for the block.
+blocked-entity-reason-given = Reason given for the block: {$reason}.
+blocked-entity-guild = This guild is blocked from using Scripty. {$reason} You may attempt to appeal this block in the support server: {$supportServerInvite}.
+blocked-entity-user = You are blocked from using Scripty. {$reason} You may attempt to appeal this block in the support server: {$supportServerInvite}.
