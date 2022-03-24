@@ -1,4 +1,4 @@
-use crate::set_i18n_store;
+use crate::{init_cache, set_i18n_store};
 use dashmap::DashMap;
 use fluent::{bundle::FluentBundle, FluentResource};
 use std::fs::read_dir;
@@ -56,4 +56,6 @@ pub fn init_i18n() {
     }
     info!("found {} language localizations", bundles.len());
     set_i18n_store(bundles);
+
+    init_cache();
 }
