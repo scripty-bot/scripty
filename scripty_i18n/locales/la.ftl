@@ -15,4 +15,3 @@ language-set-failure-description-unsupported =
        Si vis iuvare converte programmatem ex Anglicum ad Latiam,
     ad { $supportServerInvite } it.
 language-set-failure-title-invalid = Lingua `{ $language }` non habeo.
-None =
