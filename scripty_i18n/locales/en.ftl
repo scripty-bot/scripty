@@ -201,5 +201,3 @@ transcription-info-transcription-error = internal error: running stt algorithm f
  This has been logged and will be fixed as soon as possible.
  If possible, please contact the core devs in the support server: {$supportServerInvite}.
  Thanks!
-
-
