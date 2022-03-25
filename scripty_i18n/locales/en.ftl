@@ -1,17 +1,18 @@
 donation-title = Donations
-donation-description = Scripty is not cheap to run. It is currently running on a $1,500 USD server with an AMD Ryzen 9 3900 CPU and 128GB RAM. Even with that hardware, we estimate it can only handle 100 concurrent transcriptions. Donations would allow us to scale our hardware capacity and handle many more concurrent transcriptions, perhaps tens of thousands someday with enough donations.
-
- Training a model is not easy either, as that needs relatively recent (CUDA 10.1 support) Nvidia GPUs. We hate asking for donations, but we absolutely can't support the bot out of our own pockets, since it's just too expensive. So we're asking for help, and giving rewards in the form of premium subscriptions.
-
- You can view more info at https://scripty.org/premium, but the gist of it is that there are 6 tiers ranging in price from $5 USD to $100 USD per month. The $100 tier comes with its own managed instance of Scripty for your own server, with a custom name, and profile picture.
-
- We also support one-time donations directly through GitHub Sponsors:
- {"[https://github.com/sponsors/tazz4843](https://github.com/sponsors/tazz4843?frequency=one-time&sponsor=tazz4843)"}
-
- You can view these tiers at https://scripty.org/premium.
-
- <3
- ~ 0/0 and valkyrie_pilot
+donation-description =
+    Scripty is not cheap to run. It is currently running on a $1,500 USD server with an AMD Ryzen 9 3900 CPU and 128GB RAM. Even with that hardware, we estimate it can only handle 100 concurrent transcriptions. Donations would allow us to scale our hardware capacity and handle many more concurrent transcriptions, perhaps tens of thousands someday with enough donations.
+    
+    Training a model is not easy either, as that needs relatively recent (CUDA 10.1 support) Nvidia GPUs. We hate asking for donations, but we absolutely can't support the bot out of our own pockets, since it's just too expensive. So we're asking for help, and giving rewards in the form of premium subscriptions.
+    
+    You can view more info at https://scripty.org/premium, but the gist of it is that there are 6 tiers ranging in price from $5 USD to $100 USD per month. The $100 tier comes with its own managed instance of Scripty for your own server, with a custom name, and profile picture.
+    
+    We also support one-time donations directly through GitHub Sponsors:
+    {"[https://github.com/sponsors/tazz4843](https://github.com/sponsors/tazz4843?frequency=one-time&sponsor=tazz4843)"}
+    
+    You can view these tiers at https://scripty.org/premium.
+    
+    <3
+    ~ 0/0 and valkyrie_pilot
 
 ## Help menu translation strings
 
@@ -21,18 +22,22 @@ no-help-found = No help found for command `{ $commandName }`.
 default-category-name = Commands
 
 ## Context menu command translation strings
-context-menu-command-title = {""}
- Context menu commands:
- {""}
-context-menu-command-user = {"  "}
- {$commandName} (on user)
- {""}
-context-menu-command-message = {"  "}
- {$commandName} (on message)
- {""}
-more-info-on-command = {""}
- For more information on a specific command, type `{$contextPrefix}help <name>`
- ```
+context-menu-command-title =
+    
+    Context menu commands:
+    
+context-menu-command-user =
+    
+    {$commandName} (on user)
+    
+context-menu-command-message =
+    
+    {$commandName} (on message)
+    
+more-info-on-command =
+    
+    For more information on a specific command, type `{$contextPrefix}help <name>`
+    ```
 
 ## Language configuration strings
 
@@ -81,24 +86,26 @@ webhook-deleted = Looks like you deleted the webhook I use! *bonk* Re-run `{ $co
 
 # This message is shown when the user requests latency information.
 # Note: the numbers here will be formatted according to the language set for the context.
-latency-description = WebSocket latency: {$wsLatencyMs}ms ({$wsLatencyNs}ns)
- HTTP latency: {$httpLatencyMs}ms ({$httpLatencyNs}ns)
- Database latency: {$pgLatencyMs}ms ({$pgLatencyNs}ns)
-
- Note: if any latency is equal to 0ms, it means that specific latency could not be calculated right now.
- Try again later.
+latency-description =
+    WebSocket latency: {$wsLatencyMs}ms ({$wsLatencyNs}ns)
+    HTTP latency: {$httpLatencyMs}ms ({$httpLatencyNs}ns)
+    Database latency: {$pgLatencyMs}ms ({$pgLatencyNs}ns)
+    
+    Note: if any latency is equal to 0ms, it means that specific latency could not be calculated right now.
+    Try again later.
 
 ## setup command
-setup-description = Set the bot up.
-
- This will initialize the bare framework of the bot,
- allowing you to use `~join` to bind the bot to a voice chat.
-
- Argument 1 is the channel to send all transcriptions to.
-
- Argument 2 is optional, and is the language to use for transcription.
-
- Argument 3 is optional, and defines whether or not the bot should be verbose.
+setup-description =
+    Set the bot up.
+    
+    This will initialize the bare framework of the bot,
+    allowing you to use `~join` to bind the bot to a voice chat.
+    
+    Argument 1 is the channel to send all transcriptions to.
+    
+    Argument 2 is optional, and is the language to use for transcription.
+    
+    Argument 3 is optional, and defines whether or not the bot should be verbose.
 setup-arg1-description = The channel to send all transcriptions to.
 setup-arg2-description = The language to use for transcription.
 setup-arg3-description = Whether or not the bot should be verbose.
@@ -108,42 +115,43 @@ setup-tos-agree =
     Terms of Service: https://scripty.org/terms
 setup-tos-agree-failure = You must agree to both the Terms of Service and the Privacy Policy to use Scripty. Cancelling setup.
 setup-success-title = Set up successfully!
-setup-success-description = A couple notes:
-
-
- 1) Do not delete the webhook that was created in the target channel.
-
- 2) The bot is extremely expensive to run, and requires a serious amount of processing power, so it'd be amazing if you could donate a bit. We offer premium tiers that boost the limit on the number of users transcripted, which defaults to 5. The core features will stay free forever, though. If you're interested, check out the `{$contextPrefix}donate` command.
-
- 3) If you chose a language other than English (the default) note that transcriptions for it will be much, much lower quality. Soon we will be adding a feature that allows you to help transcription accuracy with your own voice (see note 5).
-
- 4) If you are not a middle-aged American male, expect lower transcription accuracy. This is due to inherent bias within the model, and the only thing we can do about it is train more accurate models (again, see note 5).
-
- 5) To help us train more accurate models, consider allowing us to store your audio and transcriptions for training. See the `{$contextPrefix}train_storage` command.
-
- 6) I don't exactly want to ask again, but please consider donating. It takes an ***insane*** amount of processing power to train new models (we're talking multiple Nvidia RTX 3090 GPUs), and every little bit of money helps a lot. Again, if you're interested, check out the `{$contextPrefix}donate` command.
-
-
- Thanks for checking out Scripty! <3
- ~ 0/0 + valkyrie_pilot
+setup-success-description =
+    A couple notes:
+    
+    1) Do not delete the webhook that was created in the target channel.
+    
+    2) The bot is extremely expensive to run, and requires a serious amount of processing power, so it'd be amazing if you could donate a bit. We offer premium tiers that boost the limit on the number of users transcripted, which defaults to 5. The core features will stay free forever, though. If you're interested, check out the `{$contextPrefix}donate` command.
+    
+    3) If you chose a language other than English (the default) note that transcriptions for it will be much, much lower quality. Soon we will be adding a feature that allows you to help transcription accuracy with your own voice (see note 5).
+    
+    4) If you are not a middle-aged American male, expect lower transcription accuracy. This is due to inherent bias within the model, and the only thing we can do about it is train more accurate models (again, see note 5).
+    
+    5) To help us train more accurate models, consider allowing us to store your audio and transcriptions for training. See the `{$contextPrefix}train_storage` command.
+    
+    6) I don't exactly want to ask again, but please consider donating. It takes an ***insane*** amount of processing power to train new models (we're talking multiple Nvidia RTX 3090 GPUs), and every little bit of money helps a lot. Again, if you're interested, check out the `{$contextPrefix}donate` command.
+    
+    
+    Thanks for checking out Scripty! <3
+    ~ 0/0 + valkyrie_pilot
 
 ## train_storage command
 
 data-storage-embed-title = Data Storage
-data-storage-embed-description = **NOTE**: everything that follows is **entirely optional**, and opting out **will not**, in any way, affect your experience with Scripty.
- That said, here goes.
-
- Scripty requires a lot of audio and text data to train a proper speech-to-text model. Not everyone is able to donate or buy premium to help us out, so a big way you can help out is by allowing us to store your data like audio and messages for training a model.
- We understand this data can be extremely personal, so this is entirely opt-in and will not affect your experience in any way.
-
- Here's what we'd do with it:
- {"*"} With stored messages, we would feed them into a scorer targeted to your language. This scorer would allow the algorithm to select the most likely words for a given set of sounds. Although immensely helpful, this isn't as important as audio.
- {"*"} With stored audio, we would feed it and the transcript of it into a model to increase the accuracy of the speech-to-text model. This is insanely helpful, even if you have a poor microphone and lots of background noise: in fact, the more noise, the better, as long as a human can still make out what you are saying.
-
- If you are opted in, and you decide later to opt out, your data is still stored, but you can request deletion by contacting the core devs in the support server: {$supportServerInvite}. We will wipe all of your data permanently.
- Your data is stored on hardware owned by the core devs, and is locked down tightly. It would be extremely difficult for anyone attempting to gain access to successfully do so.
-
- You can toggle your choices using the below buttons.
+data-storage-embed-description =
+    **NOTE**: everything that follows is **entirely optional**, and opting out **will not**, in any way, affect your experience with Scripty.
+    That said, here goes.
+    
+    Scripty requires a lot of audio and text data to train a proper speech-to-text model. Not everyone is able to donate or buy premium to help us out, so a big way you can help out is by allowing us to store your data like audio and messages for training a model.
+    We understand this data can be extremely personal, so this is entirely opt-in and will not affect your experience in any way.
+    
+    Here's what we'd do with it:
+    {"*"} With stored messages, we would feed them into a scorer targeted to your language. This scorer would allow the algorithm to select the most likely words for a given set of sounds. Although immensely helpful, this isn't as important as audio.
+    {"*"} With stored audio, we would feed it and the transcript of it into a model to increase the accuracy of the speech-to-text model. This is insanely helpful, even if you have a poor microphone and lots of background noise: in fact, the more noise, the better, as long as a human can still make out what you are saying.
+    
+    If you are opted in, and you decide later to opt out, your data is still stored, but you can request deletion by contacting the core devs in the support server: {$supportServerInvite}. We will wipe all of your data permanently.
+    Your data is stored on hardware owned by the core devs, and is locked down tightly. It would be extremely difficult for anyone attempting to gain access to successfully do so.
+    
+    You can toggle your choices using the below buttons.
 data-storage-toggle-audio-btn = Toggle Audio Storage
 data-storage-toggle-msgs-btn = Toggle Message Storage
 data-storage-opted-in-audio = You are now opted into storing your audio for model training.
