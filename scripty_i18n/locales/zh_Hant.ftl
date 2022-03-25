@@ -21,19 +21,18 @@ language-set-failure-description-unsupported = 如果你想幫助我們添加對
 default-category-name = 指令
 # Context menu command translation strings
 context-menu-command-title =
-    { "" }
+       { "" }
     菜單指令:
     { "" }
 context-menu-command-user =
-    { "  " }
+      { " " }
     { $commandName } (在用戶上)
     { "" }
 context-menu-command-message =
-    { "  " }
+    { " " }
     { $commandName } (發送信息時)
     { "" }
 more-info-on-command =
-     { "" }
     有關特定指令的更多信息，發送 `{ $contextPrefix }help <name>`
      ```
 # Language configuration strings
@@ -94,7 +93,6 @@ setup-description =
     參數 3 是可選的，它決定 Scripty 是否應該發送詳細信息。
 setup-success-description =
     幾點注意事項：
-    
     
     1）不要刪除在目標頻道中創建的 webhook。
     
