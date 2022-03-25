@@ -1,10 +1,12 @@
 mod cache_ready;
 mod message;
+mod post_command;
 mod ready;
 mod resume;
 
 use crate::{Data, Error};
 use poise::Event;
+pub use post_command::post_command;
 
 pub async fn event_listener(
     _ctx: &serenity::client::Context,
