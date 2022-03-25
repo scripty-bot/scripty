@@ -169,3 +169,8 @@ voice-connection-error-msg-no-reconnect = 我遇到了一個問題（{ $reason }
 transcription-info-transcript-count = 10 個轉錄中的 1 個。
 # This is shown as the title of the transcript
 transcription-info-transcription-title = 轉錄
+# This is shown as the percent accuracy of the transcription (roughly)
+transcription-info-transcription-confidence = 信心
+# This is shown as the user's SSRC (Synchonization Source)
+# You do not need to translate this, but it is here if your language can provide a more accurate translation.
+transcription-info-transcription-ssrc = SSRC { $ssrc }
