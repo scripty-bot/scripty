@@ -203,4 +203,3 @@ transcription-info-transcription-error =
     This has been logged and will be fixed as soon as possible.
     If possible, please contact the core devs in the support server: { $supportServerInvite }.
     Thanks!
-test = test
