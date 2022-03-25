@@ -113,13 +113,9 @@ setup-success-description =
     ~ 0/0 + valkyrie_pilot
 data-storage-embed-title = 數據存儲
 data-storage-toggle-msgs-btn = 開啟或關閉信息存儲
-None = data-storage-opted-in-msgs =
 None = blocked-entity-reason-given =
-None = voice-connection-error-host-io-error =
 None = voice-connection-error-ws-closed-unknown-opcode =
-None = voice-connection-error-ws-closed-already-authenticated =
 None = voice-connection-error-ws-closed-unknown-protocol =
-None = voice-connection-error-msg-no-reconnect =
 
 # This is shown as the number of transcriptions the algorithm has discovered.
 
@@ -174,13 +170,6 @@ transcription-info-transcription-confidence = 信心
 # This is shown as the user's SSRC (Synchonization Source)
 # You do not need to translate this, but it is here if your language can provide a more accurate translation.
 transcription-info-transcription-ssrc = 同步源 (SSRC) { $ssrc }
-data-storage-embed-description = **注意**：接下來的所有內容**完全是可選的**，並且選擇退出**不會**以任何方式影響您使用 Scripty 的體驗。
-    內容如下。
-    
-    Scripty 需要大量音頻和文本數據來訓練正確的語音到文本模型。 並非每個人都能夠捐贈或高級等級來幫助我們，因此您可以提供幫助的一個重要方式是允許我們存儲您的數據，例如用於訓練模型的音頻和消息。
-    我們了解這些數據可能非常個人，因此這完全是選擇性的，不會以任何方式影響您的體驗。
-    
-    下面是我們將如何使用它：
 # This is shown when the algorithm encounters an error
 transcription-info-transcription-error =
     內部錯誤：運行語音到文本算法失敗，錯誤：{ $error }
