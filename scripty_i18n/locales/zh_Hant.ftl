@@ -113,55 +113,49 @@ setup-success-description =
     ~ 0/0 + valkyrie_pilot
 data-storage-embed-title = 數據存儲
 data-storage-toggle-msgs-btn = 開啟或關閉信息存儲
-None = data-storage-toggle-audio-btn =
 None = data-storage-opted-in-audio =
-None = data-storage-opted-out-audio =
 None = data-storage-opted-in-msgs =
-None = data-storage-opted-out-msgs =
 None = data-storage-command-timed-out =
-None = blocked-entity-no-reason-given =
 None = blocked-entity-reason-given =
-None = blocked-entity-guild =
 None = blocked-entity-user =
-None = voice-connection-error-internal-lib-error =
 None = voice-connection-error-host-io-error =
-None = voice-connection-error-proto-violation =
 None = voice-connection-error-timed-out =
-None = voice-connection-error-ws-closed-no-reason =
 None = voice-connection-error-ws-closed-unknown-opcode =
-None = voice-connection-error-ws-closed-invalid-payload =
 None = voice-connection-error-ws-closed-not-authenticated =
-None = voice-connection-error-ws-closed-authentication-failed =
 None = voice-connection-error-ws-closed-already-authenticated =
-None = voice-connection-error-ws-closed-session-invalid =
 None = voice-connection-error-ws-closed-session-timeout =
-None = voice-connection-error-ws-closed-server-not-found =
 None = voice-connection-error-ws-closed-unknown-protocol =
-None = voice-connection-error-ws-closed-server-crashed =
 None = voice-connection-error-ws-closed-unknown-encryption-mode =
-None = voice-connection-error-unknown =
 None = voice-connection-error-msg-no-reconnect =
-None = voice-connection-error-msg-reconnect =
 
 # This is shown as the number of transcriptions the algorithm has discovered.
 
-None = transcription-info-transcript-count =
 
 # This is shown as the title of the transcript
 
-None = transcription-info-transcription-title =
 
 # This is shown as the percent accuracy of the transcription (roughly)
 
-None = transcription-info-transcription-confidence =
 
 # This is shown as the user's SSRC (Synchonization Source)
 # You do not need to translate this, but it is here if your language can provide a more accurate translation.
 
-None = transcription-info-transcription-ssrc =
 
 # This is shown when the algorithm encounters an error
 
-None = transcription-info-transcription-error =
 data-storage-opted-out-audio = 您選擇不存儲音頻以進行模型訓練。
 data-storage-opted-in-audio = 您選擇存儲音頻以進行模型訓練。
+data-storage-opted-in-msgs = 您選擇存儲您的信息以進行記分器培訓。（記分器用於預測特定單詞在音頻中出現的可能性）。
+blocked-entity-guild = 此伺服器被禁止使用 Scripty。 { $reason } 您可以嘗試在支援伺服器中對此禁止令提出上訴：{ $supportServerInvite }。
+voice-connection-error-ws-closed-unknown-opcode = 由於未知的操作碼，Discord 關閉連接
+data-storage-opted-out-msgs = 您選擇不存儲您的信息以進行記分器培訓。（記分器用於預測特定單詞在音頻中出現的可能性）。
+data-storage-command-timed-out = 超時。 如果您仍想改變設置，請重新運行此命令。
+blocked-entity-no-reason-given = 沒有給出禁止的理由。
+blocked-entity-reason-given = 禁止的原因：{ $reason }。
+blocked-entity-user = 您被禁止使用 Scripty。 { $reason } 您可以嘗試在支援伺服器中對此禁止令提出上訴：{ $supportServerInvite }。
+voice-connection-error-internal-lib-error = 內部錯誤
+voice-connection-error-host-io-error = 主機 IO 錯誤
+data-storage-toggle-audio-btn = 開啟或關閉音頻存儲
+voice-connection-error-proto-violation = Scripty 和 Discord 在協議上不同意
+voice-connection-error-timed-out = 等待連接超時
+voice-connection-error-ws-closed-no-reason = Discord 無故關閉連接
