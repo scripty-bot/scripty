@@ -14,10 +14,12 @@ donation-description = Scripty is not cheap to run. It is currently running on a
  ~ 0/0 and valkyrie_pilot
 
 ## Help menu translation strings
+
 command-not-found = No command with name `{ $commandName }` found.
 command-not-found-suggestions = Did you mean `{ $suggestion }`?
 no-help-found = No help found for command `{ $commandName }`.
 default-category-name = Commands
+
 ## Context menu command translation strings
 context-menu-command-title = {""}
  Context menu commands:
@@ -33,55 +35,50 @@ more-info-on-command = {""}
  ```
 
 ## Language configuration strings
+
 # This message is shown as the embed title when the user sets their language successfully.
-user-language-set-success = User language set to `{$language}`.
+user-language-set-success = User language set to `{ $language }`.
 # This message is shown as the embed description when the user sets their language successfully.
-user-language-set-success-description = To return to English, type `{$contextPrefix}language user_language en`.
-
+user-language-set-success-description = To return to English, type `{ $contextPrefix }language user_language en`.
 # This message is shown as the embed title when the guild sets their language successfully.
-guild-language-set-success = Guild language set to `{$language}`.
+guild-language-set-success = Guild language set to `{ $language }`.
 # This message is shown as the embed description when the guild sets their language successfully.
-guild-language-set-success-description = To return to English, type `{$contextPrefix}language guild_language en`.
-
+guild-language-set-success-description = To return to English, type `{ $contextPrefix }language guild_language en`.
 # This message is shown as the embed title when an entity tries to set their language to an unsupported language.
 language-set-failure-title-unsupported = The language you specified is not supported by the bot.
 # This message is shown as the embed description when an entity tries to set their language to an unsupported language.
-language-set-failure-description-unsupported = If you'd like to help with adding support for this language, please join the support server at {$supportServerInvite}.
-
+language-set-failure-description-unsupported = If you'd like to help with adding support for this language, please join the support server at { $supportServerInvite }.
 # This message is shown as the embed title when an entity tries to set their language to an invalid language.
-language-set-failure-title-invalid = Language `{$language}` not found.
+language-set-failure-title-invalid = Language `{ $language }` not found.
 # This message is shown as the embed description when an entity tries to set their language to an invalid language.
-language-set-failure-description-invalid = The language you specified is an invalid language identifier. Reason: {$error}
-
+language-set-failure-description-invalid = The language you specified is an invalid language identifier. Reason: { $error }
 # This message is shown as the embed title when the database returns an error when setting the language for an entity.
 language-set-failure-title-db = Database error.
 # This message is shown as the embed description when the database returns an error when setting the language for an entity.
-language-set-failure-description-db = The database encountered an error while attempting to set your language. This error has been reported, and we'll look into it. Please do not spam this command. (If you're curious, here's the error: {$error})
+language-set-failure-description-db = The database encountered an error while attempting to set your language. This error has been reported, and we'll look into it. Please do not spam this command. (If you're curious, here's the error: { $error })
 
 ## Command invocation contexts
+
 # This message is shown as the embed title when a user tries to invoke the root command of a group.
 root-command-invoked-title = This is a root command!
 # This message is shown as the embed description when a user tries to invoke the root command of a group.
-root-command-invoked-description = Please invoke only this command's subcommands to use it. See `{$contextPrefix}help {$commandName}` for more info.
-
+root-command-invoked-description = Please invoke only this command's subcommands to use it. See `{ $contextPrefix }help { $commandName }` for more info.
 
 ## join command
+
 # This message is shown when the user is not in a voice channel, nor was a voice channel specified.
-no-channel-specified = You're not in a voice chat, nor did you tell me a channel to join. Try `{$contextPrefix}join <channel>` to specify a voice chat, or join a voice chat yourself and re-run this command.
-
+no-channel-specified = You're not in a voice chat, nor did you tell me a channel to join. Try `{ $contextPrefix }join <channel>` to specify a voice chat, or join a voice chat yourself and re-run this command.
 # This message is shown when the user tries to invite the bot to a voice channel, but the bot has not been set up.
-bot-not-set-up = Looks like you haven't set up the bot yet. Do that first with `{$contextPrefix}setup`.
-
+bot-not-set-up = Looks like you haven't set up the bot yet. Do that first with `{ $contextPrefix }setup`.
 # This message is shown on successfuly joining a voice channel.
 # {$targetMention} is the mention of the channel the bot joined.
-join-success = Successfully joined {$targetMention}.
-
+join-success = Successfully joined { $targetMention }.
 # This message is shown when the user tries to invite the bot to a voice channel,
 # but the webhook used by the bot has been deleted.
-webhook-deleted = Looks like you deleted the webhook I use! *bonk* Re-run `{$contextPrefix}setup` to fix this.
-
+webhook-deleted = Looks like you deleted the webhook I use! *bonk* Re-run `{ $contextPrefix }setup` to fix this.
 
 ## ping command
+
 # This message is shown when the user requests latency information.
 # Note: the numbers here will be formatted according to the language set for the context.
 latency-description = WebSocket latency: {$wsLatencyMs}ms ({$wsLatencyNs}ns)
@@ -105,13 +102,11 @@ setup-description = Set the bot up.
 setup-arg1-description = The channel to send all transcriptions to.
 setup-arg2-description = The language to use for transcription.
 setup-arg3-description = Whether or not the bot should be verbose.
-
 setup-tos-agree =
- By setting up Scripty, you agree to both its Privacy Policy and Terms of Service.
- Privacy Policy: https://scripty.org/privacy
- Terms of Service: https://scripty.org/terms
+    By setting up Scripty, you agree to both its Privacy Policy and Terms of Service.
+    Privacy Policy: https://scripty.org/privacy
+    Terms of Service: https://scripty.org/terms
 setup-tos-agree-failure = You must agree to both the Terms of Service and the Privacy Policy to use Scripty. Cancelling setup.
-
 setup-success-title = Set up successfully!
 setup-success-description = A couple notes:
 
@@ -133,6 +128,7 @@ setup-success-description = A couple notes:
  ~ 0/0 + valkyrie_pilot
 
 ## train_storage command
+
 data-storage-embed-title = Data Storage
 data-storage-embed-description = **NOTE**: everything that follows is **entirely optional**, and opting out **will not**, in any way, affect your experience with Scripty.
  That said, here goes.
@@ -150,7 +146,6 @@ data-storage-embed-description = **NOTE**: everything that follows is **entirely
  You can toggle your choices using the below buttons.
 data-storage-toggle-audio-btn = Toggle Audio Storage
 data-storage-toggle-msgs-btn = Toggle Message Storage
-
 data-storage-opted-in-audio = You are now opted into storing your audio for model training.
 data-storage-opted-out-audio = You are now opted out of storing your audio for model training.
 data-storage-opted-in-msgs = You are now opted into storing your messages for scorer training.
@@ -158,12 +153,14 @@ data-storage-opted-out-msgs = You are now opted out of storing your messages for
 data-storage-command-timed-out = Timed out. Rerun this command if you still want to manage settings.
 
 ## blocked entities description
+
 blocked-entity-no-reason-given = No reason was given for the block.
-blocked-entity-reason-given = Reason given for the block: {$reason}.
-blocked-entity-guild = This guild is blocked from using Scripty. {$reason} You may attempt to appeal this block in the support server: {$supportServerInvite}.
-blocked-entity-user = You are blocked from using Scripty. {$reason} You may attempt to appeal this block in the support server: {$supportServerInvite}.
+blocked-entity-reason-given = Reason given for the block: { $reason }.
+blocked-entity-guild = This guild is blocked from using Scripty. { $reason } You may attempt to appeal this block in the support server: { $supportServerInvite }.
+blocked-entity-user = You are blocked from using Scripty. { $reason } You may attempt to appeal this block in the support server: { $supportServerInvite }.
 
 ## voice connection errors
+
 voice-connection-error-internal-lib-error = library internal error
 voice-connection-error-host-io-error = host IO error
 voice-connection-error-proto-violation = library and discord disagreed on protocol
@@ -181,23 +178,24 @@ voice-connection-error-ws-closed-unknown-protocol = discord didn't recognize pro
 voice-connection-error-ws-closed-server-crashed = discord voice server crashed
 voice-connection-error-ws-closed-unknown-encryption-mode = discord didn't recognize encryption scheme
 voice-connection-error-unknown = disconnected for unknown reason
-
-voice-connection-error-msg-no-reconnect = I had an issue ({$reason}) and disconnected from the voice chat.
-voice-connection-error-msg-reconnect = I had an issue ({$reason}) and disconnected from the voice chat. I'll try reconnecting in 30 seconds.
+voice-connection-error-msg-no-reconnect = I had an issue ({ $reason }) and disconnected from the voice chat.
+voice-connection-error-msg-reconnect = I had an issue ({ $reason }) and disconnected from the voice chat. I'll try reconnecting in 30 seconds.
 
 ## transcription info - verbose mode
+
 # This is shown as the number of transcriptions the algorithm has discovered.
-transcription-info-transcript-count = Transcript 1 of {$count}.
+transcription-info-transcript-count = Transcript 1 of { $count }.
 # This is shown as the title of the transcript
 transcription-info-transcription-title = Transcript
 # This is shown as the percent accuracy of the transcription (roughly)
 transcription-info-transcription-confidence = Confidence
 # This is shown as the user's SSRC (Synchonization Source)
 # You do not need to translate this, but it is here if your language can provide a more accurate translation.
-transcription-info-transcription-ssrc = SSRC {$ssrc}
+transcription-info-transcription-ssrc = SSRC { $ssrc }
 # This is shown when the algorithm encounters an error
-transcription-info-transcription-error = internal error: running stt algorithm failed with error: {$error}
- SSRC: {$ssrc}
- This has been logged and will be fixed as soon as possible.
- If possible, please contact the core devs in the support server: {$supportServerInvite}.
- Thanks!
+transcription-info-transcription-error =
+    internal error: running stt algorithm failed with error: { $error }
+    SSRC: { $ssrc }
+    This has been logged and will be fixed as soon as possible.
+    If possible, please contact the core devs in the support server: { $supportServerInvite }.
+    Thanks!
