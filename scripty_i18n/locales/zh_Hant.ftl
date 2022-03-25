@@ -136,16 +136,16 @@ None = voice-connection-error-msg-no-reconnect =
 
 # This is shown when the algorithm encounters an error
 
-data-storage-opted-out-audio = 您選擇不存儲音頻以進行模型訓練。
-data-storage-opted-in-audio = 您選擇存儲音頻以進行模型訓練。
-data-storage-opted-in-msgs = 您選擇存儲您的信息以進行記分器培訓。（記分器用於預測特定單詞在音頻中出現的可能性）。
-blocked-entity-guild = 此伺服器被禁止使用 Scripty。 { $reason } 您可以嘗試在支援伺服器中對此禁止令提出上訴：{ $supportServerInvite }。
+data-storage-opted-out-audio = 你選擇不存儲音頻以進行模型訓練。
+data-storage-opted-in-audio = 你選擇存儲音頻以進行模型訓練。
+data-storage-opted-in-msgs = 你選擇存儲你的信息以進行記分器培訓。（記分器用於預測特定單詞在音頻中出現的可能性）。
+blocked-entity-guild = 此伺服器被禁止使用 Scripty。 { $reason } 你可以嘗試在支援伺服器中對此禁止令提出上訴：{ $supportServerInvite }。
 voice-connection-error-ws-closed-unknown-opcode = 由於未知的操作碼，Discord 關閉了連接
-data-storage-opted-out-msgs = 您選擇不存儲您的信息以進行記分器培訓。（記分器用於預測特定單詞在音頻中出現的可能性）。
-data-storage-command-timed-out = 超時。 如果您仍想改變設置，請重新運行此命令。
+data-storage-opted-out-msgs = 你選擇不存儲你的信息以進行記分器培訓。（記分器用於預測特定單詞在音頻中出現的可能性）。
+data-storage-command-timed-out = 超時。 如果你仍想改變設置，請重新運行此指令。
 blocked-entity-no-reason-given = 沒有給出禁止的理由。
 blocked-entity-reason-given = 禁止的原因：{ $reason }。
-blocked-entity-user = 您被禁止使用 Scripty。 { $reason } 您可以嘗試在支援伺服器中對此禁止令提出上訴：{ $supportServerInvite }。
+blocked-entity-user = 你被禁止使用 Scripty。 { $reason } 你可以嘗試在支援伺服器中對此禁止令提出上訴：{ $supportServerInvite }。
 voice-connection-error-internal-lib-error = 內部錯誤
 voice-connection-error-host-io-error = 主機 IO 錯誤
 data-storage-toggle-audio-btn = 開啟或關閉音頻存儲
@@ -173,4 +173,18 @@ transcription-info-transcription-title = 轉錄
 transcription-info-transcription-confidence = 信心
 # This is shown as the user's SSRC (Synchonization Source)
 # You do not need to translate this, but it is here if your language can provide a more accurate translation.
-transcription-info-transcription-ssrc = SSRC { $ssrc }
+transcription-info-transcription-ssrc = 同步源 (SSRC) { $ssrc }
+data-storage-embed-description = **注意**：接下來的所有內容**完全是可選的**，並且選擇退出**不會**以任何方式影響您使用 Scripty 的體驗。
+    內容如下。
+    
+    Scripty 需要大量音頻和文本數據來訓練正確的語音到文本模型。 並非每個人都能夠捐贈或高級等級來幫助我們，因此您可以提供幫助的一個重要方式是允許我們存儲您的數據，例如用於訓練模型的音頻和消息。
+    我們了解這些數據可能非常個人，因此這完全是選擇性的，不會以任何方式影響您的體驗。
+    
+    下面是我們將如何使用它：
+# This is shown when the algorithm encounters an error
+transcription-info-transcription-error =
+    內部錯誤：運行語音到文本算法失敗，錯誤：{ $error }
+    SSRC: { $ssrc }
+    這已被記錄，並將盡快修復。
+    如果可能，請聯繫支援伺服器中的核心開發人員：{ $supportServerInvite }。
+    非常感謝！
