@@ -165,3 +165,44 @@ blocked-entity-no-reason-given = No reason was given for the block.
 blocked-entity-reason-given = Reason given for the block: {$reason}.
 blocked-entity-guild = This guild is blocked from using Scripty. {$reason} You may attempt to appeal this block in the support server: {$supportServerInvite}.
 blocked-entity-user = You are blocked from using Scripty. {$reason} You may attempt to appeal this block in the support server: {$supportServerInvite}.
+
+## voice connection errors
+voice-connection-error-internal-lib-error = library internal error
+voice-connection-error-host-io-error = host IO error
+voice-connection-error-proto-violation = library and discord disagreed on protocol
+voice-connection-error-timed-out = timed out waiting for connection
+voice-connection-error-ws-closed-no-reason = discord closed connection without reason
+voice-connection-error-ws-closed-unknown-opcode = discord closed connection due to unknown opcode
+voice-connection-error-ws-closed-invalid-payload = discord closed connection due to an invalid payload
+voice-connection-error-ws-closed-not-authenticated = discord closed connection due to not being authenticated
+voice-connection-error-ws-closed-authentication-failed = discord closed connection due to authentication failure
+voice-connection-error-ws-closed-already-authenticated = discord closed connection due to already being authenticated
+voice-connection-error-ws-closed-session-invalid = discord invalidated session
+voice-connection-error-ws-closed-session-timeout = session timed out
+voice-connection-error-ws-closed-server-not-found = voice server couldn't be found
+voice-connection-error-ws-closed-unknown-protocol = discord didn't recognize protocol
+voice-connection-error-ws-closed-server-crashed = discord voice server crashed
+voice-connection-error-ws-closed-unknown-encryption-mode = discord didn't recognize encryption scheme
+voice-connection-error-unknown = disconnected for unknown reason
+
+voice-connection-error-msg-no-reconnect = I had an issue ({$reason}) and disconnected from the voice chat.
+voice-connection-error-msg-reconnect = I had an issue ({$reason}) and disconnected from the voice chat. I'll try reconnecting in 30 seconds.
+
+## transcription info - verbose mode
+# This is shown as the number of transcriptions the algorithm has discovered.
+transcription-info-transcript-count = Transcript 1 of {$count}.
+# This is shown as the title of the transcript
+transcription-info-transcription-title = Transcript
+# This is shown as the percent accuracy of the transcription (roughly)
+transcription-info-transcription-confidence = Confidence
+# This is shown as the user's SSRC (Synchonization Source)
+# You do not need to translate this, but it is here if your language can provide a more accurate translation.
+transcription-info-transcription-ssrc = SSRC {$ssrc}
+# This is shown when the algorithm encounters an error
+transcription-info-transcription-error = internal error: running stt algorithm failed with error: {$error}
+ SSRC: {$ssrc}
+ This has been logged and will be fixed as soon as possible.
+ If possible, please contact the core devs in the support server: {$supportServerInvite}.
+ Thanks!
+
+
