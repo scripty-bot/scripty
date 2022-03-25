@@ -14,7 +14,10 @@ language-set-failure-title-unsupported = Lingua tu velle in programmatem non est
 language-set-failure-description-unsupported = Si vis iuvare converte programmatem ex Anglicum ad Latiam, necesse ad { $supportServerInvite } it.
 language-set-failure-title-invalid = Lingua `{ $language }` non habeo.
 # Context menu command translation strings
-context-menu-command-title = Imperium tabulae
+context-menu-command-title =
+    { "" }
+    Imperium tabulae
+    { "" }
 context-menu-command-user = { $commandName } (in hominem)
 context-menu-command-message = { $commandName } (ad nuntium)
 language-set-failure-description-invalid = Linguam vis non validam est.
