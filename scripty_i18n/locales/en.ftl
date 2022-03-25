@@ -84,8 +84,7 @@ webhook-deleted = Looks like you deleted the webhook I use! *bonk* Re-run `{$con
 ## ping command
 # This message is shown when the user requests latency information.
 # Note: the numbers here will be formatted according to the language set for the context.
-latency-description =
- WebSocket latency: {$wsLatencyMs}ms ({$wsLatencyNs}ns)
+latency-description = WebSocket latency: {$wsLatencyMs}ms ({$wsLatencyNs}ns)
  HTTP latency: {$httpLatencyMs}ms ({$httpLatencyNs}ns)
  Database latency: {$pgLatencyMs}ms ({$pgLatencyNs}ns)
 
@@ -93,8 +92,7 @@ latency-description =
  Try again later.
 
 ## setup command
-setup-description =
- Set the bot up.
+setup-description = Set the bot up.
 
  This will initialize the bare framework of the bot,
  allowing you to use `~join` to bind the bot to a voice chat.
