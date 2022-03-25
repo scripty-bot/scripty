@@ -188,7 +188,7 @@ fn check_ws_close_err(reason: CloseCode, guild_id: GuildId) -> (bool, Option<Cow
             );
             (
                 true,
-                Some("discord didn't regcognize encryption scheme".into()),
+                Some("discord didn't recognize encryption scheme".into()),
             )
         }
     }
