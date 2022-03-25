@@ -113,19 +113,12 @@ setup-success-description =
     ~ 0/0 + valkyrie_pilot
 data-storage-embed-title = 數據存儲
 data-storage-toggle-msgs-btn = 開啟或關閉信息存儲
-None = data-storage-opted-in-audio =
 None = data-storage-opted-in-msgs =
-None = data-storage-command-timed-out =
 None = blocked-entity-reason-given =
-None = blocked-entity-user =
 None = voice-connection-error-host-io-error =
-None = voice-connection-error-timed-out =
 None = voice-connection-error-ws-closed-unknown-opcode =
-None = voice-connection-error-ws-closed-not-authenticated =
 None = voice-connection-error-ws-closed-already-authenticated =
-None = voice-connection-error-ws-closed-session-timeout =
 None = voice-connection-error-ws-closed-unknown-protocol =
-None = voice-connection-error-ws-closed-unknown-encryption-mode =
 None = voice-connection-error-msg-no-reconnect =
 
 # This is shown as the number of transcriptions the algorithm has discovered.
@@ -147,7 +140,7 @@ data-storage-opted-out-audio = 您選擇不存儲音頻以進行模型訓練。
 data-storage-opted-in-audio = 您選擇存儲音頻以進行模型訓練。
 data-storage-opted-in-msgs = 您選擇存儲您的信息以進行記分器培訓。（記分器用於預測特定單詞在音頻中出現的可能性）。
 blocked-entity-guild = 此伺服器被禁止使用 Scripty。 { $reason } 您可以嘗試在支援伺服器中對此禁止令提出上訴：{ $supportServerInvite }。
-voice-connection-error-ws-closed-unknown-opcode = 由於未知的操作碼，Discord 關閉連接
+voice-connection-error-ws-closed-unknown-opcode = 由於未知的操作碼，Discord 關閉了連接
 data-storage-opted-out-msgs = 您選擇不存儲您的信息以進行記分器培訓。（記分器用於預測特定單詞在音頻中出現的可能性）。
 data-storage-command-timed-out = 超時。 如果您仍想改變設置，請重新運行此命令。
 blocked-entity-no-reason-given = 沒有給出禁止的理由。
@@ -159,3 +152,20 @@ data-storage-toggle-audio-btn = 開啟或關閉音頻存儲
 voice-connection-error-proto-violation = Scripty 和 Discord 在協議上不同意
 voice-connection-error-timed-out = 等待連接超時
 voice-connection-error-ws-closed-no-reason = Discord 無故關閉連接
+voice-connection-error-ws-closed-already-authenticated = 由於已通過身份驗證，Discord 關閉了連接
+voice-connection-error-ws-closed-session-timeout = 會話超時
+voice-connection-error-ws-closed-server-not-found = 找不到語音伺服器
+voice-connection-error-ws-closed-unknown-protocol = Discord 無法識別協議
+voice-connection-error-ws-closed-unknown-encryption-mode = Discord 無法識別加密方案
+voice-connection-error-msg-reconnect = 我遇到了一個問題（{ $reason }）並與語音聊天斷開了連接。 我會在 30 秒後嘗試重新連接。
+voice-connection-error-ws-closed-invalid-payload = 由於無效的負載，Discord 關閉了連接
+voice-connection-error-ws-closed-not-authenticated = 由於未通過身份驗證，Discord 關閉了連接
+voice-connection-error-ws-closed-authentication-failed = 由於身份驗證失敗，Discord 關閉了連接
+voice-connection-error-ws-closed-session-invalid = Discord 廢止了此會話
+voice-connection-error-ws-closed-server-crashed = Discord 語音服務器崩潰
+voice-connection-error-unknown = 因不明原因斷開連接
+voice-connection-error-msg-no-reconnect = 我遇到了一個問題（{ $reason }）並與語音頻道斷開了連接。
+# This is shown as the number of transcriptions the algorithm has discovered.
+transcription-info-transcript-count = 10 個轉錄中的 1 個。
+# This is shown as the title of the transcript
+transcription-info-transcription-title = 轉錄
