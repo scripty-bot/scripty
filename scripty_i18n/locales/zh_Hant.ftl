@@ -113,43 +113,55 @@ setup-success-description =
     ~ 0/0 + valkyrie_pilot
 data-storage-embed-title = 數據存儲
 data-storage-toggle-msgs-btn = 開啟或關閉信息存儲
-data-storage-toggle-audio-btn =
-data-storage-opted-in-audio =
-data-storage-opted-out-audio =
-data-storage-opted-in-msgs =
-data-storage-opted-out-msgs =
-data-storage-command-timed-out =
-blocked-entity-no-reason-given =
-blocked-entity-reason-given =
-blocked-entity-guild =
-blocked-entity-user =
-voice-connection-error-internal-lib-error =
-voice-connection-error-host-io-error =
-voice-connection-error-proto-violation =
-voice-connection-error-timed-out =
-voice-connection-error-ws-closed-no-reason =
-voice-connection-error-ws-closed-unknown-opcode =
-voice-connection-error-ws-closed-invalid-payload =
-voice-connection-error-ws-closed-not-authenticated =
-voice-connection-error-ws-closed-authentication-failed =
-voice-connection-error-ws-closed-already-authenticated =
-voice-connection-error-ws-closed-session-invalid =
-voice-connection-error-ws-closed-session-timeout =
-voice-connection-error-ws-closed-server-not-found =
-voice-connection-error-ws-closed-unknown-protocol =
-voice-connection-error-ws-closed-server-crashed =
-voice-connection-error-ws-closed-unknown-encryption-mode =
-voice-connection-error-unknown =
-voice-connection-error-msg-no-reconnect =
-voice-connection-error-msg-reconnect =
+None = data-storage-toggle-audio-btn =
+None = data-storage-opted-in-audio =
+None = data-storage-opted-out-audio =
+None = data-storage-opted-in-msgs =
+None = data-storage-opted-out-msgs =
+None = data-storage-command-timed-out =
+None = blocked-entity-no-reason-given =
+None = blocked-entity-reason-given =
+None = blocked-entity-guild =
+None = blocked-entity-user =
+None = voice-connection-error-internal-lib-error =
+None = voice-connection-error-host-io-error =
+None = voice-connection-error-proto-violation =
+None = voice-connection-error-timed-out =
+None = voice-connection-error-ws-closed-no-reason =
+None = voice-connection-error-ws-closed-unknown-opcode =
+None = voice-connection-error-ws-closed-invalid-payload =
+None = voice-connection-error-ws-closed-not-authenticated =
+None = voice-connection-error-ws-closed-authentication-failed =
+None = voice-connection-error-ws-closed-already-authenticated =
+None = voice-connection-error-ws-closed-session-invalid =
+None = voice-connection-error-ws-closed-session-timeout =
+None = voice-connection-error-ws-closed-server-not-found =
+None = voice-connection-error-ws-closed-unknown-protocol =
+None = voice-connection-error-ws-closed-server-crashed =
+None = voice-connection-error-ws-closed-unknown-encryption-mode =
+None = voice-connection-error-unknown =
+None = voice-connection-error-msg-no-reconnect =
+None = voice-connection-error-msg-reconnect =
+
 # This is shown as the number of transcriptions the algorithm has discovered.
-transcription-info-transcript-count =
+
+None = transcription-info-transcript-count =
+
 # This is shown as the title of the transcript
-transcription-info-transcription-title =
+
+None = transcription-info-transcription-title =
+
 # This is shown as the percent accuracy of the transcription (roughly)
-transcription-info-transcription-confidence =
+
+None = transcription-info-transcription-confidence =
+
 # This is shown as the user's SSRC (Synchonization Source)
 # You do not need to translate this, but it is here if your language can provide a more accurate translation.
-transcription-info-transcription-ssrc =
+
+None = transcription-info-transcription-ssrc =
+
 # This is shown when the algorithm encounters an error
-transcription-info-transcription-error =
+
+None = transcription-info-transcription-error =
+data-storage-opted-out-audio = 您選擇不存儲音頻以進行模型訓練。
+data-storage-opted-in-audio = 您選擇存儲音頻以進行模型訓練。
