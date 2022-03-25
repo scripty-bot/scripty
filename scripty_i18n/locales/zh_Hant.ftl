@@ -111,3 +111,4 @@ setup-success-description =
     
     感謝你對 Scripty 的興趣！<3
     ~ 0/0 + valkyrie_pilot
+data-storage-embed-title = 數據存儲
