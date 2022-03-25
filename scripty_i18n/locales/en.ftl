@@ -23,17 +23,17 @@ default-category-name = Commands
 
 ## Context menu command translation strings
 context-menu-command-title =
-    
+    {""}
     Context menu commands:
-    
+    {""}
 context-menu-command-user =
-    
+    {""}
     { $commandName } (on user)
-    
+    {""}
 context-menu-command-message =
-    
+    {""}
     { $commandName } (on message)
-    
+    {""}
 more-info-on-command =
     
     For more information on a specific command, type `{ $contextPrefix }help <name>`
