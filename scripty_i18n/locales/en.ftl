@@ -141,8 +141,8 @@ data-storage-embed-description = **NOTE**: everything that follows is **entirely
  We understand this data can be extremely personal, so this is entirely opt-in and will not affect your experience in any way.
 
  Here's what we'd do with it:
- * With stored messages, we would feed them into a scorer targeted to your language. This scorer would allow the algorithm to select the most likely words for a given set of sounds. Although immensely helpful, this isn't as important as audio.
- * With stored audio, we would feed it and the transcript of it into a model to increase the accuracy of the speech-to-text model. This is insanely helpful, even if you have a poor microphone and lots of background noise: in fact, the more noise, the better, as long as a human can still make out what you are saying.
+ {"*"} With stored messages, we would feed them into a scorer targeted to your language. This scorer would allow the algorithm to select the most likely words for a given set of sounds. Although immensely helpful, this isn't as important as audio.
+ {"*"} With stored audio, we would feed it and the transcript of it into a model to increase the accuracy of the speech-to-text model. This is insanely helpful, even if you have a poor microphone and lots of background noise: in fact, the more noise, the better, as long as a human can still make out what you are saying.
 
  If you are opted in, and you decide later to opt out, your data is still stored, but you can request deletion by contacting the core devs in the support server: {$supportServerInvite}. We will wipe all of your data permanently.
  Your data is stored on hardware owned by the core devs, and is locked down tightly. It would be extremely difficult for anyone attempting to gain access to successfully do so.
@@ -201,5 +201,3 @@ transcription-info-transcription-error = internal error: running stt algorithm f
  This has been logged and will be fixed as soon as possible.
  If possible, please contact the core devs in the support server: {$supportServerInvite}.
  Thanks!
-
-
