@@ -113,9 +113,7 @@ setup-success-description =
     ~ 0/0 + valkyrie_pilot
 data-storage-embed-title = 數據存儲
 data-storage-toggle-msgs-btn = 開啟或關閉信息存儲
-None = blocked-entity-reason-given =
 None = voice-connection-error-ws-closed-unknown-opcode =
-None = voice-connection-error-ws-closed-unknown-protocol =
 
 # This is shown as the number of transcriptions the algorithm has discovered.
 
