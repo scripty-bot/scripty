@@ -138,7 +138,7 @@ setup-success-description =
 
 data-storage-embed-title = Data Storage
 data-storage-embed-description =
-    **NOTE**: everything that follows is **entirely optional**, and opting out **will not**, in any way, affect your experience with Scripty.
+    {"**"}NOTE**: everything that follows is **entirely optional**, and opting out **will not**, in any way, affect your experience with Scripty.
     That said, here goes.
     
     Scripty requires a lot of audio and text data to train a proper speech-to-text model. Not everyone is able to donate or buy premium to help us out, so a big way you can help out is by allowing us to store your data like audio and messages for training a model.
