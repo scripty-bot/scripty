@@ -28,15 +28,15 @@ context-menu-command-title =
     
 context-menu-command-user =
     
-    {$commandName} (on user)
+    { $commandName } (on user)
     
 context-menu-command-message =
     
-    {$commandName} (on message)
+    { $commandName } (on message)
     
 more-info-on-command =
     
-    For more information on a specific command, type `{$contextPrefix}help <name>`
+    For more information on a specific command, type `{ $contextPrefix }help <name>`
     ```
 
 ## Language configuration strings
@@ -76,7 +76,7 @@ no-channel-specified = You're not in a voice chat, nor did you tell me a channel
 # This message is shown when the user tries to invite the bot to a voice channel, but the bot has not been set up.
 bot-not-set-up = Looks like you haven't set up the bot yet. Do that first with `{ $contextPrefix }setup`.
 # This message is shown on successfuly joining a voice channel.
-# {$targetMention} is the mention of the channel the bot joined.
+# { $targetMention } is the mention of the channel the bot joined.
 join-success = Successfully joined { $targetMention }.
 # This message is shown when the user tries to invite the bot to a voice channel,
 # but the webhook used by the bot has been deleted.
@@ -87,9 +87,9 @@ webhook-deleted = Looks like you deleted the webhook I use! *bonk* Re-run `{ $co
 # This message is shown when the user requests latency information.
 # Note: the numbers here will be formatted according to the language set for the context.
 latency-description =
-    WebSocket latency: {$wsLatencyMs}ms ({$wsLatencyNs}ns)
-    HTTP latency: {$httpLatencyMs}ms ({$httpLatencyNs}ns)
-    Database latency: {$pgLatencyMs}ms ({$pgLatencyNs}ns)
+    WebSocket latency: { $wsLatencyMs }ms ({ $wsLatencyNs }ns)
+    HTTP latency: { $httpLatencyMs }ms ({ $httpLatencyNs }ns)
+    Database latency: { $pgLatencyMs }ms ({ $pgLatencyNs }ns)
     
     Note: if any latency is equal to 0ms, it means that specific latency could not be calculated right now.
     Try again later.
@@ -120,15 +120,15 @@ setup-success-description =
     
     1) Do not delete the webhook that was created in the target channel.
     
-    2) The bot is extremely expensive to run, and requires a serious amount of processing power, so it'd be amazing if you could donate a bit. We offer premium tiers that boost the limit on the number of users transcripted, which defaults to 5. The core features will stay free forever, though. If you're interested, check out the `{$contextPrefix}donate` command.
+    2) The bot is extremely expensive to run, and requires a serious amount of processing power, so it'd be amazing if you could donate a bit. We offer premium tiers that boost the limit on the number of users transcripted, which defaults to 5. The core features will stay free forever, though. If you're interested, check out the `{ $contextPrefix }donate` command.
     
     3) If you chose a language other than English (the default) note that transcriptions for it will be much, much lower quality. Soon we will be adding a feature that allows you to help transcription accuracy with your own voice (see note 5).
     
     4) If you are not a middle-aged American male, expect lower transcription accuracy. This is due to inherent bias within the model, and the only thing we can do about it is train more accurate models (again, see note 5).
     
-    5) To help us train more accurate models, consider allowing us to store your audio and transcriptions for training. See the `{$contextPrefix}train_storage` command.
+    5) To help us train more accurate models, consider allowing us to store your audio and transcriptions for training. See the `{ $contextPrefix }train_storage` command.
     
-    6) I don't exactly want to ask again, but please consider donating. It takes an ***insane*** amount of processing power to train new models (we're talking multiple Nvidia RTX 3090 GPUs), and every little bit of money helps a lot. Again, if you're interested, check out the `{$contextPrefix}donate` command.
+    6) I don't exactly want to ask again, but please consider donating. It takes an ***insane*** amount of processing power to train new models (we're talking multiple Nvidia RTX 3090 GPUs), and every little bit of money helps a lot. Again, if you're interested, check out the `{ $contextPrefix }donate` command.
     
     
     Thanks for checking out Scripty! <3
@@ -148,7 +148,7 @@ data-storage-embed-description =
     {"*"} With stored messages, we would feed them into a scorer targeted to your language. This scorer would allow the algorithm to select the most likely words for a given set of sounds. Although immensely helpful, this isn't as important as audio.
     {"*"} With stored audio, we would feed it and the transcript of it into a model to increase the accuracy of the speech-to-text model. This is insanely helpful, even if you have a poor microphone and lots of background noise: in fact, the more noise, the better, as long as a human can still make out what you are saying.
     
-    If you are opted in, and you decide later to opt out, your data is still stored, but you can request deletion by contacting the core devs in the support server: {$supportServerInvite}. We will wipe all of your data permanently.
+    If you are opted in, and you decide later to opt out, your data is still stored, but you can request deletion by contacting the core devs in the support server: { $supportServerInvite }. We will wipe all of your data permanently.
     Your data is stored on hardware owned by the core devs, and is locked down tightly. It would be extremely difficult for anyone attempting to gain access to successfully do so.
     
     You can toggle your choices using the below buttons.
