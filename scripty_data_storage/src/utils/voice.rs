@@ -27,10 +27,8 @@ pub fn add_wav_header(samples: Vec<i16>) -> Result<Vec<u8>, hound::Error> {
         i16_writer.write_sample(sample);
     }
     i16_writer.flush()?;
-    drop(i16_writer);
 
     wav_writer.finalize()?;
-    drop(wav_writer);
 
     Ok(writer.into_inner())
 }
