@@ -78,7 +78,7 @@ impl SystemInformation {
             }
         };
 
-        sys_info.socket_usage = match SocketStats::get_stats(Some(&sys)) {
+        sys_info.socket_stats = match SocketStats::get_stats(Some(&sys)) {
             Ok(stats) => stats,
             Err(e) => {
                 warn!("Failed to get socket stats: {}", e);
