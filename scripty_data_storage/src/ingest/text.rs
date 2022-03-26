@@ -13,7 +13,7 @@ pub async fn ingest_message(msg: Message) {
         msg.author.id.0 as i64,
         msg.content
     )
-    .execute(scripty_db::get_pool())
+    .execute(scripty_db::get_db())
     .await
     {
         warn!("Error inserting message into database: {}", e);
