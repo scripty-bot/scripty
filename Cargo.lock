@@ -1934,6 +1934,7 @@ dependencies = [
  "scripty_audio",
  "scripty_commands",
  "scripty_config",
+ "scripty_data_storage",
  "scripty_db",
  "scripty_i18n",
  "scripty_webserver",

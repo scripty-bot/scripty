@@ -12,6 +12,8 @@ pub fn start() {
 
     scripty_audio::init_stt();
 
+    scripty_data_storage::init_cache();
+
     let rt = get_tokio_rt();
 
     rt.block_on(async_init());
@@ -27,6 +29,8 @@ fn init_logging() {
 
 async fn async_init() {
     scripty_db::init_db().await;
+
+    scripty_data_storage::init_cache_async().await;
 }
 
 fn get_tokio_rt() -> tokio::runtime::Runtime {
