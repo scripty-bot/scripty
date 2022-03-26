@@ -40,7 +40,7 @@ pub async fn change_text_state(user_id: u64, state: bool) -> Result<(), sqlx::Er
     sqlx::query!(
         "UPDATE users SET store_msgs = $1 WHERE user_id = $2",
         state,
-        user_id
+        user_id as i64
     )
     .execute(scripty_db::get_db())
     .await?;
@@ -70,9 +70,12 @@ pub async fn get_text_state(user_id: u64) -> bool {
     }
 
     // not cached, fall back to db
-    let state = sqlx::query!("SELECT store_msgs FROM users WHERE user_id = $1", user_id)
-        .fetch_one(scripty_db::get_db())
-        .await;
+    let state = sqlx::query!(
+        "SELECT store_msgs FROM users WHERE user_id = $1",
+        user_id as i64
+    )
+    .fetch_one(scripty_db::get_db())
+    .await;
 
     match state {
         Ok(state) => {
