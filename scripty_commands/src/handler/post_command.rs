@@ -1,7 +1,8 @@
 use poise::BoxFuture;
 
+// TODO: do shit
 async fn _post_command(ctx: crate::Context<'_>) {
-    ctx.command().name
+    // ctx.command().name
 }
 
 #[inline]
