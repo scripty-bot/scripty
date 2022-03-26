@@ -21,19 +21,18 @@ language-set-failure-description-unsupported = 如果你想幫助我們添加對
 default-category-name = 指令
 # Context menu command translation strings
 context-menu-command-title =
-    { "" }
+       { "" }
     菜單指令:
     { "" }
 context-menu-command-user =
-    { "  " }
+      { " " }
     { $commandName } (在用戶上)
     { "" }
 context-menu-command-message =
-    { "  " }
+    { " " }
     { $commandName } (發送信息時)
     { "" }
 more-info-on-command =
-     { "" }
     有關特定指令的更多信息，發送 `{ $contextPrefix }help <name>`
      ```
 # Language configuration strings
@@ -95,7 +94,6 @@ setup-description =
 setup-success-description =
     幾點注意事項：
     
-    
     1）不要刪除在目標頻道中創建的 webhook。
     
     2）Scripty 運行起來非常昂貴，並且需要大量的處理能力，所以如果你能提供捐款，我們將不勝感激。 我們提供其他高級等級，以提高轉錄用戶數量的限制，默認為 5。不過，核心功能將永遠免費。 如果你有興趣，請查看 `{ $contextPrefix }donate` 指令。
@@ -113,7 +111,6 @@ setup-success-description =
     ~ 0/0 + valkyrie_pilot
 data-storage-embed-title = 數據存儲
 data-storage-toggle-msgs-btn = 開啟或關閉信息存儲
-None = voice-connection-error-ws-closed-unknown-opcode =
 
 # This is shown as the number of transcriptions the algorithm has discovered.
 
@@ -175,3 +172,18 @@ transcription-info-transcription-error =
     這已被記錄，並將盡快修復。
     如果可能，請聯繫支援伺服器中的核心開發人員：{ $supportServerInvite }。
     非常感謝！
+data-storage-embed-description =
+    { "**" }注意**：以下所有內容**完全可選**，並且選擇退出**無論如何都不會影響你使用 Scripty 的體驗。
+    內容如下。
+    
+    Scripty 需要大量音頻和文本數據來訓練正確的語音到文本模型。 並非每個人都能夠捐贈或購買高級等級來幫助我們，因此你可以提供幫助的一個重要方式是允許我們存儲你的數據，例如用於訓練模型的音頻和信息。
+    我們了解這些數據可能非常個人，因此這完全是選擇性的，不會以任何方式影響你的體驗。
+    
+    下面是我們將如何使用它：
+    { "*" } 通過存儲的信息，我們會將它們提供給針對你的語言的記分器。 該記分器將允許算法為一組音頻選擇最可能的單詞。 儘管非常有用，但這並不像音頻那麼重要。
+    { "*" } 使用存儲的音頻，我們會將其及其轉錄內容輸入到模型中，以提高語音到文本模型的準確性。 這非常有用，即使你的麥克風很差並且背景噪音很大：事實上，噪音越多越好，只要人類仍然可以聽清你在說什麼。
+    
+    如果你選擇加入，並且稍後決定退出，你的數據仍會被存儲，但你可以通過聯繫支持服務器中的核心開發人員請求刪除：{ $supportServerInvite }。 我們將永久擦除你的所有數據。
+    你的數據存儲在核心開發人員擁有的硬件上，並被鎖定。 對於任何試圖成功訪問的人來說，這將是極其困難的。
+    
+    你可以使用以下按鈕切換你的選擇。
