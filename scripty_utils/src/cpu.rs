@@ -1,6 +1,6 @@
 use std::io;
 use std::time::Duration;
-use systemstat::{BlockDeviceStats, ByteSize, CPULoad, Platform, System};
+use systemstat::{ByteSize, Platform, System};
 
 #[derive(Default, Debug)]
 pub struct SystemInformation {
@@ -36,65 +36,65 @@ pub struct SystemInformation {
 impl SystemInformation {
     pub async fn get_stats() -> Self {
         let sys = systemstat::System::new();
-        let mut sys_info = SystemInformation::default();
 
-        sys_info.cpu_temp = match sys.cpu_temp() {
-            Ok(temp) => Some(temp),
-            Err(e) => {
-                warn!("Failed to get CPU temperature: {}", e);
-                None
-            }
-        };
-
-        sys_info.block_dev_stats = match BlockDevStats::get_stats(Some(&sys)) {
-            Ok(stats) => stats,
-            Err(e) => {
-                warn!("Failed to get block device stats: {}", e);
-                BlockDevStats::default()
-            }
-        };
-
-        sys_info.cpu_load = match CpuLoadStats::get_stats_async(Some(&sys)).await {
-            Ok(load) => load,
-            Err(e) => {
-                warn!("Failed to get CPU load: {}", e);
-                CpuLoadStats::default()
-            }
-        };
-
-        sys_info.memory_usage = match MemoryStats::get_stats(Some(&sys)) {
-            Ok(stats) => stats,
-            Err(e) => {
-                warn!("Failed to get memory stats: {}", e);
-                MemoryStats::default()
-            }
-        };
-
-        sys_info.network_usage = match NetworkStats::get_stats(Some(&sys)) {
-            Ok(stats) => stats,
-            Err(e) => {
-                warn!("Failed to get network stats: {}", e);
-                NetworkStats::default()
-            }
-        };
-
-        sys_info.socket_stats = match SocketStats::get_stats(Some(&sys)) {
-            Ok(stats) => stats,
-            Err(e) => {
-                warn!("Failed to get socket stats: {}", e);
-                SocketStats::default()
-            }
-        };
-
-        sys_info.uptime = match sys.uptime() {
-            Ok(uptime) => Some(uptime.as_nanos()),
-            Err(e) => {
-                warn!("Failed to get uptime: {}", e);
-                None
-            }
-        };
-
-        sys_info
+        SystemInformation {
+            cpu_temp: match sys.cpu_temp() {
+                Ok(temp) => Some(temp),
+                Err(e) => {
+                    warn!("Failed to get CPU temperature: {}", e);
+                    None
+                }
+            },
+            block_dev_stats: match BlockDevStats::get_stats(&sys) {
+                Ok(stats) => stats,
+                Err(e) => {
+                    warn!("Failed to get block device stats: {}", e);
+                    BlockDevStats::default()
+                }
+            },
+            cpu_load: match CpuLoadStats::get_stats_async(&sys).await {
+                Ok(load) => load,
+                Err(e) => {
+                    warn!("Failed to get CPU load: {}", e);
+                    CpuLoadStats::default()
+                }
+            },
+            load_average: match CpuLoadAvg::get_stats(&sys) {
+                Ok(load) => load,
+                Err(e) => {
+                    warn!("Failed to get load average: {}", e);
+                    CpuLoadAvg::default()
+                }
+            },
+            memory_usage: match MemoryStats::get_stats(&sys) {
+                Ok(stats) => stats,
+                Err(e) => {
+                    warn!("Failed to get memory stats: {}", e);
+                    MemoryStats::default()
+                }
+            },
+            network_usage: match NetworkStats::get_stats(&sys) {
+                Ok(stats) => stats,
+                Err(e) => {
+                    warn!("Failed to get network stats: {}", e);
+                    NetworkStats::default()
+                }
+            },
+            socket_stats: match SocketStats::get_stats(&sys) {
+                Ok(stats) => stats,
+                Err(e) => {
+                    warn!("Failed to get socket stats: {}", e);
+                    SocketStats::default()
+                }
+            },
+            uptime: match sys.uptime() {
+                Ok(uptime) => Some(uptime.as_nanos()),
+                Err(e) => {
+                    warn!("Failed to get uptime: {}", e);
+                    None
+                }
+            },
+        }
     }
 }
 
@@ -115,17 +115,12 @@ pub struct BlockDevStats {
 }
 
 impl BlockDevStats {
-    pub fn get_stats(sys: Option<&System>) -> io::Result<Self> {
-        let sys = match sys {
-            Some(sys) => sys,
-            None => System::new(),
-        };
-
+    pub fn get_stats(sys: &System) -> io::Result<Self> {
         let block_dev_stats = sys.block_device_statistics()?;
 
         debug!("Found {} block devices", block_dev_stats.len());
 
-        if block_dev_stats.len() == 0 {
+        if block_dev_stats.is_empty() {
             warn!("No block devices found? There should be at least one.");
             return Err(io::Error::new(
                 io::ErrorKind::Other,
@@ -167,11 +162,7 @@ pub struct CpuLoadStats {
 
 impl CpuLoadStats {
     /// Get CPU load information. This has a blocking call to `std::thread::sleep`. Do not use in async contexts.
-    pub fn get_stats(sys: Option<&System>) -> io::Result<Self> {
-        let sys = match sys {
-            Some(sys) => sys,
-            None => System::new(),
-        };
+    pub fn get_stats(sys: &System) -> io::Result<Self> {
         let cpu_load_measurement = sys.cpu_load_aggregate()?;
         std::thread::sleep(Duration::from_secs(1));
         let cpu_load = cpu_load_measurement.done()?;
@@ -187,11 +178,7 @@ impl CpuLoadStats {
     }
 
     /// Get CPU load information asynchronously. This has a non-blocking call to `tokio::time::sleep`.
-    pub async fn get_stats_async(sys: Option<&System>) -> io::Result<Self> {
-        let sys = match sys {
-            Some(sys) => sys,
-            None => System::new(),
-        };
+    pub async fn get_stats_async(sys: &System) -> io::Result<Self> {
         let cpu_load_measurement = sys.cpu_load_aggregate()?;
         tokio::time::sleep(Duration::from_secs(1)).await;
         let cpu_load = cpu_load_measurement.done()?;
@@ -215,11 +202,7 @@ pub struct CpuLoadAvg {
 }
 
 impl CpuLoadAvg {
-    pub fn get_stats(sys: Option<&System>) -> io::Result<Self> {
-        let sys = match sys {
-            Some(sys) => sys,
-            None => System::new(),
-        };
+    pub fn get_stats(sys: &System) -> io::Result<Self> {
         let cpu_load = sys.load_average()?;
 
         Ok(Self {
@@ -241,11 +224,7 @@ pub struct MemoryStats {
 }
 
 impl MemoryStats {
-    pub fn get_stats(sys: Option<&System>) -> io::Result<Self> {
-        let sys = match sys {
-            Some(sys) => sys,
-            None => System::new(),
-        };
+    pub fn get_stats(sys: &System) -> io::Result<Self> {
         let mem_stats = sys.memory()?;
 
         let total = mem_stats.total.0;
@@ -256,7 +235,7 @@ impl MemoryStats {
             .get("MemAvailable")
             .unwrap_or(&ByteSize(0))
             .0;
-        let used = mem_stats.total - mem_stats.free;
+        let used = total - free;
         let buffers = mem_stats
             .platform_memory
             .meminfo
@@ -292,17 +271,13 @@ pub struct NetworkStats {
 }
 
 impl NetworkStats {
-    pub fn get_stats(sys: Option<&System>) -> io::Result<Self> {
-        let sys = match sys {
-            Some(sys) => sys,
-            None => System::new(),
-        };
+    pub fn get_stats(sys: &System) -> io::Result<Self> {
         let ifaces = sys.networks()?;
 
         let mut this = Self::default();
 
         for iface in ifaces.values() {
-            let iface_stats = sys.network_stats(iface.name)?;
+            let iface_stats = sys.network_stats(&iface.name)?;
             this.rx_bytes += iface_stats.rx_bytes.0;
             this.tx_bytes += iface_stats.tx_bytes.0;
             this.rx_packets += iface_stats.rx_packets;
@@ -326,11 +301,7 @@ pub struct SocketStats {
 }
 
 impl SocketStats {
-    pub fn get_stats(sys: Option<&System>) -> io::Result<Self> {
-        let sys = match sys {
-            Some(sys) => sys,
-            None => System::new(),
-        };
+    pub fn get_stats(sys: &System) -> io::Result<Self> {
         let socket_stats = sys.socket_stats()?;
 
         Ok(Self {
