@@ -9,7 +9,7 @@ use std::time::Duration;
 
 /// Configure storage settings for your data
 #[poise::command(prefix_command, slash_command)]
-pub async fn train_storage(ctx: Context<'_>) -> Result<(), Error> {
+pub async fn data_storage(ctx: Context<'_>) -> Result<(), Error> {
     let resolved_language =
         scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
 

@@ -11,7 +11,7 @@ pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
             cmds::register_cmds(),
             cmds::help(),
             cmds::join(),
-            cmds::train_storage(),
+            cmds::data_storage(),
             cmds::donate(),
             cmds::ping(),
             poise::Command {
