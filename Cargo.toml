@@ -18,6 +18,7 @@ members = [
   "scripty_db",
   "scripty_metrics",
   "scripty_utils",
+  "scripty_data_storage",
 ]
 
 [dependencies]

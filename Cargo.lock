@@ -886,6 +886,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "hound"
+version = "3.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8a164bb2ceaeff4f42542bdb847c41517c78a60f5649671b2a07312b6e117549"
+
+[[package]]
 name = "http"
 version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1901,6 +1907,7 @@ dependencies = [
  "poise",
  "scripty_audio_handler",
  "scripty_config",
+ "scripty_data_storage",
  "scripty_db",
  "scripty_i18n",
  "scripty_utils",
@@ -1933,6 +1940,21 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-subscriber",
+]
+
+[[package]]
+name = "scripty_data_storage"
+version = "0.1.0"
+dependencies = [
+ "dashmap 5.2.0",
+ "hound",
+ "once_cell",
+ "poise",
+ "scripty_config",
+ "scripty_db",
+ "serenity",
+ "sqlx",
+ "tracing",
 ]
 
 [[package]]
@@ -1988,6 +2010,7 @@ dependencies = [
  "systemstat",
  "thousands",
  "tokio",
+ "tracing",
 ]
 
 [[package]]

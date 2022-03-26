@@ -34,7 +34,7 @@ pub struct SystemInformation {
 }
 
 impl SystemInformation {
-    pub fn get_stats() -> Self {
+    pub async fn get_stats() -> Self {
         let sys = systemstat::System::new();
         let mut sys_info = SystemInformation::default();
 
@@ -96,7 +96,6 @@ impl SystemInformation {
 
         sys_info
     }
-
 }
 
 #[derive(Default, Debug)]
