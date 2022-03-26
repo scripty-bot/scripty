@@ -17,7 +17,7 @@ pub fn init_text_cache() {
 pub async fn init_text_cache_async() -> Result<(), sqlx::Error> {
     // users is a Vec<adhoc struct>
     // each adhoc struct has a user_id and a store_msgs field
-    let users = sqlx::query!("SELECT (user_id, store_msgs) FROM users")
+    let users = sqlx::query!("SELECT user_id, store_msgs FROM users")
         .fetch_all(scripty_db::get_db())
         .await?;
 

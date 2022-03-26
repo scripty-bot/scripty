@@ -17,7 +17,7 @@ pub fn init_voice_cache() {
 pub async fn init_voice_cache_async() -> Result<(), sqlx::Error> {
     // users is a Vec<adhoc struct>
     // each adhoc struct has a user_id and a store_audio field
-    let users = sqlx::query!("SELECT (user_id, store_audio) FROM users")
+    let users = sqlx::query!("SELECT user_id, store_audio FROM users")
         .fetch_all(scripty_db::get_db())
         .await?;
 
