@@ -216,7 +216,7 @@ delete-data-description =
     When we say "all of your data" we mean *all* of it. This includes your messages, voice data, and your user in the database.
     This includes all your user settings, any messages, and any voice data we may have stored, if you opted into those.
     
-    If you would like to also be banned from using the bot after this action, that way you do not accidentally readd yourself, you can check the box below.
+    If you would like to also be banned from using the bot after this action, that way you do not accidentally readd yourself, you can click the appropriate button below.
     Note that doing so will require us to store your user ID to keep a record of banned users.
     If at any point after this action you would like to be unbanned, you can contact the support server and ask for a manual unban.
     
