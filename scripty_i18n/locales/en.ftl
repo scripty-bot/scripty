@@ -207,3 +207,20 @@ transcription-info-transcription-error =
     This has been logged and will be fixed as soon as possible.
     If possible, please contact the core devs in the support server: { $supportServerInvite }.
     Thanks!
+
+## Data deletion command
+delete-data-title = Delete data
+delete-data-description =
+    This will delete all of your data. This action is permanent, irreversible, and cannot be undone.
+    
+    When we say "all of your data" we mean *all* of it. This includes your messages, voice data, and your user in the database.
+    This includes all your user settings, any messages, and any voice data we may have stored, if you opted into those.
+    
+    If you would like to also be banned from using the bot after this action, that way you do not accidentally readd yourself, you can check the box below.
+    Note that doing so will require us to store your user ID to keep a record of banned users.
+    If at any point after this action you would like to be unbanned, you can contact the support server and ask for a manual unban.
+    
+    Are you sure you want to delete all of your data?
+delete-data-confirm = Yes, delete all data
+delete-data-confirm-banned = Yes, delete all data and ban myself
+delete-data-cancel = No, cancel
