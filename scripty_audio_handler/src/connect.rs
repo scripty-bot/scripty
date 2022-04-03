@@ -59,7 +59,9 @@ pub async fn connect_to_vc(
     call.add_global_event(Event::Core(CoreEvent::SpeakingStateUpdate), handler.clone());
     call.add_global_event(Event::Core(CoreEvent::SpeakingUpdate), handler.clone());
     call.add_global_event(Event::Core(CoreEvent::VoicePacket), handler.clone());
-    call.add_global_event(Event::Core(CoreEvent::ClientConnect), handler.clone());
+    // aaaaaa i hate discord
+    // discord randomly stopped sending the ClientConnect event
+    // call.add_global_event(Event::Core(CoreEvent::ClientConnect), handler.clone());
     call.add_global_event(Event::Core(CoreEvent::ClientDisconnect), handler.clone());
     call.add_global_event(Event::Core(CoreEvent::DriverConnect), handler.clone());
     call.add_global_event(Event::Core(CoreEvent::DriverDisconnect), handler.clone());
