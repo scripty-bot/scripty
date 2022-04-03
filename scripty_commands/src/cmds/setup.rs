@@ -76,13 +76,12 @@ pub async fn setup(
             .content(format_message!(resolved_language, "setup-tos-agree"))
         })
         .await?
-        .ok_or(Error::MissingReplyHandle)?
         .message()
         .await?;
     let mut collector = ComponentInteractionCollectorBuilder::new(discord_ctx)
         .channel_id(ctx.channel_id())
         .author_id(ctx.author().id)
-        .await;
+        .build();
 
     #[allow(clippy::for_loops_over_fallibles)]
     for collected in collector.next().await {

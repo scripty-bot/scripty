@@ -17,7 +17,6 @@ pub enum Error {
     },
     MissingWebhookToken,
     Db(sqlx::Error),
-    MissingReplyHandle,
     ExpectedGuild,
     Join(JoinError),
 }
@@ -33,7 +32,6 @@ impl Display for Error {
             )
             .into(),
             MissingWebhookToken => "webhook token was not sent by discord".into(),
-            MissingReplyHandle => "interaction response data was not sent by discord".into(),
             Db(e) => format!("Database returned an error: {:?}", e).into(),
             // _ => "an unknown error happened".into(),
             ExpectedGuild => "expected this to be in a guild".into(),
@@ -75,7 +73,7 @@ pub async fn on_error(error: poise::FrameworkError<'_, crate::Data, crate::Error
     #[allow(unreachable_patterns)]
     match error {
         FrameworkError::Setup { error } => panic!("error during bot init: {}", error),
-        FrameworkError::Listener { error, event } => {
+        FrameworkError::Listener { error, event, .. } => {
             error!("error in listener for event {}: {}", event.name(), error)
         }
         FrameworkError::Command { error, ctx } => {

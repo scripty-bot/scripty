@@ -27,7 +27,7 @@ async fn help_single_command(
     ctx: Context<'_>,
     command_name: &str,
     resolved_language: LanguageIdentifier,
-) -> Result<(), serenity::Error> {
+) -> Result<(), Error> {
     let command = ctx.framework().options().commands.iter().find(|command| {
         if command.name.eq_ignore_ascii_case(command_name) {
             return true;
@@ -62,10 +62,7 @@ async fn help_single_command(
     Ok(())
 }
 
-async fn help_global(
-    ctx: Context<'_>,
-    resolved_language: LanguageIdentifier,
-) -> Result<(), serenity::Error> {
+async fn help_global(ctx: Context<'_>, resolved_language: LanguageIdentifier) -> Result<(), Error> {
     let mut categories: IndexMap<_, _> = IndexMap::new();
     for cmd in &ctx.framework().options().commands {
         categories
@@ -94,7 +91,7 @@ async fn help_global(
                     Some(fixed_prefix) => fixed_prefix.clone(),
                     None => match options.dynamic_prefix {
                         Some(dynamic_prefix_callback) => {
-                            match dynamic_prefix_callback(poise::PartialContext::from(ctx)).await {
+                            match dynamic_prefix_callback(poise::PartialContext::from(ctx)).await? {
                                 Some(dynamic_prefix) => dynamic_prefix,
                                 None => String::from(""),
                             }

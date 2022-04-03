@@ -26,7 +26,6 @@ pub async fn data_storage(ctx: Context<'_>) -> Result<(), Error> {
                 })
         })
         .await?
-        .ok_or(Error::MissingReplyHandle)?
         .message()
         .await?;
 
@@ -52,7 +51,7 @@ VALUES ($1, null, 0, 0, false, false)
         .message_id(msg.id)
         .author_id(author_id)
         .timeout(Duration::from_secs(120))
-        .await;
+        .build();
     while let Some(interaction) = collector.next().await {
         let id = interaction.data.custom_id.as_str();
         let message_id = match id {
