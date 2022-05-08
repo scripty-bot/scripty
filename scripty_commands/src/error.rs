@@ -5,6 +5,7 @@ use serenity::builder::CreateEmbed;
 use serenity::model::channel::ChannelType;
 use serenity::model::id::GuildId;
 use std::borrow::Cow;
+use std::fmt::Write;
 use std::fmt::{Display, Formatter};
 
 #[derive(Debug)]
@@ -129,9 +130,11 @@ pub async fn on_error(error: poise::FrameworkError<'_, crate::Data, crate::Error
             let mut args = String::new();
             for param in &ctx.command.parameters {
                 if param.required {
-                    args.push_str(&format!("<{}> ", param.name))
+                    write!(&mut args, "<{}> ", param.name)
+                        .expect("failed to format string: this is a bug");
                 } else {
-                    args.push_str(&format!("[{}] ", param.name))
+                    write!(&mut args, "[{}] ", param.name)
+                        .expect("failed to format string: this is a bug");
                 }
             }
 

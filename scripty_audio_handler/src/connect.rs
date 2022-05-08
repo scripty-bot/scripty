@@ -6,6 +6,7 @@ use songbird::events::Event;
 use songbird::CoreEvent;
 
 // TODO: implement `force`
+#[allow(clippy::let_unit_value)]
 pub async fn connect_to_vc(
     ctx: Context,
     guild_id: GuildId,

@@ -123,6 +123,36 @@ make_static_metric! {
         setup,
         train_storage
     }
+    pub label_enum RuntimeMetrics {
+        workers_count,
+        total_park_count,
+        max_park_count,
+        min_park_count,
+        total_noop_count,
+        max_noop_count,
+        min_noop_count,
+        total_steal_count,
+        max_steal_count,
+        min_steal_count,
+        num_remote_schedules,
+        total_local_schedule_count,
+        max_local_schedule_count,
+        min_local_schedule_count,
+        total_overflow_count,
+        max_overflow_count,
+        min_overflow_count,
+        total_polls_count,
+        max_polls_count,
+        min_polls_count,
+        total_busy_duration,
+        max_busy_duration,
+        min_busy_duration,
+        injection_queue_depth,
+        total_local_queue_depth,
+        max_local_queue_depth,
+        min_local_queue_depth,
+        elapsed,
+    }
 
     pub struct MessageCounterVec: IntCounter {
         "user_type" => UserType,
@@ -159,9 +189,13 @@ make_static_metric! {
     pub struct CommandsUsedVec: IntCounter {
         "command_name" => CommandsUsed,
     }
+
+    pub struct RuntimeMetricsVec: IntGauge {
+        "runtime_metrics" => RuntimeMetrics,
+    }
 }
 
-static METRICS: OnceCell<Arc<Metrics>> = OnceCell::new();
+pub static METRICS: OnceCell<Arc<Metrics>> = OnceCell::new();
 
 pub struct Metrics {
     pub registry: Registry,
@@ -182,10 +216,11 @@ pub struct Metrics {
     pub cpu_temp: Gauge,
     pub total_commands: IntCounter,
     pub commands: CommandsUsedVec,
+    pub runtime_metrics: RuntimeMetricsVec,
 }
 
 impl Metrics {
-    fn new() -> Arc<Self> {
+    pub(crate) fn new() -> Arc<Self> {
         let registry = Registry::new_custom(Some("scripty".into()), None).unwrap();
 
         let messages_vec =
@@ -264,6 +299,16 @@ impl Metrics {
         let commands_used_static = CommandsUsedVec::from(&commands_used);
         registry.register(Box::new(commands_used.clone())).unwrap();
 
+        let runtime_metrics_stats = IntGaugeVec::new(
+            Opts::new("runtime_metrics", "Tokio runtime metrics"),
+            &["runtime_metrics"],
+        )
+        .unwrap();
+        let runtime_metrics_static = RuntimeMetricsVec::from(&runtime_metrics_stats);
+        registry
+            .register(Box::new(runtime_metrics_stats.clone()))
+            .unwrap();
+
         Arc::new(Self {
             registry,
             start_time: Utc::now().naive_utc(),
@@ -283,6 +328,7 @@ impl Metrics {
             cpu_temp,
             total_commands: total_commands_used,
             commands: commands_used_static,
+            runtime_metrics: runtime_metrics_static,
         })
     }
 }

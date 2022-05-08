@@ -5,7 +5,7 @@ use serenity::model::id::{GuildId, UserId};
 use sqlx::types::time::PrimitiveDateTime;
 use std::time::SystemTime;
 
-static BLOCKED_USERS: OnceCell<DashMap<UserId, Option<String>>> = OnceCell::new();
+static BLOCKED_USERS: OnceCell<DashMap<Vec<u8>, Option<String>>> = OnceCell::new();
 static BLOCKED_GUILDS: OnceCell<DashMap<GuildId, Option<String>>> = OnceCell::new();
 
 pub async fn init_blocked() -> Result<(), sqlx::Error> {
@@ -17,7 +17,7 @@ pub async fn init_blocked() -> Result<(), sqlx::Error> {
         .fetch_all(db)
         .await?
     {
-        blocked_users.insert(UserId(blocked_user.user_id as u64), blocked_user.reason);
+        blocked_users.insert(blocked_user.user_id, blocked_user.reason);
     }
 
     for blocked_guild in sqlx::query!("SELECT guild_id, reason, blocked_since FROM blocked_guilds")
@@ -67,7 +67,8 @@ async fn _check_block(
     }
 
     let blocked_users = unsafe { BLOCKED_USERS.get().unwrap_unchecked() };
-    if let Some(reason) = blocked_users.get(&ctx.author().id) {
+    let hashed_user_id = scripty_utils::hash_user_id(ctx.author().id.0);
+    if let Some(reason) = blocked_users.get(&hashed_user_id) {
         let resolved_language =
             scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0))
                 .await;
@@ -98,19 +99,19 @@ pub async fn add_blocked_user(user_id: UserId, reason: Option<String>) -> Result
     let db = scripty_db::get_db();
     let blocked_users = unsafe { BLOCKED_USERS.get().unwrap_unchecked() };
 
-    let signed_user_id = user_id.0 as i64;
+    let hashed_user_id = scripty_utils::hash_user_id(user_id.0);
     let current_timestamp = PrimitiveDateTime::from(SystemTime::now());
 
     sqlx::query!(
         "INSERT INTO blocked_users (user_id, reason, blocked_since) VALUES ($1, $2, $3)",
-        signed_user_id,
+        hashed_user_id,
         reason,
         current_timestamp
     )
     .execute(db)
     .await?;
 
-    blocked_users.insert(user_id, reason);
+    blocked_users.insert(hashed_user_id, reason);
 
     Ok(())
 }

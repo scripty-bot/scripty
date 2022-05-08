@@ -83,8 +83,8 @@ pub async fn get_user_language(user_id: u64) -> Option<LanguageIdentifier> {
         e
     })
     .ok()
-    .flatten()
-    .map(|r| r.language)?;
+    .flatten()?
+    .language;
     let lang = LanguageIdentifier::from_str(&user_language).expect("invalid language");
 
     cache.insert(user_id, lang.clone());

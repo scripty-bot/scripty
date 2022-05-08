@@ -32,6 +32,9 @@ pub struct BotConfig {
 
     /// Path to i18n files. Must be available at runtime.
     pub i18n_dir: String,
+
+    /// Authentication tokens for the bot's built-in API. These tokens are global.
+    pub api_tokens: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

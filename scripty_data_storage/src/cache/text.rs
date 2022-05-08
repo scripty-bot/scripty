@@ -1,7 +1,7 @@
 use dashmap::DashMap;
 use once_cell::sync::OnceCell;
 
-static TEXT_CACHE_MAP: OnceCell<DashMap<u64, bool>> = OnceCell::new();
+static TEXT_CACHE_MAP: OnceCell<DashMap<Vec<u8>, bool>> = OnceCell::new();
 
 /// Initialize the text cache
 ///
@@ -24,7 +24,7 @@ pub async fn init_text_cache_async() -> Result<(), sqlx::Error> {
     let text_cache_map = TEXT_CACHE_MAP.get_or_init(DashMap::new);
 
     for user in users {
-        text_cache_map.insert(user.user_id as u64, user.store_msgs);
+        text_cache_map.insert(user.user_id, user.store_msgs);
     }
 
     Ok(())
@@ -35,12 +35,14 @@ pub async fn init_text_cache_async() -> Result<(), sqlx::Error> {
 /// # Returns
 /// Returns Ok(()) if changing state was successful, Err(E) if not
 pub async fn change_text_state(user_id: u64, state: bool) -> Result<(), sqlx::Error> {
+    let user_id = scripty_utils::hash_user_id(user_id);
+
     // do db query to change state
     // set store_msgs column in users table where user_id = user_id to state
     sqlx::query!(
         "UPDATE users SET store_msgs = $1 WHERE user_id = $2",
         state,
-        user_id as i64
+        user_id
     )
     .execute(scripty_db::get_db())
     .await?;
@@ -62,7 +64,8 @@ pub async fn change_text_state(user_id: u64, state: bool) -> Result<(), sqlx::Er
 /// # Errors
 /// If any error is encountered, it is logged and `false` is returned.
 /// Errors will prevent the user from being cached.
-pub async fn get_text_state(user_id: u64) -> bool {
+pub async fn get_text_state(raw_user_id: u64) -> bool {
+    let user_id = scripty_utils::hash_user_id(raw_user_id);
     let text_cache_map = TEXT_CACHE_MAP.get_or_init(DashMap::new);
 
     if let Some(state) = text_cache_map.get(&user_id) {
@@ -70,23 +73,21 @@ pub async fn get_text_state(user_id: u64) -> bool {
     }
 
     // not cached, fall back to db
-    let state = sqlx::query!(
-        "SELECT store_msgs FROM users WHERE user_id = $1",
-        user_id as i64
-    )
-    .fetch_one(scripty_db::get_db())
-    .await;
+    let state = sqlx::query!("SELECT store_msgs FROM users WHERE user_id = $1", user_id)
+        .fetch_optional(scripty_db::get_db())
+        .await;
 
     match state {
-        Ok(state) => {
+        Ok(Some(state)) => {
             text_cache_map.insert(user_id, state.store_msgs);
             state.store_msgs
         }
+        Ok(None) => {
+            text_cache_map.insert(user_id, false);
+            false
+        }
         Err(e) => {
-            error!(
-                ?user_id,
-                "Error fetching text state for user {}: {}", user_id, e
-            );
+            error!(?raw_user_id, "Error fetching text state for user: {}", e);
             false
         }
     }

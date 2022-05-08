@@ -13,6 +13,7 @@ async-trait = "0.1"
 parking_lot = "0.12"
 scripty_db = { path = "../scripty_db" }
 scripty_audio = { path = "../scripty_audio" }
+scripty_utils = { path = "../scripty_utils" }
 tokio = { version = "1.16", features = ["parking_lot"] }
 songbird = { git = "https://github.com/serenity-rs/songbird", branch = "next" }
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [

@@ -14,7 +14,7 @@ scripty_db = { path = "../scripty_db" }
 scripty_i18n = { path = "../scripty_i18n" }
 scripty_utils = { path = "../scripty_utils" }
 scripty_config = { path = "../scripty_config" }
-poise = { git = "https://github.com/kangalioo/poise/" }
+poise = { git = " https://github.com/GnomedDev/poise", branch = "cutting-edge", features = ["cache", "collector"] }
 scripty_data_storage = { path = "../scripty_data_storage" }
 scripty_audio_handler = { path = "../scripty_audio_handler" }
 tokio = { version = "1.16", features = ["parking_lot", "signal"] }

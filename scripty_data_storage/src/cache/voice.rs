@@ -1,7 +1,7 @@
 use dashmap::DashMap;
 use once_cell::sync::OnceCell;
 
-static VOICE_CACHE_MAP: OnceCell<DashMap<u64, bool>> = OnceCell::new();
+static VOICE_CACHE_MAP: OnceCell<DashMap<Vec<u8>, bool>> = OnceCell::new();
 
 /// Initialize the voice cache
 ///
@@ -24,7 +24,7 @@ pub async fn init_voice_cache_async() -> Result<(), sqlx::Error> {
     let voice_cache_map = VOICE_CACHE_MAP.get_or_init(DashMap::new);
 
     for user in users {
-        voice_cache_map.insert(user.user_id as u64, user.store_audio);
+        voice_cache_map.insert(user.user_id, user.store_audio);
     }
 
     Ok(())
@@ -35,12 +35,13 @@ pub async fn init_voice_cache_async() -> Result<(), sqlx::Error> {
 /// # Returns
 /// Returns Ok(()) if changing state was successful, Err(sqlx::Error) if not
 pub async fn change_voice_state(user_id: u64, state: bool) -> Result<(), sqlx::Error> {
+    let user_id = scripty_utils::hash_user_id(user_id);
     // do db query to change state
     // set store_audio column in users table where user_id = user_id to state
     sqlx::query!(
         "UPDATE users SET store_audio = $1 WHERE user_id = $2",
         state,
-        user_id as i64
+        user_id
     )
     .execute(scripty_db::get_db())
     .await?;
@@ -62,7 +63,8 @@ pub async fn change_voice_state(user_id: u64, state: bool) -> Result<(), sqlx::E
 /// # Errors
 /// If any error is encountered, it is logged and `false` is returned.
 /// Errors will prevent the user from being cached.
-pub async fn get_voice_state(user_id: u64) -> bool {
+pub async fn get_voice_state(raw_user_id: u64) -> bool {
+    let user_id = scripty_utils::hash_user_id(raw_user_id);
     let voice_cache_map = VOICE_CACHE_MAP.get_or_init(DashMap::new);
 
     if let Some(state) = voice_cache_map.get(&user_id) {
@@ -70,12 +72,9 @@ pub async fn get_voice_state(user_id: u64) -> bool {
     }
 
     // not cached, fall back to db
-    let state = sqlx::query!(
-        "SELECT store_audio FROM users WHERE user_id = $1",
-        user_id as i64
-    )
-    .fetch_one(scripty_db::get_db())
-    .await;
+    let state = sqlx::query!("SELECT store_audio FROM users WHERE user_id = $1", user_id)
+        .fetch_one(scripty_db::get_db())
+        .await;
 
     match state {
         Ok(state) => {
@@ -83,10 +82,7 @@ pub async fn get_voice_state(user_id: u64) -> bool {
             state.store_audio
         }
         Err(e) => {
-            error!(
-                ?user_id,
-                "Error fetching voice state for user {}: {}", user_id, e
-            );
+            error!(?raw_user_id, "Error fetching voice state for user: {}", e);
             false
         }
     }

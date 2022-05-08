@@ -10,6 +10,7 @@ chrono = "0.4"
 tracing = "0.1"
 once_cell = "1"
 systemstat = "0.1"
-prometheus = "0.13"
 prometheus-static-metric = "0.5"
+tokio-metrics = { version = "0.1", features = ["rt"] }
+prometheus = { version = "0.13", features = ["process"] }
 tokio = { version = "1.16", features = ["parking_lot", "signal"] }

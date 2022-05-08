@@ -26,3 +26,4 @@ scripty_core = { path = "scripty_core" }
 
 [patch.crates-io]
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next" }
+coqui-stt-sys = { path = "../coqui-stt-sys" }

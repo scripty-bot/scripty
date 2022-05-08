@@ -2,6 +2,7 @@ use crate::{Context, Error};
 use indexmap::IndexMap;
 use scripty_i18n::LanguageIdentifier;
 use std::borrow::Cow;
+use std::fmt::Write;
 
 /// Show this help menu
 #[poise::command(prefix_command, track_edits, slash_command)]
@@ -107,13 +108,15 @@ async fn help_global(ctx: Context<'_>, resolved_language: LanguageIdentifier) ->
 
             let total_command_name_length = prefix.chars().count() + command.name.chars().count();
             let padding = 12_usize.saturating_sub(total_command_name_length) + 1;
-            menu += &format!(
-                "  {}{}{}{}\n",
+            writeln!(
+                &mut menu,
+                "  {}{}{}{}",
                 prefix,
                 command.name,
                 " ".repeat(padding),
                 command.inline_help.unwrap_or("")
-            );
+            )
+            .expect("failed to format string: this is a bug");
         }
     }
 

@@ -5,32 +5,32 @@ use systemstat::{ByteSize, Platform, System};
 #[derive(Default, Debug)]
 pub struct SystemInformation {
     /// Current CPU temperature in degrees Celsius
-    cpu_temp: Option<f32>,
+    pub cpu_temp: Option<f32>,
 
     /// Block device statistics
     ///
     /// Summed total of all block devices on the system
-    block_dev_stats: BlockDevStats,
+    pub block_dev_stats: BlockDevStats,
 
     /// CPU load statistics
     ///
     /// Average over all CPU cores
-    cpu_load: CpuLoadStats,
+    pub cpu_load: CpuLoadStats,
 
     /// CPU load average statistics
-    load_average: CpuLoadAvg,
+    pub load_average: CpuLoadAvg,
 
     /// Memory usage statistics
-    memory_usage: MemoryStats,
+    pub memory_usage: MemoryStats,
 
     /// Network usage statistics
-    network_usage: NetworkStats,
+    pub network_usage: NetworkStats,
 
     /// Socket statistics
-    socket_stats: SocketStats,
+    pub socket_stats: SocketStats,
 
     /// System uptime in nanoseconds
-    uptime: Option<u128>,
+    pub uptime: Option<u128>,
 }
 
 impl SystemInformation {
@@ -152,12 +152,12 @@ impl BlockDevStats {
 
 #[derive(Default, Debug)]
 pub struct CpuLoadStats {
-    user: f32,
-    nice: f32,
-    system: f32,
-    interrupt: f32,
-    idle: f32,
-    io_wait: f32,
+    pub user: f32,
+    pub nice: f32,
+    pub system: f32,
+    pub interrupt: f32,
+    pub idle: f32,
+    pub io_wait: f32,
 }
 
 impl CpuLoadStats {

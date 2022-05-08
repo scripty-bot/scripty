@@ -1,4 +1,4 @@
-use coqui_stt::{Model, ThreadSafeStream};
+use coqui_stt::{Model, Stream};
 use dashmap::DashMap;
 use once_cell::sync::OnceCell;
 use std::path::Path;
@@ -90,10 +90,10 @@ pub fn check_model_language(lang: &str) -> bool {
 }
 
 /// Get a stream for the selected language.
-pub fn get_stream(lang: &str) -> Option<ThreadSafeStream> {
+pub fn get_stream(lang: &str) -> Option<Stream> {
     MODELS
         .get()
         .expect("models should've been initialized before attempting to get a stream")
         .get(lang)
-        .and_then(|x| ThreadSafeStream::new(x.value().clone()).ok())
+        .and_then(|x| Stream::from_model(x.value().clone()).ok())
 }

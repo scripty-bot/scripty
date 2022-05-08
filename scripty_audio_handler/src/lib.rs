@@ -12,7 +12,7 @@ pub use audio_handler::AudioHandler;
 pub use connect::connect_to_vc;
 pub use error::Error;
 pub use scripty_audio::{check_model_language, get_model_languages};
-use serenity::prelude::Context;
+use serenity::client::Context;
 use songbird::driver::DecodeMode;
 pub use songbird::error::JoinError;
 use songbird::id::GuildId;

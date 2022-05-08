@@ -103,6 +103,20 @@ pub async fn event_listener(
             belongs_to_channel_id,
         } => {}
         Event::InteractionCreate { interaction } => {}
+        Event::GuildStickersUpdate { .. } => {}
+        Event::IntegrationCreate { .. } => {}
+        Event::IntegrationUpdate { .. } => {}
+        Event::IntegrationDelete { .. } => {}
+        Event::StageInstanceCreate { .. } => {}
+        Event::StageInstanceDelete { .. } => {}
+        Event::StageInstanceUpdate { .. } => {}
+        Event::ThreadCreate { .. } => {}
+        Event::ThreadDelete { .. } => {}
+        Event::ThreadListSync { .. } => {}
+        Event::ThreadMemberUpdate { .. } => {}
+        Event::ThreadMembersUpdate { .. } => {}
+        Event::ThreadUpdate { .. } => {}
+        Event::__NonExhaustive => {}
     };
     Ok(())
 }

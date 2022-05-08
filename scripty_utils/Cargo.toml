@@ -7,8 +7,11 @@ edition = "2021"
 
 [dependencies]
 num = "0.4"
+sha2 = "0.10"
 tracing = "0.1"
+num_cpus = "1.13"
 thousands = "0.2"
+once_cell = "1.9"
 systemstat = "0.1"
 scripty_db = { path = "../scripty_db" }
 scripty_config = { path = "../scripty_config" }

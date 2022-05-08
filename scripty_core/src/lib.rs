@@ -30,7 +30,9 @@ fn init_logging() {
 async fn async_init() {
     scripty_db::init_db().await;
 
-    scripty_data_storage::init_cache_async().await;
+    scripty_data_storage::init_cache_async()
+        .await
+        .expect("failed to init cache");
 }
 
 fn get_tokio_rt() -> tokio::runtime::Runtime {

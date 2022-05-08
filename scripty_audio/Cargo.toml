@@ -15,4 +15,4 @@ dasp_signal = "0.11"
 scripty_config = { path = "../scripty_config" }
 tokio = { version = "1.16", features = ["sync"] }
 dasp_interpolate = { version = "0.11", features = ["linear"] }
-coqui-stt = { git = "https://github.com/tazz4843/coqui-stt", features = ["threadsafe-streams", "async-streams"] }
+coqui-stt = { git = "https://github.com/tazz4843/coqui-stt" }

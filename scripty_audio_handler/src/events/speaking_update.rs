@@ -1,5 +1,6 @@
-use crate::consts::EXPECTED_PKT_SIZE;
-use crate::types::{SsrcAudioMap, SsrcStreamMap, SsrcUserDataMap};
+use crate::types::{
+    SsrcLastPktIdMap, SsrcMissedPktList, SsrcMissedPktMap, SsrcStreamMap, SsrcUserDataMap,
+};
 use serenity::builder::ExecuteWebhook;
 use serenity::client::Context;
 use serenity::model::channel::Embed;
@@ -8,13 +9,16 @@ use songbird::events::context_data::SpeakingUpdateData;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
+#[allow(clippy::too_many_arguments)]
 pub async fn speaking_update(
     update: SpeakingUpdateData,
     ctx: Context,
     webhook: Arc<Webhook>,
     ssrc_user_data_map: SsrcUserDataMap,
     ssrc_stream_map: SsrcStreamMap,
-    ssrc_audio_map: SsrcAudioMap,
+    ssrc_last_pkt_id_map: SsrcLastPktIdMap,
+    ssrc_missed_pkt_map: SsrcMissedPktMap,
+    ssrc_missed_pkt_list: SsrcMissedPktList,
     verbose: Arc<AtomicBool>,
 ) {
     let ssrc = update.ssrc;
@@ -22,6 +26,15 @@ pub async fn speaking_update(
     if !update.speaking {
         return;
     }
+
+    // clear old data
+    ssrc_last_pkt_id_map.remove(&ssrc);
+    if let Some(pkt_id_list) = ssrc_missed_pkt_list.remove(&ssrc) {
+        for pkt in pkt_id_list.1 {
+            ssrc_missed_pkt_map.remove(&(ssrc, pkt));
+        }
+    }
+
     // user has finished speaking, run the STT algo
     let old_stream = match ssrc_stream_map.insert(
         ssrc,
@@ -34,16 +47,6 @@ pub async fn speaking_update(
         }
     };
     debug!(?ssrc, "found Stream for SSRC");
-
-    if let Some(pkts) = ssrc_audio_map.insert(ssrc, (Vec::with_capacity(EXPECTED_PKT_SIZE * 5), 0))
-    {
-        if !pkts.0.is_empty() {
-            debug!(?ssrc, "found audio packets for SSRC, feeding before ending");
-            old_stream.feed_audio_async(pkts.0).await;
-        } else {
-            debug!(?ssrc, "no extra audio packets to feed");
-        }
-    }
 
     let user_data = ssrc_user_data_map.get(&ssrc);
     let (username, avatar_url) = match user_data {
@@ -59,7 +62,7 @@ pub async fn speaking_update(
 
     debug!(?ssrc, "running transcription");
     if verbose.load(Ordering::Relaxed) {
-        let res = old_stream.finish_stream_with_metadata_async(3).await;
+        let res = scripty_utils::block_in_place(|| old_stream.finish_stream_with_metadata(3)).await;
         debug!(?ssrc, "ran stream transcription");
         match res {
             Ok(res) if res.num_transcripts() != 0 => {
@@ -84,7 +87,7 @@ pub async fn speaking_update(
             _ => return,
         }
     } else {
-        let res = old_stream.finish_stream_async().await;
+        let res = scripty_utils::block_in_place(|| old_stream.finish_stream()).await;
         debug!(?ssrc, "ran stream transcription");
 
         match res {

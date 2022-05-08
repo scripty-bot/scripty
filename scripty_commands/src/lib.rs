@@ -11,7 +11,7 @@ use scripty_audio_handler::SerenityInit;
 use scripty_utils::ShardManagerWrapper;
 use serenity::async_trait;
 use serenity::model::prelude::Ready;
-use serenity::prelude::{Context as SerenityContext, EventHandler, TypeMapKey};
+use serenity::prelude::{Context as SerenityContext, EventHandler, GatewayIntents, TypeMapKey};
 use std::sync::Arc;
 
 mod checks;
@@ -49,6 +49,7 @@ pub async fn entrypoint() {
         })
         .user_data_setup(move |_, _, c| Box::pin(async move { Ok(c.shard_manager()) }))
         .options(crate::framework_opts::get_framework_opts())
+        .intents(GatewayIntents::non_privileged() | GatewayIntents::MESSAGE_CONTENT)
         .build()
         .await
         .expect("failed to build framework");
