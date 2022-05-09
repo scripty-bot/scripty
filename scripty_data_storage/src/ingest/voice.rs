@@ -1,11 +1,21 @@
 use hound::{SampleFormat, WavSpec, WavWriter};
+use ouroboros::self_referencing;
 use parking_lot::Mutex;
 use std::io::Cursor;
 
+#[self_referencing]
+struct Audio {
+    audio_data: Vec<u8>,
+    #[borrows(mut audio_data)]
+    #[not_covariant]
+    // IDEs will complain here about an undeclared lifetime
+    // ignore it
+    audio_writer: Mutex<WavWriter<Cursor<&'this mut Vec<u8>>>>,
+}
+
 pub struct VoiceIngest {
     language: String,
-    // use a Mutex because considering every access is write only, it's much cheaper
-    audio_writer: Mutex<WavWriter<Cursor<Vec<u8>>>>,
+    audio: Audio,
     /// Hashed user ID.
     user_id: Vec<u8>,
 }
@@ -19,19 +29,24 @@ impl VoiceIngest {
             return None;
         }
 
-        let audio_writer = match WavWriter::new(
-            Cursor::new(Vec::new()),
-            WavSpec {
-                channels: 1,
-                sample_rate: 16000,
-                bits_per_sample: 16,
-                sample_format: SampleFormat::Int,
-            },
-        ) {
-            Ok(w) => Mutex::new(w),
-            Err(e) => {
-                error!("failed to create WAV writer: {}", e);
-                return None;
+        let mut audio_data = Vec::new();
+        fn build_writer(
+            audio_data: &mut Vec<u8>,
+        ) -> Result<Mutex<WavWriter<Cursor<&mut Vec<u8>>>>, ()> {
+            match WavWriter::new(
+                Cursor::new(audio_data),
+                WavSpec {
+                    channels: 1,
+                    sample_rate: 16000,
+                    bits_per_sample: 16,
+                    sample_format: SampleFormat::Int,
+                },
+            ) {
+                Ok(w) => Ok(Mutex::new(w)),
+                Err(e) => {
+                    error!("failed to create WAV writer: {}", e);
+                    Err(())
+                }
             }
         };
 
@@ -39,37 +54,33 @@ impl VoiceIngest {
 
         Some(VoiceIngest {
             language,
-            audio_writer,
+            audio: Audio::try_new(audio_data, build_writer).ok()?,
             user_id,
         })
     }
 
     /// Append incoming audio to the buffer.
     pub fn ingest(&self, audio: &[i16]) {
-        let mut writer = self.audio_writer.lock();
-        for sample in audio {
-            if let Err(e) = writer.write_sample(*sample) {
-                error!("failed to write audio sample: {}", e);
+        self.audio.with_audio_writer(|f| {
+            let mut writer = f.lock();
+            for sample in audio {
+                if let Err(e) = writer.write_sample(*sample) {
+                    error!("failed to write audio sample: {}", e);
+                }
             }
-        }
+        })
     }
 
     /// Completes the audio ingest and adds the audio to the database.
     pub async fn destroy(self, transcription: String) {
         let Self {
             language,
-            audio_writer,
+            audio,
             user_id,
         } = self;
 
-        // destroy the audio lock
-        let mut audio_writer = audio_writer.into_inner();
-        // flush the WAV writer
-        if let Err(e) = audio_writer.flush() {
-            error!("failed to flush WAV writer: {}", e);
-        }
-        // get the audio buffer
-        let audio_buffer = audio_writer.writer.clone().into_inner();
+        // flush the audio writer
+        let audio_buffer: Vec<u8> = audio.into_heads().audio_data;
 
         // this was processed on-demand to a WAV file, so we can just write it to the DB
 
