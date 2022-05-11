@@ -59,7 +59,9 @@ pub async fn voice_packet(
         let mut audio = scripty_audio::process_audio(audio, 48_000.0, 16_000.0);
 
         // handle any missing packets now
-        handle_missed_packets(ssrc, sequence, &mut audio, ssrc_missed_pkt_map);
+        handle_missed_packets(ssrc, sequence, &mut audio, &ssrc_missed_pkt_map);
+        // try decrementing sequence number to see if we can get rid of any missed packets
+        handle_missed_packets(ssrc, sequence - 1, &mut audio, &ssrc_missed_pkt_map);
 
         debug!(?ssrc, "feeding audio");
         // the rare case where we don't have a stream is extremely rare,
@@ -79,7 +81,7 @@ fn handle_missed_packets(
     ssrc: u32,
     sequence: u16,
     audio: &mut Vec<i16>,
-    ssrc_missed_pkt_map: SsrcMissedPktMap,
+    ssrc_missed_pkt_map: &SsrcMissedPktMap,
 ) {
     let last_pkt = sequence - 1;
     if let Some(last_pkt_audio) = ssrc_missed_pkt_map.remove(&(ssrc, last_pkt)) {
