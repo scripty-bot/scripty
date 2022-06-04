@@ -8,10 +8,11 @@ use crate::{Data, Error};
 use poise::Event;
 pub use post_command::post_command;
 
+#[allow(unused_variables)]
 pub async fn event_listener(
     _ctx: &serenity::client::Context,
     event: &poise::Event<'_>,
-    _framework: &poise::Framework<Data, Error>,
+    _framework: poise::FrameworkContext<'_, Data, Error>,
     _user_data: &Data,
 ) -> Result<(), Error> {
     let event = event.clone();

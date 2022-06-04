@@ -29,7 +29,6 @@ impl VoiceIngest {
             return None;
         }
 
-        let mut audio_data = Vec::new();
         fn build_writer(
             audio_data: &mut Vec<u8>,
         ) -> Result<Mutex<WavWriter<Cursor<&mut Vec<u8>>>>, ()> {
@@ -48,13 +47,13 @@ impl VoiceIngest {
                     Err(())
                 }
             }
-        };
+        }
 
         let user_id = scripty_utils::hash_user_id(user_id);
 
         Some(VoiceIngest {
             language,
-            audio: Audio::try_new(audio_data, build_writer).ok()?,
+            audio: Audio::try_new(Vec::new(), build_writer).ok()?,
             user_id,
         })
     }

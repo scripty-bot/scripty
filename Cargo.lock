@@ -2038,6 +2038,7 @@ dependencies = [
  "scripty_data_storage",
  "scripty_db",
  "scripty_i18n",
+ "scripty_metrics",
  "scripty_webserver",
  "tokio",
  "tracing",

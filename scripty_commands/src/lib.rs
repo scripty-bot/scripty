@@ -22,9 +22,11 @@ mod framework_opts;
 mod handler;
 mod models;
 
-type Error = error::Error;
-type Data = <ShardManagerWrapper as TypeMapKey>::Value;
-type Context<'a> = poise::Context<'a, Data, Error>;
+pub(crate) type Error = error::Error;
+pub struct Data {
+    shard_manager: <ShardManagerWrapper as TypeMapKey>::Value,
+}
+pub(crate) type Context<'a> = poise::Context<'a, Data, Error>;
 
 struct Handler;
 #[async_trait]
@@ -47,7 +49,13 @@ pub async fn entrypoint() {
             b.event_handler(Handler)
                 .register_songbird_from_config(scripty_audio_handler::get_songbird())
         })
-        .user_data_setup(move |_, _, c| Box::pin(async move { Ok(c.shard_manager()) }))
+        .user_data_setup(move |_, _, c| {
+            Box::pin(async move {
+                Ok(Data {
+                    shard_manager: c.shard_manager().clone(),
+                })
+            })
+        })
         .options(crate::framework_opts::get_framework_opts())
         .intents(GatewayIntents::non_privileged() | GatewayIntents::MESSAGE_CONTENT)
         .build()

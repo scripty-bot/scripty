@@ -3,8 +3,8 @@ use crate::models::Language;
 use crate::{Context, Error};
 use serenity::collector::ComponentInteractionCollectorBuilder;
 use serenity::futures::StreamExt;
+use serenity::model::application::component::ButtonStyle;
 use serenity::model::channel::{ChannelType, GuildChannel};
-use serenity::model::interactions::message_component::ButtonStyle;
 use serenity::model::webhook::Webhook;
 
 /// Set the bot up.

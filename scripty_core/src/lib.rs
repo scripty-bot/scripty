@@ -39,11 +39,16 @@ fn get_tokio_rt() -> tokio::runtime::Runtime {
     let threads = num_cpus::get();
     info!("spawning tokio rt with {} threads", threads);
 
-    tokio::runtime::Builder::new_multi_thread()
+    let rt = tokio::runtime::Builder::new_multi_thread()
         .worker_threads(threads)
         .enable_all()
         .build()
-        .expect("failed to build new tokio rt")
+        .expect("failed to build new tokio rt");
+
+    // register runtime metrics
+    scripty_metrics::register_metrics(rt.handle().clone());
+
+    rt
 }
 
 fn load_config() {

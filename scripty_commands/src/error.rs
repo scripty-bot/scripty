@@ -96,8 +96,8 @@ pub async fn on_error(error: poise::FrameworkError<'_, crate::Data, crate::Error
 
             let guild_id = ctx.guild_id().unwrap_or(GuildId(0));
             let guild_name = cache
-                .guild_field(guild_id, |guild| guild.name.clone())
-                .unwrap_or_else(|| "unknown guild".to_string());
+                .guild(guild_id)
+                .map_or_else(|| "unknown guild".to_string(), |g| g.name.clone());
 
             let channel_id = ctx.channel_id();
 
@@ -255,8 +255,8 @@ pub async fn on_error(error: poise::FrameworkError<'_, crate::Data, crate::Error
 
 async fn send_err_msg(
     ctx: Context<'_, Data, Error>,
-    title: impl ToString,
-    description: impl ToString,
+    title: impl Into<String>,
+    description: impl Into<String>,
 ) {
     let mut root_embed = CreateEmbed::default();
     root_embed

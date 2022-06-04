@@ -67,12 +67,12 @@ pub async fn speaking_update(
         match res {
             Ok(res) if res.num_transcripts() != 0 => {
                 // SAFETY: we have already checked len != 0, so there must be at least one item
-                let transcript = unsafe { res.transcripts().get_unchecked(0) };
+                let transcript = unsafe { res.transcripts().get_unchecked(0) }.to_owned();
 
                 webhook_execute.embeds(vec![Embed::fake(|e| {
                     e.title(format!("Transcript 1/{}", res.num_transcripts()))
-                        .field("Transcription", transcript.to_owned(), false)
-                        .field("Confidence", transcript.confidence(), false)
+                        .field("Transcription", &transcript.to_string(), false)
+                        .field("Confidence", &transcript.confidence().to_string(), false)
                         .footer(|f| f.text(format!("ssrc {}", ssrc)))
                 })]);
             }

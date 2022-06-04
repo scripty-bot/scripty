@@ -12,6 +12,7 @@ scripty_db = { path = "../scripty_db" }
 scripty_i18n = { path = "../scripty_i18n" }
 scripty_audio = { path = "../scripty_audio" }
 scripty_config = { path = "../scripty_config" }
+scripty_metrics = { path = "../scripty_metrics" }
 scripty_commands = { path = "../scripty_commands" }
 scripty_webserver = { path = "../scripty_webserver" }
 tokio = { version = "1.16", features = ["parking_lot"] }

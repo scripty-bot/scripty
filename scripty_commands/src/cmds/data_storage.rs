@@ -3,8 +3,8 @@ use scripty_i18n::LanguageIdentifier;
 use serenity::builder::{CreateComponents, CreateEmbed};
 use serenity::collector::ComponentInteractionCollectorBuilder;
 use serenity::futures::StreamExt;
-use serenity::model::interactions::message_component::ButtonStyle;
-use serenity::model::prelude::InteractionApplicationCommandCallbackDataFlags;
+use serenity::model::application::component::ButtonStyle;
+use serenity::model::application::interaction::MessageFlags;
 use serenity::utils::Color;
 use std::time::Duration;
 
@@ -94,7 +94,7 @@ VALUES ($1)
             interaction
                 .create_interaction_response(discord_ctx, |msg| {
                     msg.interaction_response_data(|d| {
-                        d.flags(InteractionApplicationCommandCallbackDataFlags::EPHEMERAL)
+                        d.flags(MessageFlags::EPHEMERAL)
                             .content(format_message!(resolved_language, message_id))
                     })
                 })

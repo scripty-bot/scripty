@@ -7,7 +7,7 @@ pub fn register_metrics(handle: tokio::runtime::Handle) {
     info!("injecting runtime metrics monitor");
     let monitor = tokio_metrics::RuntimeMonitor::new(&handle);
     info!("injected runtime metrics monitor, spawning thread");
-    std::thread::spawn(|| {
+    std::thread::spawn(move || {
         let m = crate::METRICS.get_or_init(Metrics::new).clone();
         for interval in monitor.intervals() {
             trace!("runtime metrics: {:?}", interval);
@@ -40,6 +40,7 @@ pub fn register_metrics(handle: tokio::runtime::Handle) {
                 max_local_queue_depth,
                 min_local_queue_depth,
                 elapsed,
+                ..
             } = interval;
             m.runtime_metrics.workers_count.set(workers_count as i64);
             m.runtime_metrics

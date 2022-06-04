@@ -23,25 +23,29 @@ pub async fn join(
 
     let discord_ctx = ctx.discord();
 
-    let guild = ctx.guild().ok_or(Error::ExpectedGuild)?;
-    let voice_channel = match voice_channel.ok_or_else(|| {
-        guild
-            .voice_states
-            .get(&ctx.author().id)
-            .and_then(|state| state.channel_id)
-    }) {
+    let (guild_id, voice_channel) = {
+        let guild = ctx.guild().ok_or(Error::ExpectedGuild)?;
+        (
+            guild.id,
+            voice_channel.ok_or_else(|| {
+                guild
+                    .voice_states
+                    .get(&ctx.author().id)
+                    .and_then(|state| state.channel_id)
+            }),
+        )
+    };
+    let voice_channel = match voice_channel {
         Ok(vc) => vc,
-        Err(state) => match state {
-            Some(state) => state
-                .to_channel(discord_ctx)
-                .await?
-                .guild()
-                .expect("asserted we are already in guild"),
-            None => {
-                ctx.say(format_message!(resolved_language, "no-channel-specified", contextPrefix: ctx.prefix())).await?;
-                return Ok(());
-            }
-        },
+        Err(Some(state)) => state
+            .to_channel(discord_ctx)
+            .await?
+            .guild()
+            .expect("asserted we are already in guild"),
+        Err(None) => {
+            ctx.say(format_message!(resolved_language, "no-channel-specified", contextPrefix: ctx.prefix())).await?;
+            return Ok(());
+        }
     };
 
     if voice_channel.is_text_based() {
@@ -50,8 +54,6 @@ pub async fn join(
             got: voice_channel.kind,
         });
     }
-
-    let guild_id = guild.id;
 
     let db = scripty_db::get_db();
     let channel_id = sqlx::query!(

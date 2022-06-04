@@ -255,32 +255,32 @@ impl Metrics {
 
         let cpu_usage = GaugeVec::new(Opts::new("cpu_usage", "CPU usage"), &["cpu_type"]).unwrap();
         let cpu_usage_static = CpuUsageVec::from(&cpu_usage);
-        registry.register(Box::new(cpu_usage.clone())).unwrap();
+        registry.register(Box::new(cpu_usage)).unwrap();
 
         let mem_usage =
             IntGaugeVec::new(Opts::new("mem_usage", "Memory usage"), &["memory_type"]).unwrap();
         let mem_usage_static = MemoryUsageVec::from(&mem_usage);
-        registry.register(Box::new(mem_usage.clone())).unwrap();
+        registry.register(Box::new(mem_usage)).unwrap();
 
         let block_stats =
             IntGaugeVec::new(Opts::new("block_io", "Block statistics"), &["disk_stats"]).unwrap();
         let block_stats_static = BlockStatsVec::from(&block_stats);
-        registry.register(Box::new(block_stats.clone())).unwrap();
+        registry.register(Box::new(block_stats)).unwrap();
 
         let load_avg =
             GaugeVec::new(Opts::new("load_avg", "Average system load"), &["load_avg"]).unwrap();
         let load_avg_static = LoadAvgStatsVec::from(&load_avg);
-        registry.register(Box::new(load_avg.clone())).unwrap();
+        registry.register(Box::new(load_avg)).unwrap();
 
         let socket_stats =
             IntGaugeVec::new(Opts::new("socket_stats", "Socket stats"), &["socket_stats"]).unwrap();
         let socket_stats_static = SocketStatsVec::from(&socket_stats);
-        registry.register(Box::new(socket_stats.clone())).unwrap();
+        registry.register(Box::new(socket_stats)).unwrap();
 
         let net_stats =
             IntGaugeVec::new(Opts::new("net_stats", "Network stats"), &["network_stats"]).unwrap();
         let network_stats_static = NetworkStatsVec::from(&net_stats);
-        registry.register(Box::new(net_stats.clone())).unwrap();
+        registry.register(Box::new(net_stats)).unwrap();
 
         let cpu_temp = Gauge::new("cpu_temp", "CPU temperature").unwrap();
         registry.register(Box::new(cpu_temp.clone())).unwrap();
@@ -297,7 +297,7 @@ impl Metrics {
         )
         .unwrap();
         let commands_used_static = CommandsUsedVec::from(&commands_used);
-        registry.register(Box::new(commands_used.clone())).unwrap();
+        registry.register(Box::new(commands_used)).unwrap();
 
         let runtime_metrics_stats = IntGaugeVec::new(
             Opts::new("runtime_metrics", "Tokio runtime metrics"),
@@ -305,9 +305,7 @@ impl Metrics {
         )
         .unwrap();
         let runtime_metrics_static = RuntimeMetricsVec::from(&runtime_metrics_stats);
-        registry
-            .register(Box::new(runtime_metrics_stats.clone()))
-            .unwrap();
+        registry.register(Box::new(runtime_metrics_stats)).unwrap();
 
         Arc::new(Self {
             registry,
