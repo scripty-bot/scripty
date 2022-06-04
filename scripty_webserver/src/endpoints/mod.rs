@@ -1,1 +1,1 @@
-mod metrics;
+pub mod metrics;

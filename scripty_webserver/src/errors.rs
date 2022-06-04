@@ -44,7 +44,7 @@ impl IntoResponse for WebServerError {
             }
         };
 
-        let bytes = match simd_json::to_vec(&body) {
+        let bytes = match serde_json::to_vec(&body) {
             Ok(bytes) => bytes,
             Err(e) => {
                 warn!("Error serializing error response: {}", e);
