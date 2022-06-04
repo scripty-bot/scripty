@@ -1,5 +1,6 @@
 mod data_storage;
 mod donate;
+mod entity_block;
 mod help;
 mod join;
 mod language;
@@ -9,6 +10,7 @@ mod setup;
 
 pub use data_storage::data_storage;
 pub use donate::donate;
+pub use entity_block::*;
 pub use help::help;
 pub use join::join;
 pub use language::*;

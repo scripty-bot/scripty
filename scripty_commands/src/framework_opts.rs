@@ -18,6 +18,10 @@ pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
                 subcommands: vec![cmds::user_language(), cmds::guild_language()],
                 ..cmds::language()
             },
+            poise::Command {
+                subcommands: vec![cmds::block_user(), cmds::block_guild()],
+                ..cmds::block()
+            },
         ],
         listener: |ctx, event, framework, user_data| {
             Box::pin(event_listener(ctx, event, framework, user_data))
@@ -38,6 +42,11 @@ pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
             mention_as_prefix: true,
             ..Default::default()
         },
+        owners: scripty_config::get_config()
+            .owners
+            .iter()
+            .map(|id| serenity::model::id::UserId(*id))
+            .collect(),
 
         ..Default::default()
     }
