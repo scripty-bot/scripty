@@ -417,16 +417,6 @@ dependencies = [
 
 [[package]]
 name = "darling"
-version = "0.12.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f2c43f534ea4b0b049015d00269734195e6d3f0f6635cb692251aca6f9f8b3c"
-dependencies = [
- "darling_core 0.12.4",
- "darling_macro 0.12.4",
-]
-
-[[package]]
-name = "darling"
 version = "0.13.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a01d95850c592940db9b8194bc39f4bc0e89dee5c4265e4b1807c34a9aba453c"
@@ -436,17 +426,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "darling_core"
-version = "0.12.4"
+name = "darling"
+version = "0.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8e91455b86830a1c21799d94524df0845183fa55bafd9aa137b01c7d1065fa36"
+checksum = "4529658bdda7fd6769b8614be250cdcfc3aeb0ee72fe66f9e41e5e5eb73eac02"
 dependencies = [
- "fnv",
- "ident_case",
- "proc-macro2",
- "quote",
- "strsim",
- "syn",
+ "darling_core 0.14.1",
+ "darling_macro 0.14.1",
 ]
 
 [[package]]
@@ -464,13 +450,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "darling_macro"
-version = "0.12.4"
+name = "darling_core"
+version = "0.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "29b5acf0dea37a7f66f7b25d2c5e93fd46f8f6968b1a5d7a3e02e97768afc95a"
+checksum = "649c91bc01e8b1eac09fb91e8dbc7d517684ca6be8ebc75bb9cafc894f9fdb6f"
 dependencies = [
- "darling_core 0.12.4",
+ "fnv",
+ "ident_case",
+ "proc-macro2",
  "quote",
+ "strsim",
  "syn",
 ]
 
@@ -481,6 +470,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c972679f83bdf9c42bd905396b6c3588a843a17f0f16dfcfa3e2c5d57441835"
 dependencies = [
  "darling_core 0.13.4",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "darling_macro"
+version = "0.14.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ddfc69c5bfcbd2fc09a0f38451d2daf0e372e367986a83906d1b0dbc88134fb5"
+dependencies = [
+ "darling_core 0.14.1",
  "quote",
  "syn",
 ]
@@ -1610,8 +1610,8 @@ dependencies = [
 
 [[package]]
 name = "poise"
-version = "0.1.0"
-source = "git+https://github.com/GnomedDev/poise?branch=cutting-edge#246a91bf3e82320ad727102fd5511212ea3d4c5a"
+version = "0.2.1"
+source = "git+https://github.com/GnomedDev/poise?branch=cutting-edge#39b8413f1d0a3b11c7f3efe07111e894d8e034e9"
 dependencies = [
  "async-trait",
  "derivative",
@@ -1621,16 +1621,16 @@ dependencies = [
  "once_cell",
  "poise_macros",
  "regex",
- "serenity 0.11.2 (git+https://github.com/serenity-rs/serenity?branch=next)",
+ "serenity 0.11.2 (git+https://github.com/GnomedDev/serenity?branch=dashref)",
  "tokio",
 ]
 
 [[package]]
 name = "poise_macros"
-version = "0.1.0"
-source = "git+https://github.com/GnomedDev/poise?branch=cutting-edge#246a91bf3e82320ad727102fd5511212ea3d4c5a"
+version = "0.2.1"
+source = "git+https://github.com/GnomedDev/poise?branch=cutting-edge#39b8413f1d0a3b11c7f3efe07111e894d8e034e9"
 dependencies = [
- "darling 0.12.4",
+ "darling 0.14.1",
  "proc-macro2",
  "quote",
  "syn",
@@ -1802,9 +1802,9 @@ dependencies = [
 
 [[package]]
 name = "regex"
-version = "1.5.5"
+version = "1.5.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a11647b6b25ff05a515cb92c365cec08801e83423a235b51e231e1808747286"
+checksum = "d83f127d94bdbcda4c8cc2e50f6f84f4b611f69c902699ca385a39c3a75f9ff1"
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -1822,9 +1822,9 @@ dependencies = [
 
 [[package]]
 name = "regex-syntax"
-version = "0.6.25"
+version = "0.6.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
+checksum = "49b3de9ec5dc0a3417da371aab17d729997c15010e7fd24ff707773a33bddb64"
 
 [[package]]
 name = "reqwest"
@@ -2260,6 +2260,7 @@ dependencies = [
  "bitflags",
  "bytes",
  "cfg-if",
+ "chrono",
  "dashmap 5.3.4",
  "flate2",
  "futures",
@@ -2289,13 +2290,10 @@ dependencies = [
  "bitflags",
  "bytes",
  "cfg-if",
- "chrono",
- "dashmap 5.3.4",
  "flate2",
  "futures",
  "mime",
  "mime_guess",
- "parking_lot 0.12.1",
  "percent-encoding",
  "reqwest",
  "serde",
