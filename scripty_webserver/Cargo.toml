@@ -7,8 +7,10 @@ edition = "2021"
 
 [dependencies]
 tracing = "0.1"
+serde_json = "1.0"
 scripty_db = { path = "../scripty_db" }
 axum = { version = "0.5", features = [] }
 scripty_config = { path = "../scripty_config" }
+scripty_metrics = { path = "../scripty_metrics" }
 serde = { version = "1.0", features = ["derive"] }
 tokio = { version = "1.16", features = ["parking_lot"] }

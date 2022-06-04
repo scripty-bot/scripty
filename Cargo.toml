@@ -26,3 +26,9 @@ scripty_core = { path = "scripty_core" }
 
 [patch.crates-io]
 serenity = { git = "https://github.com/GnomedDev/serenity", branch = "dashref" }
+
+[patch."https://github.com/serenity-rs/serenity"]
+serenity = { git = "https://github.com/GnomedDev/serenity", branch = "dashref" }
+
+[patch."https://github.com/kangalioo/poise"]
+poise = { git = "https://github.com/GnomedDev/poise", branch = "cutting-edge" }
