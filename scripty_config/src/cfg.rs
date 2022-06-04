@@ -35,6 +35,9 @@ pub struct BotConfig {
 
     /// Authentication tokens for the bot's built-in API. These tokens are global.
     pub api_tokens: Vec<String>,
+
+    /// List of bot owners.
+    pub owners: Vec<u64>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

@@ -1,10 +1,12 @@
-pct_stt_threads = 0.8
 model_dir = "/home/user/stt_models"
 token = "a.b.c"
 support_invite = "https://discord.gg/xSpNJSjNhq"
+i18n_dir = "/home/user/scripty/scripty_i18n/locales"
+api_tokens = []
+owners = [661660243033456652, 788222689126776832]
 
 [database]
-host = "/var/run/postgresql/.s.PGSQL.5432"
+host = "/var/run/postgresql/"
 # host = ["0.0.0.0", 5432]
 user = "username"
 password = "password"
