@@ -17,7 +17,7 @@ scripty_utils = { path = "../scripty_utils" }
 scripty_config = { path = "../scripty_config" }
 poise = { git = "https://github.com/GnomedDev/poise", branch = "cutting-edge", features = ["cache", "collector"] }
 sqlx = { version = "0.5", features = ["postgres", "macros", "migrate", "offline", "runtime-tokio-rustls"] }
-serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [
+serenity = { git = "https://github.com/GnomedDev/serenity", branch = "dashref", features = [
   "tokio",
   "voice",
   "dashmap",

@@ -18,7 +18,7 @@ poise = { git = " https://github.com/GnomedDev/poise", branch = "cutting-edge", 
 scripty_data_storage = { path = "../scripty_data_storage" }
 scripty_audio_handler = { path = "../scripty_audio_handler" }
 tokio = { version = "1.16", features = ["parking_lot", "signal"] }
-serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [
+serenity = { git = "https://github.com/GnomedDev/serenity", branch = "dashref", features = [
   "tokio",
   "voice",
   "dashmap",

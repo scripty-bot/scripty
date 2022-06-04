@@ -25,4 +25,4 @@ members = [
 scripty_core = { path = "scripty_core" }
 
 [patch.crates-io]
-serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next" }
+serenity = { git = "https://github.com/GnomedDev/serenity", branch = "dashref" }

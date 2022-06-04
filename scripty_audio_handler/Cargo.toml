@@ -16,13 +16,12 @@ scripty_audio = { path = "../scripty_audio" }
 scripty_utils = { path = "../scripty_utils" }
 tokio = { version = "1.16", features = ["parking_lot"] }
 songbird = { git = "https://github.com/serenity-rs/songbird", branch = "next" }
-serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [
+serenity = { git = "https://github.com/GnomedDev/serenity", branch = "dashref", features = [
   "tokio",
   "voice",
   "dashmap",
   "parking_lot",
   "rustls_backend",
-  "native_tls_backend",
   "model",
   "gateway",
   "client",
