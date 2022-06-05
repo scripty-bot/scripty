@@ -67,7 +67,7 @@ pub async fn voice_packet(
         // the rare case where we don't have a stream is extremely rare,
         // so doing the above processing is fine, since the speed boost from
         // not holding a mut ref to the stream is worth it
-        if let Some(mut stream) = ssrc_stream_map.get_mut(&ssrc) {
+        if let Some(stream) = ssrc_stream_map.get_mut(&ssrc) {
             stream.feed_audio(audio);
             debug!(?ssrc, "done processing pkt");
         } else {
