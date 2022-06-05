@@ -1,3 +1,4 @@
+mod credits;
 mod data_storage;
 mod donate;
 mod entity_block;
@@ -8,6 +9,7 @@ mod ping;
 mod register_cmds;
 mod setup;
 
+pub use credits::credits;
 pub use data_storage::data_storage;
 pub use donate::donate;
 pub use entity_block::*;

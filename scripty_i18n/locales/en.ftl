@@ -224,3 +224,17 @@ delete-data-description =
 delete-data-confirm = Yes, delete all data
 delete-data-confirm-banned = Yes, delete all data and ban myself
 delete-data-cancel = No, cancel
+
+## Credits command
+credits-title = Credits
+credits-description =
+    This is a list of people who have contributed to Scripty.
+    A huge thanks goes out to everyone here <3
+credits-field1-title = Core Developers
+credits-field1-description = 0/0 and valkyrie_pilot
+credits-field2-title = Translators
+credits-field2-description = Many, many people have helped translate the bot. See the `{ $contextPrefix }translators` command for a list of translators.
+credits-field3-title = Hosting Provider
+credits-field3-description = Droplet Development has graciously given Scripty a powerful host, with a decent amount of power to scale to roughly 2,500 servers. You can check them out at https://droplet.gg/
+credits-field4-title = All Our Users
+credits-field4-description = Yes, this includes you! We appreciate you using Scripty, and we hope you enjoy using it.
