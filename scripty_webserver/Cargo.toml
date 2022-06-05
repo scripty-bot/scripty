@@ -13,4 +13,5 @@ axum = { version = "0.5", features = [] }
 scripty_config = { path = "../scripty_config" }
 scripty_metrics = { path = "../scripty_metrics" }
 serde = { version = "1.0", features = ["derive"] }
+scripty_commands = { path = "../scripty_commands" }
 tokio = { version = "1.16", features = ["parking_lot"] }

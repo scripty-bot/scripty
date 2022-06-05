@@ -6,6 +6,7 @@ extern crate tracing;
 #[macro_use]
 extern crate scripty_i18n;
 
+use once_cell::sync::OnceCell;
 use poise::FrameworkBuilder;
 use scripty_audio_handler::SerenityInit;
 use scripty_utils::ShardManagerWrapper;
@@ -18,9 +19,12 @@ mod checks;
 mod cmds;
 mod entity_block;
 mod error;
+mod extern_utils;
 mod framework_opts;
 mod handler;
 mod models;
+
+pub use extern_utils::*;
 
 pub(crate) type Error = error::Error;
 pub struct Data {
@@ -28,10 +32,16 @@ pub struct Data {
 }
 pub(crate) type Context<'a> = poise::Context<'a, Data, Error>;
 
+pub(crate) static CLIENT_CACHE: OnceCell<Arc<serenity::client::Cache>> = OnceCell::new();
+
 struct Handler;
 #[async_trait]
 impl EventHandler for Handler {
-    async fn ready(&self, _: SerenityContext, ready: Ready) {
+    async fn ready(&self, ctx: SerenityContext, ready: Ready) {
+        // initialize cache
+        // ignore any errors, as ready can be called multiple times
+        let _ = CLIENT_CACHE.set(ctx.cache);
+
         println!("{} is connected!", ready.user.name);
     }
 }

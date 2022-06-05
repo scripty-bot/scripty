@@ -1,0 +1,24 @@
+//! GET `/bot_stats`
+//!
+//! Returns bot statistics.
+
+use crate::errors::WebServerError;
+use axum::Json;
+use scripty_commands::{get_channel_count, get_guild_count, get_shard_count, get_user_count};
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct BotStats {
+    pub guild_count: usize,
+    pub user_count: usize,
+    pub channel_count: usize,
+    pub shard_count: u64,
+}
+
+pub async fn get_bot_stats() -> Result<Json<BotStats>, WebServerError> {
+    Ok(Json(BotStats {
+        guild_count: get_guild_count()?,
+        user_count: get_user_count()?,
+        channel_count: get_channel_count()?,
+        shard_count: get_shard_count()?,
+    }))
+}

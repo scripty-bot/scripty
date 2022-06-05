@@ -2138,6 +2138,7 @@ name = "scripty_webserver"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "scripty_commands",
  "scripty_config",
  "scripty_db",
  "scripty_metrics",
