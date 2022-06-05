@@ -13,7 +13,9 @@ where
         Semaphore::new(permits)
     });
 
+    debug!("waiting to acquire semaphore");
     let acq = semaphore.acquire().await.expect("semaphore closed?");
+    debug!("acquired semaphore");
     let ret = tokio::task::block_in_place(f);
     // yes yes i know this isn't required but it's more explicit
     drop(acq);
