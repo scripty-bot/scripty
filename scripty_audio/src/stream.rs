@@ -28,59 +28,62 @@ impl Stream {
         // capacity 0 means the background thread will immediately join after completing the send
         let (finish_tx, finish_rx) = flume::bounded(0);
 
-        std::thread::spawn(move || {
-            debug!("spawned stt thread, now creating stream");
-            let state = StreamingState::from_model(model);
-            let mut state = match state {
-                Ok(s) => {
-                    debug!("created stream, now entering main loop");
-                    start_tx.send(Ok(())).expect("failed to send ok to init");
-                    s
-                }
-                Err(e) => {
-                    debug!("failed to create streaming state: {:?}", e);
-                    start_tx.send(Err(e)).expect("failed to send error to init");
-                    return;
-                }
-            };
+        std::thread::Builder::new()
+            .name("stt-thread".to_string())
+            .spawn(move || {
+                debug!("spawned stt thread, now creating stream");
+                let state = StreamingState::from_model(model);
+                let mut state = match state {
+                    Ok(s) => {
+                        debug!("created stream, now entering main loop");
+                        start_tx.send(Ok(())).expect("failed to send ok to init");
+                        s
+                    }
+                    Err(e) => {
+                        debug!("failed to create streaming state: {:?}", e);
+                        start_tx.send(Err(e)).expect("failed to send error to init");
+                        return;
+                    }
+                };
 
-            while let Ok(cmd) = command_rx.recv() {
-                debug!("got command, waiting for new action permission");
-                let _guard = STT_THREAD_LOCK
-                    .get_or_init(|| {
-                        std_semaphore::Semaphore::new(
-                            ((num_cpus::get() as f64) * 0.75).floor().max(1.0) as isize,
-                        )
-                    })
-                    .access();
-                debug!("got permission, executing command");
-                match cmd {
-                    Command::FeedAudio(audio) => {
-                        debug!("feeding audio");
-                        state.feed_audio(&audio);
-                        debug!("audio fed");
-                    }
-                    Command::FinishWithMetadata(num_results) => {
-                        debug!("finishing with metadata");
-                        finish_tx
-                            .send(FinishType::WithMetadata(
-                                state.finish_stream_with_metadata(num_results),
-                            ))
-                            .expect("failed to send finish");
-                        debug!("finished with metadata");
-                        return;
-                    }
-                    Command::FinishWithoutMetadata => {
-                        debug!("finishing without metadata");
-                        finish_tx
-                            .send(FinishType::WithoutMetadata(state.finish_stream()))
-                            .expect("failed to send finish");
-                        debug!("finished without metadata");
-                        return;
+                while let Ok(cmd) = command_rx.recv() {
+                    debug!("got command, waiting for new action permission");
+                    let _guard = STT_THREAD_LOCK
+                        .get_or_init(|| {
+                            std_semaphore::Semaphore::new(
+                                ((num_cpus::get() as f64) * 0.75).floor().max(1.0) as isize,
+                            )
+                        })
+                        .access();
+                    debug!("got permission, executing command");
+                    match cmd {
+                        Command::FeedAudio(audio) => {
+                            debug!("feeding audio");
+                            state.feed_audio(&audio);
+                            debug!("audio fed");
+                        }
+                        Command::FinishWithMetadata(num_results) => {
+                            debug!("finishing with metadata");
+                            finish_tx
+                                .send(FinishType::WithMetadata(
+                                    state.finish_stream_with_metadata(num_results),
+                                ))
+                                .expect("failed to send finish");
+                            debug!("finished with metadata");
+                            return;
+                        }
+                        Command::FinishWithoutMetadata => {
+                            debug!("finishing without metadata");
+                            finish_tx
+                                .send(FinishType::WithoutMetadata(state.finish_stream()))
+                                .expect("failed to send finish");
+                            debug!("finished without metadata");
+                            return;
+                        }
                     }
                 }
-            }
-        });
+            })
+            .expect("failed to spawn thread");
         start_rx.recv().expect("failed to receive from init")?;
 
         Ok(Self {
