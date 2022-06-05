@@ -1972,9 +1972,11 @@ dependencies = [
  "dashmap 4.0.2",
  "dasp_interpolate",
  "dasp_signal",
+ "flume",
  "num_cpus",
  "once_cell",
  "scripty_config",
+ "std-semaphore",
  "threadpool",
  "tokio",
  "tracing",
@@ -2540,6 +2542,12 @@ checksum = "e113fb6f3de07a243d434a56ec6f186dfd51cb08448239fe7bcae73f87ff28ff"
 dependencies = [
  "version_check",
 ]
+
+[[package]]
+name = "std-semaphore"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "33ae9eec00137a8eed469fb4148acd9fc6ac8c3f9b110f52cd34698c8b5bfa0e"
 
 [[package]]
 name = "stdweb"
