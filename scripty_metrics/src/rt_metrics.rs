@@ -1,7 +1,10 @@
 //! Metrics observatory for the Tokio runtime.
 
 use crate::metrics::Metrics;
+use std::time::Duration;
 use tokio_metrics::RuntimeMetrics;
+
+const ONE_SECOND: Duration = Duration::from_secs(1);
 
 pub fn register_metrics(handle: tokio::runtime::Handle) {
     info!("injecting runtime metrics monitor");
@@ -114,6 +117,8 @@ pub fn register_metrics(handle: tokio::runtime::Handle) {
                 .min_local_queue_depth
                 .set(min_local_queue_depth as i64);
             m.runtime_metrics.elapsed.set(elapsed.as_nanos() as i64);
+
+            std::thread::sleep(ONE_SECOND);
         }
     });
 }
