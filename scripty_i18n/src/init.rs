@@ -1,6 +1,7 @@
 use crate::{init_cache, set_i18n_store};
 use dashmap::DashMap;
 use fluent::{bundle::FluentBundle, FluentResource};
+use std::ffi::OsStr;
 use std::fs::read_dir;
 use unic_langid::LanguageIdentifier;
 
@@ -13,6 +14,18 @@ pub fn init_i18n() {
     {
         let f = i18n_file.expect("failed to read i18n file info");
         let path = f.path();
+        // verify the file is an actual translation file
+        match path.extension() {
+            Some(ext) if OsStr::new("ftl") == ext => {}
+            Some(_) => {
+                debug!("non-ftl file in i18n dir: {:?}", path);
+                continue;
+            }
+            None => {
+                warn!("no extension for file {:?}", f);
+                continue;
+            }
+        };
         let stem = match path.file_stem() {
             Some(s) => s,
             None => {
@@ -20,6 +33,7 @@ pub fn init_i18n() {
                 continue;
             }
         };
+
         let lang_id = match stem.to_string_lossy().parse::<LanguageIdentifier>() {
             Ok(id) => id,
             Err(e) => {
