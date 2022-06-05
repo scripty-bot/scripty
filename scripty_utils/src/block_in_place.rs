@@ -8,7 +8,7 @@ where
     F: FnOnce() -> T,
 {
     let semaphore = RT_THREAD_SEMAPHORE.get_or_init(|| {
-        let permits = ((num_cpus::get() as f64) * 0.75).floor() as usize;
+        let permits = ((num_cpus::get() as f64) * 0.75).floor().max(1.0) as usize;
         debug!("Creating semaphore with {} permits", permits);
         Semaphore::new(permits)
     });
