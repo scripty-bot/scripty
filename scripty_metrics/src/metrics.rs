@@ -3,65 +3,11 @@
 
 use chrono::{NaiveDateTime, Utc};
 use once_cell::sync::OnceCell;
-use prometheus::{
-    Gauge, GaugeVec, IntCounter, IntCounterVec, IntGauge, IntGaugeVec, Opts, Registry,
-};
+use prometheus::{IntCounter, IntCounterVec, IntGauge, IntGaugeVec, Opts, Registry};
 use prometheus_static_metric::make_static_metric;
 use std::sync::Arc;
 
 make_static_metric! {
-    pub label_enum CpuUsageType {
-        user,
-        nice,
-        system,
-        interrupt,
-        idle,
-        iowait,
-    }
-
-    pub label_enum MemoryUsageType {
-        available,
-        free,
-        total,
-    }
-
-    pub label_enum BlockStats {
-        read_ios,
-        read_merges,
-        read_sectors,
-        read_ticks,
-        write_ios,
-        write_merges,
-        write_sectors,
-        write_ticks,
-        in_flight,
-        io_ticks,
-        time_in_queue,
-    }
-
-    pub label_enum SocketStats {
-        tcp_sockets_in_use,
-        tcp_sockets_orphaned,
-        udp_sockets_in_use,
-        tcp6_sockets_in_use,
-        udp6_sockets_in_use,
-    }
-
-    pub label_enum NetworkStats {
-        rx_bytes,
-        tx_bytes,
-        rx_packets,
-        tx_packets,
-        rx_errors,
-        tx_errors,
-    }
-
-    pub label_enum LoadAvgStats {
-        one,
-        five,
-        fifteen
-    }
-
     pub label_enum UserType {
         user,
         other_bot,
@@ -113,6 +59,7 @@ make_static_metric! {
         webhook_update,
         interaction_create,
     }
+
     pub label_enum CommandsUsed {
         donate,
         help,
@@ -123,6 +70,7 @@ make_static_metric! {
         setup,
         train_storage
     }
+
     pub label_enum RuntimeMetrics {
         workers_count,
         total_park_count,
@@ -162,30 +110,6 @@ make_static_metric! {
         "event_type" => EventType,
     }
 
-    pub struct CpuUsageVec: Gauge {
-        "cpu_type" => CpuUsageType,
-    }
-
-    pub struct MemoryUsageVec: IntGauge {
-        "memory_type" => MemoryUsageType,
-    }
-
-    pub struct BlockStatsVec: IntGauge {
-        "disk_stats" => BlockStats,
-    }
-
-    pub struct SocketStatsVec: IntGauge {
-        "socket_stats" => SocketStats,
-    }
-
-    pub struct NetworkStatsVec: IntGauge {
-        "network_stats" => NetworkStats
-    }
-
-    pub struct LoadAvgStatsVec: Gauge {
-        "load_avg" => LoadAvgStats,
-    }
-
     pub struct CommandsUsedVec: IntCounter {
         "command_name" => CommandsUsed,
     }
@@ -207,13 +131,6 @@ pub struct Metrics {
     pub ms_transcribed: IntCounter,
     pub total_events: IntCounter,
     pub avg_audio_process_time: IntGauge,
-    pub cpu_usage: CpuUsageVec,
-    pub mem_usage: MemoryUsageVec,
-    pub block_stats: BlockStatsVec,
-    pub socket_stats: SocketStatsVec,
-    pub network_stats: NetworkStatsVec,
-    pub load_avg_stats: LoadAvgStatsVec,
-    pub cpu_temp: Gauge,
     pub total_commands: IntCounter,
     pub commands: CommandsUsedVec,
     pub runtime_metrics: RuntimeMetricsVec,
@@ -253,38 +170,6 @@ impl Metrics {
         .unwrap();
         registry.register(Box::new(audio_process.clone())).unwrap();
 
-        let cpu_usage = GaugeVec::new(Opts::new("cpu_usage", "CPU usage"), &["cpu_type"]).unwrap();
-        let cpu_usage_static = CpuUsageVec::from(&cpu_usage);
-        registry.register(Box::new(cpu_usage)).unwrap();
-
-        let mem_usage =
-            IntGaugeVec::new(Opts::new("mem_usage", "Memory usage"), &["memory_type"]).unwrap();
-        let mem_usage_static = MemoryUsageVec::from(&mem_usage);
-        registry.register(Box::new(mem_usage)).unwrap();
-
-        let block_stats =
-            IntGaugeVec::new(Opts::new("block_io", "Block statistics"), &["disk_stats"]).unwrap();
-        let block_stats_static = BlockStatsVec::from(&block_stats);
-        registry.register(Box::new(block_stats)).unwrap();
-
-        let load_avg =
-            GaugeVec::new(Opts::new("load_avg", "Average system load"), &["load_avg"]).unwrap();
-        let load_avg_static = LoadAvgStatsVec::from(&load_avg);
-        registry.register(Box::new(load_avg)).unwrap();
-
-        let socket_stats =
-            IntGaugeVec::new(Opts::new("socket_stats", "Socket stats"), &["socket_stats"]).unwrap();
-        let socket_stats_static = SocketStatsVec::from(&socket_stats);
-        registry.register(Box::new(socket_stats)).unwrap();
-
-        let net_stats =
-            IntGaugeVec::new(Opts::new("net_stats", "Network stats"), &["network_stats"]).unwrap();
-        let network_stats_static = NetworkStatsVec::from(&net_stats);
-        registry.register(Box::new(net_stats)).unwrap();
-
-        let cpu_temp = Gauge::new("cpu_temp", "CPU temperature").unwrap();
-        registry.register(Box::new(cpu_temp.clone())).unwrap();
-
         let total_commands_used =
             IntCounter::new("total_commands_used", "All commands used").unwrap();
         registry
@@ -317,13 +202,6 @@ impl Metrics {
             ms_transcribed,
             total_events: events,
             avg_audio_process_time: audio_process,
-            cpu_usage: cpu_usage_static,
-            mem_usage: mem_usage_static,
-            block_stats: block_stats_static,
-            socket_stats: socket_stats_static,
-            network_stats: network_stats_static,
-            load_avg_stats: load_avg_static,
-            cpu_temp,
             total_commands: total_commands_used,
             commands: commands_used_static,
             runtime_metrics: runtime_metrics_static,

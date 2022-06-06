@@ -7,7 +7,6 @@ use tokio::sync::Mutex;
 extern crate tracing;
 
 mod block_in_place;
-pub mod cpu;
 mod hash_user_id;
 pub mod latency;
 mod separate_num;
