@@ -1,4 +1,3 @@
-None = no-help-found =
 None = command-not-found =
 
 # This message is shown when the user tries to invite the bot to a voice channel, but the bot has not been set up.
@@ -7,7 +6,6 @@ None = command-not-found =
 # This message is shown on successfuly joining a voice channel.
 # {$targetMention} is the mention of the channel the bot joined.
 
-None = setup-tos-agree =
 None = setup-success-title =
 
 # This message is shown as the embed description when a user tries to invoke the root command of a group.
@@ -15,12 +13,10 @@ None = setup-success-title =
 
 # This message is shown as the embed title when a user tries to invoke the root command of a group.
 
-None = context-menu-command-title =
 None = context-menu-command-message =
 
 # This message is shown when the user is not in a voice channel, nor was a voice channel specified.
 
-None = donation-title =
 
 # This message is shown as the embed description when an entity tries to set their language to an unsupported language.
 
@@ -59,25 +55,15 @@ None = donation-title =
 # This message is shown when the user requests latency information.
 # Note: the numbers here will be formatted according to the language set for the context.
 
-None = donation-description =
 None = setup-arg1-description =
-None = setup-arg3-description =
 None = data-storage-embed-title =
-None = data-storage-toggle-msgs-btn =
 None = data-storage-opted-out-audio =
-None = data-storage-opted-out-msgs =
 None = blocked-entity-no-reason-given =
-None = blocked-entity-guild =
 None = voice-connection-error-internal-lib-error =
-None = voice-connection-error-proto-violation =
 None = voice-connection-error-ws-closed-no-reason =
-None = voice-connection-error-ws-closed-invalid-payload =
 None = voice-connection-error-ws-closed-authentication-failed =
-None = voice-connection-error-ws-closed-session-invalid =
 None = voice-connection-error-ws-closed-server-not-found =
-None = voice-connection-error-ws-closed-server-crashed =
 None = voice-connection-error-unknown =
-None = voice-connection-error-msg-reconnect =
 
 # This is shown as the number of transcriptions the algorithm has discovered.
 

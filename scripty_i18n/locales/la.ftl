@@ -44,12 +44,10 @@ root-command-invoked-description = Quaeso ussus est hic nuntium subnuntios. Ecce
 
 # This message is shown when the user tries to invite the bot to a voice channel, but the bot has not been set up.
 
-None = setup-description =
 
 # This message is shown when the user requests latency information.
 # Note: the numbers here will be formatted according to the language set for the context.
 
-None = donation-description =
 
 # This message is shown on successfuly joining a voice channel.
 # {$targetMention} is the mention of the channel the bot joined.
@@ -58,25 +56,15 @@ None = donation-description =
 # This message is shown when the user tries to invite the bot to a voice channel,
 # but the webhook used by the bot has been deleted.
 
-None = setup-arg2-description =
 None = setup-tos-agree =
-None = setup-success-title =
 None = data-storage-toggle-msgs-btn =
-None = data-storage-toggle-audio-btn =
 None = data-storage-opted-out-audio =
-None = data-storage-opted-out-msgs =
 None = blocked-entity-no-reason-given =
-None = blocked-entity-guild =
 None = voice-connection-error-internal-lib-error =
-None = voice-connection-error-proto-violation =
 None = voice-connection-error-ws-closed-no-reason =
-None = voice-connection-error-ws-closed-invalid-payload =
 None = voice-connection-error-ws-closed-authentication-failed =
-None = voice-connection-error-ws-closed-session-invalid =
 None = voice-connection-error-ws-closed-server-not-found =
-None = voice-connection-error-ws-closed-server-crashed =
 None = voice-connection-error-unknown =
-None = voice-connection-error-msg-reconnect =
 
 # This is shown as the number of transcriptions the algorithm has discovered.
 

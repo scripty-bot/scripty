@@ -1,4 +1,3 @@
-None = context-menu-command-title =
 None = context-menu-command-message =
 
 # This message is shown as the embed description when a user tries to invoke the root command of a group.
@@ -16,7 +15,6 @@ None = context-menu-command-message =
 
 # This message is shown as the embed title when the user sets their language successfully.
 
-None = more-info-on-command =
 
 # This message is shown as the embed description when the user sets their language successfully.
 
@@ -29,9 +27,7 @@ None = more-info-on-command =
 
 # This message is shown as the embed title when an entity tries to set their language to an unsupported language.
 
-None = voice-connection-error-ws-closed-session-invalid =
 None = no-help-found =
-None = donation-title =
 
 # This message is shown as the embed title when a user tries to invoke the root command of a group.
 
@@ -54,30 +50,19 @@ None = donation-title =
 
 # This message is shown as the embed title when the database returns an error when setting the language for an entity.
 
-None = setup-description =
 None = setup-arg2-description =
-None = setup-tos-agree =
 None = setup-success-title =
-None = voice-connection-error-ws-closed-already-authenticated =
 
 # This message is shown when the user requests latency information.
 # Note: the numbers here will be formatted according to the language set for the context.
 
-None = donation-description =
 None = voice-connection-error-unknown =
-None = data-storage-toggle-audio-btn =
 None = data-storage-opted-in-audio =
-None = data-storage-opted-in-msgs =
 None = data-storage-command-timed-out =
-None = blocked-entity-reason-given =
 None = blocked-entity-user =
-None = voice-connection-error-host-io-error =
 None = voice-connection-error-timed-out =
-None = voice-connection-error-ws-closed-unknown-opcode =
 None = voice-connection-error-ws-closed-not-authenticated =
-None = voice-connection-error-ws-closed-server-not-found =
 None = voice-connection-error-ws-closed-server-crashed =
-None = voice-connection-error-msg-reconnect =
 
 # This is shown as the number of transcriptions the algorithm has discovered.
 
