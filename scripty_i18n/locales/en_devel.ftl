@@ -1,8 +1,5 @@
-None = donation-description =
 None = command-not-found-suggestions =
-None = default-category-name =
 None = context-menu-command-user =
-None = more-info-on-command =
 
 # This message is shown as the embed title when the user sets their language successfully.
 
@@ -30,7 +27,6 @@ None = more-info-on-command =
 
 # This message is shown as the embed title when the database returns an error when setting the language for an entity.
 
-None = data-storage-command-timed-out =
 
 # This message is shown as the embed description when the database returns an error when setting the language for an entity.
 
@@ -58,25 +54,15 @@ None = data-storage-command-timed-out =
 # This message is shown when the user requests latency information.
 # Note: the numbers here will be formatted according to the language set for the context.
 
-None = setup-description =
 None = setup-arg2-description =
-None = setup-tos-agree =
 None = setup-success-title =
-None = data-storage-embed-title =
 None = data-storage-toggle-msgs-btn =
-None = data-storage-opted-out-audio =
 None = data-storage-opted-out-msgs =
-None = blocked-entity-reason-given =
 None = blocked-entity-user =
-None = voice-connection-error-host-io-error =
 None = voice-connection-error-timed-out =
-None = voice-connection-error-ws-closed-unknown-opcode =
 None = voice-connection-error-ws-closed-not-authenticated =
-None = voice-connection-error-ws-closed-already-authenticated =
 None = voice-connection-error-ws-closed-session-timeout =
-None = voice-connection-error-ws-closed-unknown-protocol =
 None = voice-connection-error-ws-closed-unknown-encryption-mode =
-None = voice-connection-error-msg-no-reconnect =
 
 # This is shown as the number of transcriptions the algorithm has discovered.
 
