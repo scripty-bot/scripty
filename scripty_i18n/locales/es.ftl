@@ -47,14 +47,11 @@
 
 # This message is shown as the embed title when a user tries to invoke the root command of a group.
 
-None = setup-success-description =
 
 # This message is shown when the user tries to invite the bot to a voice channel,
 # but the webhook used by the bot has been deleted.
 
-None = data-storage-opted-out-msgs =
 None = voice-connection-error-proto-violation =
-None = voice-connection-error-ws-closed-session-invalid =
 None = voice-connection-error-msg-reconnect =
 
 # This is shown as the number of transcriptions the algorithm has discovered.
