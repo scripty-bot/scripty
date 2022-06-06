@@ -81,7 +81,7 @@ pub async fn voice_packet(
     }
 
     let et = Instant::now();
-    let tt = et.duration_since(st).as_nanos();
+    let tt = et.duration_since(st).as_nanos() as i64;
     let current_avg = metrics.avg_audio_process_time.get();
     let new_avg = (current_avg + tt) / 2;
     metrics.avg_audio_process_time.set(new_avg);
