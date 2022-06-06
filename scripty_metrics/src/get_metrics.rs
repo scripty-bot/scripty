@@ -1,6 +1,6 @@
 use prometheus::{Encoder, TextEncoder};
 
-pub fn get_metrics() -> Vec<u8> {
+pub fn get_formatted_metrics() -> Vec<u8> {
     let m = crate::METRICS
         .get()
         .expect("metrics not initialized")

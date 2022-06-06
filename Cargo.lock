@@ -1992,6 +1992,7 @@ dependencies = [
  "parking_lot 0.12.1",
  "scripty_audio",
  "scripty_db",
+ "scripty_metrics",
  "scripty_utils",
  "serenity",
  "songbird",

@@ -2,6 +2,7 @@ use crate::consts::{EXPECTED_PKT_SIZE, SIZE_OF_I16};
 use crate::types::{
     SsrcIgnoredMap, SsrcLastPktIdMap, SsrcMissedPktList, SsrcMissedPktMap, SsrcStreamMap,
 };
+use std::time::Instant;
 
 #[allow(clippy::too_many_arguments)]
 pub async fn voice_packet(
@@ -14,6 +15,10 @@ pub async fn voice_packet(
     ssrc_missed_pkt_map: SsrcMissedPktMap,
     ssrc_missed_pkt_list: SsrcMissedPktList,
 ) {
+    let metrics = scripty_metrics::get_metrics();
+    metrics.ms_transcribed.inc_by(20);
+    let st = Instant::now();
+
     if ssrc_ignored_map.get(&ssrc).map_or(false, |x| *x.value()) {
         return;
     }
@@ -74,6 +79,12 @@ pub async fn voice_packet(
             warn!(?ssrc, "no stream found for ssrc");
         }
     }
+
+    let et = Instant::now();
+    let tt = et.duration_since(st).as_nanos();
+    let current_avg = metrics.avg_audio_process_time.get();
+    let new_avg = (current_avg + tt) / 2;
+    metrics.avg_audio_process_time.set(new_avg);
 }
 
 /// Handle any out-of-order packets.

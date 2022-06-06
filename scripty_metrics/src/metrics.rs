@@ -121,6 +121,10 @@ make_static_metric! {
 
 pub static METRICS: OnceCell<Arc<Metrics>> = OnceCell::new();
 
+pub fn get_metrics() -> Arc<Metrics> {
+    METRICS.get().expect("metrics not initialized").clone()
+}
+
 pub struct Metrics {
     pub registry: Registry,
     pub start_time: NaiveDateTime,
