@@ -47,15 +47,10 @@ language-set-failure-title-db = 数据库返回了一个错误。
 # This message is shown when the user requests latency information.
 # Note: the numbers here will be formatted according to the language set for the context.
 
-None = setup-arg3-description =
 None = setup-success-description =
-None = data-storage-opted-in-audio =
 None = data-storage-command-timed-out =
-None = voice-connection-error-internal-lib-error =
 None = voice-connection-error-ws-closed-no-reason =
-None = voice-connection-error-ws-closed-authentication-failed =
 None = voice-connection-error-ws-closed-server-not-found =
-None = voice-connection-error-unknown =
 
 # This is shown as the number of transcriptions the algorithm has discovered.
 
