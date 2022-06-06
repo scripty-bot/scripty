@@ -1,6 +1,5 @@
 # This message is shown as the embed description when the guild sets their language successfully.
 
-None = donation-title =
 
 # This message is shown when the user tries to invite the bot to a voice channel, but the bot has not been set up.
 
@@ -24,7 +23,6 @@ None = donation-title =
 # This message is shown when the user requests latency information.
 # Note: the numbers here will be formatted according to the language set for the context.
 
-None = command-not-found-suggestions =
 
 # This message is shown when the user is not in a voice channel, nor was a voice channel specified.
 
@@ -49,19 +47,14 @@ None = command-not-found-suggestions =
 
 # This message is shown as the embed title when a user tries to invoke the root command of a group.
 
-None = setup-arg3-description =
 None = setup-success-description =
 
 # This message is shown when the user tries to invite the bot to a voice channel,
 # but the webhook used by the bot has been deleted.
 
-None = data-storage-toggle-msgs-btn =
 None = data-storage-opted-out-msgs =
-None = blocked-entity-guild =
 None = voice-connection-error-proto-violation =
-None = voice-connection-error-ws-closed-invalid-payload =
 None = voice-connection-error-ws-closed-session-invalid =
-None = voice-connection-error-ws-closed-server-crashed =
 None = voice-connection-error-msg-reconnect =
 
 # This is shown as the number of transcriptions the algorithm has discovered.

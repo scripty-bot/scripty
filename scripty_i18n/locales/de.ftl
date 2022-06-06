@@ -1,5 +1,3 @@
-None = context-menu-command-message =
-
 # This message is shown as the embed description when a user tries to invoke the root command of a group.
 
 
@@ -27,7 +25,6 @@ None = context-menu-command-message =
 
 # This message is shown as the embed title when an entity tries to set their language to an unsupported language.
 
-None = no-help-found =
 
 # This message is shown as the embed title when a user tries to invoke the root command of a group.
 
@@ -50,19 +47,14 @@ None = no-help-found =
 
 # This message is shown as the embed title when the database returns an error when setting the language for an entity.
 
-None = setup-arg2-description =
 None = setup-success-title =
 
 # This message is shown when the user requests latency information.
 # Note: the numbers here will be formatted according to the language set for the context.
 
-None = voice-connection-error-unknown =
 None = data-storage-opted-in-audio =
-None = data-storage-command-timed-out =
 None = blocked-entity-user =
-None = voice-connection-error-timed-out =
 None = voice-connection-error-ws-closed-not-authenticated =
-None = voice-connection-error-ws-closed-server-crashed =
 
 # This is shown as the number of transcriptions the algorithm has discovered.
 

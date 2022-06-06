@@ -1,4 +1,3 @@
-None = command-not-found-suggestions =
 None = context-menu-command-user =
 
 # This message is shown as the embed title when the user sets their language successfully.
@@ -54,15 +53,10 @@ None = context-menu-command-user =
 # This message is shown when the user requests latency information.
 # Note: the numbers here will be formatted according to the language set for the context.
 
-None = setup-arg2-description =
 None = setup-success-title =
-None = data-storage-toggle-msgs-btn =
 None = data-storage-opted-out-msgs =
-None = blocked-entity-user =
 None = voice-connection-error-timed-out =
-None = voice-connection-error-ws-closed-not-authenticated =
 None = voice-connection-error-ws-closed-session-timeout =
-None = voice-connection-error-ws-closed-unknown-encryption-mode =
 
 # This is shown as the number of transcriptions the algorithm has discovered.
 
