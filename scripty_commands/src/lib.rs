@@ -47,6 +47,7 @@ pub async fn entrypoint() {
         .token(&cfg.token)
         .client_settings(|b| {
             b.event_handler(crate::handler::BotEventHandler)
+                .raw_event_handler(crate::handler::RawEventHandler)
                 .register_songbird_from_config(scripty_audio_handler::get_songbird())
         })
         .user_data_setup(move |_, _, c| {
