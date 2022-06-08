@@ -56,9 +56,7 @@ root-command-invoked-description = Quaeso ussus est hic nuntium subnuntios. Ecce
 # This message is shown when the user tries to invite the bot to a voice channel,
 # but the webhook used by the bot has been deleted.
 
-None = data-storage-toggle-msgs-btn =
 None = blocked-entity-no-reason-given =
-None = voice-connection-error-ws-closed-no-reason =
 None = voice-connection-error-ws-closed-server-not-found =
 
 # This is shown as the number of transcriptions the algorithm has discovered.

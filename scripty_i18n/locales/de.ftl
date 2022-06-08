@@ -47,14 +47,11 @@
 
 # This message is shown as the embed title when the database returns an error when setting the language for an entity.
 
-None = setup-success-title =
 
 # This message is shown when the user requests latency information.
 # Note: the numbers here will be formatted according to the language set for the context.
 
-None = data-storage-opted-in-audio =
 None = blocked-entity-user =
-None = voice-connection-error-ws-closed-not-authenticated =
 
 # This is shown as the number of transcriptions the algorithm has discovered.
 
