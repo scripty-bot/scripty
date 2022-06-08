@@ -21,7 +21,7 @@ make_static_metric! {
         application_command_permissions_update,
         channel_create,
         channel_delete,
-        channel_pinsUpdate,
+        channel_pins_update,
         channel_update,
         guild_ban_add,
         guild_ban_remove,
