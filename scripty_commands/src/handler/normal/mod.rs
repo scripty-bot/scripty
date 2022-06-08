@@ -3,7 +3,6 @@ use serenity::model::gateway::Ready;
 
 mod cache_ready;
 mod message;
-mod post_command;
 mod ready;
 mod resume;
 
