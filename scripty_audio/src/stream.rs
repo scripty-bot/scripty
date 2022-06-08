@@ -11,7 +11,7 @@ pub enum FinishType {
 enum Command {
     FinishWithMetadata(u32),
     FinishWithoutMetadata,
-    FeedAudio(Vec<i16>),
+    FeedAudio(Vec<i16>, flume::Sender<()>),
 }
 
 pub struct Stream {
@@ -57,10 +57,11 @@ impl Stream {
                         .access();
                     debug!("got permission, executing command");
                     match cmd {
-                        Command::FeedAudio(audio) => {
+                        Command::FeedAudio(audio, sender) => {
                             debug!("feeding audio");
                             state.feed_audio(&audio);
                             debug!("audio fed");
+                            sender.send(()).expect("other side unexpectedly hung up");
                         }
                         Command::FinishWithMetadata(num_results) => {
                             debug!("finishing with metadata");
@@ -92,10 +93,16 @@ impl Stream {
         })
     }
 
-    pub fn feed_audio(&self, audio: Vec<i16>) {
+    pub async fn feed_audio(&self, audio: Vec<i16>) {
+        // this means both sides will need to wait for the other side to finish
+        let (tx, rx) = flume::bounded(0);
+
         self.command_tx
-            .send(Command::FeedAudio(audio))
+            .send(Command::FeedAudio(audio, tx))
             .expect("failed to send audio to stt thread");
+        rx.recv_async()
+            .await
+            .expect("failed to receive from stt thread");
     }
 
     pub async fn finish_stream(self) -> coqui_stt::Result<String> {
