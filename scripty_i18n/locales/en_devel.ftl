@@ -51,7 +51,6 @@
 # This message is shown when the user requests latency information.
 # Note: the numbers here will be formatted according to the language set for the context.
 
-None = data-storage-opted-out-msgs =
 None = voice-connection-error-ws-closed-session-timeout =
 
 # This is shown as the number of transcriptions the algorithm has discovered.
