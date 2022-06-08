@@ -77,14 +77,17 @@ make_static_metric! {
     }
 
     pub label_enum CommandsUsed {
+        credits,
+        data_storage,
         donate,
+        block,
         help,
         join,
         language,
         ping,
         register_cmds,
         setup,
-        train_storage
+        unknown
     }
     pub struct CommandsUsedVec: IntCounter {
         "command_name" => CommandsUsed,
