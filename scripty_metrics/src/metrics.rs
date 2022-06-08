@@ -13,6 +13,9 @@ make_static_metric! {
         other_bot,
         own,
     }
+    pub struct MessageCounterVec: IntCounter {
+        "user_type" => UserType,
+    }
 
     pub label_enum EventType {
         cache_ready,
@@ -59,6 +62,9 @@ make_static_metric! {
         webhook_update,
         interaction_create,
     }
+    pub struct EventCounterVec: IntCounter {
+        "event_type" => EventType,
+    }
 
     pub label_enum CommandsUsed {
         donate,
@@ -69,6 +75,9 @@ make_static_metric! {
         register_cmds,
         setup,
         train_storage
+    }
+    pub struct CommandsUsedVec: IntCounter {
+        "command_name" => CommandsUsed,
     }
 
     pub label_enum RuntimeMetrics {
@@ -101,21 +110,17 @@ make_static_metric! {
         min_local_queue_depth,
         elapsed,
     }
-
-    pub struct MessageCounterVec: IntCounter {
-        "user_type" => UserType,
-    }
-
-    pub struct EventCounterVec: IntCounter {
-        "event_type" => EventType,
-    }
-
-    pub struct CommandsUsedVec: IntCounter {
-        "command_name" => CommandsUsed,
-    }
-
     pub struct RuntimeMetricsVec: IntGauge {
         "runtime_metrics" => RuntimeMetrics,
+    }
+
+    pub label_enum LatencyType {
+        websocket,
+        http,
+        db,
+    }
+    pub struct LatencyVec: IntGauge {
+        "latency_type" => LatencyType,
     }
 }
 
@@ -131,13 +136,14 @@ pub struct Metrics {
     pub messages: MessageCounterVec,
     pub events: EventCounterVec,
     pub guilds: IntGauge,
-    pub members: IntGauge,
+    pub users: IntGauge,
     pub ms_transcribed: IntCounter,
     pub total_events: IntCounter,
     pub avg_audio_process_time: IntGauge,
     pub total_commands: IntCounter,
     pub commands: CommandsUsedVec,
     pub runtime_metrics: RuntimeMetricsVec,
+    pub latency: LatencyVec,
 }
 
 impl Metrics {
@@ -196,19 +202,27 @@ impl Metrics {
         let runtime_metrics_static = RuntimeMetricsVec::from(&runtime_metrics_stats);
         registry.register(Box::new(runtime_metrics_stats)).unwrap();
 
+        let latency_stats = IntGaugeVec::new(
+            Opts::new("latency", "Latency of various components"),
+            &["latency_type"],
+        );
+        let latency_static = LatencyVec::from(&latency_stats);
+        registry.register(Box::new(latency_stats)).unwrap();
+
         Arc::new(Self {
             registry,
             start_time: Utc::now().naive_utc(),
             messages: messages_static_vec,
             events: events_static_vec,
             guilds: guilds_gauge,
-            members: members_gauge,
+            users: members_gauge,
             ms_transcribed,
             total_events: events,
             avg_audio_process_time: audio_process,
             total_commands: total_commands_used,
             commands: commands_used_static,
             runtime_metrics: runtime_metrics_static,
+            latency: latency_static,
         })
     }
 }

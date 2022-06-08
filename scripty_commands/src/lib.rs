@@ -15,6 +15,7 @@ use serenity::model::prelude::Ready;
 use serenity::prelude::{Context as SerenityContext, EventHandler, GatewayIntents, TypeMapKey};
 use std::sync::Arc;
 
+mod background_tasks;
 mod checks;
 mod cmds;
 mod entity_block;
@@ -33,18 +34,7 @@ pub struct Data {
 pub(crate) type Context<'a> = poise::Context<'a, Data, Error>;
 
 pub(crate) static CLIENT_CACHE: OnceCell<Arc<serenity::client::Cache>> = OnceCell::new();
-
-struct Handler;
-#[async_trait]
-impl EventHandler for Handler {
-    async fn ready(&self, ctx: SerenityContext, ready: Ready) {
-        // initialize cache
-        // ignore any errors, as ready can be called multiple times
-        let _ = CLIENT_CACHE.set(ctx.cache);
-
-        println!("{} is connected!", ready.user.name);
-    }
-}
+pub(crate) static CLIENT_DATA: OnceCell<Data> = OnceCell::new();
 
 pub async fn entrypoint() {
     let cfg = scripty_config::get_config();
@@ -56,11 +46,17 @@ pub async fn entrypoint() {
     let client = FrameworkBuilder::default()
         .token(&cfg.token)
         .client_settings(|b| {
-            b.event_handler(Handler)
+            b.event_handler(crate::handler::BotEventHandler)
                 .register_songbird_from_config(scripty_audio_handler::get_songbird())
         })
         .user_data_setup(move |_, _, c| {
             Box::pin(async move {
+                CLIENT_DATA
+                    .set(Data {
+                        shard_manager: c.shard_manager().clone(),
+                    })
+                    .expect("user data setup called more than once: bug?");
+
                 Ok(Data {
                     shard_manager: c.shard_manager().clone(),
                 })
