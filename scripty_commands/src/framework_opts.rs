@@ -2,6 +2,7 @@ use crate::cmds;
 use crate::error::on_error;
 use poise::{FrameworkOptions, PrefixFrameworkOptions};
 use serenity::builder::{CreateAllowedMentions, ParseValue};
+use serenity::prelude::GatewayIntents;
 
 pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
     FrameworkOptions {
@@ -46,4 +47,14 @@ pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
 
         ..Default::default()
     }
+}
+
+pub fn get_gateway_intents() -> GatewayIntents {
+    GatewayIntents::GUILDS
+        | GatewayIntents::GUILD_MEMBERS
+        | GatewayIntents::GUILD_WEBHOOKS
+        | GatewayIntents::GUILD_VOICE_STATES
+        | GatewayIntents::GUILD_MESSAGES
+        | GatewayIntents::DIRECT_MESSAGES
+        | GatewayIntents::MESSAGE_CONTENT
 }

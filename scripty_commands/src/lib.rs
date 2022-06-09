@@ -68,7 +68,7 @@ pub async fn entrypoint() {
             })
         })
         .options(crate::framework_opts::get_framework_opts())
-        .intents(GatewayIntents::non_privileged() | GatewayIntents::MESSAGE_CONTENT)
+        .intents(crate::framework_opts::get_gateway_intents())
         .build()
         .await
         .expect("failed to build framework");
