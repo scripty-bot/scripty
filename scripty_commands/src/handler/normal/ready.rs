@@ -1,7 +1,7 @@
 use serenity::client::Context;
 use serenity::model::prelude::Ready;
 
-pub async fn ready(_ctx: Context, ready: Ready) {
+pub async fn ready(ctx: Context, ready: Ready) {
     let Ready {
         guilds,
         presences,
@@ -14,5 +14,7 @@ pub async fn ready(_ctx: Context, ready: Ready) {
         user.tag(),
         guilds.len(),
         presences.len()
-    )
+    );
+
+    crate::background_tasks::init_background_tasks(ctx);
 }

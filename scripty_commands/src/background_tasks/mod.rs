@@ -7,3 +7,5 @@
 
 mod core;
 mod tasks;
+
+pub use self::core::init_background_tasks;
