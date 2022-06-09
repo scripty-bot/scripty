@@ -51,7 +51,6 @@
 # This message is shown when the user tries to invite the bot to a voice channel,
 # but the webhook used by the bot has been deleted.
 
-None = voice-connection-error-msg-reconnect =
 
 # This is shown as the number of transcriptions the algorithm has discovered.
 
