@@ -1,5 +1,5 @@
 use crate::background_tasks::core::BackgroundTask;
-use crate::{Context, Error};
+use crate::Error;
 use serenity::client::bridge::gateway::ShardManager;
 use serenity::client::{Cache, Context as SerenityContext};
 use serenity::model::gateway::Activity;
