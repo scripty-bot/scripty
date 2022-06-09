@@ -53,7 +53,6 @@ donation-title = Lahjoitukset
 # This message is shown on successfuly joining a voice channel.
 # {$targetMention} is the mention of the channel the bot joined.
 
-None = voice-connection-error-ws-closed-authentication-failed =
 
 # This is shown as the number of transcriptions the algorithm has discovered.
 
