@@ -51,12 +51,15 @@ pub async fn entrypoint() {
                 .raw_event_handler(crate::handler::RawEventHandler)
                 .register_songbird_from_config(scripty_audio_handler::get_songbird())
         })
-        .user_data_setup(move |_, _, c| {
+        .user_data_setup(move |ctx, _, c| {
             Box::pin(async move {
                 CLIENT_DATA
                     .set(Data {
                         shard_manager: c.shard_manager().clone(),
                     })
+                    .expect("user data setup called more than once: bug?");
+                CLIENT_CACHE
+                    .set(ctx.cache.clone())
                     .expect("user data setup called more than once: bug?");
 
                 Ok(Data {
