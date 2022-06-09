@@ -1,5 +1,7 @@
+use serenity::client::Context;
 use serenity::model::event::ResumedEvent;
 
-pub async fn resume(_: ResumedEvent) {
+#[inline]
+pub async fn resume(_: Context, _: ResumedEvent) {
     info!("successfully resumed");
 }

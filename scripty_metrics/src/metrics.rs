@@ -218,7 +218,8 @@ impl Metrics {
         let latency_stats = IntGaugeVec::new(
             Opts::new("latency", "Latency of various components"),
             &["latency_type"],
-        );
+        )
+        .expect("failed to init latency stats");
         let latency_static = LatencyVec::from(&latency_stats);
         registry.register(Box::new(latency_stats)).unwrap();
 

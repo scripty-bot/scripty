@@ -5,14 +5,14 @@
 extern crate tracing;
 #[macro_use]
 extern crate scripty_i18n;
+#[macro_use]
+extern crate async_trait;
 
 use once_cell::sync::OnceCell;
 use poise::FrameworkBuilder;
 use scripty_audio_handler::SerenityInit;
 use scripty_utils::ShardManagerWrapper;
-use serenity::async_trait;
-use serenity::model::prelude::Ready;
-use serenity::prelude::{Context as SerenityContext, EventHandler, GatewayIntents, TypeMapKey};
+use serenity::prelude::{GatewayIntents, TypeMapKey};
 use std::sync::Arc;
 
 mod background_tasks;
@@ -28,6 +28,7 @@ mod models;
 pub use extern_utils::*;
 
 pub(crate) type Error = error::Error;
+#[derive(Debug)]
 pub struct Data {
     shard_manager: <ShardManagerWrapper as TypeMapKey>::Value,
 }

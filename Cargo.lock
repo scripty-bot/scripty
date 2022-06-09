@@ -2005,6 +2005,7 @@ dependencies = [
 name = "scripty_commands"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "dashmap 4.0.2",
  "indexmap",
  "once_cell",

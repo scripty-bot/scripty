@@ -1,6 +1,5 @@
 use crate::cmds;
 use crate::error::on_error;
-use crate::handler::event_listener;
 use poise::{FrameworkOptions, PrefixFrameworkOptions};
 use serenity::builder::{CreateAllowedMentions, ParseValue};
 
@@ -23,9 +22,6 @@ pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
                 ..cmds::block()
             },
         ],
-        listener: |ctx, event, framework, user_data| {
-            Box::pin(event_listener(ctx, event, framework, user_data))
-        },
         on_error: |error| Box::pin(on_error(error)),
         command_check: Some(crate::entity_block::check_block),
         post_command: crate::handler::post_command,

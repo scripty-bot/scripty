@@ -10,6 +10,7 @@ dashmap = "4"
 tracing = "0.1"
 indexmap = "1.8"
 once_cell = "1.9"
+async-trait = "0.1"
 scripty_db = { path = "../scripty_db" }
 scripty_i18n = { path = "../scripty_i18n" }
 scripty_utils = { path = "../scripty_utils" }

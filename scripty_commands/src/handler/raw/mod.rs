@@ -3,6 +3,7 @@ use serenity::model::event::Event;
 
 pub struct RawEventHandler;
 
+#[async_trait]
 impl SerenityRawEventHandler for RawEventHandler {
     async fn raw_event(&self, _ctx: Context, event: Event) {
         let metrics = scripty_metrics::get_metrics();
@@ -52,7 +53,7 @@ impl SerenityRawEventHandler for RawEventHandler {
             Event::UserUpdate(_) => metrics.events.user_update.inc(),
             Event::VoiceStateUpdate(_) => metrics.events.voice_state_update.inc(),
             Event::VoiceServerUpdate(_) => metrics.events.voice_server_update.inc(),
-            Event::WebhooksUpdate(_) => metrics.events.webhooks_update.inc(),
+            Event::WebhookUpdate(_) => metrics.events.webhook_update.inc(),
             _ => metrics.events.unknown.inc(),
         }
     }

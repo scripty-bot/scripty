@@ -1,6 +1,7 @@
+use serenity::client::Context;
 use serenity::model::prelude::Ready;
 
-pub async fn ready(ready: Ready) {
+pub async fn ready(_ctx: Context, ready: Ready) {
     let Ready {
         guilds,
         presences,
