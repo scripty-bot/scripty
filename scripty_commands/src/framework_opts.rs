@@ -25,6 +25,7 @@ pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
         ],
         on_error: |error| Box::pin(on_error(error)),
         command_check: Some(crate::entity_block::check_block),
+        pre_command: crate::handler::pre_command,
         post_command: crate::handler::post_command,
         allowed_mentions: Some({
             let mut f = CreateAllowedMentions::default();

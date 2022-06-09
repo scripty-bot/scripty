@@ -12,7 +12,7 @@ use once_cell::sync::OnceCell;
 use poise::FrameworkBuilder;
 use scripty_audio_handler::SerenityInit;
 use scripty_utils::ShardManagerWrapper;
-use serenity::prelude::{GatewayIntents, TypeMapKey};
+use serenity::prelude::TypeMapKey;
 use std::sync::Arc;
 
 mod background_tasks;
