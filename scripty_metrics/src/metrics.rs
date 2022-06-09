@@ -131,6 +131,7 @@ make_static_metric! {
         websocket,
         http,
         db,
+        command_process,
     }
     pub struct LatencyVec: IntGauge {
         "latency_type" => LatencyType,

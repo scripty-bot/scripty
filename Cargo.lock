@@ -2097,6 +2097,7 @@ name = "scripty_metrics"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "dashmap 5.3.4",
  "once_cell",
  "prometheus",
  "prometheus-static-metric",
