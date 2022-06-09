@@ -51,7 +51,6 @@
 # This message is shown when the user requests latency information.
 # Note: the numbers here will be formatted according to the language set for the context.
 
-None = blocked-entity-no-reason-given =
 None = voice-connection-error-ws-closed-server-not-found =
 
 # This is shown as the number of transcriptions the algorithm has discovered.
