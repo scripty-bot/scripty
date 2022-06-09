@@ -1,7 +1,7 @@
 use crate::background_tasks::core::BackgroundTask;
 use crate::Error;
 use serenity::client::bridge::gateway::ShardManager;
-use serenity::client::{Cache, Context as SerenityContext};
+use serenity::client::Context as SerenityContext;
 use serenity::model::gateway::Activity;
 use std::sync::Arc;
 use std::time::Duration;
@@ -11,7 +11,6 @@ use tokio::sync::Mutex;
 pub struct StatusUpdater {
     ctx: SerenityContext,
     shard_manager: Arc<Mutex<ShardManager>>,
-    cache: Arc<Cache>,
 }
 
 #[async_trait]
@@ -24,7 +23,6 @@ impl BackgroundTask for StatusUpdater {
                 .expect("client data not initialized")
                 .shard_manager
                 .clone(),
-            cache: ctx.cache.clone(),
         })
     }
 
@@ -33,7 +31,7 @@ impl BackgroundTask for StatusUpdater {
     }
 
     async fn run(&mut self) {
-        let guild_count = self.cache.guild_count();
+        let guild_count = self.ctx.cache.guild_count();
 
         let shard_manager = self.shard_manager.lock().await;
         let runners = shard_manager.runners.lock().await;
