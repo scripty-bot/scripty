@@ -6,5 +6,6 @@ async fn _pre_command(ctx: crate::Context<'_>) {
 
 #[inline]
 pub fn pre_command(ctx: crate::Context) -> BoxFuture<()> {
+    debug!("pre_command");
     Box::pin(_pre_command(ctx))
 }
