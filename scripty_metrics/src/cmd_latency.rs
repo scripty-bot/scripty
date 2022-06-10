@@ -8,7 +8,7 @@ use std::time::Instant;
 static LATENCY_START_TIME: OnceCell<DashMap<u64, Instant>> = OnceCell::new();
 
 /// Call this function in on_message. This will quickly measure the start time of the command processing.
-pub fn measure_start_latency(id: u64) {
+pub fn measure_start_latency(time: Instant, id: u64) {
     debug!(?id, "measure_start_latency");
     LATENCY_START_TIME
         .get_or_init(DashMap::new)

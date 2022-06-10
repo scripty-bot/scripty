@@ -1,11 +1,23 @@
 use serenity::client::{Context, RawEventHandler as SerenityRawEventHandler};
 use serenity::model::event::Event;
+use std::time::Instant;
 
 pub struct RawEventHandler;
 
 #[async_trait]
 impl SerenityRawEventHandler for RawEventHandler {
     async fn raw_event(&self, _ctx: Context, event: Event) {
+        // we need to handle command latency measurements here too,
+        // as poise overwrites serenity and calls it after command processing
+        let st = Instant::now();
+        match event {
+            Event::MessageCreate(e) => scripty_metrics::measure_start_latency(st, e.message.id.0),
+            Event::InteractionCreate(e) => {
+                scripty_metrics::measure_start_latency(st, e.interaction.id.0)
+            }
+            _ => {}
+        }
+
         let metrics = scripty_metrics::get_metrics();
 
         // increment the total number of events
