@@ -19,14 +19,20 @@ pub fn measure_start_latency(id: u64) {
 pub fn measure_end_latency(id: u64) {
     let et = Instant::now();
     debug!(?id, "measure_end_latency");
-    if let Some((_, st)) = LATENCY_START_TIME.get_or_init(DashMap::new).remove(&id) {
-        debug!(?id, "found start time");
-        let tt = et.duration_since(st).as_nanos() as i64;
-        let metrics = crate::get_metrics();
-        // average the latency
-        let current = metrics.latency.command_process.get();
-        let new = if current == 0 { tt } else { (current + tt) / 2 };
-        metrics.latency.command_process.set(new);
+    let latency_map = LATENCY_START_TIME.get_or_init(DashMap::new);
+    match latency_map.remove(&id) {
+        Some((_, st)) => {
+            debug!(?id, "found start time");
+            let tt = et.duration_since(st).as_nanos() as i64;
+            let metrics = crate::get_metrics();
+            // average the latency
+            let current = metrics.latency.command_process.get();
+            let new = if current == 0 { tt } else { (current + tt) / 2 };
+            metrics.latency.command_process.set(new);
+        }
+        None => {
+            debug!(?id, "no start time found");
+        }
     }
 }
 
