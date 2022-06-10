@@ -12,7 +12,7 @@ pub fn measure_start_latency(time: Instant, id: u64) {
     debug!(?id, "measure_start_latency");
     LATENCY_START_TIME
         .get_or_init(DashMap::new)
-        .insert(id, Instant::now());
+        .insert(id, time);
 }
 
 /// Call this function in pre_command. This will measure the total latency of the command processing.

@@ -10,10 +10,10 @@ impl SerenityRawEventHandler for RawEventHandler {
         // we need to handle command latency measurements here too,
         // as poise overwrites serenity and calls it after command processing
         let st = Instant::now();
-        match event {
+        match &event {
             Event::MessageCreate(e) => scripty_metrics::measure_start_latency(st, e.message.id.0),
             Event::InteractionCreate(e) => {
-                scripty_metrics::measure_start_latency(st, e.interaction.id.0)
+                scripty_metrics::measure_start_latency(st, e.interaction.id().0)
             }
             _ => {}
         }
