@@ -69,7 +69,7 @@ impl From<scripty_audio_handler::Error> for Error {
     }
 }
 
-pub async fn on_error(error: poise::FrameworkError<'_, crate::Data, crate::Error>) {
+pub async fn on_error(error: FrameworkError<'_, Data, crate::Error>) {
     info!("handling error event");
     #[allow(unreachable_patterns)]
     match error {

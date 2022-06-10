@@ -40,15 +40,15 @@ pub(crate) static CLIENT_DATA: OnceCell<Data> = OnceCell::new();
 pub async fn entrypoint() {
     let cfg = scripty_config::get_config();
 
-    crate::entity_block::init_blocked()
+    entity_block::init_blocked()
         .await
         .expect("failed to init blocked entities");
 
     let client = FrameworkBuilder::default()
         .token(&cfg.token)
         .client_settings(|b| {
-            b.event_handler(crate::handler::BotEventHandler)
-                .raw_event_handler(crate::handler::RawEventHandler)
+            b.event_handler(handler::BotEventHandler)
+                .raw_event_handler(handler::RawEventHandler)
                 .register_songbird_from_config(scripty_audio_handler::get_songbird())
         })
         .user_data_setup(move |ctx, _, c| {
@@ -67,8 +67,8 @@ pub async fn entrypoint() {
                 })
             })
         })
-        .options(crate::framework_opts::get_framework_opts())
-        .intents(crate::framework_opts::get_gateway_intents())
+        .options(framework_opts::get_framework_opts())
+        .intents(framework_opts::get_gateway_intents())
         .build()
         .await
         .expect("failed to build framework");
