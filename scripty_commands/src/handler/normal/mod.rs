@@ -1,10 +1,12 @@
 use serenity::client::{Context as SerenityContext, EventHandler};
+use serenity::model::application::interaction::Interaction;
 use serenity::model::channel::Message;
 use serenity::model::event::ResumedEvent;
 use serenity::model::gateway::Ready;
 use serenity::model::id::GuildId;
 
 mod cache_ready;
+mod interaction_create;
 mod message;
 mod ready;
 mod resume;
@@ -31,5 +33,10 @@ impl EventHandler for BotEventHandler {
     #[inline(always)]
     async fn resume(&self, ctx: SerenityContext, resume: ResumedEvent) {
         resume::resume(ctx, resume).await;
+    }
+
+    #[inline(always)]
+    async fn interaction_create(&self, ctx: SerenityContext, interaction: Interaction) {
+        interaction_create::interaction_create(ctx, interaction).await;
     }
 }

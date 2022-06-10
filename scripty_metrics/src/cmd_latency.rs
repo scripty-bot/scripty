@@ -9,6 +9,7 @@ static LATENCY_START_TIME: OnceCell<DashMap<u64, Instant>> = OnceCell::new();
 
 /// Call this function in on_message. This will quickly measure the start time of the command processing.
 pub fn measure_start_latency(id: u64) {
+    debug!(?id, "measure_start_latency");
     LATENCY_START_TIME
         .get_or_init(DashMap::new)
         .insert(id, Instant::now());
@@ -17,6 +18,7 @@ pub fn measure_start_latency(id: u64) {
 /// Call this function in pre_command. This will measure the total latency of the command processing.
 pub fn measure_end_latency(id: u64) {
     let et = Instant::now();
+    debug!(?id, "measure_end_latency");
     if let Some((_, st)) = LATENCY_START_TIME.get_or_init(DashMap::new).remove(&id) {
         let tt = et.duration_since(st).as_nanos() as i64;
         let metrics = crate::get_metrics();
