@@ -62,7 +62,7 @@ pub async fn speaking_update(
 
     debug!(?ssrc, "running transcription");
     if verbose.load(Ordering::Relaxed) {
-        let res = old_stream.finish_stream_with_metadata(3).await;
+        let res = scripty_utils::block_in_place(|| old_stream.finish_stream_with_metadata(3)).await;
         debug!(?ssrc, "ran stream transcription");
         match res {
             Ok(res) if res.num_transcripts() != 0 => {
@@ -87,7 +87,7 @@ pub async fn speaking_update(
             _ => return,
         }
     } else {
-        let res = old_stream.finish_stream().await;
+        let res = scripty_utils::block_in_place(|| old_stream.finish_stream()).await;
         debug!(?ssrc, "ran stream transcription");
 
         match res {

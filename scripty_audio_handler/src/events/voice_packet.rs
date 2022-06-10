@@ -72,8 +72,8 @@ pub async fn voice_packet(
         // the rare case where we don't have a stream is extremely rare,
         // so doing the above processing is fine, since the speed boost from
         // not holding a mut ref to the stream is worth it
-        if let Some(stream) = ssrc_stream_map.get_mut(&ssrc) {
-            stream.feed_audio(audio).await;
+        if let Some(mut stream) = ssrc_stream_map.get_mut(&ssrc) {
+            scripty_utils::block_in_place(|| stream.feed_audio(audio.as_ref())).await;
             debug!(?ssrc, "done processing pkt");
         } else {
             warn!(?ssrc, "no stream found for ssrc");

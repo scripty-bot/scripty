@@ -1,5 +1,4 @@
-use crate::Stream;
-use coqui_stt::Model;
+use coqui_stt::{Model, Stream};
 use dashmap::DashMap;
 use once_cell::sync::OnceCell;
 use std::path::Path;
@@ -96,5 +95,5 @@ pub fn get_stream(lang: &str) -> Option<Stream> {
         .get()
         .expect("models should've been initialized before attempting to get a stream")
         .get(lang)
-        .and_then(|x| Stream::init(x.value().clone()).ok())
+        .and_then(|x| Stream::from_model(x.value().clone()).ok())
 }
