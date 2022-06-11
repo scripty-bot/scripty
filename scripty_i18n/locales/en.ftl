@@ -75,6 +75,15 @@ root-command-invoked-title = This is a root command!
 root-command-invoked-description = Please invoke only this command's subcommands to use it. See `{ $contextPrefix }help { $commandName }` for more info.
 
 ## join command
+# This is shown as the title of the join command (eg what shows up in the slash command picker)
+join-command-name = join
+# This is shown as the description of the join command (eg what shows up in the slash command picker)
+join-command-description = Join a voice chat.
+    
+    Argument 1 is a voice chat to join.
+    If you do not specify a voice channel to join, the bot will default to the same one you are in.
+# This is shown as the description of the first argument to the join command
+join-command-argument1-description = Voice chat to bind to.
 
 # This message is shown when the user is not in a voice channel, nor was a voice channel specified.
 no-channel-specified = You're not in a voice chat, nor did you tell me a channel to join. Try `{ $contextPrefix }join <channel>` to specify a voice chat, or join a voice chat yourself and re-run this command.
