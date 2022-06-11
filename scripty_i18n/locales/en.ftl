@@ -137,20 +137,17 @@ latency-description =
     Try again later.
 
 ## setup command
-setup-description =
+# This is shown as the title of the setup command (eg what shows up in the slash command picker)
+setup-command-name = setup
+# This is shown as the description of the setup command (eg what shows up in the slash command picker)
+setup-command-description =
     Set the bot up.
     
     This will initialize the bare framework of the bot,
     allowing you to use `~join` to bind the bot to a voice chat.
-    
-    Argument 1 is the channel to send all transcriptions to.
-    
-    Argument 2 is optional, and is the language to use for transcription.
-    
-    Argument 3 is optional, and defines whether or not the bot should be verbose.
-setup-arg1-description = The channel to send all transcriptions to.
-setup-arg2-description = The language to use for transcription.
-setup-arg3-description = Whether or not the bot should be verbose.
+setup-command-argument1-description = Channel to send transcriptions to. (Required)
+setup-command-argument2-description = Target language to run the STT algorithm in. (Optional, defaults to English)
+setup-command-argument3-description = During transcriptions, be verbose? This adds no extra overhead. (Optional, defaults to false)
 setup-tos-agree =
     By setting up Scripty, you agree to both its Privacy Policy and Terms of Service.
     Privacy Policy: https://scripty.org/privacy
