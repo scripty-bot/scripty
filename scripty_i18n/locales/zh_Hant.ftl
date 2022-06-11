@@ -71,26 +71,13 @@ latency-description =
     
     注意：如果任何延遲等於 0ms，則表示當前無法計算該延遲。
     請稍後再試。
-setup-arg2-description = 用於轉錄的語言。
 setup-tos-agree =
     通過設置 Scripty，你同意其隱私政策和服務條款。
     隱私政策：https://scripty.org/privacy
     服務條款：https://scripty.org/terms
 setup-tos-agree-failure = 你必須同意服務條款和隱私政策才能使用 Scripty。 正在取消設置。
 setup-success-title = 設置成功！
-setup-arg3-description = Scripty 是否應該發送詳細信息。
 setup-arg1-description = 將所有轉錄發送到的頻道。
-setup-description =
-    設置 Scripty。
-    
-    這將初始化 Scripty 的功能，
-    允許你使用 `~join` 將機器人綁定到語音頻道。
-    
-    參數 1 是將所有轉錄發送到的頻道。
-    
-    參數 2 是可選的，是用於轉錄的語言。
-    
-    參數 3 是可選的，它決定 Scripty 是否應該發送詳細信息。
 setup-success-description =
     幾點注意事項：
     

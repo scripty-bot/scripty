@@ -130,19 +130,7 @@ latency-description =
     
     Hinweis: eine Latenzzeit von 0ms bedeutet, dass diese Latenzzeit gerade nicht verfügbar ist.
     Versuche es später noch einmal.
-setup-description =
-    Richte den Bot ein.
-    
-    Dieser Befehl richtet die Grundzüge des Bots ein,
-    sodass du den Bot mit `~join` einem Sprachkanal hinzufügen kannst.
-    
-    Parameter 1 ist der Kanal für alle Transkriptionen.
-    
-    Parameter 2 ist optional und gibt die Sprache der Transkription an.
-    
-    Parameter 3 ist optional und aktiviert den Verbose-Modus (mehr Information) des Bots.
 setup-arg1-description = Der Kanal, in welchen alle Transkriptionen geschickt werden.
-setup-arg2-description = Die Sprache für Transkription.
 setup-arg3-description = Ob der Bot ausführlich sein sollte.
 setup-tos-agree =
     Durch das Einrichten von Scripty stimmst du der Datenschutzerklärung und den Allgemeinen Geschäftsbedingungen zu.
