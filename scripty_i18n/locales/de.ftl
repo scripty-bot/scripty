@@ -130,7 +130,6 @@ latency-description =
     
     Hinweis: eine Latenzzeit von 0ms bedeutet, dass diese Latenzzeit gerade nicht verfügbar ist.
     Versuche es später noch einmal.
-setup-arg1-description = Der Kanal, in welchen alle Transkriptionen geschickt werden.
 setup-arg3-description = Ob der Bot ausführlich sein sollte.
 setup-tos-agree =
     Durch das Einrichten von Scripty stimmst du der Datenschutzerklärung und den Allgemeinen Geschäftsbedingungen zu.
