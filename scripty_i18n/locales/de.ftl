@@ -138,3 +138,7 @@ setup-tos-agree-failure = Du musst den Allgemeinen Geschäftsbedingungen und der
 setup-success-title = Einrichtung erfolgreich!
 voice-connection-error-ws-closed-server-not-found = Voiceserver konnte nicht gefunden werden
 voice-connection-error-ws-closed-session-timeout = Zeitüberschreitung der Session
+# This is shown as the title of the donate command (eg what shows up in the slash command picker)
+donations-command-name = spenden
+# This is shown as the description of the donate command (eg what shows up in the slash command picker)
+donations-command-description = Erhalte Informationen, wie du Scripty mit Spenden unterstützen kannst.
