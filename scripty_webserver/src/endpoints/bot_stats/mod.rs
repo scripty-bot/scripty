@@ -2,7 +2,10 @@
 //!
 //! Returns bot statistics.
 
+mod advanced;
+
 use crate::errors::WebServerError;
+use axum::routing::get;
 use axum::Json;
 use scripty_commands::{get_channel_count, get_guild_count, get_shard_count, get_user_count};
 
@@ -21,4 +24,10 @@ pub async fn get_bot_stats() -> Result<Json<BotStats>, WebServerError> {
         channel_count: get_channel_count()?,
         shard_count: get_shard_count()?,
     }))
+}
+
+pub fn router() -> axum::Router {
+    axum::Router::new()
+        .route("/bot_stats", get(get_bot_stats))
+        .merge(advanced::router())
 }
