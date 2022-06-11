@@ -1,3 +1,8 @@
+## donate command
+# This is shown as the title of the donate command (eg what shows up in the slash command picker)
+donations-command-name = donate
+# This is shown as the description of the donate command (eg what shows up in the slash command picker)
+donations-command-description = Get information on donating to support Scripty.
 donation-title = Donations
 donation-description =
     Scripty is not cheap to run. It is currently running on a $1,500 USD server with an AMD Ryzen 9 3900 CPU and 128GB RAM. Even with that hardware, we estimate it can only handle 100 concurrent transcriptions. Donations would allow us to scale our hardware capacity and handle many more concurrent transcriptions, perhaps tens of thousands someday with enough donations.
