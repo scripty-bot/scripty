@@ -121,6 +121,10 @@ join-success = Successfully joined { $targetMention }.
 webhook-deleted = Looks like you deleted the webhook I use! *bonk* Re-run `{ $contextPrefix }setup` to fix this.
 
 ## ping command
+# This is shown as the title of the ping command (eg what shows up in the slash command picker)
+ping-command-name = ping
+# This is shown as the description of the ping command (eg what shows up in the slash command picker)
+ping-command-description = Get the bot latency.
 
 # This message is shown when the user requests latency information.
 # Note: the numbers here will be formatted according to the language set for the context.
