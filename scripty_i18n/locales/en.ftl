@@ -134,8 +134,11 @@ setup-success-description =
     Thanks for checking out Scripty! <3
     ~ 0/0 + valkyrie_pilot
 
-## train_storage command
-
+## data_storage command
+# This is shown as the title of the data_storage command (eg what shows up in the slash command picker).
+data-storage-command-name = data_storage
+# This is shown as the description of the data_storage command. (eg what shows up in the slash command picker).
+data-storage-command-description = Configure storage settings for your data
 data-storage-embed-title = Data Storage
 data-storage-embed-description =
     {"**"}NOTE**: everything that follows is **entirely optional**, and opting out **will not**, in any way, affect your experience with Scripty.
@@ -209,6 +212,13 @@ transcription-info-transcription-error =
     Thanks!
 
 ## Data deletion command
+# This is shown as the title of the delete_all_data command (eg what shows up in the slash command picker)
+delete-data-command-name = delete_all_data
+# This is shown as the description of the data_storage command (eg what shows up in the slash command picker)
+delete-data-command-description = Delete all your data.
+    
+    This command will irreversibly, permanently, delete all your data. There is no undoing this action.
+
 delete-data-title = Delete data
 delete-data-description =
     This will delete all of your data. This action is permanent, irreversible, and cannot be undone.
