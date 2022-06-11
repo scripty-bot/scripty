@@ -9,10 +9,10 @@ edition = "2021"
 dashmap = "4"
 tracing = "0.1"
 num_cpus = "1.13"
-coqui-stt = "0.3"
 once_cell = "1.9"
 threadpool = "1.8"
 dasp_signal = "0.11"
 scripty_config = { path = "../scripty_config" }
 tokio = { version = "1.16", features = ["sync"] }
 dasp_interpolate = { version = "0.11", features = ["linear"] }
+coqui-stt = { git = "https://github.com/scripty-bot/coqui-stt" }
