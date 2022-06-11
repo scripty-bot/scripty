@@ -130,10 +130,11 @@ latency-description =
     
     Hinweis: eine Latenzzeit von 0ms bedeutet, dass diese Latenzzeit gerade nicht verfügbar ist.
     Versuche es später noch einmal.
-setup-arg3-description = Ob der Bot ausführlich sein sollte.
 setup-tos-agree =
     Durch das Einrichten von Scripty stimmst du der Datenschutzerklärung und den Allgemeinen Geschäftsbedingungen zu.
     Datenschutzerklärung: https://scripty.org/privacy
     Allgemeine Geschäftsbedingungen: https://scripty.org/terms
 setup-tos-agree-failure = Du musst den Allgemeinen Geschäftsbedingungen und der Datenschutzerklärung zustimmen, um Scripty zu benutzen. Einrichtung abgebrochen.
 setup-success-title = Einrichtung erfolgreich!
+voice-connection-error-ws-closed-server-not-found = Voiceserver konnte nicht gefunden werden
+voice-connection-error-ws-closed-session-timeout = Zeitüberschreitung der Session
