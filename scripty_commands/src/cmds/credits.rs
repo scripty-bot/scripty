@@ -1,6 +1,6 @@
 use crate::{Context, Error};
 
-/// A list of all the things that made this all possible.
+/// A list of all the things that made Scripty possible.
 #[poise::command(prefix_command, slash_command)]
 pub async fn credits(ctx: Context<'_>) -> Result<(), Error> {
     let resolved_language =

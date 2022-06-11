@@ -226,6 +226,11 @@ delete-data-confirm-banned = Yes, delete all data and ban myself
 delete-data-cancel = No, cancel
 
 ## Credits command
+# This is shown as the title of the credits command (eg what shows up in the slash command picker)
+credits-command-name = credits
+# This is shown as the description of the credits command (eg what shows up in the slash command picker)
+credits-command-description = A list of all the things that made Scripty possible.
+# Embed title for the credits command
 credits-title = Credits
 credits-description =
     This is a list of people who have contributed to Scripty.
