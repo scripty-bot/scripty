@@ -45,6 +45,30 @@ more-info-on-command =
     ```
 
 ## Language configuration strings
+# This is shown as the title of the root language command (eg what shows up in the slash command picker)
+language-root-command-name = language
+# This is shown as the description of the root language command (eg what shows up in the slash command picker)
+language-root-command-description = Modify your language preferences.
+    
+    Base command of this group. See subcommands for more information.
+
+# This is shown as the title of the user language command (eg what shows up in the slash command picker)
+language-user-command-name = user
+# This is shown as the description of the user language command (eg what shows up in the slash command picker)
+language-user-command-description = Set your user language to one of the available languages.
+    
+    Note: this only modifies your user language, not your guild language. See `guild_language` for that.
+# This is shown as the description of the first argument to the user language command
+language-user-argument1-description = The language you want to set your user language to.
+
+# This is shown as the title of the guild language command (eg what shows up in the slash command picker)
+language-guild-command-name = guild
+# This is shown as the description of the guild language command (eg what shows up in the slash command picker)
+language-guild-command-description = Set your guild language to one of the available languages.
+    
+    Note: this only modifies your guild language, not your user language. See `user_language` for that.
+# This is shown as the description of the first argument to the guild language command
+language-guild-argument1-description = The language you want to set your guild language to.
 
 # This message is shown as the embed title when the user sets their language successfully.
 user-language-set-success = User language set to `{ $language }`.
