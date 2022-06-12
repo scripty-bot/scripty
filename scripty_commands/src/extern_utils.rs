@@ -14,11 +14,35 @@ pub fn get_guild_count() -> Result<usize, CacheNotInitializedError> {
         .guild_count())
 }
 
+static CACHED_USER_COUNT: OnceCell<Mutex<(usize, Instant)>> = OnceCell::new();
+
 pub fn get_user_count() -> Result<usize, CacheNotInitializedError> {
-    Ok(crate::CLIENT_CACHE
+    if let Some(cache) = CACHED_USER_COUNT.get() {
+        let lock = cache.lock();
+        if lock.1.elapsed().as_secs() < 120 {
+            return Ok(lock.0);
+        }
+    } else {
+        CACHED_USER_COUNT
+            .set(Mutex::new((0, Instant::now())))
+            .expect("checked cache was not set, but it was?");
+    }
+
+    let cache = crate::CLIENT_CACHE.get().ok_or(CacheNotInitializedError)?;
+    let count = cache
+        .guilds()
+        .into_iter()
+        .filter_map(|g| g.to_guild_cached(&cache).map(|g| g.member_count as usize))
+        .sum();
+    let current_time = Instant::now();
+    let mut lock = CACHED_USER_COUNT
         .get()
-        .ok_or(CacheNotInitializedError)?
-        .user_count())
+        .expect("checked cache was set, but it was not?")
+        .lock();
+    lock.0 = count;
+    lock.1 = current_time;
+
+    Ok(count)
 }
 
 pub fn get_channel_count() -> Result<usize, CacheNotInitializedError> {
