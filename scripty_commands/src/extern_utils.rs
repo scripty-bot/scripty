@@ -1,6 +1,7 @@
 use once_cell::sync::OnceCell;
 use parking_lot::Mutex;
 use serenity::gateway::ConnectionStage;
+use serenity::model::channel::ChannelType;
 use std::collections::HashMap;
 use std::time::Instant;
 
@@ -25,6 +26,46 @@ pub fn get_channel_count() -> Result<usize, CacheNotInitializedError> {
         .get()
         .ok_or(CacheNotInitializedError)?
         .guild_channel_count())
+}
+
+static CACHED_VOICE_CHANNEL_COUNT: OnceCell<Mutex<(usize, Instant)>> = OnceCell::new();
+
+pub fn get_voice_channel_count() -> Result<usize, CacheNotInitializedError> {
+    if let Some(cache) = CACHED_VOICE_CHANNEL_COUNT.get() {
+        let lock = cache.lock();
+        if lock.1.elapsed().as_secs() < 120 {
+            return Ok(lock.0);
+        }
+    } else {
+        CACHED_VOICE_CHANNEL_COUNT
+            .set(Mutex::new((0, Instant::now())))
+            .expect("checked cache was not set, but it was?");
+    }
+    // update the cache
+    let cache = crate::CLIENT_CACHE.get().ok_or(CacheNotInitializedError)?;
+    let count = cache
+        .guilds()
+        .into_iter()
+        .filter_map(|g| {
+            cache.guild_channels(g).map(|x| {
+                x.iter()
+                    .filter_map(|x| match x.kind {
+                        ChannelType::Voice | ChannelType::Stage => Some(()),
+                        _ => None,
+                    })
+                    .count()
+            })
+        })
+        .sum();
+    let current_time = Instant::now();
+    let current = CACHED_VOICE_CHANNEL_COUNT
+        .get()
+        .expect("checked cache is set, but it is not?");
+    let mut lock = current.lock();
+    lock.0 = count;
+    lock.1 = current_time;
+
+    Ok(count)
 }
 
 pub fn get_shard_count() -> Result<u64, CacheNotInitializedError> {
