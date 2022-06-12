@@ -20,6 +20,16 @@ impl BackgroundTask for BasicStatsUpdater {
 
     async fn run(&mut self) {
         self.0.guilds.set(self.1.cache.guild_count() as i64);
-        self.0.users.set(self.1.cache.user_count() as i64);
+        self.0.users.set(
+            self.1
+                .cache
+                .guilds()
+                .into_iter()
+                .filter_map(|g| {
+                    g.to_guild_cached(&self.1.cache)
+                        .map(|g| g.member_count as i64)
+                })
+                .sum(),
+        );
     }
 }
