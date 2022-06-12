@@ -142,3 +142,70 @@ voice-connection-error-ws-closed-session-timeout = Zeitüberschreitung der Sessi
 donations-command-name = spenden
 # This is shown as the description of the donate command (eg what shows up in the slash command picker)
 donations-command-description = Erhalte Informationen, wie du Scripty mit Spenden unterstützen kannst.
+# This is shown as the description of the join command (eg what shows up in the slash command picker)
+join-command-description = Einem Sprachchat beitreten.
+delete-data-title = Daten löschen
+data-storage-toggle-audio-btn = Audiospeicherung umschalten
+voice-connection-error-ws-closed-already-authenticated = Discord hat die Verbindung aufgrund von bereits bestehender Authentifizierung beendet
+# This is shown as the description of the data_storage command (eg what shows up in the slash command picker)
+delete-data-command-description = Lösche alle deine Daten.
+blocked-entity-reason-given = Folgender Grund wurde fürs Blockieren gegeben: { $reason }.
+data-storage-opted-out-audio = Du hast nun deine Zustimmung widerrufen, dass deine Audiodaten gespeichert werden um das Modell zu trainieren.
+data-storage-command-timed-out = Zeitüberschreitung. Führe den Befehl erneut aus, wenn du die Einstellungen weiterhin verwalten möchten.
+delete-data-confirm = Ja, lösche alle Daten
+# This is shown as the description of the root language command (eg what shows up in the slash command picker)
+language-root-command-description = Modifiziere deine Spracheinstellungen.
+# This is shown as the description of the guild language command (eg what shows up in the slash command picker)
+language-guild-command-description = Setze deine Server Sprache auf eine der verfügbaren Sprachen.
+# This is shown as the description of the setup command (eg what shows up in the slash command picker)
+setup-command-description = Setze den Bot auf.
+# Embed title for the credits command
+credits-title = Anerkennungen
+credits-field1-title = Hauptentwickler
+blocked-entity-guild = Dieser Server wurde von der Verwendung von Scripty gesperrt. Du kannst diese Sperre auf dem Support Server anfechten: { $supportServerInvite }.
+voice-connection-error-host-io-error = Host IO Fehler
+# This is shown as the description of the first argument to the user language command
+language-user-argument1-description = Die Sprache die du für deinen Benutzer einstellen willst.
+# This is shown as the description of the first argument to the guild language command
+language-guild-argument1-description = The Sprache auf die deine Server Sprache gesetzt werden soll.
+# This is shown as the title of the setup command (eg what shows up in the slash command picker)
+setup-command-name = Einrichtung
+setup-command-argument1-description = Channel, in den Transkriptionen gesendet werden sollen. (Erforderlich)
+setup-command-argument2-description = Zielsprache des STT Algorithmus. (Optional, Standardsprache ist Englisch)
+# This is shown as the title of the transcript
+transcription-info-transcription-title = Transkript
+setup-command-argument3-description = Bei Transkriptionen wortreich sein? Dies fügt keinen zusätzlichen Overhead hinzu. (Optional, Standardwert: false)
+# This is shown as the description of the data_storage command. (eg what shows up in the slash command picker).
+data-storage-command-description = Konfiguriere deine Datenspeichereinstellungen
+data-storage-toggle-msgs-btn = Nachrichtenspeicherung umschalten
+data-storage-opted-in-audio = Du hast nun Zugestimmt dass deine Audiodaten gespeichert werden um das Modell zu trainieren.
+data-storage-opted-in-msgs = Du hast nun Zugestimmt dass deine Nachrichten gespeichert werden um den Scorer zu trainieren.
+data-storage-opted-out-msgs = Du hast nun deine Zustimmung widerrufen, dass deine Nachrichten gespeichert werden um den Scorer zu trainieren.
+blocked-entity-no-reason-given = Kein Grund wurde für das Blockieren gegeben.
+voice-connection-error-timed-out = Zeitüberschreitung beim Warten auf eine Verbindung
+voice-connection-error-ws-closed-no-reason = Discord hat die Verbindung ohne Angabe von Gründen beendet
+voice-connection-error-ws-closed-unknown-opcode = Discord hat die Verbindung mit einem unbekannten Opcode beendet
+voice-connection-error-ws-closed-invalid-payload = Discord hat die Verbindung aufgrund eines ungültigen Payloads beendet
+voice-connection-error-ws-closed-not-authenticated = Discord hat die Verbindung aufgrund von fehlender Authentifizierung beendet
+voice-connection-error-ws-closed-authentication-failed = Discord hat die Verbindung aufgrund eines Problems bei der Authentifizierung beendet
+voice-connection-error-ws-closed-session-invalid = Die Session wurde von Discord für ungültig erklärt
+delete-data-confirm-banned = Ja, lösche alle Daten und sperre mich
+delete-data-cancel = Nein, abbrechen
+credits-description = Das ist eine Liste an Leuten, die bei Scripty geholfen haben.
+credits-field1-description = 0/0 and valkyrie_pilot
+credits-field2-title = Übersetzer
+credits-field3-title = Hosting Anbieter
+# This is shown as the description of the user language command (eg what shows up in the slash command picker)
+language-user-command-description = Setze deine Sprache auf eine der verfügbaren Sprachen.
+# This is shown as the description of the credits command (eg what shows up in the slash command picker)
+credits-command-description = Eine Liste an allen Dingen, die Scripty möglich machen.
+# This is shown as the title of the root language command (eg what shows up in the slash command picker)
+language-root-command-name = Sprache
+# This is shown as the description of the ping command (eg what shows up in the slash command picker)
+ping-command-description = Zeigt die Latenz des Bots an.
+# This is shown as the percent accuracy of the transcription (roughly)
+transcription-info-transcription-confidence = Sicher
+blocked-entity-user = Du wurdest davon blockiert, Scripty zu benutzen. Du kannst diese Sperre im Support Server anfechten: { $supportServerInvite }.
+voice-connection-error-internal-lib-error = Bibliothekeninterner Fehler
+voice-connection-error-proto-violation = Bibliothek und Discord sind zu keiner Übereinstimmung beim Protokoll gekommen
+data-storage-embed-title = Datenspeicher
