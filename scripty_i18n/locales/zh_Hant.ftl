@@ -77,7 +77,6 @@ setup-tos-agree =
     服務條款：https://scripty.org/terms
 setup-tos-agree-failure = 你必須同意服務條款和隱私政策才能使用 Scripty。 正在取消設置。
 setup-success-title = 設置成功！
-setup-arg1-description = 將所有轉錄發送到的頻道。
 setup-success-description =
     幾點注意事項：
     
