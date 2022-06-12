@@ -209,3 +209,5 @@ blocked-entity-user = Du wurdest davon blockiert, Scripty zu benutzen. Du kannst
 voice-connection-error-internal-lib-error = Bibliothekeninterner Fehler
 voice-connection-error-proto-violation = Bibliothek und Discord sind zu keiner Übereinstimmung beim Protokoll gekommen
 data-storage-embed-title = Datenspeicher
+# This is shown as the description of the first argument to the join command
+join-command-argument1-description = Zu bindender Sprachchat
