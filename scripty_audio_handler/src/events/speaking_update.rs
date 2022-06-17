@@ -1,11 +1,13 @@
 use crate::types::{
     SsrcLastPktIdMap, SsrcMissedPktList, SsrcMissedPktMap, SsrcStreamMap, SsrcUserDataMap,
 };
+use scripty_audio::coqui_stt_sys;
 use serenity::builder::ExecuteWebhook;
 use serenity::client::Context;
 use serenity::model::channel::Embed;
 use serenity::model::webhook::Webhook;
 use songbird::events::context_data::SpeakingUpdateData;
+use std::ffi::CStr;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
@@ -62,47 +64,90 @@ pub async fn speaking_update(
 
     debug!(?ssrc, "running transcription");
     if verbose.load(Ordering::Relaxed) {
-        let res = scripty_utils::block_in_place(|| old_stream.finish_stream_with_metadata(3)).await;
+        let res = scripty_utils::block_in_place(|| {
+            let retval =
+                unsafe { coqui_stt_sys::STT_FinishStreamWithMetadata(old_stream.as_ptr(), 3) };
+            if retval.is_null() {
+                error!("STT_FinishStreamWithMetadata returned null");
+                None
+            } else {
+                Some(retval)
+            }
+        })
+        .await;
         debug!(?ssrc, "ran stream transcription");
         match res {
-            Ok(res) if res.num_transcripts() != 0 => {
-                // SAFETY: we have already checked len != 0, so there must be at least one item
-                let transcript = unsafe { res.transcripts().get_unchecked(0) }.to_owned();
+            Some(res) if unsafe { *res }.num_transcripts != 0 => {
+                // obtain the first transcription
+                let transcriptions = unsafe {
+                    std::slice::from_raw_parts((*res).transcripts, (*res).num_transcripts as usize)
+                };
+                // get the first transcription
+                let transcript = unsafe { transcriptions.get_unchecked(0) };
+                // get the transcript text
+                let tokens = unsafe {
+                    std::slice::from_raw_parts(transcript.tokens, transcript.num_tokens as usize)
+                };
+                let transcript_text = tokens
+                    .iter()
+                    .map(|t| unsafe {
+                        CStr::from_ptr(t.text)
+                            .to_str()
+                            .expect("invalid string")
+                            .to_owned()
+                    })
+                    .collect::<Vec<_>>()
+                    .join(" ");
 
                 webhook_execute.embeds(vec![Embed::fake(|e| {
-                    e.title(format!("Transcript 1/{}", res.num_transcripts()))
-                        .field("Transcription", &transcript.to_string(), false)
-                        .field("Confidence", &transcript.confidence().to_string(), false)
+                    e.title(format!("Transcript 1/{}", unsafe { *res }.num_transcripts))
+                        .field("Transcription", &transcript_text, false)
+                        .field("Confidence", &transcript.confidence.to_string(), false)
                         .footer(|f| f.text(format!("ssrc {}", ssrc)))
                 })]);
-            }
-            Err(e) => {
-                error!(?ssrc, "stream transcription errored: {}", e);
 
+                unsafe { coqui_stt_sys::STT_FreeMetadata(res) };
+            }
+            None => {
                 webhook_execute.content(format!(
-                    "internal error: running stt algorithm failed with error: {}\nssrc {}",
-                    e, ssrc
+                    "internal error: running stt algorithm failed\nssrc {}",
+                    ssrc
                 ));
             }
             _ => return,
         }
     } else {
-        let res = scripty_utils::block_in_place(|| old_stream.finish_stream()).await;
+        let res = scripty_utils::block_in_place(|| {
+            let retval = unsafe { coqui_stt_sys::STT_FinishStream(old_stream.as_ptr()) };
+            if retval.is_null() {
+                error!("STT_FinishStream returned null");
+                None
+            } else {
+                Some(retval)
+            }
+        })
+        .await;
+
         debug!(?ssrc, "ran stream transcription");
 
         match res {
-            Ok(res) if !res.is_empty() => {
-                webhook_execute.content(res);
+            Some(res) => {
+                let cstr = unsafe { CStr::from_ptr(res) };
+                // convert the cstr to a string
+                let transcript_text = cstr.to_str().expect("invalid string").to_owned();
+
+                webhook_execute.content(transcript_text);
+
+                unsafe { coqui_stt_sys::STT_FreeString(res) };
             }
-            Err(e) => {
-                error!(?ssrc, "stream transcription errored: {}", e);
+            None => {
+                error!(?ssrc, "stream transcription errored");
 
                 webhook_execute.content(format!(
-                    "internal error: running stt algorithm failed with error: {}\nssrc {}",
-                    e, ssrc
+                    "internal error: running stt algorithm failed with error\nssrc {}",
+                    ssrc
                 ));
             }
-            _ => return,
         }
     }
     debug!(?ssrc, "stream transcription succeeded");

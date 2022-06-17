@@ -1,10 +1,11 @@
-use coqui_stt::{Model, Stream};
+use crate::{ModelState, StreamingState};
 use dashmap::DashMap;
 use once_cell::sync::OnceCell;
+use std::ffi::CString;
+use std::os::unix::ffi::OsStrExt;
 use std::path::Path;
-use std::sync::Arc;
 
-pub static MODELS: OnceCell<DashMap<String, Arc<Model>>> = OnceCell::new();
+pub static MODELS: OnceCell<DashMap<String, ModelState>> = OnceCell::new();
 
 pub fn load_models(model_dir: &Path) {
     info!("initializing global model map");
@@ -34,29 +35,52 @@ pub fn load_models(model_dir: &Path) {
             };
             if ext == "tflite" {
                 model_path = Some(
-                    path.to_str()
-                        .expect("non-utf-8 chars found in filename")
-                        .to_owned(),
+                    CString::new(path.as_os_str().as_bytes())
+                        .expect("path contains null bytes in it"),
                 );
             } else if ext == "scorer" {
                 scorer_path = Some(
-                    path.to_str()
-                        .expect("non-utf-8 chars found in filename")
-                        .to_owned(),
+                    CString::new(path.as_os_str().as_bytes())
+                        .expect("path contains null bytes in it"),
                 );
             }
         }
         if let Some(model_path) = model_path {
             info!("found model: {:?}", model_path);
-            let mut model = Model::new(model_path).expect("failed to load model");
+
+            let mut model_state = std::ptr::null_mut::<coqui_stt_sys::ModelState>();
+            let retval = unsafe {
+                coqui_stt_sys::STT_CreateModel(
+                    model_path.as_ptr(),
+                    std::ptr::addr_of_mut!(model_state),
+                )
+            };
+            if retval != 0 || model_state.is_null() {
+                error!(
+                    "failed to create model: {:?} (code {:?})",
+                    model_path, retval
+                );
+                continue;
+            }
+            let model = crate::ModelState::new(model_state);
+
             if let Some(scorer_path) = scorer_path {
                 info!("found scorer: {:?}", scorer_path);
-                model
-                    .enable_external_scorer(scorer_path)
-                    .expect("failed to load scorer");
+                let retval = unsafe {
+                    coqui_stt_sys::STT_EnableExternalScorer(model.as_ptr(), scorer_path.as_ptr())
+                };
+                if retval != 0 {
+                    error!(
+                        "failed to enable external scorer: {:?} (code {:?})",
+                        scorer_path, retval
+                    );
+                    continue;
+                } else {
+                    info!("enabled external scorer");
+                }
             }
             info!("loaded model, inserting into map");
-            models.insert(name.to_string(), Arc::new(model));
+            models.insert(name.to_string(), model);
         }
     }
     if models.is_empty() {
@@ -90,10 +114,18 @@ pub fn check_model_language(lang: &str) -> bool {
 }
 
 /// Get a stream for the selected language.
-pub fn get_stream(lang: &str) -> Option<Stream> {
-    MODELS
+pub fn get_stream(lang: &str) -> Option<StreamingState> {
+    let model = MODELS
         .get()
         .expect("models should've been initialized before attempting to get a stream")
-        .get(lang)
-        .and_then(|x| Stream::from_model(x.value().clone()).ok())
+        .get(lang)?;
+
+    let mut stream = std::ptr::null_mut::<coqui_stt_sys::StreamingState>();
+    let retval =
+        unsafe { coqui_stt_sys::STT_CreateStream(model.as_ptr(), std::ptr::addr_of_mut!(stream)) };
+    if retval != 0 || stream.is_null() {
+        error!("failed to create stream: {:?} (code {:?})", lang, retval);
+        return None;
+    }
+    Some(crate::StreamingState::new(stream))
 }
