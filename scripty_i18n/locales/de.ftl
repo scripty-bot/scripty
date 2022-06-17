@@ -210,4 +210,23 @@ voice-connection-error-internal-lib-error = Bibliothekeninterner Fehler
 voice-connection-error-proto-violation = Bibliothek und Discord sind zu keiner Übereinstimmung beim Protokoll gekommen
 data-storage-embed-title = Datenspeicher
 # This is shown as the description of the first argument to the join command
-join-command-argument1-description = Zu bindender Sprachchat
+join-command-argument1-description = Zu bindender Sprachchat.
+voice-connection-error-ws-closed-unknown-protocol = Discord konnte das Protokoll nicht erkennen
+credits-field2-description = Viele Leute haben bei den Übersetzungen für den Bot geholfen. Du kannst mit dem `{ $contextPrefix }translators` eine Liste an Übersetzern sehen.
+credits-field3-description = Droplet Development hat Scripty großzügigerweise einen leistungsstarken Server zur Verfügung gestellt, mit genug Leistung um auf ca. 2.500 Discord Server zu skalieren. Du kannst ihre Seite hier besuchen: https://droplet.gg/
+credits-field4-title = Alle unsere Nutzer
+credits-field4-description = Ja, das beinhaltet dich! Wir freuen uns dass du Scripty benutzt und hoffen dass du ihn gerne benutzt.
+voice-connection-error-msg-reconnect = Bei mir ist ein Problem aufgetreten ({ $reason }) und habe die Verbindung zum Sprachchat getrennt. Ich werde versuchen mich in 30 Sekunden erneut zu verbinden.
+# This is shown as the number of transcriptions the algorithm has discovered.
+transcription-info-transcript-count = Transkript 1 von { $count }.
+voice-connection-error-ws-closed-server-crashed = Discord Sprachserver ist abgestützt
+voice-connection-error-ws-closed-unknown-encryption-mode = Discord hat das Verschlüsselungsschema nicht erkannt
+voice-connection-error-unknown = Verbindung wurde aus unbekanntem Grund getrennt
+voice-connection-error-msg-no-reconnect = Bei mir ist ein Problem aufgetreten ({ $reason }) und habe die Verbindung zum Sprachchat getrennt.
+# This is shown as the user's SSRC (Synchonization Source)
+# You do not need to translate this, but it is here if your language can provide a more accurate translation.
+transcription-info-transcription-ssrc = SSRC { $ssrc }
+# This is shown when the algorithm encounters an error
+transcription-info-transcription-error = Interner Fehler: Ausführen des STT Algorithmus ist fehlgeschlagen mit dem Fehler: { $error }
+delete-data-description = Dies wird alle deine Daten löschen. Diese Aktion ist permanent, irreversibel und kann nicht rückgängig gemacht werden.
+donation-description = Es ist nicht sehr günstig Scripty zu betreiben. Scripty läuft momentan auf einem 1.500$ Server mit einer AMD Ryzen 9 3900 CPU und 128 GB RAM. Selbst mit dieser Hardware, schätzen wir, dass Scripty höchstens etwa 100 Zeitgleiche Transkriptionen durchführen kann. Spenden würden uns helfen unsere Hardware Kapazität zu erweitern um viel mehr Transkriptionen zeitgleich durchzuführen, vielleicht sogar Zehntausende eines Tages, mit genug Spenden.
