@@ -1,7 +1,6 @@
 use crate::types::{
     ActiveUserSet, NextUserList, SsrcIgnoredMap, SsrcStreamMap, SsrcUserDataMap, SsrcUserIdMap,
 };
-use scripty_audio::coqui_stt_sys;
 use songbird::model::payload::ClientDisconnect;
 use std::sync::atomic::{AtomicU8, Ordering};
 use std::sync::Arc;
@@ -37,9 +36,7 @@ pub async fn client_disconnect(
     debug!(?ssrc, ?user_id, "got ClientDisconnect event");
 
     assert!(ssrc_user_id_map.remove(&ssrc).is_some());
-    if let Some(stream) = ssrc_stream_map.remove(&ssrc) {
-        unsafe { coqui_stt_sys::STT_FreeStream(stream.1.as_ptr()) };
-    };
+    ssrc_stream_map.remove(&ssrc);
     ssrc_user_data_map.remove(&ssrc);
     ssrc_ignored_map.remove(&ssrc);
 

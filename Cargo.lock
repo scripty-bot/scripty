@@ -1969,7 +1969,6 @@ name = "scripty_audio"
 version = "0.1.0"
 dependencies = [
  "coqui-stt",
- "coqui-stt-sys",
  "dashmap 4.0.2",
  "dasp_interpolate",
  "dasp_signal",
@@ -2019,7 +2018,6 @@ dependencies = [
  "scripty_utils",
  "serenity",
  "sqlx",
- "time 0.3.9",
  "tokio",
  "tracing",
 ]
