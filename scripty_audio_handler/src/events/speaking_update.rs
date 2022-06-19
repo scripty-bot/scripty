@@ -36,7 +36,7 @@ pub async fn speaking_update(
     }
 
     // user has finished speaking, run the STT algo
-    let old_stream = match ssrc_stream_map.insert(
+    let mut old_stream = match ssrc_stream_map.insert(
         ssrc,
         scripty_audio::get_stream("en").expect("en invalid lang?"),
     ) {
@@ -61,50 +61,11 @@ pub async fn speaking_update(
     let mut webhook_execute = ExecuteWebhook::default();
 
     debug!(?ssrc, "running transcription");
-    if verbose.load(Ordering::Relaxed) {
-        let res = scripty_utils::block_in_place(|| old_stream.finish_stream_with_metadata(3)).await;
-        debug!(?ssrc, "ran stream transcription");
-        match res {
-            Ok(res) if res.num_transcripts() != 0 => {
-                // SAFETY: we have already checked len != 0, so there must be at least one item
-                let transcript = unsafe { res.transcripts().get_unchecked(0) }.to_owned();
-
-                webhook_execute.embeds(vec![Embed::fake(|e| {
-                    e.title(format!("Transcript 1/{}", res.num_transcripts()))
-                        .field("Transcription", &transcript.to_string(), false)
-                        .field("Confidence", &transcript.confidence().to_string(), false)
-                        .footer(|f| f.text(format!("ssrc {}", ssrc)))
-                })]);
-            }
-            Err(e) => {
-                error!(?ssrc, "stream transcription errored: {}", e);
-
-                webhook_execute.content(format!(
-                    "internal error: running stt algorithm failed with error: {}\nssrc {}",
-                    e, ssrc
-                ));
-            }
-            _ => return,
-        }
-    } else {
-        let res = scripty_utils::block_in_place(|| old_stream.finish_stream()).await;
-        debug!(?ssrc, "ran stream transcription");
-
-        match res {
-            Ok(res) if !res.is_empty() => {
-                webhook_execute.content(res);
-            }
-            Err(e) => {
-                error!(?ssrc, "stream transcription errored: {}", e);
-
-                webhook_execute.content(format!(
-                    "internal error: running stt algorithm failed with error: {}\nssrc {}",
-                    e, ssrc
-                ));
-            }
-            _ => return,
-        }
+    let res = scripty_utils::block_in_place(|| old_stream.result()).await;
+    if res.text.is_empty() {
+        return;
     }
+    webhook_execute.content(res.text);
     debug!(?ssrc, "stream transcription succeeded");
 
     webhook_execute.username(username).avatar_url(avatar_url);
