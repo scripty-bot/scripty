@@ -57,11 +57,8 @@ pub async fn voice_packet(
         ssrc_last_pkt_id_map.insert(ssrc, sequence);
     }
 
-    if let Some(mut audio) = audio {
-        debug!(%ssrc, "got {} bytes of audio, padding to {} bytes", audio.len() * SIZE_OF_I16, EXPECTED_PKT_SIZE);
-
-        // pad with silence if need be
-        audio.resize(EXPECTED_PKT_SIZE, 0);
+    if let Some(audio) = audio {
+        debug!(%ssrc, "got {} bytes of audio", audio.len() * SIZE_OF_I16);
 
         debug!(?ssrc, "processing audio");
         let mut audio = scripty_audio::process_audio(audio, 48_000.0, 16_000.0);
