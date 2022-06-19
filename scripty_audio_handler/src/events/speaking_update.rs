@@ -76,10 +76,13 @@ pub async fn speaking_update(
     {
         debug!(?ssrc, "found voice ingest for SSRC");
         if let Some(user_id) = ssrc_user_id_map.get(&ssrc) {
+            debug!(?ssrc, "found user_id for SSRC");
             if let Some(ingest) =
                 scripty_data_storage::VoiceIngest::new(user_id.0, "en".to_string()).await
             {
+                debug!(?ssrc, "created VoiceIngest, and retrieved old one");
                 if let Some(voice_ingest) = ssrc_voice_ingest_map.insert(ssrc, Some(ingest)) {
+                    debug!(?ssrc, "found old VoiceIngest, finalizing");
                     voice_ingest
                         .expect("asserted voice ingest object already exists")
                         .destroy(res.text.to_string())
@@ -87,6 +90,8 @@ pub async fn speaking_update(
                 }
             }
         }
+    } else {
+        debug!(?ssrc, "no voice ingest for SSRC");
     }
 
     webhook_execute.username(username).avatar_url(avatar_url);
