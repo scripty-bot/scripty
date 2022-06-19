@@ -1,7 +1,7 @@
 use crate::events::*;
 use crate::types::{
     ActiveUserSet, NextUserList, SsrcIgnoredMap, SsrcLastPktIdMap, SsrcMissedPktList,
-    SsrcMissedPktMap, SsrcStreamMap, SsrcUserDataMap, SsrcUserIdMap,
+    SsrcMissedPktMap, SsrcStreamMap, SsrcUserDataMap, SsrcUserIdMap, SsrcVoiceIngestMap,
 };
 use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
@@ -23,6 +23,7 @@ pub struct AudioHandler {
     ssrc_last_pkt_id_map: SsrcLastPktIdMap,
     ssrc_missed_pkt_map: SsrcMissedPktMap,
     ssrc_missed_pkt_list: SsrcMissedPktList,
+    ssrc_voice_ingest_map: SsrcVoiceIngestMap,
     active_user_set: ActiveUserSet,
     next_user_list: NextUserList,
     guild_id: GuildId,
@@ -46,6 +47,7 @@ impl AudioHandler {
             ssrc_last_pkt_id_map: Arc::new(DashMap::with_hasher(RandomState::new())),
             ssrc_missed_pkt_map: Arc::new(DashMap::with_hasher(RandomState::new())),
             ssrc_missed_pkt_list: Arc::new(DashMap::with_hasher(RandomState::new())),
+            ssrc_voice_ingest_map: Arc::new(DashMap::with_hasher(RandomState::new())),
             active_user_set: Arc::new(DashSet::with_hasher(RandomState::new())),
             next_user_list: Arc::new(RwLock::new(VecDeque::with_capacity(10))),
             guild_id,
@@ -90,22 +92,26 @@ impl EventHandler for AudioHandler {
                 update.clone(),
                 self.context.clone(),
                 Arc::clone(&self.webhook),
+                Arc::clone(&self.ssrc_user_id_map),
                 Arc::clone(&self.ssrc_user_data_map),
                 Arc::clone(&self.ssrc_stream_map),
                 Arc::clone(&self.ssrc_last_pkt_id_map),
                 Arc::clone(&self.ssrc_missed_pkt_map),
                 Arc::clone(&self.ssrc_missed_pkt_list),
+                Arc::clone(&self.ssrc_voice_ingest_map),
                 Arc::clone(&self.verbose),
             )),
             EventContext::VoicePacket(voice_data) => tokio::spawn(voice_packet(
                 voice_data.audio.clone(),
                 voice_data.packet.ssrc,
                 voice_data.packet.sequence.0 .0,
+                Arc::clone(&self.ssrc_user_id_map),
                 Arc::clone(&self.ssrc_stream_map),
                 Arc::clone(&self.ssrc_ignored_map),
                 Arc::clone(&self.ssrc_last_pkt_id_map),
                 Arc::clone(&self.ssrc_missed_pkt_map),
                 Arc::clone(&self.ssrc_missed_pkt_list),
+                Arc::clone(&self.ssrc_voice_ingest_map),
             )),
             // so guess what?
             // discord, in their infinite wisdom, randomly removed ClientConnect
@@ -129,6 +135,7 @@ impl EventHandler for AudioHandler {
                     Arc::clone(&self.ssrc_stream_map),
                     Arc::clone(&self.ssrc_user_data_map),
                     Arc::clone(&self.ssrc_ignored_map),
+                    Arc::clone(&self.ssrc_voice_ingest_map),
                     Arc::clone(&self.active_user_set),
                     Arc::clone(&self.next_user_list),
                     Arc::clone(&self.premium_level),

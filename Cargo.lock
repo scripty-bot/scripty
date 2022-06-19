@@ -1985,6 +1985,7 @@ dependencies = [
  "dashmap 4.0.2",
  "parking_lot 0.12.1",
  "scripty_audio",
+ "scripty_data_storage",
  "scripty_db",
  "scripty_metrics",
  "scripty_utils",

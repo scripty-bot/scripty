@@ -16,6 +16,7 @@ scripty_audio = { path = "../scripty_audio" }
 scripty_utils = { path = "../scripty_utils" }
 scripty_metrics = { path = "../scripty_metrics" }
 tokio = { version = "1.16", features = ["parking_lot"] }
+scripty_data_storage = { path = "../scripty_data_storage" }
 songbird = { git = "https://github.com/serenity-rs/songbird", branch = "next" }
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [
   "tokio",

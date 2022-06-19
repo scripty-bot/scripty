@@ -1,6 +1,7 @@
 use crate::consts::{EXPECTED_PKT_SIZE, SIZE_OF_I16};
 use crate::types::{
     SsrcIgnoredMap, SsrcLastPktIdMap, SsrcMissedPktList, SsrcMissedPktMap, SsrcStreamMap,
+    SsrcUserIdMap, SsrcVoiceIngestMap,
 };
 use std::time::Instant;
 
@@ -9,11 +10,13 @@ pub async fn voice_packet(
     audio: Option<Vec<i16>>,
     ssrc: u32,
     sequence: u16,
+    ssrc_user_id_map: SsrcUserIdMap,
     ssrc_stream_map: SsrcStreamMap,
     ssrc_ignored_map: SsrcIgnoredMap,
     ssrc_last_pkt_id_map: SsrcLastPktIdMap,
     ssrc_missed_pkt_map: SsrcMissedPktMap,
     ssrc_missed_pkt_list: SsrcMissedPktList,
+    ssrc_voice_ingest_map: SsrcVoiceIngestMap,
 ) {
     let metrics = scripty_metrics::get_metrics();
     metrics.ms_transcribed.inc_by(20);
@@ -77,6 +80,24 @@ pub async fn voice_packet(
             debug!(?ssrc, "done processing pkt");
         } else {
             warn!(?ssrc, "no stream found for ssrc");
+        }
+
+        if let Some(user_id) = ssrc_user_id_map.get(&ssrc) {
+            if let Some(mut ingest) = ssrc_voice_ingest_map.get_mut(&ssrc) {
+                if let Some(ref mut ingest) = ingest.value_mut() {
+                    ingest.ingest(&audio);
+                }
+            } else {
+                let ingest = if let Some(ingest) =
+                    scripty_data_storage::VoiceIngest::new(user_id.0, "en".to_string()).await
+                {
+                    ingest.ingest(audio.as_ref());
+                    Some(ingest)
+                } else {
+                    None
+                };
+                ssrc_voice_ingest_map.insert(ssrc, ingest);
+            }
         }
     }
 

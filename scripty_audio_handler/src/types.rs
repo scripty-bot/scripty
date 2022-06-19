@@ -2,6 +2,7 @@ use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
 use parking_lot::RwLock;
 use scripty_audio::Recognizer;
+use scripty_data_storage::VoiceIngest;
 use songbird::model::id::UserId;
 use std::collections::VecDeque;
 use std::sync::Arc;
@@ -32,6 +33,9 @@ pub type SsrcIgnoredMap = Arc<DashMap<u32, bool, RandomState>>;
 
 /// Type alias for a `DashMap` containing SSRCs mapped to the sequence ID of the last packet received
 pub type SsrcLastPktIdMap = Arc<DashMap<u32, u16, RandomState>>;
+
+/// Type alias for a `DashMap` containing SSRCs mapped to a voice audio ingest struct.
+pub type SsrcVoiceIngestMap = Arc<DashMap<u32, Option<VoiceIngest>, RandomState>>;
 
 /// Type alias for a `DashSet` containing the current list of active users
 pub type ActiveUserSet = Arc<DashSet<u32, RandomState>>;

@@ -1,5 +1,6 @@
 use crate::types::{
     ActiveUserSet, NextUserList, SsrcIgnoredMap, SsrcStreamMap, SsrcUserDataMap, SsrcUserIdMap,
+    SsrcVoiceIngestMap,
 };
 use songbird::model::payload::ClientDisconnect;
 use std::sync::atomic::{AtomicU8, Ordering};
@@ -12,6 +13,7 @@ pub async fn client_disconnect(
     ssrc_stream_map: SsrcStreamMap,
     ssrc_user_data_map: SsrcUserDataMap,
     ssrc_ignored_map: SsrcIgnoredMap,
+    ssrc_voice_ingest_map: SsrcVoiceIngestMap,
     active_user_set: ActiveUserSet,
     next_user_list: NextUserList,
     premium_level: Arc<AtomicU8>,
@@ -39,6 +41,7 @@ pub async fn client_disconnect(
     ssrc_stream_map.remove(&ssrc);
     ssrc_user_data_map.remove(&ssrc);
     ssrc_ignored_map.remove(&ssrc);
+    ssrc_voice_ingest_map.remove(&ssrc);
 
     #[allow(clippy::wildcard_in_or_patterns)]
     let max_users = match premium_level.load(Ordering::Relaxed) {

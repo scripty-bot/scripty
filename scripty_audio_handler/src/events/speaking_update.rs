@@ -1,5 +1,6 @@
 use crate::types::{
     SsrcLastPktIdMap, SsrcMissedPktList, SsrcMissedPktMap, SsrcStreamMap, SsrcUserDataMap,
+    SsrcUserIdMap, SsrcVoiceIngestMap,
 };
 use serenity::builder::ExecuteWebhook;
 use serenity::client::Context;
@@ -13,11 +14,13 @@ pub async fn speaking_update(
     update: SpeakingUpdateData,
     ctx: Context,
     webhook: Arc<Webhook>,
+    ssrc_user_id_map: SsrcUserIdMap,
     ssrc_user_data_map: SsrcUserDataMap,
     ssrc_stream_map: SsrcStreamMap,
     ssrc_last_pkt_id_map: SsrcLastPktIdMap,
     ssrc_missed_pkt_map: SsrcMissedPktMap,
     ssrc_missed_pkt_list: SsrcMissedPktList,
+    ssrc_voice_ingest_map: SsrcVoiceIngestMap,
     _verbose: Arc<AtomicBool>,
 ) {
     let ssrc = update.ssrc;
@@ -66,6 +69,24 @@ pub async fn speaking_update(
     }
     webhook_execute.content(res.text);
     debug!(?ssrc, "stream transcription succeeded");
+
+    if ssrc_voice_ingest_map
+        .get(&ssrc)
+        .map_or(false, |v| v.is_some())
+    {
+        if let Some(user_id) = ssrc_user_id_map.get(&ssrc) {
+            if let Some(ingest) =
+                scripty_data_storage::VoiceIngest::new(user_id.0, "en".to_string()).await
+            {
+                if let Some(voice_ingest) = ssrc_voice_ingest_map.insert(ssrc, Some(ingest)) {
+                    voice_ingest
+                        .expect("asserted voice ingest object already exists")
+                        .destroy(res.text.to_string())
+                        .await;
+                }
+            }
+        }
+    }
 
     webhook_execute.username(username).avatar_url(avatar_url);
     debug!(?ssrc, "sending webhook msg");
