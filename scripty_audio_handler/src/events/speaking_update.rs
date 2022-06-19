@@ -3,10 +3,9 @@ use crate::types::{
 };
 use serenity::builder::ExecuteWebhook;
 use serenity::client::Context;
-use serenity::model::channel::Embed;
 use serenity::model::webhook::Webhook;
 use songbird::events::context_data::SpeakingUpdateData;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 
 #[allow(clippy::too_many_arguments)]
@@ -19,7 +18,7 @@ pub async fn speaking_update(
     ssrc_last_pkt_id_map: SsrcLastPktIdMap,
     ssrc_missed_pkt_map: SsrcMissedPktMap,
     ssrc_missed_pkt_list: SsrcMissedPktList,
-    verbose: Arc<AtomicBool>,
+    _verbose: Arc<AtomicBool>,
 ) {
     let ssrc = update.ssrc;
     debug!(?ssrc, ?update.speaking, "got SpeakingUpdate event");
