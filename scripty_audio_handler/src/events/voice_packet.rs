@@ -83,17 +83,23 @@ pub async fn voice_packet(
         }
 
         if let Some(user_id) = ssrc_user_id_map.get(&ssrc) {
+            debug!(?ssrc, "found user ID, getting ingest state");
             if let Some(mut ingest) = ssrc_voice_ingest_map.get_mut(&ssrc) {
                 if let Some(ref mut ingest) = ingest.value_mut() {
+                    debug!(?ssrc, "user has opted in, feeding audio");
                     ingest.ingest(&audio);
+                } else {
+                    debug!(?ssrc, "user has opted out, not feeding");
                 }
             } else {
                 let ingest = if let Some(ingest) =
                     scripty_data_storage::VoiceIngest::new(user_id.0, "en".to_string()).await
                 {
+                    debug!(?ssrc, "user has opted in, creating ingest");
                     ingest.ingest(audio.as_ref());
                     Some(ingest)
                 } else {
+                    debug!(?ssrc, "user has opted out, not creating ingest");
                     None
                 };
                 ssrc_voice_ingest_map.insert(ssrc, ingest);

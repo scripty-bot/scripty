@@ -74,6 +74,7 @@ pub async fn speaking_update(
         .get(&ssrc)
         .map_or(false, |v| v.is_some())
     {
+        debug!(?ssrc, "found voice ingest for SSRC");
         if let Some(user_id) = ssrc_user_id_map.get(&ssrc) {
             if let Some(ingest) =
                 scripty_data_storage::VoiceIngest::new(user_id.0, "en".to_string()).await
