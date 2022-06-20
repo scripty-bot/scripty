@@ -121,10 +121,10 @@ fn handle_missed_packets(
     let last_pkt = sequence - 1;
     if let Some(last_pkt_audio) = ssrc_missed_pkt_map.remove(&(ssrc, last_pkt)) {
         debug!(?ssrc, "found out-of-order packet with ID {}", last_pkt);
-        let mut processed_audio =
+        let processed_audio =
             scripty_audio::process_audio(last_pkt_audio.1, 48_000.0, 16_000.0);
         // prepend the processed audio to the current audio
-        push_all_at(audio, 0, &mut processed_audio[..]);
+        push_all_at(audio, 0, &processed_audio[..]);
         handle_missed_packets(ssrc, last_pkt, audio, ssrc_missed_pkt_map)
     } else {
         debug!(?ssrc, "no out-of-order packets found");
@@ -155,14 +155,14 @@ where
                 // 1) we've already reserved the correct amount of space above
                 // 2) the allocation above would have panicked if the offset overflowed isize
                 // 3) again, the allocation above would have panicked if the offset overflowed usize, as isize is smaller than usize
-                v.as_mut_ptr().offset(offset as isize)
+                v.as_mut_ptr().add(offset)
             };
             // if we have to move data already in the Vec, do it now
             if to_move > 0 {
                 let dst = unsafe {
                     // calculate the target pointer offset from the origin (ie where the old data will be moved)
                     // SAFETY: see comments for other offset calculation above
-                    src.offset(s.len() as isize)
+                    src.add(s.len())
                 };
                 unsafe {
                     // copy the data
