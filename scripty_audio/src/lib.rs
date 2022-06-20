@@ -1,3 +1,5 @@
+#![feature(slice_as_chunks)]
+
 #[macro_use]
 extern crate tracing;
 
