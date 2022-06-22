@@ -1,7 +1,7 @@
 use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
 use parking_lot::RwLock;
-use scripty_audio::Recognizer;
+use scripty_audio::Stream;
 use scripty_data_storage::VoiceIngest;
 use songbird::model::id::UserId;
 use std::collections::VecDeque;
@@ -11,7 +11,7 @@ use std::sync::Arc;
 pub type SsrcUserIdMap = Arc<DashMap<u32, UserId, RandomState>>;
 
 /// Type alias for a `DashMap` containing SSRCs mapped to `Stream`s
-pub type SsrcStreamMap = Arc<DashMap<u32, Recognizer, RandomState>>;
+pub type SsrcStreamMap = Arc<DashMap<u32, Stream, RandomState>>;
 
 /// Type alias for a `DashMap` containing SSRCs mapped to user data.
 ///

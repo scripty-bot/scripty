@@ -1,8 +1,8 @@
+use coqui_stt::{Model, Stream};
 use dashmap::DashMap;
 use once_cell::sync::OnceCell;
 use std::path::Path;
 use std::sync::Arc;
-use vosk::{Model, Recognizer};
 
 pub static MODELS: OnceCell<DashMap<String, Arc<Model>>> = OnceCell::new();
 
@@ -21,16 +21,42 @@ pub fn load_models(model_dir: &Path) {
         if name.len() != 2 {
             continue;
         }
-        info!("trying to load model in {}...", &name);
+        info!("searching for models in dir {}...", &name);
 
-        match Model::new(&dir_path) {
-            Ok(model) => {
-                info!("loaded model in {}", &name);
-                models.insert(name.to_string(), Arc::new(model));
+        let mut model_path = None;
+        let mut scorer_path = None;
+        for file in dir_path.read_dir().expect("IO error") {
+            let file = file.expect("IO error");
+            let path = file.path();
+            let ext = match path.extension() {
+                Some(ext) => ext,
+                None => continue,
+            };
+            if ext == "tflite" {
+                model_path = Some(
+                    path.to_str()
+                        .expect("non-utf-8 chars found in filename")
+                        .to_owned(),
+                );
+            } else if ext == "scorer" {
+                scorer_path = Some(
+                    path.to_str()
+                        .expect("non-utf-8 chars found in filename")
+                        .to_owned(),
+                );
             }
-            Err(e) => {
-                error!("failed to load model in {}: {}", &name, e);
+        }
+        if let Some(model_path) = model_path {
+            info!("found model: {:?}", model_path);
+            let mut model = Model::new(model_path).expect("failed to load model");
+            if let Some(scorer_path) = scorer_path {
+                info!("found scorer: {:?}", scorer_path);
+                model
+                    .enable_external_scorer(scorer_path)
+                    .expect("failed to load scorer");
             }
+            info!("loaded model, inserting into map");
+            models.insert(name.to_string(), Arc::new(model));
         }
     }
     if models.is_empty() {
@@ -82,10 +108,10 @@ pub fn check_model_language(lang: &str) -> bool {
 }
 
 /// Get a stream for the selected language.
-pub fn get_stream(lang: &str) -> Option<Recognizer> {
+pub fn get_stream(lang: &str) -> Option<Stream> {
     MODELS
         .get()
         .expect("models should've been initialized before attempting to get a stream")
         .get(lang)
-        .map(|x| Recognizer::new(x.value(), 16_000.0))
+        .and_then(|x| Stream::from_model(x.value().clone()).ok())
 }

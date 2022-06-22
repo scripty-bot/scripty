@@ -240,9 +240,6 @@ name = "cc"
 version = "1.0.73"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2fff2a6927b3bb87f9595d67196a70493f627687a71d87a0d692242c33f58c11"
-dependencies = [
- "jobserver",
-]
 
 [[package]]
 name = "cfg-if"
@@ -300,6 +297,22 @@ name = "const_fn"
 version = "0.4.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fbdcdcb6d86f71c5e97409ad45898af11cbc995b4ee8112d59095a28d376c935"
+
+[[package]]
+name = "coqui-stt"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f1a855e8a0d46aa91d3c3284aaff1a3bbfe6f1d54f33da7de045b8417bbf9a1a"
+dependencies = [
+ "coqui-stt-sys",
+ "log",
+]
+
+[[package]]
+name = "coqui-stt-sys"
+version = "1.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5da24ef557d9caf47ca4c326f0c7de4aaf7f102a836710c2e03cbec0c1519be9"
 
 [[package]]
 name = "cpufeatures"
@@ -1159,15 +1172,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "112c678d4050afce233f4f2852bb2eb519230b3cf12f33585275537d7e41578d"
 
 [[package]]
-name = "jobserver"
-version = "0.1.24"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af25a77299a7f711a01975c35a6a424eb6862092cc2d6c72c4ed6cbc56dfc1fa"
-dependencies = [
- "libc",
-]
-
-[[package]]
 name = "js-sys"
 version = "0.3.57"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1964,6 +1968,7 @@ checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 name = "scripty_audio"
 version = "0.1.0"
 dependencies = [
+ "coqui-stt",
  "dashmap 4.0.2",
  "dasp_interpolate",
  "dasp_signal",
@@ -1973,7 +1978,6 @@ dependencies = [
  "threadpool",
  "tokio",
  "tracing",
- "vosk",
 ]
 
 [[package]]
@@ -3204,23 +3208,6 @@ name = "void"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
-
-[[package]]
-name = "vosk"
-version = "0.2.0"
-dependencies = [
- "serde",
- "serde_json",
- "vosk-sys",
-]
-
-[[package]]
-name = "vosk-sys"
-version = "0.2.0"
-dependencies = [
- "cc",
- "libc",
-]
 
 [[package]]
 name = "want"
