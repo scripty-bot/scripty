@@ -158,9 +158,9 @@ impl EventHandler for AudioHandler {
                 disconnect_data.guild_id,
                 disconnect_data.reason,
                 self.context.clone(),
+                Arc::clone(&self.webhook),
                 self.channel_id,
                 self.voice_channel_id,
-                Arc::clone(&self.webhook),
             )),
             _ => return None,
         };

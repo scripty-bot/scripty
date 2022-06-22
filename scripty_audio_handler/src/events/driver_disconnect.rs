@@ -1,13 +1,12 @@
+use crate::{connect_to_vc, Error};
 use serenity::client::Context;
-use serenity::model::webhook::Webhook;
 use serenity::model::id::ChannelId;
+use serenity::model::webhook::Webhook;
 use songbird::events::context_data::DisconnectReason;
 use songbird::id::GuildId;
 use songbird::model::CloseCode;
 use std::borrow::Cow;
 use std::sync::Arc;
-
-use crate::{connect_to_vc, Error};
 
 pub async fn driver_disconnect(
     guild_id: GuildId,
@@ -66,29 +65,33 @@ pub async fn driver_disconnect(
     if should_reconnect {
         debug!(?guild_id, "scheduling reconnect");
         // retry connection in 30 seconds
+        let webhook2 = webhook.clone();
+        let ctx2 = ctx.clone();
+        let ctx3 = ctx.clone();
         tokio::spawn(async move {
             debug!(?guild_id, "sleeping 30 seconds");
             tokio::time::sleep(std::time::Duration::from_secs(30)).await;
             debug!(?guild_id, "attempting reconnect");
 
-            if let Err(e) =
-                connect_to_vc(ctx.clone(), guild_id, channel_id, voice_channel_id, false).await
+            if let Err(Error::Join(e)) = connect_to_vc(
+                ctx2,
+                serenity::model::id::GuildId(guild_id.0),
+                channel_id,
+                voice_channel_id,
+                false,
+            )
+            .await
             {
-                match e {
-                    Error::Join(e) => {
-                        if let Err(e) = webhook
-                            .execute(ctx.clone(), false, |w| {
-                                w.content(format!("Failed to reconnect due to: {}", e))
-                            })
-                            .await
-                        {
-                            debug!(
-                                ?guild_id,
-                                "failed to notify user about reconnect failure: {}", e
-                            );
-                        }
-                    }
-                    _ => (),
+                if let Err(e) = webhook2
+                    .execute(ctx3, false, |w| {
+                        w.content(format!("Failed to reconnect due to: {}", e))
+                    })
+                    .await
+                {
+                    debug!(
+                        ?guild_id,
+                        "failed to notify user about reconnect failure: {}", e
+                    );
                 }
             }
         });
