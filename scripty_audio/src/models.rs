@@ -46,6 +46,7 @@ pub fn load_models(model_dir: &Path) {
 /// Removes all models and deallocates them.
 pub fn deallocate_models() {
     let models = MODELS.get().expect("no models allocated");
+    debug!("found {} models to deallocate", models.len());
     for model_name in models.iter().map(|k| k.key().to_string()) {
         // removes and deallocates the model
         assert!(models.remove(&model_name).is_some());
