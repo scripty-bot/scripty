@@ -43,6 +43,15 @@ pub fn load_models(model_dir: &Path) {
     }
 }
 
+/// Removes all models and deallocates them.
+pub fn deallocate_models() {
+    let models = MODELS.get().expect("no models allocated");
+    for model_name in models.iter().map(|k| k.key().to_string()) {
+        // removes and deallocates the model
+        assert!(models.remove(&model_name).is_some());
+    }
+}
+
 /// Get all the currently registered model languages.
 pub fn get_model_languages() -> Vec<String> {
     MODELS
