@@ -54,7 +54,7 @@ pub async fn connect_to_vc(
     call.mute(true).await?;
 
     debug!("initializing audio handler");
-    let handler = crate::AudioHandler::new(guild_id, webhook, ctx.clone()).await?;
+    let handler = crate::AudioHandler::new(guild_id, webhook, ctx.clone(), channel_id, voice_channel_id).await?;
 
     debug!("adding global events");
     call.add_global_event(Event::Core(CoreEvent::SpeakingStateUpdate), handler.clone());

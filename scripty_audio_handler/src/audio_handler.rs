@@ -7,7 +7,7 @@ use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
 use parking_lot::RwLock;
 use serenity::client::Context;
-use serenity::model::id::GuildId;
+use serenity::model::id::{ChannelId, GuildId};
 use serenity::model::webhook::Webhook;
 use songbird::{Event, EventContext, EventHandler};
 use std::collections::VecDeque;
@@ -27,6 +27,8 @@ pub struct AudioHandler {
     active_user_set: ActiveUserSet,
     next_user_list: NextUserList,
     guild_id: GuildId,
+    channel_id: ChannelId,
+    voice_channel_id: ChannelId,
     webhook: Arc<Webhook>,
     context: Context,
     premium_level: Arc<AtomicU8>,
@@ -38,6 +40,8 @@ impl AudioHandler {
         guild_id: GuildId,
         webhook: Webhook,
         context: Context,
+        channel_id: ChannelId,
+        voice_channel_id: ChannelId,
     ) -> Result<Self, sqlx::Error> {
         let this = Self {
             ssrc_user_id_map: Arc::new(DashMap::with_hasher(RandomState::new())),
@@ -51,6 +55,8 @@ impl AudioHandler {
             active_user_set: Arc::new(DashSet::with_hasher(RandomState::new())),
             next_user_list: Arc::new(RwLock::new(VecDeque::with_capacity(10))),
             guild_id,
+            channel_id,
+            voice_channel_id,
             webhook: Arc::new(webhook),
             context,
             premium_level: Arc::new(AtomicU8::new(0)),
@@ -152,6 +158,8 @@ impl EventHandler for AudioHandler {
                 disconnect_data.guild_id,
                 disconnect_data.reason,
                 self.context.clone(),
+                self.channel_id,
+                self.voice_channel_id,
                 Arc::clone(&self.webhook),
             )),
             _ => return None,
