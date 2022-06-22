@@ -76,7 +76,7 @@ pub async fn driver_disconnect(
                 match e {
                     Error::Join(e) => {
                         if let Err(e) = webhook
-                            .execute(ctx, false, |w| {
+                            .execute(ctx.clone(), false, |w| {
                                 w.content(format!("Failed to disconnect due to: {}", e))
                             })
                             .await
