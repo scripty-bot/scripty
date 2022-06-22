@@ -1,7 +1,8 @@
 use serenity::client::Context;
 use serenity::model::webhook::Webhook;
+use serenity::model::id::ChannelId;
 use songbird::events::context_data::DisconnectReason;
-use songbird::id::{ChannelId, GuildId};
+use songbird::id::GuildId;
 use songbird::model::CloseCode;
 use std::borrow::Cow;
 use std::sync::Arc;
