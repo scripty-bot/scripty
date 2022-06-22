@@ -63,7 +63,7 @@ pub async fn speaking_update(
     let mut webhook_execute = ExecuteWebhook::default();
 
     debug!(?ssrc, "running transcription");
-    let res = scripty_utils::block_in_place(|| old_stream.result()).await;
+    let res = scripty_utils::block_in_place(|| old_stream.final_result()).await;
     if res.text.is_empty() {
         return;
     }
