@@ -47,7 +47,11 @@ pub fn load_models(model_dir: &Path) {
 pub fn deallocate_models() {
     let models = MODELS.get().expect("no models allocated");
     debug!("found {} models to deallocate", models.len());
-    for model_name in models.iter().map(|k| k.key().to_string()) {
+    let model_name_list = models
+        .iter()
+        .map(|k| k.key().to_string())
+        .collect::<Vec<_>>();
+    for model_name in model_name_list {
         // removes and deallocates the model
         debug!("removing model {}", &model_name);
         let m = models.remove(&model_name);
