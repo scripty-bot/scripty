@@ -4,9 +4,10 @@ use crate::types::{
 };
 use serenity::builder::ExecuteWebhook;
 use serenity::client::Context;
+use serenity::model::channel::Embed;
 use serenity::model::webhook::Webhook;
 use songbird::events::context_data::SpeakingUpdateData;
-use std::sync::atomic::AtomicBool;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 #[allow(clippy::too_many_arguments)]
@@ -21,7 +22,7 @@ pub async fn speaking_update(
     ssrc_missed_pkt_map: SsrcMissedPktMap,
     ssrc_missed_pkt_list: SsrcMissedPktList,
     ssrc_voice_ingest_map: SsrcVoiceIngestMap,
-    _verbose: Arc<AtomicBool>,
+    verbose: Arc<AtomicBool>,
 ) {
     let ssrc = update.ssrc;
     debug!(?ssrc, ?update.speaking, "got SpeakingUpdate event");
@@ -63,7 +64,7 @@ pub async fn speaking_update(
     let mut webhook_execute = ExecuteWebhook::default();
 
     debug!(?ssrc, "running transcription");
-    if verbose.load(Ordering::Relaxed) {
+    let transcript = if verbose.load(Ordering::Relaxed) {
         let res = scripty_utils::block_in_place(|| old_stream.finish_stream_with_metadata(3)).await;
         debug!(?ssrc, "ran stream transcription");
         match res {
@@ -77,6 +78,7 @@ pub async fn speaking_update(
                         .field("Confidence", &transcript.confidence().to_string(), false)
                         .footer(|f| f.text(format!("ssrc {}", ssrc)))
                 })]);
+                Some(transcript.to_string())
             }
             Err(e) => {
                 error!(?ssrc, "stream transcription errored: {}", e);
@@ -85,6 +87,7 @@ pub async fn speaking_update(
                     "internal error: running stt algorithm failed with error: {}\nssrc {}",
                     e, ssrc
                 ));
+                None
             }
             _ => return,
         }
@@ -94,7 +97,8 @@ pub async fn speaking_update(
 
         match res {
             Ok(res) if !res.is_empty() => {
-                webhook_execute.content(res);
+                webhook_execute.content(res.clone());
+                Some(res)
             }
             Err(e) => {
                 error!(?ssrc, "stream transcription errored: {}", e);
@@ -103,36 +107,38 @@ pub async fn speaking_update(
                     "internal error: running stt algorithm failed with error: {}\nssrc {}",
                     e, ssrc
                 ));
+                None
             }
             _ => return,
         }
-    }
+    };
     debug!(?ssrc, "stream transcription succeeded");
 
-    if ssrc_voice_ingest_map
-        .get(&ssrc)
-        .map_or(false, |v| v.is_some())
-    {
-        debug!(?ssrc, "found voice ingest for SSRC");
-        if let Some(user_id) = ssrc_user_id_map.get(&ssrc) {
-            debug!(?ssrc, "found user_id for SSRC");
-            if let Some(ingest) =
-                scripty_data_storage::VoiceIngest::new(user_id.0, "en".to_string()).await
-            {
-                debug!(?ssrc, "created VoiceIngest, and retrieved old one");
-                if let Some(voice_ingest) = ssrc_voice_ingest_map.insert(ssrc, Some(ingest)) {
-                    debug!(?ssrc, "found old VoiceIngest, finalizing");
-                    voice_ingest
-                        .expect("asserted voice ingest object already exists")
-                        .destroy(res.text.to_string())
-                        .await;
+    if let Some(transcript) = transcript {
+        if ssrc_voice_ingest_map
+            .get(&ssrc)
+            .map_or(false, |v| v.is_some())
+        {
+            debug!(?ssrc, "found voice ingest for SSRC");
+            if let Some(user_id) = ssrc_user_id_map.get(&ssrc) {
+                debug!(?ssrc, "found user_id for SSRC");
+                if let Some(ingest) =
+                    scripty_data_storage::VoiceIngest::new(user_id.0, "en".to_string()).await
+                {
+                    debug!(?ssrc, "created VoiceIngest, and retrieved old one");
+                    if let Some(voice_ingest) = ssrc_voice_ingest_map.insert(ssrc, Some(ingest)) {
+                        debug!(?ssrc, "found old VoiceIngest, finalizing");
+                        voice_ingest
+                            .expect("asserted voice ingest object already exists")
+                            .destroy(transcript)
+                            .await;
+                    }
                 }
             }
+        } else {
+            debug!(?ssrc, "no voice ingest for SSRC");
         }
-    } else {
-        debug!(?ssrc, "no voice ingest for SSRC");
     }
-
     webhook_execute.username(username).avatar_url(avatar_url);
     debug!(?ssrc, "sending webhook msg");
     let res = webhook
