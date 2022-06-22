@@ -7,7 +7,7 @@ use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
 use parking_lot::RwLock;
 use serenity::client::Context;
-use serenity::model::id::GuildId;
+use serenity::model::id::{ChannelId, GuildId};
 use serenity::model::webhook::Webhook;
 use songbird::{Event, EventContext, EventHandler};
 use std::collections::VecDeque;
