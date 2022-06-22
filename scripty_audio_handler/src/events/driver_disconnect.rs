@@ -1,16 +1,20 @@
 use serenity::client::Context;
 use serenity::model::webhook::Webhook;
 use songbird::events::context_data::DisconnectReason;
-use songbird::id::GuildId;
+use songbird::id::{GuildId, ChannelId};
 use songbird::model::CloseCode;
 use std::borrow::Cow;
 use std::sync::Arc;
+
+use crate::connect_to_vc;
 
 pub async fn driver_disconnect(
     guild_id: GuildId,
     reason: Option<DisconnectReason>,
     ctx: Context,
     webhook: Arc<Webhook>,
+    channel_id: ChannelId,
+    voice_channel_id: ChannelId,
 ) {
     debug!(?guild_id, "handler disconnected");
     let (should_reconnect, reason) = match reason {
@@ -65,7 +69,8 @@ pub async fn driver_disconnect(
             debug!(?guild_id, "sleeping 30 seconds");
             tokio::time::sleep(std::time::Duration::from_secs(30)).await;
             debug!(?guild_id, "attempting reconnect");
-            // TODO: spawn reconnection
+            
+            connect_to_vc(ctx.clone(), guild_id, channel_id, voice_channel_id, false).await;
         });
     }
 
