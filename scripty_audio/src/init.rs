@@ -1,9 +1,9 @@
 use std::path::Path;
 
-pub fn init_stt() {
+pub async fn init_stt() {
     let cfg = scripty_config::get_config();
 
-    crate::models::load_models(Path::new(&cfg.model_dir));
+    tokio::task::block_in_place(|| crate::models::load_models(Path::new(&cfg.model_dir)));
 
     tokio::spawn(async move {
         tokio::signal::ctrl_c()

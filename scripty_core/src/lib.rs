@@ -10,8 +10,6 @@ pub fn start() {
 
     scripty_i18n::init_i18n();
 
-    scripty_audio::init_stt();
-
     scripty_data_storage::init_cache();
 
     let rt = get_tokio_rt();
@@ -28,6 +26,8 @@ fn init_logging() {
 }
 
 async fn async_init() {
+    scripty_audio::init_stt().await;
+
     scripty_db::init_db().await;
 
     scripty_data_storage::init_cache_async()
