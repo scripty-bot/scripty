@@ -16,14 +16,16 @@ pub fn load_models(model_dir: &Path) {
         if !dir_path.is_dir() {
             continue;
         }
-        let file_name = dir.path();
+        let file_name = dir.file_name();
         let name = file_name.to_string_lossy();
         if name.len() != 2 {
             continue;
         }
-        info!("trying to load model in {}...", &name);
+        let full_path = dir.path();
+        let full_path_str = full_path.to_string_lossy();
+        info!("trying to load model in {}...", &full_path_str);
 
-        match Model::new(&*name) {
+        match Model::new(&*full_path_str) {
             Some(model) => {
                 info!("loaded model in {}", &name);
                 models.insert(name.to_string(), Arc::new(model));
