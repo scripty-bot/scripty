@@ -62,6 +62,7 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
 
         // chunk guild if necessary
         if (member_count as usize) < g.members.len() {
+            debug!(?g.id, "chunking guild");
             let guild_id = g.id;
             tokio::spawn(async move {
                 // calculate the shard this guild is on
@@ -97,16 +98,20 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
             continue;
         }
 
-        let mut user_count: u32 = 0;
-        let mut bot_count: u32 = 0;
+        let mut user_count = 0.0;
+        let mut bot_count = 0.0;
         for member in g.members.values() {
             if member.user.bot {
-                bot_count += 1;
+                bot_count += 1.0;
             } else {
-                user_count += 1;
+                user_count += 1.0;
             }
         }
-        let ratio = bot_count as f64 / user_count as f64;
+        // if either bot or user count is 0, it's probably a caching issue, so skip it
+        if bot_count == 0 || user_count == 0 {
+            continue;
+        }
+        let ratio = bot_count / user_count;
         if ratio > specified_ratio {
             guild_warnings.push((g.name.clone(), g.id.0, ratio));
         }
