@@ -240,9 +240,6 @@ name = "cc"
 version = "1.0.73"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2fff2a6927b3bb87f9595d67196a70493f627687a71d87a0d692242c33f58c11"
-dependencies = [
- "jobserver",
-]
 
 [[package]]
 name = "cfg-if"
@@ -1157,15 +1154,6 @@ name = "itoa"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "112c678d4050afce233f4f2852bb2eb519230b3cf12f33585275537d7e41578d"
-
-[[package]]
-name = "jobserver"
-version = "0.1.24"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af25a77299a7f711a01975c35a6a424eb6862092cc2d6c72c4ed6cbc56dfc1fa"
-dependencies = [
- "libc",
-]
 
 [[package]]
 name = "js-sys"
@@ -3207,7 +3195,9 @@ checksum = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
 
 [[package]]
 name = "vosk"
-version = "0.2.0"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4c8b4b70bad032d02bc4523d6941b38857d2385a1eda56702bf15347abb72d02"
 dependencies = [
  "serde",
  "serde_json",
@@ -3216,11 +3206,9 @@ dependencies = [
 
 [[package]]
 name = "vosk-sys"
-version = "0.2.0"
-dependencies = [
- "cc",
- "libc",
-]
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cae2ccf314d7a79eb3553d2f4a7549fc4f27755102f2dd0d26f3d17e415f7e83"
 
 [[package]]
 name = "want"

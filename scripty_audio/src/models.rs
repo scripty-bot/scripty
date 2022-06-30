@@ -23,14 +23,12 @@ pub fn load_models(model_dir: &Path) {
         }
         info!("trying to load model in {}...", &name);
 
-        match Model::new(&dir_path) {
-            Ok(model) => {
+        match Model::new(&*name) {
+            Some(model) => {
                 info!("loaded model in {}", &name);
                 models.insert(name.to_string(), Arc::new(model));
             }
-            Err(e) => {
-                error!("failed to load model in {}: {}", &name, e);
-            }
+            None => error!("failed to load model in {}", &name),
         }
     }
     if models.is_empty() {
@@ -82,10 +80,16 @@ pub fn check_model_language(lang: &str) -> bool {
 }
 
 /// Get a stream for the selected language.
-pub fn get_stream(lang: &str) -> Option<Recognizer> {
+pub fn get_stream(lang: &str, verbose: bool) -> Option<Recognizer> {
     MODELS
         .get()
         .expect("models should've been initialized before attempting to get a stream")
         .get(lang)
-        .map(|x| Recognizer::new(x.value(), 16_000.0))
+        .and_then(|x| {
+            Recognizer::new(x.value(), 16_000.0).map(|mut r| {
+                r.set_max_alternatives(if verbose { 3 } else { 0 });
+                r.set_words(verbose);
+                r
+            })
+        })
 }

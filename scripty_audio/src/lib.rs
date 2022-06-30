@@ -10,4 +10,4 @@ mod process_audio;
 pub use init::init_stt;
 pub use models::{check_model_language, get_model_languages, get_stream};
 pub use process_audio::process_audio;
-pub use vosk::Recognizer;
+pub use vosk::{CompleteResult, CompleteResultMultiple, CompleteResultSingle, Recognizer};
