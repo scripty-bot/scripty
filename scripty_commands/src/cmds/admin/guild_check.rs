@@ -98,20 +98,21 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
             continue;
         }
 
-        let mut user_count = 0.0;
-        let mut bot_count = 0.0;
+        let mut user_count = 0;
+        let mut bot_count = 0;
         for member in g.members.values() {
             if member.user.bot {
-                bot_count += 1.0;
+                bot_count += 1;
             } else {
-                user_count += 1.0;
+                user_count += 1;
             }
         }
         // if either bot or user count is 0, it's probably a caching issue, so skip it
         if bot_count == 0 || user_count == 0 {
+            debug!(?g.id, "skipping guild due to none of an item found (bots: {}, users: {})", bot_count, user_count);
             continue;
         }
-        let ratio = bot_count / user_count;
+        let ratio = bot_count as f64 / user_count as f64;
         if ratio > specified_ratio {
             guild_warnings.push((g.name.clone(), g.id.0, ratio));
         }
