@@ -16,7 +16,7 @@ pub fn load_models(model_dir: &Path) {
         if !dir_path.is_dir() {
             continue;
         }
-        let file_name = dir.file_name();
+        let file_name = dir.path();
         let name = file_name.to_string_lossy();
         if name.len() != 2 {
             continue;
