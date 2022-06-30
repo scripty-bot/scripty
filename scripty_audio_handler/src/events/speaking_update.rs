@@ -2,7 +2,7 @@ use crate::types::{
     SsrcLastPktIdMap, SsrcMissedPktList, SsrcMissedPktMap, SsrcStreamMap, SsrcUserDataMap,
     SsrcUserIdMap, SsrcVoiceIngestMap,
 };
-use scripty_audio::{CompleteResult, CompleteResultMultiple, CompleteResultSingle};
+use scripty_audio::CompleteResult;
 use serenity::builder::ExecuteWebhook;
 use serenity::client::Context;
 use serenity::model::channel::Embed;
@@ -71,12 +71,38 @@ pub async fn speaking_update(
     if verbose {
         st = Some(Instant::now());
     }
+    enum CompleteResultWrapper {
+        Single {
+            text: String,
+        },
+        Multiple {
+            count: usize,
+            main_text: Option<String>,
+            main_confidence: Option<f32>,
+        },
+    }
+
     let res = {
         let mut stream = ssrc_stream_map
             .get_mut(&ssrc)
             .expect("already asserted stream exists earlier");
         scripty_utils::block_in_place(|| {
-            let res = stream.final_result();
+            let res = match stream.final_result() {
+                CompleteResult::Single(res) => CompleteResultWrapper::Single {
+                    text: res.text.to_string(),
+                },
+                CompleteResult::Multiple(res) => {
+                    let count = res.alternatives.len();
+                    let main = res.alternatives.get(0);
+                    let main_text = main.map(|res| res.text.to_string());
+                    let main_confidence = main.map(|res| res.confidence);
+                    CompleteResultWrapper::Multiple {
+                        count,
+                        main_text,
+                        main_confidence,
+                    }
+                }
+            };
             stream.reset();
             res
         })
@@ -88,40 +114,39 @@ pub async fn speaking_update(
 
     let text = match res {
         // single means verbose was set to false
-        CompleteResult::Single(CompleteResultSingle { text, .. }) => {
+        CompleteResultWrapper::Single { text } => {
             if text.is_empty() {
                 return;
             }
-            webhook_execute.content(text);
+            webhook_execute.content(&text);
             text.to_string()
         }
         // multiple means verbose was set to true
-        CompleteResult::Multiple(CompleteResultMultiple { alternatives }) => {
-            // alternatives is a Vec of alternatives, get the first (most likely) and output its result, but only show the total count
-            // if empty, return
-            if alternatives.is_empty() {
+        CompleteResultWrapper::Multiple {
+            count,
+            main_text,
+            main_confidence,
+        } => {
+            if count == 0 {
                 return;
             }
-            let alt = alternatives
-                .get(0)
-                .expect("expected at least one alternative");
 
             // we know verbose was set, so unwrap the timings
             let st = st.expect("expected st to be set");
             let et = et.expect("expected et to be set");
+            let elapsed = et.duration_since(st).as_nanos();
+
+            let text = main_text.expect("asserted at least one item exists");
+            let confidence = main_confidence.expect("asserted at least one item exists");
 
             webhook_execute.embeds(vec![Embed::fake(|e| {
-                e.title(format!("Transcription 1/{}", alternatives.len()))
-                    .field("Text", alt.text, true)
-                    .field("Confidence", &format!("{:.2}", alt.confidence), true)
-                    .field(
-                        "Process Time",
-                        &format!("{}ns", et.duration_since(st).as_nanos()),
-                        true,
-                    )
+                e.title(format!("Transcription 1/{}", count))
+                    .field("Text", &text, true)
+                    .field("Confidence", &format!("{:.2}", confidence), true)
+                    .field("Process Time", &format!("{}ns", elapsed), true)
                     .footer(|f| f.text(format!("SSRC {}", ssrc)).icon_url(avatar_url))
             })]);
-            alt.text.to_string()
+            text
         }
     };
     debug!(?ssrc, "stream transcription succeeded");
