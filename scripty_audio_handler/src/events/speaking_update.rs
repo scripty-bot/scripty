@@ -43,16 +43,14 @@ pub async fn speaking_update(
     let verbose = verbose.load(Ordering::Relaxed);
 
     // user has finished speaking, run the STT algo
-    let mut old_stream = match ssrc_stream_map.insert(
-        ssrc,
-        scripty_audio::get_stream("en", verbose).expect("en invalid lang?"),
-    ) {
-        Some(s) => s,
-        None => {
-            warn!(?ssrc, "stream not found in ssrc_stream_map, bailing");
-            return;
-        }
-    };
+    if !ssrc_stream_map.contains_key(&ssrc) {
+        ssrc_stream_map.insert(
+            ssrc,
+            scripty_audio::get_stream("en", verbose).expect("en invalid lang?"),
+        );
+        // return early since we can't do anything without a stream
+        return;
+    }
     debug!(?ssrc, "found Stream for SSRC");
 
     let user_data = ssrc_user_data_map.get(&ssrc);
@@ -73,7 +71,17 @@ pub async fn speaking_update(
     if verbose {
         st = Some(Instant::now());
     }
-    let res = scripty_utils::block_in_place(|| old_stream.final_result()).await;
+    let res = {
+        let mut stream = ssrc_stream_map
+            .get_mut(&ssrc)
+            .expect("already asserted stream exists earlier");
+        scripty_utils::block_in_place(|| {
+            let res = stream.final_result();
+            stream.reset();
+            res
+        })
+        .await
+    };
     if verbose {
         et = Some(Instant::now());
     }
