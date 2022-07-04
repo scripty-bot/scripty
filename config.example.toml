@@ -1,4 +1,4 @@
-model_dir = "/home/user/stt_models"
+languages = ["en"]
 token = "a.b.c"
 support_invite = "https://discord.gg/xSpNJSjNhq"
 i18n_dir = "/home/user/scripty/scripty_i18n/locales"
