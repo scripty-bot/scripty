@@ -1,117 +1,143 @@
-use coqui_stt::{Model, Stream};
-use dashmap::DashMap;
-use once_cell::sync::OnceCell;
-use std::path::Path;
-use std::sync::Arc;
+use byteorder::{ByteOrder, NetworkEndian};
+use tokio::io;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::net::UnixStream;
 
-pub static MODELS: OnceCell<DashMap<String, Arc<Model>>> = OnceCell::new();
+pub struct Stream {
+    socket: UnixStream,
+    verbose: bool,
+}
 
-pub fn load_models(model_dir: &Path) {
-    info!("initializing global model map");
-    let models = MODELS.get_or_init(DashMap::new);
-    info!("finding models in model dir");
-    for dir in model_dir.read_dir().expect("IO error") {
-        let dir = dir.expect("IO error");
-        let dir_path = dir.path();
-        if !dir_path.is_dir() {
-            continue;
+impl Stream {
+    pub async fn new(language: &str, verbose: bool) -> Result<Self, ModelError> {
+        let mut socket = UnixStream::connect("/tmp/stts.sock").await?;
+
+        // handshake with server
+        // 0x00: Initialize Streaming
+        socket.write_u8(0x00).await?;
+        // field 0: verbose: bool
+        socket.write_u8(verbose as u8).await?;
+        // field 1: language: String
+        socket.write_u64(language.len() as u64).await?;
+        socket.write_all(language.as_ref()).await?;
+        socket.flush().await?;
+
+        // wait for response
+        match socket.read_u8().await? {
+            0x00 => Ok(Self { socket, verbose }),
+            _ => Err(ModelError::SttsServer(2147483653)),
         }
-        let file_name = dir.file_name();
-        let name = file_name.to_string_lossy();
-        if name.len() != 2 {
-            continue;
-        }
-        info!("searching for models in dir {}...", &name);
+    }
 
-        let mut model_path = None;
-        let mut scorer_path = None;
-        for file in dir_path.read_dir().expect("IO error") {
-            let file = file.expect("IO error");
-            let path = file.path();
-            let ext = match path.extension() {
-                Some(ext) => ext,
-                None => continue,
-            };
-            if ext == "tflite" {
-                model_path = Some(
-                    path.to_str()
-                        .expect("non-utf-8 chars found in filename")
-                        .to_owned(),
-                );
-            } else if ext == "scorer" {
-                scorer_path = Some(
-                    path.to_str()
-                        .expect("non-utf-8 chars found in filename")
-                        .to_owned(),
-                );
+    pub async fn feed_audio(&mut self, audio: &[i16]) -> Result<(), ModelError> {
+        // 0x01: Feed Audio
+        let bytes = audio.len() * std::mem::size_of::<i16>();
+
+        // field 0: data_len: u32
+        self.socket.write_u32(bytes as u32).await?;
+
+        // field 1: data: Vec<i16>
+        let mut dst = vec![0; bytes];
+        NetworkEndian::write_i16_into(audio, &mut dst);
+        self.socket.write_all(&dst).await?;
+
+        self.socket.flush().await?;
+
+        Ok(())
+    }
+
+    pub async fn get_result(mut self) -> Result<Transcript, ModelError> {
+        if self.verbose {
+            panic!("when verbose, use get_result_verbose()");
+        }
+
+        // 0x02: Get Result
+        self.socket.write_u8(0x02).await?;
+        self.socket.flush().await?;
+
+        // wait for response
+        match self.socket.read_u8().await? {
+            0x02 => {
+                // read transcript
+                Ok(Transcript {
+                    result: read_string(&mut self.socket).await?,
+                })
             }
-        }
-        if let Some(model_path) = model_path {
-            info!("found model: {:?}", model_path);
-            let mut model = Model::new(model_path).expect("failed to load model");
-            if let Some(scorer_path) = scorer_path {
-                info!("found scorer: {:?}", scorer_path);
-                model
-                    .enable_external_scorer(scorer_path)
-                    .expect("failed to load scorer");
+            0x04 => {
+                // read error code
+                Err(ModelError::SttsServer(self.socket.read_i64().await?))
             }
-            info!("loaded model, inserting into map");
-            models.insert(name.to_string(), Arc::new(model));
+            _ => Err(ModelError::SttsServer(2147483653)),
         }
     }
-    if models.is_empty() {
-        panic!(
-            "no models found:\
-             they must be in a subdirectory with their language name like `en/model.tflite`"
-        )
-    } else {
-        info!("loaded {} models", models.len());
+
+    pub async fn get_result_verbose(mut self) -> Result<VerboseTranscript, ModelError> {
+        if !self.verbose {
+            panic!("when not verbose, use get_result()");
+        }
+
+        // 0x02: Get Result
+        self.socket.write_u8(0x02).await?;
+        self.socket.flush().await?;
+
+        // wait for response
+        match self.socket.read_u8().await? {
+            0x03 => {
+                // read verbose transcript
+                let num_transcripts = self.socket.read_u32().await?;
+                let mut main_transcript = None;
+                let mut main_confidence = None;
+                if num_transcripts != 0 {
+                    main_transcript = Some(read_string(&mut self.socket).await?);
+                    main_confidence = Some(self.socket.read_f64().await?);
+                }
+
+                Ok(VerboseTranscript {
+                    num_transcripts,
+                    main_transcript,
+                    main_confidence,
+                })
+            }
+            0x04 => {
+                // read error code
+                Err(ModelError::SttsServer(self.socket.read_i64().await?))
+            }
+            _ => Err(ModelError::SttsServer(2147483653)),
+        }
     }
 }
 
-/// Removes all models and deallocates them.
-pub fn deallocate_models() {
-    let models = MODELS.get().expect("no models allocated");
-    debug!("found {} models to deallocate", models.len());
-    let model_name_list = models
-        .iter()
-        .map(|k| k.key().to_string())
-        .collect::<Vec<_>>();
-    for model_name in model_name_list {
-        // removes and deallocates the model
-        debug!("removing model {}", &model_name);
-        let m = models.remove(&model_name);
-        debug!("removed model {} from map, dropping", &model_name);
-        drop(m);
-        debug!("deallocated model {}", &model_name);
+pub enum ModelError {
+    Io(io::Error),
+    SttsServer(i64),
+}
+
+impl From<io::Error> for ModelError {
+    fn from(err: io::Error) -> Self {
+        ModelError::Io(err)
     }
 }
 
-/// Get all the currently registered model languages.
-pub fn get_model_languages() -> Vec<String> {
-    MODELS
-        .get()
-        .expect("load models before fetching names")
-        .iter()
-        .map(|x| x.key().clone())
-        .collect()
+impl From<i64> for ModelError {
+    fn from(err: i64) -> Self {
+        ModelError::SttsServer(err)
+    }
 }
 
-/// Check if a model language is supported.
-///
-/// Cheaper than `get_model_languages()`.
-pub fn check_model_language(lang: &str) -> bool {
-    MODELS
-        .get()
-        .expect("load models before fetching names")
-        .contains_key(lang)
+pub struct Transcript {
+    pub result: String,
 }
 
-/// Get a stream for the selected language.
-pub fn get_stream(lang: &str) -> Option<Stream> {
-    MODELS
-        .get()
-        .expect("models should've been initialized before attempting to get a stream")
-        .get(lang)
-        .and_then(|x| Stream::from_model(x.value().clone()).ok())
+pub struct VerboseTranscript {
+    pub num_transcripts: u32,
+    pub main_transcript: Option<String>,
+    pub main_confidence: Option<f64>,
+}
+
+async fn read_string(stream: &mut UnixStream) -> io::Result<String> {
+    // strings are encoded as a u64 length followed by the string bytes
+    let len = stream.read_u64().await?;
+    let mut buf = vec![0u8; len as usize];
+    stream.read_exact(&mut buf).await?;
+    Ok(String::from_utf8_lossy(&buf).to_string())
 }
