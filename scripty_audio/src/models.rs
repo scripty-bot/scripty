@@ -31,6 +31,8 @@ impl Stream {
 
     pub async fn feed_audio(&mut self, audio: &[i16]) -> Result<(), ModelError> {
         // 0x01: Feed Audio
+        self.socket.write_u8(0x01).await?;
+
         let bytes = audio.len() * std::mem::size_of::<i16>();
 
         // field 0: data_len: u32
