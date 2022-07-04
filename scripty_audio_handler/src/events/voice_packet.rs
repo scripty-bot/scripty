@@ -73,7 +73,9 @@ pub async fn voice_packet(
         // so doing the above processing is fine, since the speed boost from
         // not holding a mut ref to the stream is worth it
         if let Some(mut stream) = ssrc_stream_map.get_mut(&ssrc) {
-            scripty_utils::block_in_place(|| stream.feed_audio(audio.as_ref())).await;
+            if let Err(e) = stream.feed_audio(audio.as_ref()).await {
+                warn!("failed to feed audio packet: {}", e)
+            };
             debug!(?ssrc, "done processing pkt");
         } else {
             warn!(?ssrc, "no stream found for ssrc");
@@ -121,8 +123,7 @@ fn handle_missed_packets(
     let last_pkt = sequence - 1;
     if let Some(last_pkt_audio) = ssrc_missed_pkt_map.remove(&(ssrc, last_pkt)) {
         debug!(?ssrc, "found out-of-order packet with ID {}", last_pkt);
-        let processed_audio =
-            scripty_audio::process_audio(last_pkt_audio.1, 48_000.0, 16_000.0);
+        let processed_audio = scripty_audio::process_audio(last_pkt_audio.1, 48_000.0, 16_000.0);
         // prepend the processed audio to the current audio
         push_all_at(audio, 0, &processed_audio[..]);
         handle_missed_packets(ssrc, last_pkt, audio, ssrc_missed_pkt_map)

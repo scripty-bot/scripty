@@ -124,6 +124,15 @@ impl From<i64> for ModelError {
     }
 }
 
+impl std::fmt::Display for ModelError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            ModelError::Io(err) => write!(f, "IO error: {}", err),
+            ModelError::SttsServer(err) => write!(f, "STTS server error: {}", err),
+        }
+    }
+}
+
 pub struct Transcript {
     pub result: String,
 }

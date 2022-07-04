@@ -38,11 +38,18 @@ pub async fn speaking_update(
         }
     }
 
+    let verbose = verbose.load(Ordering::Relaxed);
+
+    let new_stream = match scripty_audio::Stream::new("en", verbose).await {
+        Ok(s) => s,
+        Err(e) => {
+            error!(?ssrc, "failed to create new stream: {}", e);
+            return;
+        }
+    };
+
     // user has finished speaking, run the STT algo
-    let old_stream = match ssrc_stream_map.insert(
-        ssrc,
-        scripty_audio::get_stream("en").expect("en invalid lang?"),
-    ) {
+    let old_stream = match ssrc_stream_map.insert(ssrc, new_stream) {
         Some(s) => s,
         None => {
             warn!(?ssrc, "stream not found in ssrc_stream_map, bailing");
@@ -64,21 +71,26 @@ pub async fn speaking_update(
     let mut webhook_execute = ExecuteWebhook::default();
 
     debug!(?ssrc, "running transcription");
-    let transcript = if verbose.load(Ordering::Relaxed) {
-        let res = scripty_utils::block_in_place(|| old_stream.finish_stream_with_metadata(3)).await;
+    let transcript = if verbose {
+        let res = old_stream.get_result_verbose().await;
         debug!(?ssrc, "ran stream transcription");
         match res {
-            Ok(res) if res.num_transcripts() != 0 => {
-                // SAFETY: we have already checked len != 0, so there must be at least one item
-                let transcript = unsafe { res.transcripts().get_unchecked(0) }.to_owned();
+            Ok(res) if res.num_transcripts != 0 => {
+                let main_transcript = res
+                    .main_transcript
+                    .expect("asserted there is at least one transcript");
+                let confidence = res
+                    .main_confidence
+                    .expect("asserted there is at least one transcript")
+                    .to_string();
 
                 webhook_execute.embeds(vec![Embed::fake(|e| {
-                    e.title(format!("Transcript 1/{}", res.num_transcripts()))
-                        .field("Transcription", &transcript.to_string(), false)
-                        .field("Confidence", &transcript.confidence().to_string(), false)
+                    e.title(format!("Transcript 1/{}", res.num_transcripts))
+                        .field("Transcription", &main_transcript, false)
+                        .field("Confidence", &confidence, false)
                         .footer(|f| f.text(format!("ssrc {}", ssrc)))
                 })]);
-                Some(transcript.to_string())
+                Some(main_transcript)
             }
             Err(e) => {
                 error!(?ssrc, "stream transcription errored: {}", e);
@@ -92,13 +104,13 @@ pub async fn speaking_update(
             _ => return,
         }
     } else {
-        let res = scripty_utils::block_in_place(|| old_stream.finish_stream()).await;
+        let res = old_stream.get_result().await;
         debug!(?ssrc, "ran stream transcription");
 
         match res {
-            Ok(res) if !res.is_empty() => {
-                webhook_execute.content(res.clone());
-                Some(res)
+            Ok(res) if !res.result.is_empty() => {
+                webhook_execute.content(res.result.clone());
+                Some(res.result)
             }
             Err(e) => {
                 error!(?ssrc, "stream transcription errored: {}", e);
