@@ -1,3 +1,4 @@
+use crate::checks::is_guild;
 use crate::{Context, Error};
 
 /// Leave any current voice call.
@@ -7,9 +8,12 @@ pub async fn leave(ctx: Context<'_>) -> Result<(), Error> {
         scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
 
     let _typing = ctx.defer_or_broadcast().await;
-    let guild = ctx.guild().ok_or(Error::ExpectedGuild)?;
+    let guild_id = {
+        let guild = ctx.guild().ok_or(Error::ExpectedGuild)?;
+        guild.id
+    };
 
-    scripty_audio_handler::disconnect_from_vc(ctx.discord(), guild.id).await?;
+    scripty_audio_handler::disconnect_from_vc(ctx.discord(), guild_id).await?;
 
     ctx.say(format_message!(resolved_language, "leave-success"))
         .await?;
