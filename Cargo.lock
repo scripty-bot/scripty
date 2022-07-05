@@ -472,16 +472,6 @@ dependencies = [
 
 [[package]]
 name = "dashmap"
-version = "4.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e77a43b28d0668df09411cb0bc9a8c2adc40f9a048afe863e05fd43251e8e39c"
-dependencies = [
- "cfg-if",
- "num_cpus",
-]
-
-[[package]]
-name = "dashmap"
 version = "5.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3495912c9c1ccf2e18976439f4443f3fee0fd61f424ff99fde6a66b15ecb448f"
@@ -1967,7 +1957,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "async-trait",
- "dashmap 4.0.2",
+ "dashmap",
  "parking_lot 0.12.1",
  "scripty_audio",
  "scripty_data_storage",
@@ -1986,7 +1976,7 @@ name = "scripty_commands"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "dashmap 4.0.2",
+ "dashmap",
  "indexmap",
  "once_cell",
  "parking_lot 0.12.1",
@@ -2035,7 +2025,7 @@ dependencies = [
 name = "scripty_data_storage"
 version = "0.1.0"
 dependencies = [
- "dashmap 5.3.4",
+ "dashmap",
  "hound",
  "once_cell",
  "ouroboros",
@@ -2062,7 +2052,7 @@ dependencies = [
 name = "scripty_i18n"
 version = "0.1.0"
 dependencies = [
- "dashmap 5.3.4",
+ "dashmap",
  "fluent",
  "intl-memoizer",
  "once_cell",
@@ -2078,7 +2068,7 @@ name = "scripty_metrics"
 version = "0.1.0"
 dependencies = [
  "chrono",
- "dashmap 5.3.4",
+ "dashmap",
  "once_cell",
  "prometheus",
  "prometheus-static-metric",
@@ -2252,7 +2242,7 @@ dependencies = [
  "bytes",
  "cfg-if",
  "chrono",
- "dashmap 5.3.4",
+ "dashmap",
  "flate2",
  "futures",
  "mime",
@@ -2368,7 +2358,7 @@ dependencies = [
  "async-tungstenite",
  "audiopus",
  "byteorder",
- "dashmap 5.3.4",
+ "dashmap",
  "derivative",
  "discortp",
  "flume",
