@@ -43,7 +43,12 @@ impl Stream {
         NetworkEndian::write_i16_into(audio, &mut dst);
         self.socket.write_all(&dst).await?;
 
-        self.socket.flush().await?;
+        // flush the socket, waiting at most 1 millisecond
+        match tokio::time::timeout(std::time::Duration::from_millis(1), self.socket.flush()).await {
+            Ok(Err(e)) => return Err(e.into()),
+            Err(_) => warn!("failed to flush socket before timeout"),
+            _ => {}
+        };
 
         Ok(())
     }
