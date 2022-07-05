@@ -292,3 +292,11 @@ credits-field3-title = Hosting Provider
 credits-field3-description = Droplet Development has graciously given Scripty a powerful host, with a decent amount of power to scale to roughly 2,500 servers. You can check them out at https://droplet.gg/
 credits-field4-title = All Our Users
 credits-field4-description = Yes, this includes you! We appreciate you using Scripty, and we hope you enjoy using it.
+
+## Leave command
+# This is shown as the title of the leave command (eg what shows up in the slash command picker)
+leave-command-name = leave
+# This is shown as the description of the leave command (eg what shows up in the slash command picker)
+leave-command-description = Leave any current voice call.
+# This is shown when the bot successfully leaves a voice call
+leave-success = Left VC successfully.

@@ -4,12 +4,14 @@ extern crate tracing;
 mod audio_handler;
 mod connect;
 mod consts;
+mod disconnect;
 mod error;
 mod events;
 mod types;
 
 pub use audio_handler::AudioHandler;
 pub use connect::connect_to_vc;
+pub use disconnect::disconnect_from_vc;
 pub use error::Error;
 pub use scripty_audio::{check_model_language, get_model_languages};
 use serenity::client::Context;
