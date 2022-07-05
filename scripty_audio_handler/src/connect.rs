@@ -38,7 +38,7 @@ pub async fn connect_to_vc(
     debug!("fetching songbird");
     let sb = songbird::get(&ctx).await.expect("songbird not initialized");
     debug!("leaving old call");
-    match sb.leave(guild_id).await {
+    match sb.remove(guild_id).await {
         Ok(()) | Err(JoinError::NoCall) => {}
         Err(e) => return Err(e.into()),
     };
@@ -54,7 +54,9 @@ pub async fn connect_to_vc(
     call.mute(true).await?;
 
     debug!("initializing audio handler");
-    let handler = crate::AudioHandler::new(guild_id, webhook, ctx.clone(), channel_id, voice_channel_id).await?;
+    let handler =
+        crate::AudioHandler::new(guild_id, webhook, ctx.clone(), channel_id, voice_channel_id)
+            .await?;
 
     debug!("adding global events");
     call.add_global_event(Event::Core(CoreEvent::SpeakingStateUpdate), handler.clone());
