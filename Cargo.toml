@@ -5,6 +5,13 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+# add debug info to the release build
+[profile.release]
+lto = "fat"
+incremental = false
+codegen-units = 1
+debug = true
+
 [workspace]
 members = [
   "scripty_config",
