@@ -10,8 +10,10 @@ fluent = "0.16"
 tracing = "0.1"
 dashmap = "5"
 once_cell = "1.10"
+serde_json = "1.0"
 unic-langid = "0.9"
 intl-memoizer = "0.5"
 scripty_db = { path = "../scripty_db" }
 scripty_config = { path = "../scripty_config" }
+serde = { version = "1", features = ["derive"] }
 sqlx = { version = "0.5", features = ["postgres", "macros", "migrate", "offline", "runtime-tokio-rustls"] }

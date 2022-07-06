@@ -2059,6 +2059,8 @@ dependencies = [
  "once_cell",
  "scripty_config",
  "scripty_db",
+ "serde",
+ "serde_json",
  "sqlx",
  "tracing",
  "unic-langid",
