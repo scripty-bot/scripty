@@ -34,20 +34,12 @@ impl poise::Autocompletable for Language {
 
     #[inline]
     fn extract_partial(value: &Value) -> Result<Self::Partial, SlashArgError> {
-        let lang = value
+        value
             .deserialize_string(LanguageVisitor)
             .map_err(|e| SlashArgError::Parse {
                 error: box e,
                 input: value.to_string(),
-            })?;
-        if scripty_audio_handler::check_model_language(lang.as_str()) {
-            Ok(lang)
-        } else {
-            Err(SlashArgError::Parse {
-                error: box LanguageInvalid(lang.0),
-                input: value.to_string(),
             })
-        }
     }
 
     #[inline]
