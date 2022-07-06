@@ -32,7 +32,7 @@ pub async fn setup(
     text_channel: GuildChannel,
 
     #[description = "Target language to run the STT algorithm in"]
-    // #[autocomplete = "language_autocomplete"]
+    #[autocomplete = "language_autocomplete"]
     language: Option<Language>,
 
     #[description = "During transcriptions, be verbose? This adds no extra overhead."]
@@ -157,4 +157,16 @@ ON CONFLICT
     .await?;
 
     Ok(())
+}
+
+async fn language_autocomplete(_: Context<'_>, partial: Language) -> Vec<Language> {
+    let part_str = partial.as_str();
+
+    scripty_audio_handler::get_model_languages()
+        .into_iter()
+        .filter_map(|lang| {
+            lang.starts_with(part_str)
+                .then(|| Language::new_unchecked(lang))
+        })
+        .collect::<Vec<_>>()
 }

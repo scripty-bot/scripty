@@ -1988,6 +1988,7 @@ dependencies = [
  "scripty_i18n",
  "scripty_metrics",
  "scripty_utils",
+ "serde",
  "serenity",
  "sqlx",
  "tokio",
