@@ -34,13 +34,20 @@ impl poise::Autocompletable for Language {
 
     #[inline]
     fn extract_partial(value: &Value) -> Result<Self::Partial, SlashArgError> {
-        value
+        let lang = value
             .deserialize_string(LanguageVisitor)
             .map_err(|e| SlashArgError::Parse {
                 error: box e,
                 input: value.to_string(),
+            })?;
+        if scripty_audio_handler::check_model_language(lang.as_str()) {
+            Ok(lang)
+        } else {
+            Err(SlashArgError::Parse {
+                error: box LanguageInvalid(lang.0),
+                input: value.to_string(),
             })
-        // we don't need to check if the language is valid, because LanguageVisitor does that for us
+        }
     }
 
     #[inline]
@@ -63,6 +70,7 @@ impl Language {
     }
 
     #[inline]
+    #[allow(dead_code)]
     pub fn new(s: String) -> Option<Self> {
         if scripty_audio_handler::check_model_language(&s) {
             Some(Self(s))
@@ -138,6 +146,6 @@ impl Visitor<'_> for LanguageVisitor {
     where
         E: Error,
     {
-        Language::new(v).ok_or_else(|| E::custom("not a supported language"))
+        Ok(Language::new_unchecked(v))
     }
 }
