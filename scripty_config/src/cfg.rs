@@ -19,6 +19,11 @@ pub struct BotConfig {
 
     /// List of bot owners.
     pub owners: Vec<u64>,
+
+    /// Secret key for encrypting messages.
+    ///
+    /// Generate a new one with `openssl rand -base64 96`.
+    pub secret_key: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

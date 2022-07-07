@@ -5,6 +5,11 @@ i18n_dir = "/home/user/scripty/scripty_i18n/locales"
 api_tokens = []
 owners = [661660243033456652, 788222689126776832]
 
+### !!!! YOU MUST CHANGE THIS SECRET KEY !!!! ###
+# the bot will not start if the secret key is not changed
+# generate a new one with `openssl rand -base64 96` (remove the newline that's inserted)
+secret_key = "eyGd/4ru5ip+Ol2uCmhjn0E9VjP/3sGj9rpeP1OG1yMIJ9tyMufZVMwlWQm1YgUxPOJUUZqb/ltMsXkT6wJw7oCAHKv1e5HSDIgBOeLTN6bP2k658gEhZJh9mb7r+8pD"
+
 [database]
 host = "/var/run/postgresql/"
 # host = ["0.0.0.0", 5432]

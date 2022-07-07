@@ -8,6 +8,15 @@ pub fn load_config(cfg_path: &str) {
     let cfg = fs::read(cfg_path).expect("failed to read config");
 
     let parsed_cfg = toml::from_slice(&cfg[..]).expect("config invalid");
+
+    if parsed_cfg.secret_key == "eyGd/4ru5ip+Ol2uCmhjn0E9VjP/3sGj9rpeP1OG1yMIJ9tyMufZVMwlWQm1YgUxPOJUUZqb/ltMsXkT6wJw7oCAHKv1e5HSDIgBOeLTN6bP2k658gEhZJh9mb7r+8pD" {
+        println!("generate a new secret key with `openssl rand -base64 96`");
+        panic!("secret key was unchanged!");
+    } else if parsed_cfg.secret_key.len() < 96 {
+        println!("generate a new secret key that's at least 96 characters long with `openssl rand -base64 96`");
+        panic!("secret key was too short!");
+    }
+
     GLOBAL_CONFIG
         .set(parsed_cfg)
         .unwrap_or_else(|_| panic!("don't call `load_config()` more than once"));
