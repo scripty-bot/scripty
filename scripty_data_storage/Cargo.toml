@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+rand = "0.8"
 hound = "3.4"
 tracing = "0.1"
 dashmap = "5"
@@ -15,6 +16,7 @@ parking_lot = "0.12"
 scripty_db = { path = "../scripty_db" }
 scripty_utils = { path = "../scripty_utils" }
 scripty_config = { path = "../scripty_config" }
+aes-gcm = { version = "0.9", features = ["std"] }
 poise = { git = " https://github.com/kangalioo/poise", branch = "develop", features = ["cache", "collector"] }
 sqlx = { version = "0.5", features = ["postgres", "macros", "migrate", "offline", "runtime-tokio-rustls"] }
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [
