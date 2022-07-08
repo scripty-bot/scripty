@@ -16,3 +16,7 @@ host = "/var/run/postgresql/"
 user = "username"
 password = "password"
 database = "database"
+
+[dm_support]
+forwarding_category = 949810605328584709
+guild_id = 942298454804271144
