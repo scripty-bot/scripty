@@ -75,7 +75,7 @@ impl DmSupportStatus {
             .guild()
             .expect("should be in guild");
 
-        let category = get_forwarding_category(&ctx);
+        let category = get_forwarding_category(&ctx).await;
         if message_channel.parent_id != Some(category.id) {
             return;
         }
@@ -139,7 +139,7 @@ impl DmSupportStatus {
 
     async fn get_or_create_channel(&self, ctx: &Context, user: &User) -> GuildChannel {
         let config = scripty_config::get_config();
-        let category = get_forwarding_category(ctx);
+        let category = get_forwarding_category(ctx).await;
         let guild_id = GuildId(config.dm_support.guild_id);
 
         let user_id_str = user.id.to_string();
@@ -212,7 +212,7 @@ impl DmSupportStatus {
             return;
         }
 
-        let category = get_forwarding_category(ctx);
+        let category = get_forwarding_category(ctx).await;
         if channel.parent_id != Some(category.id) {
             return;
         }
@@ -249,11 +249,10 @@ impl DmSupportStatus {
     }
 }
 
-fn get_forwarding_category(ctx: &Context) -> ChannelCategory {
-    ctx.cache
-        .channel(ChannelId(
-            scripty_config::get_config().dm_support.forwarding_category,
-        ))
+async fn get_forwarding_category(ctx: &Context) -> ChannelCategory {
+    ChannelId(scripty_config::get_config().dm_support.forwarding_category)
+        .to_channel(&ctx)
+        .await
         .expect("failed to get forwarding category")
         .category()
         .expect("forwarding category is not a category")
