@@ -1,0 +1,1 @@
+ALTER TABLE message_store ADD COLUMN nonce BYTEA NOT NULL;

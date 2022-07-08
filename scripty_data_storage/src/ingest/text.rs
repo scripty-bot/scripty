@@ -18,8 +18,9 @@ pub async fn ingest_message(msg: Message) {
     };
 
     if let Err(e) = sqlx::query!(
-        "INSERT INTO message_store (message_content) VALUES ($1)",
-        encrypted_msg_content
+        "INSERT INTO message_store (message_content, nonce) VALUES ($1, $2)",
+        encrypted_msg_content,
+        nonce.as_ref()
     )
     .execute(scripty_db::get_db())
     .await
