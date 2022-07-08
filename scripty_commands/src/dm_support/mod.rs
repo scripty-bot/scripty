@@ -42,7 +42,7 @@ impl DmSupportStatus {
 
     async fn handle_dm_message(&self, ctx: Context, message: Message) {
         let channel = self.get_or_create_channel(&ctx, &message.author).await;
-        let hook = self.get_webhook(&channel.id);
+        let hook = self.get_webhook(&ctx, &channel.id);
 
         let mut webhook_execute = ExecuteWebhook::default();
 
@@ -209,11 +209,18 @@ impl DmSupportStatus {
         }).await.map(|_| ())
     }
 
-    fn get_webhook(&self, channel: &ChannelId) -> Webhook {
-        self.webhook_cache
-            .get(channel)
-            .expect("channel should exist in hook cache before attempting to get hook")
-            .clone()
+    async fn get_webhook(&self, ctx: &Context, channel: &ChannelId) -> Webhook {
+        let hook = self.webhook_cache.get(channel).map(|x| x.clone());
+        if let Some(hook) = hook {
+            return hook;
+        }
+
+        channel
+            .webhooks(&ctx)
+            .await
+            .expect("error fetching hooks")
+            .pop()
+            .expect("should be at least one webhook")
     }
 
     pub async fn close_ticket(&self, ctx: &Context, channel: GuildChannel) {
