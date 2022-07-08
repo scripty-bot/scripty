@@ -23,6 +23,16 @@ impl DmSupportStatus {
     }
 
     pub async fn handle_message(&self, ctx: Context, message: Message) {
+        // ignore bots
+        if message.author.bot {
+            return;
+        }
+
+        // ignore messages if they have no content and no attachments (usually embeds only)
+        if message.content.len() == 0 && message.attachments.len() == 0 {
+            return;
+        }
+
         if message.guild_id.is_none() {
             self.handle_dm_message(ctx, message).await;
         } else {
