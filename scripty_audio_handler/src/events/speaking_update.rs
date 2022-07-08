@@ -26,7 +26,7 @@ pub async fn speaking_update(
 ) {
     let ssrc = update.ssrc;
     debug!(?ssrc, ?update.speaking, "got SpeakingUpdate event");
-    if !update.speaking {
+    if update.speaking {
         return;
     }
 
