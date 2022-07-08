@@ -29,7 +29,7 @@ impl DmSupportStatus {
         }
 
         // ignore messages if they have no content and no attachments (usually embeds only)
-        if message.content.len() == 0 && message.attachments.len() == 0 {
+        if message.content.is_empty() && message.attachments.is_empty() {
             return;
         }
 
