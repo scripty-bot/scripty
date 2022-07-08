@@ -187,11 +187,11 @@ data-storage-embed-description =
     We understand this data can be extremely personal, so this is entirely opt-in and will not affect your experience in any way.
     
     Here's what we'd do with it:
-    {"*"} With stored messages, we would feed them into a scorer targeted to your language. This scorer would allow the algorithm to select the most likely words for a given set of sounds. Although immensely helpful, this isn't as important as audio.
+    {"*"} With stored messages, we would feed them into a scorer targeted to your language. This scorer would allow the algorithm to select the most likely words for a given set of sounds. Although immensely helpful, this isn't as important as audio. Note that this message data is encrypted with AES 256-bit encryption.
     {"*"} With stored audio, we would feed it and the transcript of it into a model to increase the accuracy of the speech-to-text model. This is insanely helpful, even if you have a poor microphone and lots of background noise: in fact, the more noise, the better, as long as a human can still make out what you are saying.
     
-    If you are opted in, and you decide later to opt out, your data is still stored, but you can request deletion by contacting the core devs in the support server: { $supportServerInvite }. We will wipe all of your data permanently.
-    Your data is stored on hardware owned by the core devs, and is locked down tightly. It would be extremely difficult for anyone attempting to gain access to successfully do so.
+    If you are opted in, and you decide later to opt out, your data is still stored, but you can request deletion of your voice data by running `{ $contextPrefix }delete_all_data`. However, it is impossible to delete your message data. This is because we do not store a link of what user sent what message.
+    Your data is stored on servers that are locked down tightly. It would be extremely difficult for anyone attempting to gain access to successfully do so.
     
     You can toggle your choices using the below buttons.
 data-storage-toggle-audio-btn = Toggle Audio Storage
@@ -262,8 +262,8 @@ delete-data-title = Delete data
 delete-data-description =
     This will delete all of your data. This action is permanent, irreversible, and cannot be undone.
     
-    When we say "all of your data" we mean *all* of it. This includes your messages, voice data, and your user in the database.
-    This includes all your user settings, any messages, and any voice data we may have stored, if you opted into those.
+    When we say "all of your data" we mean *all* of it. This includes your voice data, and your user in the database.
+    This however, *does not* include any messages we may have stored from you if you opted into that. We cannot delete those messages, simply because we don't know what user sent what message.
     
     If you would like to also be banned from using the bot after this action, that way you do not accidentally readd yourself, you can click the appropriate button below.
     Note that doing so will require us to store your user ID to keep a record of banned users.
