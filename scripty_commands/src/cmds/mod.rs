@@ -13,7 +13,7 @@ mod setup;
 
 pub use admin::*;
 pub use credits::credits;
-pub use data_storage::data_storage;
+pub use data_storage::*;
 pub use donate::donate;
 pub use entity_block::*;
 pub use help::help;
