@@ -6,4 +6,5 @@ mod crypto;
 mod ingest;
 
 pub use cache::*;
+pub use crypto::*;
 pub use ingest::*;
