@@ -42,7 +42,7 @@ impl DmSupportStatus {
 
     async fn handle_dm_message(&self, ctx: Context, message: Message) {
         let channel = self.get_or_create_channel(&ctx, &message.author).await;
-        let hook = self.get_webhook(&ctx, &channel.id);
+        let hook = self.get_webhook(&ctx, &channel.id).await;
 
         let mut webhook_execute = ExecuteWebhook::default();
 
