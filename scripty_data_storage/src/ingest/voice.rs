@@ -72,7 +72,7 @@ impl VoiceIngest {
 
     /// Completes the audio ingest and adds the audio to the database.
     pub async fn destroy(self, transcription: String) {
-        if transcript.is_empty() {
+        if transcription.is_empty() {
             return;
         }
 
