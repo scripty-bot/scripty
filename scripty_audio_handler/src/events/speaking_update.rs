@@ -79,6 +79,10 @@ pub async fn speaking_update(
                 let main_transcript = res
                     .main_transcript
                     .expect("asserted there is at least one transcript");
+                if res.main_transcript.is_empty() {
+                    return;
+                }
+
                 let confidence = res
                     .main_confidence
                     .expect("asserted there is at least one transcript")
