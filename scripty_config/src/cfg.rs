@@ -24,6 +24,9 @@ pub struct BotConfig {
     ///
     /// Generate a new one with `openssl rand -base64 96`.
     pub secret_key: String,
+
+    /// DM support settings
+    pub dm_support: DmSupport,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -39,4 +42,10 @@ pub struct DatabaseConfig {
 pub enum DatabaseConnection {
     Tcp(String, u16),
     Unix(String),
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct DmSupport {
+    pub forwarding_category: u64,
+    pub guild_id: u64,
 }

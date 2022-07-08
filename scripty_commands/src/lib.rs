@@ -8,6 +8,7 @@ extern crate scripty_i18n;
 #[macro_use]
 extern crate async_trait;
 
+use crate::dm_support::DmSupportStatus;
 use once_cell::sync::OnceCell;
 use poise::FrameworkBuilder;
 use scripty_audio_handler::SerenityInit;
@@ -18,6 +19,7 @@ use std::sync::Arc;
 mod background_tasks;
 mod checks;
 mod cmds;
+mod dm_support;
 mod entity_block;
 mod error;
 mod extern_utils;
@@ -36,6 +38,7 @@ pub(crate) type Context<'a> = poise::Context<'a, Data, Error>;
 
 pub(crate) static CLIENT_CACHE: OnceCell<Arc<serenity::client::Cache>> = OnceCell::new();
 pub(crate) static CLIENT_DATA: OnceCell<Data> = OnceCell::new();
+pub(crate) static DM_SUPPORT_GLOBAL: OnceCell<DmSupportStatus> = OnceCell::new();
 
 pub async fn entrypoint() {
     let cfg = scripty_config::get_config();

@@ -27,6 +27,10 @@ pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
                 subcommands: vec![cmds::check_guilds()],
                 ..cmds::admin()
             },
+            poise::Command {
+                subcommands: vec![crate::dm_support::commands::close()],
+                ..crate::dm_support::commands::close()
+            },
         ],
         on_error: |error| Box::pin(on_error(error)),
         command_check: Some(crate::entity_block::check_block),

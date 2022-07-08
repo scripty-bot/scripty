@@ -1,6 +1,9 @@
 use serenity::client::Context;
 use serenity::model::prelude::Message;
 
-pub async fn message(_ctx: Context, msg: Message) {
-    tokio::spawn(scripty_data_storage::ingest_message(msg));
+pub async fn message(ctx: Context, msg: Message) {
+    tokio::spawn(scripty_data_storage::ingest_message(msg.clone()));
+    if let Some(st) = crate::DM_SUPPORT_GLOBAL.get() {
+        tokio::spawn(st.handle_message(ctx, msg));
+    }
 }
