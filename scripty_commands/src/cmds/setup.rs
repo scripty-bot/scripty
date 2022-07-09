@@ -29,7 +29,7 @@ pub async fn setup(
     ctx: Context<'_>,
     #[description = "Channel to send transcriptions to"]
     #[channel_types("Text", "Voice")]
-    text_channel: GuildChannel,
+    target_channel: GuildChannel,
 
     #[description = "Target language to run the STT algorithm in"]
     #[autocomplete = "language_autocomplete"]
@@ -41,11 +41,14 @@ pub async fn setup(
     let resolved_language =
         scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
 
-    if !text_channel.is_text_based() {
-        return Err(Error::InvalidChannelType {
-            expected: ChannelType::Text,
-            got: text_channel.kind,
-        });
+    match target_channel.kind {
+        ChannelType::Text | ChannelType::Voice => {}
+        _ => {
+            return Err(Error::InvalidChannelType {
+                expected: ChannelType::Text,
+                got: text_channel.kind,
+            });
+        }
     }
 
     let verbose = verbose.unwrap_or(false);
@@ -103,7 +106,7 @@ pub async fn setup(
 
     let guild_id = ctx.guild().expect("asserted in guild").id.0 as i64;
     let channel_id = ctx.channel_id().0 as i64;
-    let Webhook { id, token, .. } = text_channel
+    let Webhook { id, token, .. } = target_channel
         .create_webhook(ctx.discord(), "Scripty Transcriptions")
         .await?;
     let webhook_id = id.0 as i64;
