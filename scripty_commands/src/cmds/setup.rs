@@ -46,7 +46,7 @@ pub async fn setup(
         _ => {
             return Err(Error::InvalidChannelType {
                 expected: ChannelType::Text,
-                got: text_channel.kind,
+                got: target_channel.kind,
             });
         }
     }
