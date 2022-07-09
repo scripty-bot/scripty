@@ -28,7 +28,7 @@ use serenity::model::webhook::Webhook;
 pub async fn setup(
     ctx: Context<'_>,
     #[description = "Channel to send transcriptions to"]
-    #[channel_types("Text")]
+    #[channel_types("Text", "Voice")]
     text_channel: GuildChannel,
 
     #[description = "Target language to run the STT algorithm in"]
