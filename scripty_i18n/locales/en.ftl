@@ -231,6 +231,35 @@ voice-connection-error-unknown = disconnected for unknown reason
 voice-connection-error-msg-no-reconnect = I had an issue ({ $reason }) and disconnected from the voice chat.
 voice-connection-error-msg-reconnect = I had an issue ({ $reason }) and disconnected from the voice chat. I'll try reconnecting in 30 seconds.
 
+## general errors
+general-error-command-process-title = An error happened while processing { $command }.
+general-error-command-process-description = ```
+  { $errorFmt }
+  ```
+  This has been automatically reported. Please do not attempt to repeatedly use this command.
+
+general-error-invalid-args-title = Invalid arguments while parsing { $command }.
+general-error-invalid-args-description = Failed to parse `{ $input }` because `{ $error }`
+
+general-error-invalid-structure-title = Invalid structure from Discord while parsing { $command }.
+general-error-invalid-structure-description = { $description }
+  
+  **Note**: this is a Discord error.
+  The only fix for this is to wait for Discord to propagate slash commands, which can take up to one hour.
+  If you do not want to wait this hour, you should use the prefix commands: run this command with `~{ $qualifiedName } { $args }`.
+
+general-error-cooldown-hit-title = Cooldown hit on { $command }
+# Note $time will be a decimal with two digits of accuracy.
+general-error-cooldown-hit-description = { $time } seconds left on cooldown.
+
+general-error-user-missing-perms-title = You are missing perms to run { $command }.
+general-error-user-missing-perms-description-known = Permissions missing: { $perms }
+general-error-user-missing-perms-description-unknown = I'm not sure what permissions you're missing.
+general-error-user-missing-perms-description-not-owner = Not an owner of this bot.
+
+general-error-command-check-failed-title = A precondition for { $command } failed.
+general-error-command-check-failed-description-no-reason = no reason provided
+
 ## transcription info - verbose mode
 
 # This is shown as the number of transcriptions the algorithm has discovered.
