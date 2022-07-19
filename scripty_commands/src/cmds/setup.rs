@@ -44,10 +44,10 @@ pub async fn setup(
     match target_channel.kind {
         ChannelType::Text | ChannelType::Voice => {}
         _ => {
-            return Err(Error::InvalidChannelType {
-                expected: ChannelType::Text,
-                got: target_channel.kind,
-            });
+            return Err(Error::invalid_channel_type(
+                ChannelType::Text,
+                target_channel.kind,
+            ));
         }
     }
 
@@ -110,7 +110,7 @@ pub async fn setup(
         .create_webhook(ctx.discord(), "Scripty Transcriptions")
         .await?;
     let webhook_id = id.0 as i64;
-    let webhook_token = token.ok_or(Error::MissingWebhookToken)?;
+    let webhook_token = token.ok_or_else(Error::missing_webhook_token)?;
 
     let db = scripty_db::get_db();
     sqlx::query!(

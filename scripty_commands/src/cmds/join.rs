@@ -24,7 +24,7 @@ pub async fn join(
     let discord_ctx = ctx.discord();
 
     let (guild_id, voice_channel) = {
-        let guild = ctx.guild().ok_or(Error::ExpectedGuild)?;
+        let guild = ctx.guild().ok_or_else(Error::expected_guild)?;
         (
             guild.id,
             voice_channel.ok_or_else(|| {
@@ -49,10 +49,10 @@ pub async fn join(
     };
 
     if voice_channel.is_text_based() {
-        return Err(Error::InvalidChannelType {
-            expected: ChannelType::Text,
-            got: voice_channel.kind,
-        });
+        return Err(Error::invalid_channel_type(
+            ChannelType::Text,
+            voice_channel.kind,
+        ));
     }
 
     let db = scripty_db::get_db();

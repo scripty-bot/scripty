@@ -27,6 +27,9 @@ pub struct BotConfig {
 
     /// DM support settings
     pub dm_support: DmSupport,
+
+    /// Automated error webhook URL.
+    pub error_webhook: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

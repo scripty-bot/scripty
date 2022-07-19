@@ -9,7 +9,7 @@ pub async fn leave(ctx: Context<'_>) -> Result<(), Error> {
 
     let _typing = ctx.defer_or_broadcast().await;
     let guild_id = {
-        let guild = ctx.guild().ok_or(Error::ExpectedGuild)?;
+        let guild = ctx.guild().ok_or_else(Error::expected_guild)?;
         guild.id
     };
 

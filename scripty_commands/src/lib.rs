@@ -1,5 +1,6 @@
 #![feature(box_syntax)]
 #![feature(async_closure)]
+#![feature(backtrace)]
 
 #[macro_use]
 extern crate tracing;
