@@ -10,9 +10,11 @@ mod load;
 compile_error!("Scripty *will not* run on Windows whatsoever. Don't even try.");
 
 #[cfg(not(target_os = "linux"))]
-compile_error!("Scripty is only designed for Linux.\
+compile_error!(
+    "Scripty is only designed for Linux.\
  It may not run at all on other platforms.\
- If you'd like to try anyways, comment out this section of code.");
+ If you'd like to try anyways, comment out this section of code."
+);
 
 pub use cfg::*;
 pub use load::*;
