@@ -1,6 +1,10 @@
 use crate::checks::is_guild;
 use crate::models::Language;
 use crate::{Context, Error};
+use poise::CreateReply;
+use serenity::builder::{
+    CreateActionRow, CreateButton, CreateComponents, CreateEmbed, CreateWebhook, EditMessage,
+};
 use serenity::collector::ComponentInteractionCollectorBuilder;
 use serenity::futures::StreamExt;
 use serenity::model::application::component::ButtonStyle;
@@ -57,31 +61,33 @@ pub async fn setup(
     let discord_ctx = ctx.discord();
 
     let mut msg = ctx
-        .send(|msg| {
-            msg.components(|comp| {
-                comp.create_action_row(|row| {
-                    row.create_button(|button| {
-                        button
-                            .custom_id("privacy_agree")
-                            .emoji('✅')
-                            .label("Agree")
-                            .style(ButtonStyle::Success)
-                    })
-                    .create_button(|button| {
-                        button
-                            .custom_id("privacy_disagree")
-                            .emoji('❎')
-                            .label("Disagree")
-                            .style(ButtonStyle::Danger)
-                    })
-                })
-            })
-            .content(format_message!(resolved_language, "setup-tos-agree"))
-        })
+        .send(
+            CreateReply::default()
+                .components(
+                    CreateComponents::default().set_action_row(
+                        CreateActionRow::default()
+                            .add_button(
+                                CreateButton::default()
+                                    .custom_id("privacy_agree")
+                                    .emoji('✅')
+                                    .label("Agree")
+                                    .style(ButtonStyle::Success),
+                            )
+                            .add_button(
+                                CreateButton::default()
+                                    .custom_id("privacy_disagree")
+                                    .emoji('❎')
+                                    .label("Disagree")
+                                    .style(ButtonStyle::Danger),
+                            ),
+                    ),
+                )
+                .content(format_message!(resolved_language, "setup-tos-agree")),
+        )
         .await?
-        .message()
+        .into_message()
         .await?;
-    let mut collector = ComponentInteractionCollectorBuilder::new(discord_ctx)
+    let mut collector = ComponentInteractionCollectorBuilder::new(&discord_ctx.shard)
         .channel_id(ctx.channel_id())
         .author_id(ctx.author().id)
         .build();
@@ -93,23 +99,27 @@ pub async fn setup(
             msg.delete(discord_ctx).await?;
             break;
         } else if custom_id == "privacy_disagree" {
-            msg.edit(discord_ctx, |d| {
-                d.content(format_message!(
+            msg.edit(
+                discord_ctx,
+                EditMessage::default().content(format_message!(
                     resolved_language,
                     "setup-tos-agree-failure"
-                ))
-            })
+                )),
+            )
             .await?;
             return Ok(());
         }
     }
 
-    let guild_id = ctx.guild().expect("asserted in guild").id.0 as i64;
-    let channel_id = ctx.channel_id().0 as i64;
+    let guild_id = ctx.guild().expect("asserted in guild").id.get() as i64;
+    let channel_id = ctx.channel_id().get() as i64;
     let Webhook { id, token, .. } = target_channel
-        .create_webhook(ctx.discord(), "Scripty Transcriptions")
+        .create_webhook(
+            ctx.discord(),
+            CreateWebhook::default().name("Scripty Transcriptions"),
+        )
         .await?;
-    let webhook_id = id.0 as i64;
+    let webhook_id = id.get() as i64;
     let webhook_token = token.ok_or_else(Error::missing_webhook_token)?;
 
     let db = scripty_db::get_db();
@@ -148,15 +158,16 @@ ON CONFLICT
     .execute(db)
     .await?;
 
-    ctx.send(|resp| {
-        resp.embed(|e| {
-            e.title(format_message!(resolved_language, "setup-success-title"))
+    ctx.send(
+        CreateReply::default().embed(
+            CreateEmbed::default()
+                .title(format_message!(resolved_language, "setup-success-title"))
                 .description(format_message!(
                     resolved_language,
                     "setup-success-description"
-                ))
-        })
-    })
+                )),
+        ),
+    )
     .await?;
 
     Ok(())
@@ -164,7 +175,7 @@ ON CONFLICT
 
 async fn language_autocomplete(
     _: Context<'_>,
-    partial: Language,
+    partial: String,
 ) -> Vec<poise::AutocompleteChoice<Language>> {
     let part_str = partial.as_str();
 

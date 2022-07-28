@@ -1,8 +1,8 @@
 use crate::Data;
-use poise::{Context, FrameworkError};
+use poise::{Context, CreateReply, FrameworkError};
 use scripty_audio_handler::JoinError;
-use serenity::builder::{CreateEmbed, ExecuteWebhook};
-use serenity::model::channel::{AttachmentType, ChannelType, Embed};
+use serenity::builder::{CreateEmbed, CreateEmbedAuthor, CreateMessage, ExecuteWebhook};
+use serenity::model::channel::{AttachmentType, ChannelType};
 use serenity::model::webhook::Webhook;
 use std::backtrace::{Backtrace, BacktraceStatus};
 use std::borrow::Cow;
@@ -197,8 +197,6 @@ pub async fn on_error(error: FrameworkError<'_, Data, crate::Error>) {
             .await;
         }
         FrameworkError::CommandStructureMismatch { description, ctx } => {
-            let mut root_embed = CreateEmbed::default();
-
             let mut args = String::new();
             for param in &ctx.command.parameters {
                 if param.required {
@@ -210,43 +208,35 @@ pub async fn on_error(error: FrameworkError<'_, Data, crate::Error>) {
                 }
             }
 
-            root_embed
-                .title(format!(
-                    "Invalid structure from Discord while parsing {}",
-                    ctx.command.qualified_name
-                ))
-                .color(serenity::utils::Color::from_rgb(255, 0, 0))
-                .description(format!(
-                    "{}\n\n\
+            let msg = CreateMessage::default().embed(
+                CreateEmbed::default()
+                    .title(format!(
+                        "Invalid structure from Discord while parsing {}",
+                        ctx.command.qualified_name
+                    ))
+                    .color(serenity::utils::Color::from_rgb(255, 0, 0))
+                    .description(format!(
+                        "{}\n\n\
                     **Note**: this is a Discord error\n\
                     The only fix for this is to wait for Discord to propagate slash commands, \
                     which can take up to one hour.\n\
                     If you do not want to wait this hour, you should use the prefix commands: \
                     run this command with `~{} {}`.",
-                    description, ctx.command.qualified_name, args
-                ));
+                        description, ctx.command.qualified_name, args
+                    )),
+            );
 
             let response = ctx
                 .interaction
                 .channel_id()
-                .send_message(&ctx.discord, |msg| {
-                    msg.embed(|embed| {
-                        *embed = root_embed.clone();
-                        embed
-                    })
-                })
+                .send_message(&ctx.discord, msg.clone())
                 .await;
             if let Err(e) = response {
                 warn!("failed to send message while handling error: {}", e);
                 let response = ctx
                     .interaction
                     .user()
-                    .direct_message(ctx.discord, |msg| {
-                        msg.embed(move |embed| {
-                            *embed = root_embed;
-                            embed
-                        })
-                    })
+                    .direct_message(ctx.discord, msg)
                     .await;
                 if let Err(e) = response {
                     error!("failed to DM user while handling error: {}", e)
@@ -330,30 +320,17 @@ async fn send_err_msg(
     title: impl Into<String>,
     description: impl Into<String>,
 ) {
-    let mut root_embed = CreateEmbed::default();
-    root_embed
+    let embed = CreateEmbed::default()
         .title(title)
         .color(serenity::utils::Color::from_rgb(255, 0, 0))
         .description(description);
 
-    let response = ctx
-        .send(|resp| {
-            resp.embed(|embed| {
-                embed.0 = root_embed.0.clone();
-                embed
-            })
-        })
-        .await;
+    let response = ctx.send(CreateReply::default().embed(embed.clone())).await;
     if let Err(e) = response {
         warn!("failed to send message while handling error: {}", e);
         let response = ctx
             .author()
-            .direct_message(ctx.discord(), |msg| {
-                msg.embed(move |embed| {
-                    *embed = root_embed;
-                    embed
-                })
-            })
+            .direct_message(ctx.discord(), CreateMessage::default().embed(embed))
             .await;
         if let Err(e) = response {
             error!("failed to DM user while handling error: {}", e)
@@ -372,25 +349,25 @@ pub async fn log_error_message(
     let mut m = ExecuteWebhook::default();
 
     if let Some(inv_ctx) = invocation_context {
-        e.title(format!("Error while {}", inv_ctx));
+        e = e.title(format!("Error while {}", inv_ctx));
     } else {
-        e.title("Error while doing something");
+        e = e.title("Error while doing something");
     }
 
     if let Some(bt) = err.backtrace() {
         let fmt_bt = bt.to_string();
         if fmt_bt.len() > 2048 {
-            e.field("Backtrace", "See attached file", false);
-            m.add_file(AttachmentType::Bytes {
+            e = e.field("Backtrace", "See attached file", false);
+            m = m.add_file(AttachmentType::Bytes {
                 data: fmt_bt.into_bytes().into(),
                 filename: "backtrace.txt".into(),
             });
         } else {
-            e.field("Backtrace", &fmt_bt, false);
+            e = e.field("Backtrace", &fmt_bt, false);
         }
     }
 
-    e.description(err.to_string());
+    e = e.description(err.to_string());
 
     // cache the cache
     let cache = ctx.discord().cache.clone();
@@ -400,33 +377,31 @@ pub async fn log_error_message(
             .guild(guild_id)
             .map_or_else(|| "unknown guild".to_string(), |g| g.name.clone());
 
-        e.field("Guild ID", &guild_id.to_string(), false);
-        e.field("Guild Name", &guild_name, true);
+        e = e.field("Guild ID", &guild_id.to_string(), false);
+        e = e.field("Guild Name", &guild_name, true);
 
         (Some(guild_id), Some(guild_name))
     } else {
-        e.field("Guild ID", "None (DM ctx)", false);
-        e.field("Guild Name", "None (DM ctx)", true);
+        e = e.field("Guild ID", "None (DM ctx)", false);
+        e = e.field("Guild Name", "None (DM ctx)", true);
 
         (None, None)
     };
 
     let channel_id = ctx.channel_id();
-    e.field("Channel ID", &channel_id.to_string(), false);
+    e = e.field("Channel ID", &channel_id.to_string(), false);
 
     let author = ctx.author();
     let author_id = author.id;
     let author_name = author.tag();
     let author_pfp = author.face();
-    e.author(|a| {
-        a.name(format!("{} ({})", author_name, author_id))
-            .icon_url(author_pfp)
-    });
+    e = e.author(
+        CreateEmbedAuthor::default()
+            .name(format!("{} ({})", author_name, author_id))
+            .icon_url(author_pfp),
+    );
 
-    m.embeds(vec![Embed::fake(|embed| {
-        *embed = e;
-        embed
-    })]);
+    m = m.embed(e);
 
     let cfg = scripty_config::get_config();
     let dctx = ctx.discord();
@@ -437,13 +412,7 @@ pub async fn log_error_message(
             return;
         }
     };
-    if let Err(e) = hook
-        .execute(dctx, false, |f| {
-            *f = m;
-            f
-        })
-        .await
-    {
+    if let Err(e) = hook.execute(dctx, false, m).await {
         error!("failed to log error to discord: {}", e);
     }
 

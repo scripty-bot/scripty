@@ -25,7 +25,7 @@ pub async fn client_disconnect(
     let ssrc = {
         let mut ssrc = None;
         for val in ssrc_user_id_map.iter() {
-            if val.value() == &user_id {
+            if val.value().get() == user_id.0 {
                 ssrc = Some(*val.key());
                 break;
             }

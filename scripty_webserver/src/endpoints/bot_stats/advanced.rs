@@ -19,10 +19,10 @@ pub struct AdvancedBotStats {
     pub user_count: usize,
     pub channel_count: usize,
     pub voice_channel_count: usize,
-    pub shard_count: u64,
+    pub shard_count: u32,
     /// Per shard information.
     /// The key is the shard ID.
-    pub shard_info: HashMap<u64, AdvancedBotStatsShard>,
+    pub shard_info: HashMap<u32, AdvancedBotStatsShard>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

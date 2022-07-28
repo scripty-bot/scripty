@@ -2,9 +2,8 @@ use crate::types::{
     SsrcLastPktIdMap, SsrcMissedPktList, SsrcMissedPktMap, SsrcStreamMap, SsrcUserDataMap,
     SsrcUserIdMap, SsrcVoiceIngestMap,
 };
-use serenity::builder::ExecuteWebhook;
+use serenity::builder::{CreateEmbed, CreateEmbedFooter, ExecuteWebhook};
 use serenity::client::Context;
-use serenity::model::channel::Embed;
 use serenity::model::webhook::Webhook;
 use songbird::events::context_data::SpeakingUpdateData;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -88,18 +87,19 @@ pub async fn speaking_update(
                     .expect("asserted there is at least one transcript")
                     .to_string();
 
-                webhook_execute.embeds(vec![Embed::fake(|e| {
-                    e.title(format!("Transcript 1/{}", res.num_transcripts))
+                webhook_execute = webhook_execute.embed(
+                    CreateEmbed::default()
+                        .title(format!("Transcript 1/{}", res.num_transcripts))
                         .field("Transcription", &main_transcript, false)
                         .field("Confidence", &confidence, false)
-                        .footer(|f| f.text(format!("ssrc {}", ssrc)))
-                })]);
+                        .footer(CreateEmbedFooter::default().text(format!("ssrc {}", ssrc))),
+                );
                 Some(main_transcript)
             }
             Err(e) => {
                 error!(?ssrc, "stream transcription errored: {}", e);
 
-                webhook_execute.content(format!(
+                webhook_execute = webhook_execute.content(format!(
                     "internal error: running stt algorithm failed with error: {}\nssrc {}",
                     e, ssrc
                 ));
@@ -113,13 +113,13 @@ pub async fn speaking_update(
 
         match res {
             Ok(res) if !res.result.is_empty() => {
-                webhook_execute.content(res.result.clone());
+                webhook_execute = webhook_execute.content(res.result.clone());
                 Some(res.result)
             }
             Err(e) => {
                 error!(?ssrc, "stream transcription errored: {}", e);
 
-                webhook_execute.content(format!(
+                webhook_execute = webhook_execute.content(format!(
                     "internal error: running stt algorithm failed with error: {}\nssrc {}",
                     e, ssrc
                 ));
@@ -139,7 +139,7 @@ pub async fn speaking_update(
             if let Some(user_id) = ssrc_user_id_map.get(&ssrc) {
                 debug!(?ssrc, "found user_id for SSRC");
                 if let Some(ingest) =
-                    scripty_data_storage::VoiceIngest::new(user_id.0, "en".to_string()).await
+                    scripty_data_storage::VoiceIngest::new(*user_id.value(), "en".to_string()).await
                 {
                     debug!(?ssrc, "created VoiceIngest, and retrieved old one");
                     if let Some(voice_ingest) = ssrc_voice_ingest_map.insert(ssrc, Some(ingest)) {
@@ -155,14 +155,9 @@ pub async fn speaking_update(
             debug!(?ssrc, "no voice ingest for SSRC");
         }
     }
-    webhook_execute.username(username).avatar_url(avatar_url);
+    webhook_execute = webhook_execute.username(username).avatar_url(avatar_url);
     debug!(?ssrc, "sending webhook msg");
-    let res = webhook
-        .execute(&ctx, false, |e| {
-            *e = webhook_execute;
-            e
-        })
-        .await;
+    let res = webhook.execute(&ctx, false, webhook_execute).await;
     if let Err(e) = res {
         error!(?ssrc, "failed to send webhook msg: {}", e);
     }

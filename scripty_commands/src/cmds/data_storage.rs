@@ -1,10 +1,14 @@
 use crate::{Context, Error};
+use poise::CreateReply;
 use scripty_i18n::LanguageIdentifier;
-use serenity::builder::{CreateComponents, CreateEmbed};
+use serenity::builder::{
+    CreateActionRow, CreateButton, CreateComponents, CreateEmbed, CreateInteractionResponse,
+    CreateInteractionResponseData, EditMessage,
+};
 use serenity::collector::ComponentInteractionCollectorBuilder;
 use serenity::futures::StreamExt;
 use serenity::model::application::component::ButtonStyle;
-use serenity::model::application::interaction::MessageFlags;
+use serenity::model::channel::MessageFlags;
 use serenity::utils::Color;
 use std::time::Duration;
 
@@ -15,19 +19,14 @@ pub async fn data_storage(ctx: Context<'_>) -> Result<(), Error> {
         scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
 
     let mut msg = ctx
-        .send(|resp| {
-            resp.ephemeral(true)
-                .embed(|e| {
-                    *e = build_embed(&resolved_language);
-                    e
-                })
-                .components(|c| {
-                    *c = build_components(false, &resolved_language);
-                    c
-                })
-        })
+        .send(
+            CreateReply::default()
+                .ephemeral(true)
+                .embed(build_embed(&resolved_language))
+                .components(build_components(false, &resolved_language)),
+        )
         .await?
-        .message()
+        .into_message()
         .await?;
 
     let author_id = ctx.author().id.0;
@@ -49,7 +48,7 @@ VALUES ($1)
     .execute(db)
     .await?;
 
-    let mut collector = ComponentInteractionCollectorBuilder::new(discord_ctx)
+    let mut collector = ComponentInteractionCollectorBuilder::new(&discord_ctx.shard)
         .message_id(msg.id)
         .author_id(author_id)
         .timeout(Duration::from_secs(120))
@@ -92,30 +91,28 @@ VALUES ($1)
 
         if let Some(message_id) = message_id {
             interaction
-                .create_interaction_response(discord_ctx, |msg| {
-                    msg.interaction_response_data(|d| {
-                        d.flags(MessageFlags::EPHEMERAL)
-                            .content(format_message!(resolved_language, message_id))
-                    })
-                })
+                .create_interaction_response(
+                    discord_ctx,
+                    CreateInteractionResponse::default().interaction_response_data(
+                        CreateInteractionResponseData::default()
+                            .flags(MessageFlags::EPHEMERAL)
+                            .content(format_message!(resolved_language, message_id)),
+                    ),
+                )
                 .await?;
         }
     }
 
-    msg.edit(discord_ctx, |resp| {
-        resp.content(format_message!(
-            resolved_language,
-            "data-storage-command-timed-out"
-        ))
-        .embed(|e| {
-            *e = build_embed(&resolved_language);
-            e
-        })
-        .components(|c| {
-            *c = build_components(true, &resolved_language);
-            c
-        })
-    })
+    msg.edit(
+        discord_ctx,
+        EditMessage::default()
+            .content(format_message!(
+                resolved_language,
+                "data-storage-command-timed-out"
+            ))
+            .embed(build_embed(&resolved_language))
+            .components(build_components(true, &resolved_language)),
+    )
     .await?;
 
     Ok(())
@@ -130,41 +127,53 @@ pub async fn delete_all_data(ctx: Context<'_>) -> Result<(), Error> {
         scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
 
     let mut msg = ctx
-        .send(|resp| {
-            resp.ephemeral(true)
-                .embed(|e| {
-                    e.title(format_message!(resolved_language, "delete-data-title"))
+        .send(
+            CreateReply::default()
+                .ephemeral(true)
+                .embed(
+                    CreateEmbed::default()
+                        .title(format_message!(resolved_language, "delete-data-title"))
                         .description(format_message!(
                             resolved_language,
                             "delete-data-description"
                         ))
-                        .color(Color::from_rgb(255, 0, 0))
-                })
-                .components(|c| {
-                    c.create_action_row(|r| {
-                        r.create_button(|b| {
-                            b.custom_id("delete_data_confirm")
-                                .style(ButtonStyle::Danger)
-                                .label(format_message!(resolved_language, "delete-data-confirm"))
-                        })
-                        .create_button(|b| {
-                            b.custom_id("delete_data_confirm_with_ban")
-                                .style(ButtonStyle::Danger)
-                                .label(format_message!(
-                                    resolved_language,
-                                    "delete-data-confirm-banned"
-                                ))
-                        })
-                        .create_button(|b| {
-                            b.custom_id("delete_data_cancel")
-                                .style(ButtonStyle::Success)
-                                .label(format_message!(resolved_language, "delete-data-cancel"))
-                        })
-                    })
-                })
-        })
+                        .color(Color::from_rgb(255, 0, 0)),
+                )
+                .components(
+                    CreateComponents::default().set_action_row(
+                        CreateActionRow::default()
+                            .add_button(
+                                CreateButton::default()
+                                    .custom_id("delete_data_confirm")
+                                    .style(ButtonStyle::Danger)
+                                    .label(format_message!(
+                                        resolved_language,
+                                        "delete-data-confirm"
+                                    )),
+                            )
+                            .add_button(
+                                CreateButton::default()
+                                    .custom_id("delete_data_confirm_with_ban")
+                                    .style(ButtonStyle::Danger)
+                                    .label(format_message!(
+                                        resolved_language,
+                                        "delete-data-confirm-banned"
+                                    )),
+                            )
+                            .add_button(
+                                CreateButton::default()
+                                    .custom_id("delete_data_cancel")
+                                    .style(ButtonStyle::Success)
+                                    .label(format_message!(
+                                        resolved_language,
+                                        "delete-data-cancel"
+                                    )),
+                            ),
+                    ),
+                ),
+        )
         .await?
-        .message()
+        .into_message()
         .await?;
 
     let author_id = ctx.author().id.0;
@@ -172,7 +181,7 @@ pub async fn delete_all_data(ctx: Context<'_>) -> Result<(), Error> {
     let discord_ctx = ctx.discord();
     let db = scripty_db::get_db();
 
-    let mut collector = ComponentInteractionCollectorBuilder::new(discord_ctx)
+    let mut collector = ComponentInteractionCollectorBuilder::new(&discord_ctx.shard)
         .author_id(author_id)
         .message_id(msg.id.0)
         .timeout(Duration::from_secs(120))
@@ -208,11 +217,9 @@ pub async fn delete_all_data(ctx: Context<'_>) -> Result<(), Error> {
             _ => None,
         };
 
-        let mut embed = CreateEmbed::default();
-
-        match status {
+        let embed = match status {
             // user was deleted and banned
-            Some(true) => embed
+            Some(true) => CreateEmbed::default()
                 .title(format_message!(
                     resolved_language,
                     "delete-data-success-banned-title"
@@ -222,7 +229,7 @@ pub async fn delete_all_data(ctx: Context<'_>) -> Result<(), Error> {
                     "delete-data-success-banned-description"
                 )),
             // user was deleted, but not banned
-            Some(false) => embed
+            Some(false) => CreateEmbed::default()
                 .title(format_message!(
                     resolved_language,
                     "delete-data-success-title"
@@ -232,7 +239,7 @@ pub async fn delete_all_data(ctx: Context<'_>) -> Result<(), Error> {
                     "delete-data-success-description"
                 )),
             // user cancelled deletion
-            None => embed
+            None => CreateEmbed::default()
                 .title(format_message!(
                     resolved_language,
                     "delete-data-cancelled-title"
@@ -242,22 +249,15 @@ pub async fn delete_all_data(ctx: Context<'_>) -> Result<(), Error> {
                     "delete-data-cancelled-description"
                 )),
         };
-        msg.edit(&discord_ctx, |msg| {
-            msg.embed(|e| {
-                *e = embed;
-                e
-            })
-        })
-        .await?;
+        msg.edit(&discord_ctx, EditMessage::default().embed(embed))
+            .await?;
     }
 
     Ok(())
 }
 
 fn build_embed(resolved_language: &LanguageIdentifier) -> CreateEmbed {
-    let mut builder = CreateEmbed::default();
-
-    builder
+    CreateEmbed::default()
         .title(format_message!(
             resolved_language,
             "data-storage-embed-title"
@@ -266,34 +266,31 @@ fn build_embed(resolved_language: &LanguageIdentifier) -> CreateEmbed {
             resolved_language,
             "data-storage-embed-description",
             supportServerInvite: scripty_config::get_config().support_invite.clone()
-        ));
-
-    builder
+        ))
 }
 
 fn build_components(disabled: bool, resolved_language: &LanguageIdentifier) -> CreateComponents {
-    let mut builder = CreateComponents::default();
-
-    builder.create_action_row(|r| {
-        r.create_button(|b| {
-            b.custom_id("toggle_audio_storage")
-                .style(ButtonStyle::Primary)
-                .label(format_message!(
-                    resolved_language,
-                    "data-storage-toggle-audio-btn"
-                ))
-                .disabled(disabled)
-        })
-        .create_button(|b| {
-            b.custom_id("toggle_msg_storage")
-                .style(ButtonStyle::Primary)
-                .label(format_message!(
-                    resolved_language,
-                    "data-storage-toggle-msgs-btn"
-                ))
-                .disabled(disabled)
-        })
-    });
-
-    builder
+    CreateComponents::default().set_action_row(
+        CreateActionRow::default()
+            .add_button(
+                CreateButton::default()
+                    .custom_id("toggle_audio_storage")
+                    .style(ButtonStyle::Primary)
+                    .label(format_message!(
+                        resolved_language,
+                        "data-storage-toggle-audio-btn"
+                    ))
+                    .disabled(disabled),
+            )
+            .add_button(
+                CreateButton::default()
+                    .custom_id("toggle_msg_storage")
+                    .style(ButtonStyle::Primary)
+                    .label(format_message!(
+                        resolved_language,
+                        "data-storage-toggle-msgs-btn"
+                    ))
+                    .disabled(disabled),
+            ),
+    )
 }

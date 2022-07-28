@@ -58,7 +58,7 @@ pub async fn join(
     let db = scripty_db::get_db();
     let channel_id = sqlx::query!(
         "SELECT target_channel FROM guilds WHERE guild_id = $1",
-        guild_id.0 as i64
+        guild_id.get() as i64
     )
     .fetch_optional(db)
     .await?

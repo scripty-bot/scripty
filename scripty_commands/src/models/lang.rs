@@ -1,9 +1,5 @@
-use poise::SlashArgError;
-use serde::de::{Error, Visitor};
-use serde::Deserializer;
 use serenity::async_trait;
 use serenity::client::Context as SerenityContext;
-use serenity::json::Value;
 use serenity::model::id::{ChannelId, GuildId};
 use serenity::utils::ArgumentConvert;
 use std::fmt::{Display, Formatter};
@@ -26,25 +22,6 @@ impl ArgumentConvert for Language {
         scripty_audio_handler::check_model_language(s)
             .then(|| Self(s.to_owned()))
             .ok_or_else(|| LanguageInvalid(s.to_owned()))
-    }
-}
-
-impl poise::Autocompletable for Language {
-    type Partial = Self;
-
-    #[inline]
-    fn extract_partial(value: &Value) -> Result<Self::Partial, SlashArgError> {
-        value
-            .deserialize_string(LanguageVisitor)
-            .map_err(|e| SlashArgError::Parse {
-                error: box e,
-                input: value.to_string(),
-            })
-    }
-
-    #[inline]
-    fn into_json(self) -> Value {
-        self.0.into()
     }
 }
 
@@ -75,11 +52,6 @@ impl Language {
     pub fn into_inner(self) -> String {
         self.0
     }
-
-    #[inline]
-    pub fn as_str(&self) -> &str {
-        self.0.as_str()
-    }
 }
 
 impl Display for Language {
@@ -103,41 +75,3 @@ impl Display for LanguageInvalid {
 }
 
 impl std::error::Error for LanguageInvalid {}
-
-///////////////////////////////////////////////////////////////////////////////
-
-/// Serde visitor for `Language`
-struct LanguageVisitor;
-
-impl Visitor<'_> for LanguageVisitor {
-    type Value = Language;
-
-    #[inline]
-    fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
-        formatter.write_str("a supported language ID")
-    }
-
-    #[inline]
-    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-    where
-        E: Error,
-    {
-        self.visit_string(v.to_owned())
-    }
-
-    #[inline]
-    fn visit_borrowed_str<E>(self, v: &str) -> Result<Self::Value, E>
-    where
-        E: Error,
-    {
-        self.visit_string(v.to_owned())
-    }
-
-    #[inline]
-    fn visit_string<E>(self, v: String) -> Result<Self::Value, E>
-    where
-        E: Error,
-    {
-        Ok(Language::new_unchecked(v))
-    }
-}

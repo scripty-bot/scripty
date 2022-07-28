@@ -1,5 +1,6 @@
 use crate::{Context, Error};
 use indexmap::IndexMap;
+use poise::CreateReply;
 use scripty_i18n::LanguageIdentifier;
 use std::borrow::Cow;
 use std::fmt::Write;
@@ -59,7 +60,8 @@ async fn help_single_command(
         ))
     };
 
-    ctx.send(|f| f.content(reply).ephemeral(true)).await?;
+    ctx.send(CreateReply::default().content(reply).ephemeral(true))
+        .await?;
     Ok(())
 }
 
@@ -143,7 +145,8 @@ async fn help_global(ctx: Context<'_>, resolved_language: LanguageIdentifier) ->
     menu += format_message!(resolved_language, "more-info-on-command", contextPrefix: ctx.prefix())
         .as_str();
 
-    ctx.send(|f| f.content(menu).ephemeral(true)).await?;
+    ctx.send(CreateReply::default().content(menu).ephemeral(true))
+        .await?;
     Ok(())
 }
 

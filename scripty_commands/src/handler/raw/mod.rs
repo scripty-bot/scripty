@@ -1,4 +1,5 @@
-use serenity::client::{Context, RawEventHandler as SerenityRawEventHandler};
+use poise::serenity_prelude::RawEventHandler as SerenityRawEventHandler;
+use serenity::client::Context;
 use serenity::model::event::Event;
 use std::time::Instant;
 
@@ -46,7 +47,6 @@ impl SerenityRawEventHandler for RawEventHandler {
             Event::GuildRoleDelete(_) => metrics.events.guild_role_delete.inc(),
             Event::GuildRoleUpdate(_) => metrics.events.guild_role_update.inc(),
             Event::GuildStickersUpdate(_) => metrics.events.guild_stickers_update.inc(),
-            Event::GuildUnavailable(_) => metrics.events.guild_unavailable.inc(),
             Event::GuildUpdate(_) => metrics.events.guild_update.inc(),
             Event::InviteCreate(_) => metrics.events.invite_create.inc(),
             Event::InviteDelete(_) => metrics.events.invite_delete.inc(),

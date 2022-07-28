@@ -2,6 +2,7 @@ use crate::cmds;
 use crate::error::on_error;
 use poise::{FrameworkOptions, PrefixFrameworkOptions};
 use serenity::builder::{CreateAllowedMentions, ParseValue};
+use serenity::model::id::UserId;
 use serenity::prelude::GatewayIntents;
 
 pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
@@ -37,12 +38,12 @@ pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
         command_check: Some(crate::entity_block::check_block),
         pre_command: crate::handler::pre_command,
         post_command: crate::handler::post_command,
-        allowed_mentions: Some({
-            let mut f = CreateAllowedMentions::default();
-            // Only support direct user pings by default
-            f.empty_parse().parse(ParseValue::Users);
-            f
-        }),
+        // Only support direct user pings by default
+        allowed_mentions: Some(
+            CreateAllowedMentions::default()
+                .empty_parse()
+                .parse(ParseValue::Users),
+        ),
         prefix_options: PrefixFrameworkOptions {
             prefix: Some("~".to_string()),
             execute_self_messages: false,
@@ -53,7 +54,7 @@ pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
         owners: scripty_config::get_config()
             .owners
             .iter()
-            .map(|id| serenity::model::id::UserId(*id))
+            .map(|id| UserId::new(*id))
             .collect(),
 
         ..Default::default()

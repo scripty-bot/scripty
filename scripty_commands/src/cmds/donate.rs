@@ -1,4 +1,6 @@
 use crate::{Context, Error};
+use poise::CreateReply;
+use serenity::builder::CreateEmbed;
 
 const DONATION_DESCRIPTION: &str =
     "Scripty is not cheap to run. It is currently running on a $1,500 USD server with an \
@@ -21,10 +23,13 @@ const DONATION_DESCRIPTION: &str =
 /// Get information on donating to support Scripty.
 #[poise::command(prefix_command, slash_command)]
 pub async fn donate(ctx: Context<'_>) -> Result<(), Error> {
-    ctx.send(|resp| {
-        resp.ephemeral(true)
-            .embed(|e| e.title("Donations").description(DONATION_DESCRIPTION))
-    })
+    ctx.send(
+        CreateReply::default().ephemeral(true).embed(
+            CreateEmbed::default()
+                .title("Donations")
+                .description(DONATION_DESCRIPTION),
+        ),
+    )
     .await?;
     Ok(())
 }

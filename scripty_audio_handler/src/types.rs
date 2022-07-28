@@ -3,12 +3,12 @@ use dashmap::{DashMap, DashSet};
 use parking_lot::RwLock;
 use scripty_audio::Stream;
 use scripty_data_storage::VoiceIngest;
-use songbird::model::id::UserId;
 use std::collections::VecDeque;
+use std::num::NonZeroU64;
 use std::sync::Arc;
 
 /// Type alias for a `DashMap` containing SSRCs mapped to `UserId`s.
-pub type SsrcUserIdMap = Arc<DashMap<u32, UserId, RandomState>>;
+pub type SsrcUserIdMap = Arc<DashMap<u32, NonZeroU64, RandomState>>;
 
 /// Type alias for a `DashMap` containing SSRCs mapped to `Stream`s
 pub type SsrcStreamMap = Arc<DashMap<u32, Stream, RandomState>>;

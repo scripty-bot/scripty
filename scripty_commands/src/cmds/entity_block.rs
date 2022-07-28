@@ -1,4 +1,6 @@
 use crate::{Context, Error};
+use poise::CreateReply;
+use serenity::builder::CreateEmbed;
 use serenity::model::guild::Guild;
 use serenity::model::user::User;
 use serenity::prelude::Mentionable;
@@ -9,14 +11,12 @@ pub async fn block(ctx: Context<'_>) -> Result<(), Error> {
     let resolved_language =
         scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
 
-    ctx.send(|resp| {
-        resp.ephemeral(true)
-            .embed(|embed| {
-                embed
-                    .title(format_message!(resolved_language, "root-command-invoked-title"))
-                    .description(format_message!(resolved_language, "root-command-invoked-description", contextPrefix: ctx.prefix(), commandName: "block"))
-            })
-    })
+    ctx.send(        CreateReply::default().ephemeral(true)
+        .embed(                CreateEmbed::default()
+            .title(format_message!(resolved_language, "root-command-invoked-title"))
+            .description(format_message!(resolved_language, "root-command-invoked-description", contextPrefix: ctx.prefix(), commandName: "block"))
+        )
+    )
         .await?;
     Ok(())
 }

@@ -18,7 +18,7 @@ pub async fn connect_to_vc(
     let db = scripty_db::get_db();
     let res = sqlx::query!(
         "SELECT webhook_id, webhook_token FROM channels WHERE channel_id = $1",
-        channel_id.0 as i64
+        channel_id.get() as i64
     )
     .fetch_optional(db)
     .await;

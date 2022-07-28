@@ -92,7 +92,7 @@ pub async fn voice_packet(
                 }
             } else {
                 let ingest = if let Some(ingest) =
-                    scripty_data_storage::VoiceIngest::new(user_id.0, "en".to_string()).await
+                    scripty_data_storage::VoiceIngest::new(*user_id.value(), "en".to_string()).await
                 {
                     debug!(?ssrc, "user has opted in, creating ingest");
                     ingest.ingest(audio.as_ref());

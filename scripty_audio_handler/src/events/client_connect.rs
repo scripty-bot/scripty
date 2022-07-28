@@ -1,6 +1,7 @@
 use crate::types::{ActiveUserSet, NextUserList, SsrcIgnoredMap, SsrcUserDataMap, SsrcUserIdMap};
 use serenity::client::Context;
 use songbird::model::payload::ClientConnect;
+use std::num::NonZeroU64;
 use std::sync::atomic::{AtomicU8, Ordering};
 use std::sync::Arc;
 
@@ -15,14 +16,14 @@ pub async fn client_connect(
     active_user_set: ActiveUserSet,
     next_user_list: NextUserList,
 ) {
-    let user_id = client_connect_data.user_id;
+    let user_id = NonZeroU64::new(client_connect_data.user_id.0).expect("user ID is 0");
     let ssrc = client_connect_data.audio_ssrc;
 
     debug!("user {} connected with ssrc {}", user_id, ssrc);
 
     ssrc_user_id_map.insert(ssrc, user_id);
 
-    let user = match serenity::model::id::UserId(user_id.0).to_user(ctx).await {
+    let user = match serenity::model::id::UserId(user_id).to_user(&ctx).await {
         Ok(u) => u,
         Err(e) => {
             error!("failed to fetch user: {}", e);

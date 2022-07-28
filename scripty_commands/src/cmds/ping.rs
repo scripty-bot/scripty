@@ -1,4 +1,5 @@
 use crate::{Context, Error};
+use poise::CreateReply;
 use scripty_utils::latency::*;
 use serenity::builder::CreateEmbed;
 
@@ -24,23 +25,20 @@ pub async fn ping(ctx: Context<'_>) -> Result<(), Error> {
     let pg_latency_ns = get_db_latency().await;
     let pg_latency_ms = (pg_latency_ns as f64 / 1_000_000.0).round();
 
-    let mut embed = CreateEmbed::default();
-    embed.title("🏓").description(format_message!(
-        resolved_language,
-        "latency-description",
-        wsLatencyMs: ws_latency_ms,
-        wsLatencyNs: ws_latency_ns,
-        httpLatencyMs: http_latency_ms,
-        httpLatencyNs: http_latency_ns,
-        pgLatencyMs: pg_latency_ms,
-        pgLatencyNs: pg_latency_ns
-    ));
-    ctx.send(|resp| {
-        resp.embed(|e| {
-            *e = embed;
-            e
-        })
-    })
+    ctx.send(
+        CreateReply::default().embed(CreateEmbed::default().title("🏓").description(
+            format_message!(
+                resolved_language,
+                "latency-description",
+                wsLatencyMs: ws_latency_ms,
+                wsLatencyNs: ws_latency_ns,
+                httpLatencyMs: http_latency_ms,
+                httpLatencyNs: http_latency_ns,
+                pgLatencyMs: pg_latency_ms,
+                pgLatencyNs: pg_latency_ns
+            ),
+        )),
+    )
     .await?;
 
     Ok(())

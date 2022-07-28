@@ -1,4 +1,5 @@
 use crate::{Context, Error};
+use poise::CreateReply;
 use serenity::client::bridge::gateway::{ChunkGuildFilter, ShardId};
 use std::collections::HashMap;
 use std::fmt::Write;
@@ -46,7 +47,7 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
     let shard_count = {
         let mgr_guard = shard_mgr.lock().await;
         let runner_lock = mgr_guard.runners.lock().await;
-        runner_lock.len() as u64
+        runner_lock.len() as _
     };
 
     for guild in dctx.cache.guilds() {
@@ -114,7 +115,7 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
         }
         let ratio = bot_count as f64 / user_count as f64;
         if ratio > specified_ratio {
-            guild_warnings.push((g.name.clone(), g.id.0, ratio));
+            guild_warnings.push((g.name.clone(), g.id.0.get(), ratio));
         }
     }
 
@@ -167,7 +168,8 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
     }
 
     // send the response
-    m.edit(ctx, |b| b.content(response)).await?;
+    m.edit(ctx, CreateReply::default().content(response))
+        .await?;
 
     Ok(())
 }

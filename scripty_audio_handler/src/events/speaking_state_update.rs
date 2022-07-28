@@ -1,6 +1,7 @@
 use crate::types::{SsrcIgnoredMap, SsrcUserDataMap, SsrcUserIdMap};
 use serenity::prelude::Context;
 use songbird::model::payload::Speaking;
+use std::num::NonZeroU64;
 
 pub async fn speaking_state_update(
     state_update: Speaking,
@@ -12,10 +13,10 @@ pub async fn speaking_state_update(
     let ssrc = state_update.ssrc;
     debug!(?state_update.speaking, ?state_update.ssrc, ?state_update.user_id, "SpeakingStateUpdate event fired");
     // check if the user ID is in the state update, or in the SSRC map, and bail if not in either
-    let user_id = match state_update
-        .user_id
-        .or_else(|| ssrc_user_id_map.get(&state_update.ssrc).map(|v| *v.value()))
-    {
+    let user_id = match state_update.user_id.map_or_else(
+        || ssrc_user_id_map.get(&state_update.ssrc).map(|v| *v.value()),
+        |id| NonZeroU64::new(id.0),
+    ) {
         Some(id) => id,
         None => {
             warn!(?state_update.speaking, ?state_update.ssrc, ?state_update.user_id, "User ID not in state update or map, bailing out");
@@ -26,7 +27,7 @@ pub async fn speaking_state_update(
     debug!("checking if either ssrc_ignored_map or ssrc_user_data_map does not contain key");
     if !ssrc_ignored_map.contains_key(&ssrc) || !ssrc_user_data_map.contains_key(&ssrc) {
         debug!("either does not contain key, updating data");
-        let user = match serenity::model::id::UserId(user_id.0).to_user(ctx).await {
+        let user = match serenity::model::id::UserId(user_id).to_user(&ctx).await {
             Ok(u) => u,
             Err(e) => {
                 error!("failed to fetch user: {}", e);

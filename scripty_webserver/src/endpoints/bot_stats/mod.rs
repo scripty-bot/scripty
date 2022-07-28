@@ -14,7 +14,7 @@ pub struct BotStats {
     pub guild_count: usize,
     pub user_count: usize,
     pub channel_count: usize,
-    pub shard_count: u64,
+    pub shard_count: u32,
 }
 
 pub async fn get_bot_stats() -> Result<Json<BotStats>, WebServerError> {

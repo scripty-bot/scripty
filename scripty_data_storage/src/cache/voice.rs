@@ -1,5 +1,6 @@
 use dashmap::DashMap;
 use once_cell::sync::OnceCell;
+use std::num::NonZeroU64;
 
 static VOICE_CACHE_MAP: OnceCell<DashMap<Vec<u8>, bool>> = OnceCell::new();
 
@@ -34,7 +35,7 @@ pub async fn init_voice_cache_async() -> Result<(), sqlx::Error> {
 ///
 /// # Returns
 /// Returns Ok(()) if changing state was successful, Err(sqlx::Error) if not
-pub async fn change_voice_state(user_id: u64, state: bool) -> Result<(), sqlx::Error> {
+pub async fn change_voice_state(user_id: NonZeroU64, state: bool) -> Result<(), sqlx::Error> {
     let user_id = scripty_utils::hash_user_id(user_id);
     // do db query to change state
     // set store_audio column in users table where user_id = user_id to state
@@ -63,7 +64,7 @@ pub async fn change_voice_state(user_id: u64, state: bool) -> Result<(), sqlx::E
 /// # Errors
 /// If any error is encountered, it is logged and `false` is returned.
 /// Errors will prevent the user from being cached.
-pub async fn get_voice_state(raw_user_id: u64) -> bool {
+pub async fn get_voice_state(raw_user_id: NonZeroU64) -> bool {
     let user_id = scripty_utils::hash_user_id(raw_user_id);
     let voice_cache_map = VOICE_CACHE_MAP.get_or_init(DashMap::new);
 

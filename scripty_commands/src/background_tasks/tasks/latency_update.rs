@@ -33,8 +33,8 @@ impl BackgroundTask for LatencyUpdater {
             .unwrap_or(0) as i64,
         );
         self.0.latency.http.set(
-            scripty_utils::latency::get_http_latency(&self.1, ChannelId(983575000034455584)).await
-                as i64,
+            scripty_utils::latency::get_http_latency(&self.1, ChannelId::new(983575000034455584))
+                .await as i64,
         );
         self.0
             .latency

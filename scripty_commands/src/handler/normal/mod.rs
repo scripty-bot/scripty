@@ -1,4 +1,5 @@
-use serenity::client::{Context as SerenityContext, EventHandler};
+use poise::serenity_prelude::EventHandler;
+use serenity::client::Context as SerenityContext;
 use serenity::model::application::interaction::Interaction;
 use serenity::model::channel::Message;
 use serenity::model::event::ResumedEvent;

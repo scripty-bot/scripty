@@ -2,7 +2,7 @@ use crate::background_tasks::core::BackgroundTask;
 use crate::Error;
 use serenity::client::bridge::gateway::ShardManager;
 use serenity::client::Context as SerenityContext;
-use serenity::model::gateway::Activity;
+use serenity::gateway::ActivityData;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::Mutex;
@@ -49,7 +49,7 @@ impl BackgroundTask for StatusUpdater {
             );
 
             // create activity
-            let activity = Activity::playing(shard_status);
+            let activity = ActivityData::playing(shard_status);
 
             // set activity
             shard_info.runner_tx.set_activity(Some(activity));

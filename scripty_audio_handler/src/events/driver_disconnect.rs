@@ -1,4 +1,5 @@
 use crate::{connect_to_vc, Error};
+use serenity::builder::ExecuteWebhook;
 use serenity::client::Context;
 use serenity::model::id::ChannelId;
 use serenity::model::webhook::Webhook;
@@ -83,9 +84,12 @@ pub async fn driver_disconnect(
             .await
             {
                 if let Err(e) = webhook2
-                    .execute(ctx3, false, |w| {
-                        w.content(format!("Failed to reconnect due to: {}", e))
-                    })
+                    .execute(
+                        ctx3,
+                        false,
+                        ExecuteWebhook::default()
+                            .content(format!("Failed to reconnect due to: {}", e)),
+                    )
                     .await
                 {
                     debug!(
@@ -100,8 +104,10 @@ pub async fn driver_disconnect(
     if let Some(reason) = reason {
         debug!(?guild_id, "giving user reason for disconnection");
         if let Err(e) = webhook
-            .execute(ctx, false, |w| {
-                w.content(format!(
+            .execute(
+                ctx,
+                false,
+                ExecuteWebhook::default().content(format!(
                     "I had an issue ({}) and disconnected from the voice chat. {}",
                     reason,
                     if should_reconnect {
@@ -109,8 +115,8 @@ pub async fn driver_disconnect(
                     } else {
                         ""
                     }
-                ))
-            })
+                )),
+            )
             .await
         {
             debug!(

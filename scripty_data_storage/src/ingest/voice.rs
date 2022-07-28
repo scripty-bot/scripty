@@ -2,6 +2,7 @@ use hound::{SampleFormat, WavSpec, WavWriter};
 use ouroboros::self_referencing;
 use parking_lot::Mutex;
 use std::io::Cursor;
+use std::num::NonZeroU64;
 
 #[self_referencing]
 struct Audio {
@@ -21,7 +22,7 @@ pub struct VoiceIngest {
 }
 
 impl VoiceIngest {
-    pub async fn new(user_id: u64, language: String) -> Option<Self> {
+    pub async fn new(user_id: NonZeroU64, language: String) -> Option<Self> {
         // always check if the user is opted in
         let opted_in = crate::cache::get_voice_state(user_id).await;
 

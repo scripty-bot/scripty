@@ -2,13 +2,14 @@
 
 use dashmap::DashMap;
 use once_cell::sync::OnceCell;
+use std::num::NonZeroU64;
 use std::time::Instant;
 
 /// Stores the start time of messages.
-static LATENCY_START_TIME: OnceCell<DashMap<u64, Instant>> = OnceCell::new();
+static LATENCY_START_TIME: OnceCell<DashMap<NonZeroU64, Instant>> = OnceCell::new();
 
 /// Call this function in on_message. This will quickly measure the start time of the command processing.
-pub fn measure_start_latency(time: Instant, id: u64) {
+pub fn measure_start_latency(time: Instant, id: NonZeroU64) {
     debug!(?id, "measure_start_latency");
     LATENCY_START_TIME
         .get_or_init(DashMap::new)
@@ -16,7 +17,7 @@ pub fn measure_start_latency(time: Instant, id: u64) {
 }
 
 /// Call this function in pre_command. This will measure the total latency of the command processing.
-pub fn measure_end_latency(id: u64) {
+pub fn measure_end_latency(id: NonZeroU64) {
     let et = Instant::now();
     debug!(?id, "measure_end_latency");
     let latency_map = LATENCY_START_TIME.get_or_init(DashMap::new);
@@ -31,7 +32,7 @@ pub fn measure_end_latency(id: u64) {
             metrics.latency.command_process.set(new);
         }
         None => {
-            debug!(?id, "no start time found");
+            trace!(?id, "no start time found");
         }
     }
 }

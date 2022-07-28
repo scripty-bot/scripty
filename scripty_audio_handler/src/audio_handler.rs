@@ -70,7 +70,7 @@ impl AudioHandler {
         let db = scripty_db::get_db();
         let guild_res = sqlx::query!(
             "SELECT be_verbose, premium_level FROM guilds WHERE guild_id = $1",
-            self.guild_id.0 as i64
+            self.guild_id.get() as i64
         )
         .fetch_one(db)
         .await?;

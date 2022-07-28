@@ -24,7 +24,10 @@ pub async fn init_blocked() -> Result<(), sqlx::Error> {
         .fetch_all(db)
         .await?
     {
-        blocked_guilds.insert(GuildId(blocked_guild.guild_id as u64), blocked_guild.reason);
+        blocked_guilds.insert(
+            GuildId::new(blocked_guild.guild_id as u64),
+            blocked_guild.reason,
+        );
     }
 
     BLOCKED_GUILDS
@@ -124,7 +127,7 @@ pub async fn add_blocked_guild(
     let db = scripty_db::get_db();
     let blocked_guilds = unsafe { BLOCKED_GUILDS.get().unwrap_unchecked() };
 
-    let signed_guild_id = guild_id.0 as i64;
+    let signed_guild_id = guild_id.get() as i64;
     let current_timestamp = PrimitiveDateTime::from(SystemTime::now());
 
     sqlx::query!(

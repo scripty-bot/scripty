@@ -1,5 +1,8 @@
 use dashmap::DashMap;
-use serenity::builder::{CreateEmbed, ExecuteWebhook};
+use serenity::builder::{
+    CreateAllowedMentions, CreateChannel, CreateEmbed, CreateEmbedAuthor, CreateMessage,
+    CreateWebhook, ExecuteWebhook,
+};
 use serenity::client::Context;
 use serenity::model::channel::{
     AttachmentType, ChannelCategory, ChannelType, GuildChannel, Message,
@@ -53,16 +56,17 @@ impl DmSupportStatus {
                     attachment.url.clone().parse().unwrap(),
                 ));
             }
-            webhook_execute.files(attachments);
+            webhook_execute = webhook_execute.files(attachments);
         }
-        webhook_execute.content(message.content.clone());
-        webhook_execute.allowed_mentions(|m| m.empty_parse());
 
         let resp = hook
-            .execute(&ctx, true, |b| {
-                *b = webhook_execute;
-                b
-            })
+            .execute(
+                &ctx,
+                true,
+                webhook_execute
+                    .content(message.content.clone())
+                    .allowed_mentions(CreateAllowedMentions::default().empty_parse()),
+            )
             .await;
 
         if let Err(e) = resp {
@@ -75,7 +79,7 @@ impl DmSupportStatus {
 
     async fn handle_guild_message(&self, ctx: Context, message: Message) {
         let config = scripty_config::get_config();
-        if message.guild_id != Some(GuildId(config.dm_support.guild_id)) {
+        if message.guild_id != Some(GuildId::new(config.dm_support.guild_id)) {
             return;
         }
         let message_channel = message
@@ -98,14 +102,6 @@ impl DmSupportStatus {
             }
         };
 
-        let user = match UserId(user_id).to_user(&ctx).await {
-            Ok(user) => user,
-            Err(e) => {
-                warn!("failed to get user from user id: {}", e);
-                return;
-            }
-        };
-
         let mut embed_builder = CreateEmbed::default();
 
         match message.attachments.len().cmp(&1) {
@@ -116,33 +112,46 @@ impl DmSupportStatus {
                     .get(0)
                     .expect("asserted one element already exists");
                 if message_channel.is_nsfw() {
-                    embed_builder.field("Attached", &attachment.url, true);
+                    embed_builder = embed_builder.field("Attached", &attachment.url, true);
                 } else {
-                    embed_builder.image(&attachment.url);
+                    embed_builder = embed_builder.image(&attachment.url);
                 }
             }
             Ordering::Greater => {
                 for attached_file in message.attachments.iter() {
-                    embed_builder.field("Attached", &attached_file.url, true);
+                    embed_builder = embed_builder.field("Attached", &attached_file.url, true);
                 }
             }
         }
 
-        embed_builder
-            .author(|a| {
-                a.name(message.author.name.clone())
-                    .icon_url(message.author.face())
-            })
+        embed_builder = embed_builder
+            .author(
+                CreateEmbedAuthor::default()
+                    .name(message.author.name.clone())
+                    .icon_url(message.author.face()),
+            )
             .title("Support Response")
             .description(message.content);
 
-        let resp = user
-            .direct_message(&ctx, |m| m.set_embed(embed_builder))
-            .await;
+        let resp = {
+            let user = match UserId::new(user_id).to_user(&ctx).await {
+                Ok(user) => user,
+                Err(e) => {
+                    warn!("failed to get user from user id: {}", e);
+                    return;
+                }
+            };
+
+            user.direct_message(&ctx, CreateMessage::default().embed(embed_builder))
+                .await
+        };
 
         if let Err(e) = resp {
             let _ = message_channel
-                .send_message(ctx, |m| m.content(format!("Couldn't send message: {}", e)))
+                .send_message(
+                    &ctx,
+                    CreateMessage::default().content(format!("Couldn't send message: {}", e)),
+                )
                 .await;
         }
     }
@@ -150,7 +159,7 @@ impl DmSupportStatus {
     async fn get_or_create_channel(&self, ctx: &Context, user: &User) -> GuildChannel {
         let config = scripty_config::get_config();
         let category = get_forwarding_category(ctx).await;
-        let guild_id = GuildId(config.dm_support.guild_id);
+        let guild_id = GuildId::new(config.dm_support.guild_id);
 
         let user_id_str = user.id.to_string();
 
@@ -168,19 +177,24 @@ impl DmSupportStatus {
         }
 
         let channel = guild_id
-            .create_channel(&ctx, |c| {
-                c.category(category.id)
+            .create_channel(
+                &ctx,
+                CreateChannel::default()
+                    .category(category.id)
                     .name(user_id_str)
-                    .kind(ChannelType::Text)
-            })
+                    .kind(ChannelType::Text),
+            )
             .await
             .expect("failed to create channel");
 
         let hook = channel
-            .create_webhook_with_avatar(
+            .create_webhook(
                 ctx,
-                user.tag(),
-                AttachmentType::Image(user.face().parse().unwrap()),
+                CreateWebhook::default()
+                    .name(user.tag())
+                    .avatar(&ctx, AttachmentType::Image(user.face().parse().unwrap()))
+                    .await
+                    .expect("failed to fetch image for webhook"),
             )
             .await
             .expect("failed to create webhook");
@@ -189,9 +203,10 @@ impl DmSupportStatus {
         if let Err(e) = self.handle_opening(ctx, user).await {
             warn!("failed to handle opening: {}", e);
             channel
-                .send_message(ctx, |m| {
-                    m.content(format!("failed to handle opening: {}", e))
-                })
+                .send_message(
+                    ctx,
+                    CreateMessage::default().content(format!("failed to handle opening: {}", e)),
+                )
                 .await
                 .expect("failed to send message");
         }
@@ -200,13 +215,20 @@ impl DmSupportStatus {
     }
 
     async fn handle_opening(&self, ctx: &Context, user: &User) -> serenity::Result<()> {
-        user.direct_message(ctx, |m| {
-            m.embed(|e| {
-                e.title("DM Ticket Opened")
-                    .description("You have opened a ticket. \
-                    If you did this by accident, please type `close`, and **WAIT FOR A STAFF MEMBER TO CLOSE IT**.")
-            })
-        }).await.map(|_| ())
+        user.direct_message(
+            ctx,
+            CreateMessage::default()
+                .embed(
+                    CreateEmbed::default()
+                        .title("DM Ticket Opened")
+                        .description(
+                            "You have opened a ticket. \
+                            If you did this by accident, please type `close`, and **WAIT FOR A STAFF MEMBER TO CLOSE IT**."
+                        )
+                )
+        )
+            .await
+            .map(|_| ())
     }
 
     async fn get_webhook(&self, ctx: &Context, channel: &ChannelId) -> Webhook {
@@ -225,7 +247,7 @@ impl DmSupportStatus {
 
     pub async fn close_ticket(&self, ctx: &Context, channel: GuildChannel) {
         let config = scripty_config::get_config();
-        if channel.guild_id != GuildId(config.dm_support.guild_id) {
+        if channel.guild_id != GuildId::new(config.dm_support.guild_id) {
             return;
         }
 
@@ -242,23 +264,31 @@ impl DmSupportStatus {
             }
         };
 
-        let user = match UserId(user_id).to_user(&ctx).await {
-            Ok(user) => user,
-            Err(e) => {
-                warn!("failed to get user from user id: {}", e);
-                return;
-            }
-        };
+        {
+            let user = match UserId::new(user_id).to_user(&ctx).await {
+                Ok(user) => user,
+                Err(e) => {
+                    warn!("failed to get user from user id: {}", e);
+                    return;
+                }
+            };
 
-        let _ = user.direct_message(&ctx, |m| {
-            m.embed(|e| {
-                e.title("Closed Support Ticket").description(
-                    "This support ticket has now been closed. \
-                    Thank you for using Scripty's support system. \
-                    If you require more assistance, simply send another message here to reopen a new ticket.",
+            let _ = user
+                .direct_message(
+                    &ctx,
+                    CreateMessage::default().embed(
+                        CreateEmbed::default()
+                            .title("Closed Support Ticket")
+                            .description(
+                                "This support ticket has now been closed.\
+                                Thank you for using Scripty's support system. \
+                                If you require more assistance,\
+                                simply send another message here to reopen a new ticket.",
+                            ),
+                    ),
                 )
-            })
-        }).await;
+                .await;
+        }
 
         self.webhook_cache.remove(&channel.id);
 
@@ -267,7 +297,7 @@ impl DmSupportStatus {
 }
 
 async fn get_forwarding_category(ctx: &Context) -> ChannelCategory {
-    ChannelId(scripty_config::get_config().dm_support.forwarding_category)
+    ChannelId::new(scripty_config::get_config().dm_support.forwarding_category)
         .to_channel(&ctx)
         .await
         .expect("failed to get forwarding category")

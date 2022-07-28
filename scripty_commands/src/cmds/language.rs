@@ -1,6 +1,8 @@
 use crate::checks::is_guild;
 use crate::{Context, Error};
+use poise::CreateReply;
 use scripty_i18n::InvalidLanguageError;
+use serenity::builder::CreateEmbed;
 
 /// Modify your language preferences.
 ///
@@ -10,14 +12,12 @@ pub async fn language(ctx: Context<'_>) -> Result<(), Error> {
     let resolved_language =
         scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
 
-    ctx.send(|resp| {
-        resp.ephemeral(true)
-            .embed(|embed| {
-                embed
-                    .title(format_message!(resolved_language, "root-command-invoked-title"))
-                    .description(format_message!(resolved_language, "root-command-invoked-description", contextPrefix: ctx.prefix(), commandName: "language"))
-            })
-    })
+    ctx.send(        CreateReply::default().ephemeral(true)
+        .embed(            CreateEmbed::default()
+            .title(format_message!(resolved_language, "root-command-invoked-title"))
+            .description(format_message!(resolved_language, "root-command-invoked-description", contextPrefix: ctx.prefix(), commandName: "language"))
+        )
+    )
     .await?;
     Ok(())
 }
@@ -39,9 +39,9 @@ pub async fn user_language(
 
     match scripty_i18n::set_user_language(ctx.author().id.0, language.as_str()).await {
         Ok(_) => {
-            ctx.send(|resp| {
-                resp.ephemeral(true).embed(|embed| {
-                    embed
+            ctx.send(
+                CreateReply::default().ephemeral(true).embed(
+                    CreateEmbed::default()
                         .title(format_message!(
                             resolved_language,
                             "user-language-set-success"
@@ -49,15 +49,15 @@ pub async fn user_language(
                         .description(format_message!(
                             resolved_language,
                             "user-language-set-success-description"
-                        ))
-                })
-            })
+                        )),
+                ),
+            )
             .await?;
         }
         Err(InvalidLanguageError::Invalid(e)) => {
-            ctx.send(|resp| {
-                resp.ephemeral(true).embed(|embed| {
-                    embed
+            ctx.send(
+                CreateReply::default().ephemeral(true).embed(
+                    CreateEmbed::default()
                         .title(format_message!(
                             resolved_language,
                             "language-set-failure-title-invalid",
@@ -67,31 +67,27 @@ pub async fn user_language(
                             resolved_language,
                             "language-set-failure-description-invalid",
                             error: e.to_string()
-                        ))
-                })
-            })
+                        )),
+                ),
+            )
             .await?;
         }
         Err(InvalidLanguageError::Unsupported) => {
-            ctx.send(|resp| {
-                resp.ephemeral(true)
-                    .embed(|embed| {
-                        embed
-                            .title(format_message!(resolved_language, "language-set-failure-title-unsupported"))
-                            .description(format_message!(resolved_language, "language-set-failure-description-unsupported", supportServerInvite: scripty_config::get_config().support_invite.clone()))
-                    })
-            })
+            ctx.send(                CreateReply::default().ephemeral(true)
+                .embed(                    CreateEmbed::default()
+                    .title(format_message!(resolved_language, "language-set-failure-title-unsupported"))
+                    .description(format_message!(resolved_language, "language-set-failure-description-unsupported", supportServerInvite: scripty_config::get_config().support_invite.clone()))
+                )
+            )
             .await?;
         }
         Err(InvalidLanguageError::Db(e)) => {
-            ctx.send(|resp| {
-                resp.ephemeral(true)
-                    .embed(|embed| {
-                        embed
-                            .title(format_message!(resolved_language, "language-set-failure-title-db"))
-                            .description(format_message!(resolved_language, "language-set-failure-description-db", error: e.to_string()))
-                    })
-            }).await?;
+            ctx.send(                CreateReply::default().ephemeral(true)
+                .embed(                    CreateEmbed::default()
+                    .title(format_message!(resolved_language, "language-set-failure-title-db"))
+                    .description(format_message!(resolved_language, "language-set-failure-description-db", error: e.to_string()))
+                )
+            ).await?;
         }
     }
     Ok(())
@@ -113,14 +109,17 @@ pub async fn guild_language(
     #[autocomplete = "available_language_autocomplete"]
     language: String,
 ) -> Result<(), Error> {
-    let guild_id = ctx.guild_id().map(|g| g.0).unwrap_or(0);
+    let guild_id = ctx
+        .guild_id()
+        .map(|g| g.0)
+        .ok_or_else(Error::expected_guild)?;
     let resolved_language = scripty_i18n::get_guild_language(guild_id).await;
 
     match scripty_i18n::set_guild_language(guild_id, language.as_str()).await {
         Ok(_) => {
-            ctx.send(|resp| {
-                resp.ephemeral(true).embed(|embed| {
-                    embed
+            ctx.send(
+                CreateReply::default().ephemeral(true).embed(
+                    CreateEmbed::default()
                         .title(format_message!(
                             resolved_language,
                             "guild-language-set-success"
@@ -128,15 +127,15 @@ pub async fn guild_language(
                         .description(format_message!(
                             resolved_language,
                             "guild-language-set-success-description"
-                        ))
-                })
-            })
+                        )),
+                ),
+            )
             .await?;
         }
         Err(InvalidLanguageError::Invalid(e)) => {
-            ctx.send(|resp| {
-                resp.ephemeral(true).embed(|embed| {
-                    embed
+            ctx.send(
+                CreateReply::default().ephemeral(true).embed(
+                    CreateEmbed::default()
                         .title(format_message!(
                             resolved_language,
                             "language-set-failure-title-invalid",
@@ -146,26 +145,32 @@ pub async fn guild_language(
                             resolved_language,
                             "language-set-failure-description-invalid",
                             error: e.to_string()
-                        ))
-                })
-            })
+                        )),
+                ),
+            )
             .await?;
         }
         Err(InvalidLanguageError::Unsupported) => {
-            ctx.send(|resp| {
-                resp.ephemeral(true)
-                    .embed(|embed| {
-                        embed
-                            .title(format_message!(resolved_language, "language-set-failure-title-unsupported"))
-                            .description(format_message!(resolved_language, "language-set-failure-description-unsupported", supportServerInvite: scripty_config::get_config().support_invite.clone()))
-                    })
-            })
-                .await?;
+            ctx.send(
+                CreateReply::default().ephemeral(true).embed(
+                    CreateEmbed::default()
+                        .title(format_message!(
+                            resolved_language,
+                            "language-set-failure-title-unsupported"
+                        ))
+                        .description(format_message!(
+                            resolved_language,
+                            "language-set-failure-description-unsupported",
+                            supportServerInvite: scripty_config::get_config().support_invite.clone()
+                        )),
+                ),
+            )
+            .await?;
         }
         Err(InvalidLanguageError::Db(e)) => {
-            ctx.send(|resp| {
-                resp.ephemeral(true).embed(|embed| {
-                    embed
+            ctx.send(
+                CreateReply::default().ephemeral(true).embed(
+                    CreateEmbed::default()
                         .title(format_message!(
                             resolved_language,
                             "language-set-failure-title-db"
@@ -174,9 +179,9 @@ pub async fn guild_language(
                             resolved_language,
                             "language-set-failure-description-db",
                             error: e.to_string()
-                        ))
-                })
-            })
+                        )),
+                ),
+            )
             .await?;
         }
     }
