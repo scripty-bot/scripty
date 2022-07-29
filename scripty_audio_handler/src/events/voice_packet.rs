@@ -3,6 +3,8 @@ use crate::types::{
     SsrcIgnoredMap, SsrcLastPktIdMap, SsrcMissedPktList, SsrcMissedPktMap, SsrcSilentFrameCountMap,
     SsrcStreamMap, SsrcUserIdMap, SsrcVoiceIngestMap,
 };
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 use std::time::Instant;
 
 #[allow(clippy::too_many_arguments)]
@@ -18,6 +20,7 @@ pub async fn voice_packet(
     ssrc_missed_pkt_list: SsrcMissedPktList,
     ssrc_voice_ingest_map: SsrcVoiceIngestMap,
     ssrc_silent_frame_count_map: SsrcSilentFrameCountMap,
+    verbose: Arc<AtomicBool>,
 ) -> bool {
     let metrics = scripty_metrics::get_metrics();
     metrics.ms_transcribed.inc_by(20);
@@ -156,13 +159,14 @@ pub async fn voice_packet(
             trace!(?ssrc, "done processing pkt");
         } else {
             warn!(?ssrc, "no stream found for ssrc");
-            let new_stream = match scripty_audio::Stream::new("en", verbose).await {
-                Ok(s) => s,
-                Err(e) => {
-                    error!(?ssrc, "failed to create new stream: {}", e);
-                    return false;
-                }
-            };
+            let new_stream =
+                match scripty_audio::Stream::new("en", verbose.load(Ordering::Relaxed)).await {
+                    Ok(s) => s,
+                    Err(e) => {
+                        error!(?ssrc, "failed to create new stream: {}", e);
+                        return false;
+                    }
+                };
             ssrc_stream_map.insert(ssrc, new_stream);
         }
 

@@ -106,6 +106,7 @@ impl EventHandler for AudioHandler {
                 let ssrc_missed_pkt_list = Arc::clone(&self.ssrc_missed_pkt_list);
                 let ssrc_voice_ingest_map = Arc::clone(&self.ssrc_voice_ingest_map);
                 let ssrc_silent_frame_count_map = Arc::clone(&self.ssrc_silent_frame_count_map);
+                let verbose = Arc::clone(&self.verbose);
 
                 let ctx2 = self.context.clone();
                 let webhook_2 = Arc::clone(&self.webhook);
@@ -135,6 +136,7 @@ impl EventHandler for AudioHandler {
                         ssrc_missed_pkt_list,
                         ssrc_voice_ingest_map,
                         ssrc_silent_frame_count_map,
+                        verbose,
                     )
                     .await;
 
