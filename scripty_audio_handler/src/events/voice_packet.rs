@@ -99,6 +99,8 @@ pub async fn voice_packet(
                             // this packet should be done, reset the counter and return
                             trace!("at end of audio data, bailing out");
                             *x.value_mut() = 0;
+                            // reset the last packet ID to the current packet ID
+                            ssrc_last_pkt_id_map.insert(ssrc, sequence);
                             return true;
                         }
                         trace!(?ssrc, "didn't reach end of silence");
