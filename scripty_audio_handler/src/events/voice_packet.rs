@@ -1,7 +1,7 @@
-use crate::consts::{EXPECTED_PKT_SIZE, SIZE_OF_I16};
+use crate::consts::SIZE_OF_I16;
 use crate::types::{
-    SsrcIgnoredMap, SsrcLastPktIdMap, SsrcMissedPktList, SsrcMissedPktMap, SsrcStreamMap,
-    SsrcUserIdMap, SsrcVoiceIngestMap,
+    SsrcIgnoredMap, SsrcLastPktIdMap, SsrcMissedPktList, SsrcMissedPktMap, SsrcSilentFrameCountMap,
+    SsrcStreamMap, SsrcUserIdMap, SsrcVoiceIngestMap,
 };
 use std::time::Instant;
 
@@ -17,17 +17,18 @@ pub async fn voice_packet(
     ssrc_missed_pkt_map: SsrcMissedPktMap,
     ssrc_missed_pkt_list: SsrcMissedPktList,
     ssrc_voice_ingest_map: SsrcVoiceIngestMap,
-) {
+    ssrc_silent_frame_count_map: SsrcSilentFrameCountMap,
+) -> bool {
     let metrics = scripty_metrics::get_metrics();
     metrics.ms_transcribed.inc_by(20);
-    if let Some(bytes) = audio.map(|a| a.len() * std::mem::size_of::<i16>()) {
+    if let Some(bytes) = audio.as_ref().map(|a| a.len() * std::mem::size_of::<i16>()) {
         metrics.audio_bytes_processed.inc_by(bytes as u64);
     }
 
     let st = Instant::now();
 
     if ssrc_ignored_map.get(&ssrc).map_or(false, |x| *x.value()) {
-        return;
+        return false;
     }
 
     // check for out of order packets
@@ -41,10 +42,8 @@ pub async fn voice_packet(
             );
             // update the last packet id
             *pkt_id.value_mut() = sequence + 1;
-            if let Some(mut audio) = audio {
-                // if audio exists, pad it with zeros
-                audio.resize(EXPECTED_PKT_SIZE, 0);
-                // and hold it in the missed packet map in case we get it again
+            if let Some(audio) = audio {
+                // hold it in the missed packet map in case we get it again
                 ssrc_missed_pkt_map.insert((ssrc, sequence), audio);
                 if let Some(mut pkt_list) = ssrc_missed_pkt_list.get_mut(&ssrc) {
                     pkt_list.push(sequence);
@@ -52,7 +51,7 @@ pub async fn voice_packet(
                     ssrc_missed_pkt_list.insert(ssrc, vec![sequence]);
                 }
             }
-            return;
+            return false;
         } else {
             // packet is in order, update the last packet id
             *pkt_id.value_mut() = expected;
@@ -71,6 +70,79 @@ pub async fn voice_packet(
         handle_missed_packets(ssrc, sequence, &mut audio, &ssrc_missed_pkt_map);
         // try decrementing sequence number to see if we can get rid of any missed packets
         handle_missed_packets(ssrc, sequence - 1, &mut audio, &ssrc_missed_pkt_map);
+
+        // check if silent frames already exist
+        match ssrc_silent_frame_count_map.entry(ssrc).or_default() {
+            x if *x.value() == 0 => {} // no frames exist, no big deal
+            mut x => {
+                trace!(?ssrc, "found pre-existing silent frames");
+                // some frames have been detected before, check this packet to see if it starts and ends with silence
+                // (ie the first 5 and last 5 samples are all 0)
+                // if it is, add it to the silent frame count, otherwise, reset the silent frame count and move on
+                // if the new silent frame count is over 1020 (4.25*240), then we know the end of the audio has been detected
+                if audio
+                    .get(0..5)
+                    .map(|r| r.iter().all(|x| *x == 0))
+                    .unwrap_or(false)
+                {
+                    let audio_last_elem = audio.len() - 1;
+                    if audio
+                        .get(audio_last_elem - 5..audio_last_elem)
+                        .map(|r| r.iter().all(|x| *x == 0))
+                        .unwrap_or(false)
+                    {
+                        *x.value_mut() += audio.len();
+                        if *x.value() > 1020 {
+                            // this packet should be done, reset the counter and return
+                            trace!("at end of audio data, bailing out");
+                            *x.value_mut() = 0;
+                            return true;
+                        }
+                        trace!(?ssrc, "didn't reach end of silence");
+                    } else {
+                        trace!(?ssrc, "not a completely silent frame");
+                    }
+                } else {
+                    trace!(?ssrc, "not a completely silent frame");
+                }
+            }
+        }
+
+        let last_idx = audio.len() - 1;
+        if let (Some(last), Some(second_last)) = (audio.get(last_idx), audio.get(last_idx - 1)) {
+            if *last == 0 && *second_last == 0 {
+                // silence is 5 packets long, so we need to find where the silence starts and see how many frames that is
+                // we can do this by looking through every 5th frame, checking if it's a zero, and if so continue counting down
+                // if it isn't a zero, count up until it is a zero, then figure out how many frames that index is from the end
+                // and use that as the length of the silence
+                let mut silence_start = last_idx;
+                while silence_start > 0 {
+                    silence_start -= 5;
+                    if audio.get(silence_start).map_or(false, |x| *x != 0) {
+                    } else {
+                        break;
+                    }
+                }
+                // the actual start of the silence is now somewhere between silence_start and silence_start + 5
+                for idx in silence_start..=silence_start + 5 {
+                    if audio
+                        .get(idx)
+                        .map(|x| *x == 0)
+                        .expect("out of bounds despite silence_start being in bounds")
+                    {
+                        silence_start = idx;
+                        break;
+                    }
+                }
+                // calculate silence length
+                let silence_len = last_idx - silence_start;
+                // add it to the silent frame count
+                *ssrc_silent_frame_count_map
+                    .entry(ssrc)
+                    .or_default()
+                    .value_mut() += silence_len;
+            }
+        }
 
         trace!(?ssrc, "feeding audio");
         // the rare case where we don't have a stream is extremely rare,
@@ -115,6 +187,8 @@ pub async fn voice_packet(
     let current_avg = metrics.avg_audio_process_time.get();
     let new_avg = (current_avg + tt) / 2;
     metrics.avg_audio_process_time.set(new_avg);
+
+    false
 }
 
 /// Handle any out-of-order packets.

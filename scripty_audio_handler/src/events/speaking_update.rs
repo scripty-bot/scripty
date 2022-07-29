@@ -5,13 +5,13 @@ use crate::types::{
 use serenity::builder::{CreateEmbed, CreateEmbedFooter, ExecuteWebhook};
 use serenity::client::Context;
 use serenity::model::webhook::Webhook;
-use songbird::events::context_data::SpeakingUpdateData;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 #[allow(clippy::too_many_arguments)]
 pub async fn speaking_update(
-    update: SpeakingUpdateData,
+    ssrc: u32,
+    speaking: bool,
     ctx: Context,
     webhook: Arc<Webhook>,
     ssrc_user_id_map: SsrcUserIdMap,
@@ -23,9 +23,8 @@ pub async fn speaking_update(
     ssrc_voice_ingest_map: SsrcVoiceIngestMap,
     verbose: Arc<AtomicBool>,
 ) {
-    let ssrc = update.ssrc;
-    debug!(?ssrc, ?update.speaking, "got SpeakingUpdate event");
-    if update.speaking {
+    debug!(?ssrc, ?speaking, "got SpeakingUpdate event");
+    if speaking {
         return;
     }
 

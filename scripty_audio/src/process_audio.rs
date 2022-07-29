@@ -7,8 +7,8 @@ pub fn process_audio(src: Vec<i16>, src_sample_rate: f64, dst_sample_rate: f64) 
     if src_sample_rate != dst_sample_rate {
         // convert src into an iterator
         let mut source = from_iter(src.into_iter().map(|v| [v]));
-        let first: [i16; 1] = source.next().expect("should be at least one sample");
-        let second = source.next().unwrap_or(0);
+        let first: [i16; 1] = source.next();
+        let second = source.next();
 
         // start off by preparing a linear interpolator for the model
         let interpolator = Linear::new(first, second);
@@ -25,6 +25,8 @@ pub fn process_audio(src: Vec<i16>, src_sample_rate: f64, dst_sample_rate: f64) 
     }
 }
 
+// this is useless, and only remains here for someone to stumble upon for their own use
+#[allow(dead_code)]
 pub fn stereo_to_mono(src: &[i16]) -> Vec<i16> {
     // note: we're not doing this the normal way, because in release mode, there are no arithmetic overflow checks
     // so we divide the samples by two, and then add them together to get the mono sample

@@ -37,6 +37,9 @@ pub type SsrcLastPktIdMap = Arc<DashMap<u32, u16, RandomState>>;
 /// Type alias for a `DashMap` containing SSRCs mapped to a voice audio ingest struct.
 pub type SsrcVoiceIngestMap = Arc<DashMap<u32, Option<VoiceIngest>, RandomState>>;
 
+/// Type alias for a `DashMap` containing SSRCs mapped to the number of silent frames in a row found.
+pub type SsrcSilentFrameCountMap = Arc<DashMap<u32, usize, RandomState>>;
+
 /// Type alias for a `DashSet` containing the current list of active users
 pub type ActiveUserSet = Arc<DashSet<u32, RandomState>>;
 

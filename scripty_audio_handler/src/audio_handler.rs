@@ -1,7 +1,8 @@
 use crate::events::*;
 use crate::types::{
     ActiveUserSet, NextUserList, SsrcIgnoredMap, SsrcLastPktIdMap, SsrcMissedPktList,
-    SsrcMissedPktMap, SsrcStreamMap, SsrcUserDataMap, SsrcUserIdMap, SsrcVoiceIngestMap,
+    SsrcMissedPktMap, SsrcSilentFrameCountMap, SsrcStreamMap, SsrcUserDataMap, SsrcUserIdMap,
+    SsrcVoiceIngestMap,
 };
 use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
@@ -24,6 +25,7 @@ pub struct AudioHandler {
     ssrc_missed_pkt_map: SsrcMissedPktMap,
     ssrc_missed_pkt_list: SsrcMissedPktList,
     ssrc_voice_ingest_map: SsrcVoiceIngestMap,
+    ssrc_silent_frame_count_map: SsrcSilentFrameCountMap,
     active_user_set: ActiveUserSet,
     next_user_list: NextUserList,
     guild_id: GuildId,
@@ -52,6 +54,7 @@ impl AudioHandler {
             ssrc_missed_pkt_map: Arc::new(DashMap::with_hasher(RandomState::new())),
             ssrc_missed_pkt_list: Arc::new(DashMap::with_hasher(RandomState::new())),
             ssrc_voice_ingest_map: Arc::new(DashMap::with_hasher(RandomState::new())),
+            ssrc_silent_frame_count_map: Arc::new(DashMap::with_hasher(RandomState::new())),
             active_user_set: Arc::new(DashSet::with_hasher(RandomState::new())),
             next_user_list: Arc::new(RwLock::new(VecDeque::with_capacity(10))),
             guild_id,
@@ -94,31 +97,66 @@ impl EventHandler for AudioHandler {
                 Arc::clone(&self.ssrc_user_data_map),
                 Arc::clone(&self.ssrc_ignored_map),
             )),
-            EventContext::SpeakingUpdate(update) => tokio::spawn(speaking_update(
-                update.clone(),
-                self.context.clone(),
-                Arc::clone(&self.webhook),
-                Arc::clone(&self.ssrc_user_id_map),
-                Arc::clone(&self.ssrc_user_data_map),
-                Arc::clone(&self.ssrc_stream_map),
-                Arc::clone(&self.ssrc_last_pkt_id_map),
-                Arc::clone(&self.ssrc_missed_pkt_map),
-                Arc::clone(&self.ssrc_missed_pkt_list),
-                Arc::clone(&self.ssrc_voice_ingest_map),
-                Arc::clone(&self.verbose),
-            )),
-            EventContext::VoicePacket(voice_data) => tokio::spawn(voice_packet(
-                voice_data.audio.clone(),
-                voice_data.packet.ssrc,
-                voice_data.packet.sequence.0 .0,
-                Arc::clone(&self.ssrc_user_id_map),
-                Arc::clone(&self.ssrc_stream_map),
-                Arc::clone(&self.ssrc_ignored_map),
-                Arc::clone(&self.ssrc_last_pkt_id_map),
-                Arc::clone(&self.ssrc_missed_pkt_map),
-                Arc::clone(&self.ssrc_missed_pkt_list),
-                Arc::clone(&self.ssrc_voice_ingest_map),
-            )),
+            EventContext::VoicePacket(voice_data) => {
+                let ssrc_user_id_map = Arc::clone(&self.ssrc_user_id_map);
+                let ssrc_stream_map = Arc::clone(&self.ssrc_stream_map);
+                let ssrc_ignored_map = Arc::clone(&self.ssrc_ignored_map);
+                let ssrc_last_pkt_id_map = Arc::clone(&self.ssrc_last_pkt_id_map);
+                let ssrc_missed_pkt_map = Arc::clone(&self.ssrc_missed_pkt_map);
+                let ssrc_missed_pkt_list = Arc::clone(&self.ssrc_missed_pkt_list);
+                let ssrc_voice_ingest_map = Arc::clone(&self.ssrc_voice_ingest_map);
+                let ssrc_silent_frame_count_map = Arc::clone(&self.ssrc_silent_frame_count_map);
+
+                let ctx2 = self.context.clone();
+                let webhook_2 = Arc::clone(&self.webhook);
+                let ssrc_user_id_map_2 = Arc::clone(&self.ssrc_user_id_map);
+                let ssrc_user_data_map_2 = Arc::clone(&self.ssrc_user_data_map);
+                let ssrc_stream_map_2 = Arc::clone(&self.ssrc_stream_map);
+                let ssrc_last_pkt_id_map_2 = Arc::clone(&self.ssrc_last_pkt_id_map);
+                let ssrc_missed_pkt_map_2 = Arc::clone(&self.ssrc_missed_pkt_map);
+                let ssrc_missed_pkt_list_2 = Arc::clone(&self.ssrc_missed_pkt_list);
+                let ssrc_voice_ingest_map_2 = Arc::clone(&self.ssrc_voice_ingest_map);
+                let verbose_2 = Arc::clone(&self.verbose);
+
+                let audio = voice_data.audio.clone();
+                let ssrc = voice_data.packet.ssrc;
+                let sequence = voice_data.packet.sequence.0 .0;
+
+                tokio::spawn(async move {
+                    let is_final = voice_packet(
+                        audio,
+                        ssrc,
+                        sequence,
+                        ssrc_user_id_map,
+                        ssrc_stream_map,
+                        ssrc_ignored_map,
+                        ssrc_last_pkt_id_map,
+                        ssrc_missed_pkt_map,
+                        ssrc_missed_pkt_list,
+                        ssrc_voice_ingest_map,
+                        ssrc_silent_frame_count_map,
+                    )
+                    .await;
+
+                    if is_final {
+                        speaking_update(
+                            ssrc,
+                            true,
+                            ctx2,
+                            webhook_2,
+                            ssrc_user_id_map_2,
+                            ssrc_user_data_map_2,
+                            ssrc_stream_map_2,
+                            ssrc_last_pkt_id_map_2,
+                            ssrc_missed_pkt_map_2,
+                            ssrc_missed_pkt_list_2,
+                            ssrc_voice_ingest_map_2,
+                            verbose_2,
+                        )
+                        .await;
+                    }
+                })
+            }
             // so guess what?
             // discord, in their infinite wisdom, randomly removed ClientConnect
             // great job shitcord
