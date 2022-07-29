@@ -20,6 +20,10 @@ pub async fn voice_packet(
 ) {
     let metrics = scripty_metrics::get_metrics();
     metrics.ms_transcribed.inc_by(20);
+    if let Some(bytes) = audio.map(|a| a.len() * std::mem::size_of::<i16>()) {
+        metrics.audio_bytes_processed.inc_by(bytes as u64);
+    }
+
     let st = Instant::now();
 
     if ssrc_ignored_map.get(&ssrc).map_or(false, |x| *x.value()) {

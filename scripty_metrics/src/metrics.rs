@@ -152,6 +152,7 @@ pub struct Metrics {
     pub guilds: IntGauge,
     pub users: IntGauge,
     pub ms_transcribed: IntCounter,
+    pub audio_bytes_processed: IntCounter,
     pub total_events: IntCounter,
     pub avg_audio_process_time: IntGauge,
     pub total_commands: IntCounter,
@@ -224,6 +225,12 @@ impl Metrics {
         let latency_static = LatencyVec::from(&latency_stats);
         registry.register(Box::new(latency_stats)).unwrap();
 
+        let audio_bytes_processed =
+            IntCounter::new("audio_bytes_processed", "Bytes of audio processed").unwrap();
+        registry
+            .register(Box::new(audio_bytes_processed.clone()))
+            .unwrap();
+
         Arc::new(Self {
             registry,
             start_time: Utc::now().naive_utc(),
@@ -232,6 +239,7 @@ impl Metrics {
             guilds: guilds_gauge,
             users: members_gauge,
             ms_transcribed,
+            audio_bytes_processed,
             total_events: events,
             avg_audio_process_time: audio_process,
             total_commands: total_commands_used,
