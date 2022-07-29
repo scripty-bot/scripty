@@ -143,7 +143,7 @@ impl EventHandler for AudioHandler {
                     if is_final {
                         speaking_update(
                             ssrc,
-                            true,
+                            false,
                             ctx2,
                             webhook_2,
                             ssrc_user_id_map_2,
