@@ -156,6 +156,14 @@ pub async fn voice_packet(
             trace!(?ssrc, "done processing pkt");
         } else {
             warn!(?ssrc, "no stream found for ssrc");
+            let new_stream = match scripty_audio::Stream::new("en", verbose).await {
+                Ok(s) => s,
+                Err(e) => {
+                    error!(?ssrc, "failed to create new stream: {}", e);
+                    return false;
+                }
+            };
+            ssrc_stream_map.insert(ssrc, new_stream);
         }
 
         if let Some(user_id) = ssrc_user_id_map.get(&ssrc) {
