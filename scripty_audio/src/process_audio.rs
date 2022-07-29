@@ -4,7 +4,7 @@ use dasp_signal::{from_iter, Signal};
 
 #[inline]
 pub fn process_audio(src: Vec<i16>, src_sample_rate: f64, dst_sample_rate: f64) -> Vec<i16> {
-    if src_sample_rate != dst_sample_rate {
+    let src = if src_sample_rate != dst_sample_rate {
         // convert src into an iterator
         let mut source = from_iter(src.into_iter().map(|v| [v]));
         let first: [i16; 1] = source.next();
