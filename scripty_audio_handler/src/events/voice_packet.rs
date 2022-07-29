@@ -62,9 +62,9 @@ pub async fn voice_packet(
     }
 
     if let Some(audio) = audio {
-        debug!(%ssrc, "got {} bytes of audio", audio.len() * SIZE_OF_I16);
+        trace!(%ssrc, "got {} bytes of audio", audio.len() * SIZE_OF_I16);
 
-        debug!(?ssrc, "processing audio");
+        trace!(?ssrc, "processing audio");
         let mut audio = scripty_audio::process_audio(audio, 48_000.0, 16_000.0);
 
         // handle any missing packets now
@@ -72,7 +72,7 @@ pub async fn voice_packet(
         // try decrementing sequence number to see if we can get rid of any missed packets
         handle_missed_packets(ssrc, sequence - 1, &mut audio, &ssrc_missed_pkt_map);
 
-        debug!(?ssrc, "feeding audio");
+        trace!(?ssrc, "feeding audio");
         // the rare case where we don't have a stream is extremely rare,
         // so doing the above processing is fine, since the speed boost from
         // not holding a mut ref to the stream is worth it
@@ -80,29 +80,29 @@ pub async fn voice_packet(
             if let Err(e) = stream.feed_audio(audio.as_ref()).await {
                 warn!("failed to feed audio packet: {}", e)
             };
-            debug!(?ssrc, "done processing pkt");
+            trace!(?ssrc, "done processing pkt");
         } else {
             warn!(?ssrc, "no stream found for ssrc");
         }
 
         if let Some(user_id) = ssrc_user_id_map.get(&ssrc) {
-            debug!(?ssrc, "found user ID, getting ingest state");
+            trace!(?ssrc, "found user ID, getting ingest state");
             if let Some(mut ingest) = ssrc_voice_ingest_map.get_mut(&ssrc) {
                 if let Some(ref mut ingest) = ingest.value_mut() {
-                    debug!(?ssrc, "user has opted in, feeding audio");
+                    trace!(?ssrc, "user has opted in, feeding audio");
                     ingest.ingest(&audio);
                 } else {
-                    debug!(?ssrc, "user has opted out, not feeding");
+                    trace!(?ssrc, "user has opted out, not feeding");
                 }
             } else {
                 let ingest = if let Some(ingest) =
                     scripty_data_storage::VoiceIngest::new(*user_id.value(), "en".to_string()).await
                 {
-                    debug!(?ssrc, "user has opted in, creating ingest");
+                    trace!(?ssrc, "user has opted in, creating ingest");
                     ingest.ingest(audio.as_ref());
                     Some(ingest)
                 } else {
-                    debug!(?ssrc, "user has opted out, not creating ingest");
+                    trace!(?ssrc, "user has opted out, not creating ingest");
                     None
                 };
                 ssrc_voice_ingest_map.insert(ssrc, ingest);
@@ -126,13 +126,13 @@ fn handle_missed_packets(
 ) {
     let last_pkt = sequence - 1;
     if let Some(last_pkt_audio) = ssrc_missed_pkt_map.remove(&(ssrc, last_pkt)) {
-        debug!(?ssrc, "found out-of-order packet with ID {}", last_pkt);
+        trace!(?ssrc, "found out-of-order packet with ID {}", last_pkt);
         let processed_audio = scripty_audio::process_audio(last_pkt_audio.1, 48_000.0, 16_000.0);
         // prepend the processed audio to the current audio
         push_all_at(audio, 0, &processed_audio[..]);
         handle_missed_packets(ssrc, last_pkt, audio, ssrc_missed_pkt_map)
     } else {
-        debug!(?ssrc, "no out-of-order packets found");
+        trace!(?ssrc, "no out-of-order packets found");
     }
 }
 
