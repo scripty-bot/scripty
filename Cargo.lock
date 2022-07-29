@@ -2208,6 +2208,7 @@ dependencies = [
  "byteorder",
  "dasp_interpolate",
  "dasp_signal",
+ "flume",
  "once_cell",
  "scripty_config",
  "tokio",

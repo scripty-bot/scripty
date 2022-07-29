@@ -150,28 +150,6 @@ pub async fn voice_packet(
             }
         }
 
-        trace!(?ssrc, "feeding audio");
-        // the rare case where we don't have a stream is extremely rare,
-        // so doing the above processing is fine, since the speed boost from
-        // not holding a mut ref to the stream is worth it
-        if let Some(mut stream) = ssrc_stream_map.get_mut(&ssrc) {
-            if let Err(e) = stream.feed_audio(audio.as_ref()).await {
-                warn!("failed to feed audio packet: {}", e)
-            };
-            trace!(?ssrc, "done processing pkt");
-        } else {
-            warn!(?ssrc, "no stream found for ssrc");
-            let new_stream =
-                match scripty_audio::Stream::new("en", verbose.load(Ordering::Relaxed)).await {
-                    Ok(s) => s,
-                    Err(e) => {
-                        error!(?ssrc, "failed to create new stream: {}", e);
-                        return false;
-                    }
-                };
-            ssrc_stream_map.insert(ssrc, new_stream);
-        }
-
         if let Some(user_id) = ssrc_user_id_map.get(&ssrc) {
             trace!(?ssrc, "found user ID, getting ingest state");
             if let Some(ingest) = ssrc_voice_ingest_map.get(&ssrc) {
@@ -194,6 +172,28 @@ pub async fn voice_packet(
                 };
                 ssrc_voice_ingest_map.insert(ssrc, ingest);
             }
+        }
+
+        trace!(?ssrc, "feeding audio");
+        // the rare case where we don't have a stream is extremely rare,
+        // so doing the above processing is fine, since the speed boost from
+        // not holding a mut ref to the stream is worth it
+        if let Some(stream) = ssrc_stream_map.get(&ssrc) {
+            if let Err(e) = stream.feed_audio(audio) {
+                warn!("failed to feed audio packet: {}", e)
+            };
+            trace!(?ssrc, "done processing pkt");
+        } else {
+            warn!(?ssrc, "no stream found for ssrc");
+            let new_stream =
+                match scripty_audio::Stream::new("en", verbose.load(Ordering::Relaxed)).await {
+                    Ok(s) => s,
+                    Err(e) => {
+                        error!(?ssrc, "failed to create new stream: {}", e);
+                        return false;
+                    }
+                };
+            ssrc_stream_map.insert(ssrc, new_stream);
         }
     }
 

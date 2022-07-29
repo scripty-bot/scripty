@@ -1,11 +1,19 @@
 use byteorder::{ByteOrder, NetworkEndian};
+use flume::{Receiver, Sender};
+use std::time::Duration;
 use tokio::io;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::UnixStream;
 
 pub struct Stream {
-    socket: UnixStream,
-    verbose: bool,
+    comm: Sender<Vec<i16>>,
+    final_comm: Sender<FinalizeVariant>,
+    err_comm: Receiver<ModelError>,
+}
+
+enum FinalizeVariant {
+    Normal(Sender<Result<Transcript, ModelError>>),
+    Verbose(Sender<Result<VerboseTranscript, ModelError>>),
 }
 
 impl Stream {
@@ -24,27 +32,90 @@ impl Stream {
 
         // wait for response
         match socket.read_u8().await? {
-            0x00 => Ok(Self { socket, verbose }),
-            _ => Err(ModelError::SttsServer(2147483653)),
+            0x00 => {}
+            _ => return Err(ModelError::SttsServer(2147483653)),
+        };
+
+        let (comm_tx, comm_rx) = flume::bounded::<Vec<i16>>(0);
+        let (final_tx, final_rx) = flume::bounded(0);
+        let (err_tx, err_rx) = flume::bounded(1);
+
+        tokio::spawn(async move {
+            loop {
+                tokio::select! {
+                    val = comm_rx.recv_async() => {
+                        match val {
+                            Ok(data) => {
+                                if let Err(e) = Self::feed_audio_wrapper(&mut socket, data.as_ref()).await {
+                                    error!("error sending audio to stts: {}", e);
+                                    let _ = err_tx.send(e);
+                                }
+                            }
+                            Err(_) => {
+                                let _ = socket.write_u8(0x03).await;
+                                break;
+                            },
+                        }
+                    }
+                    val = final_rx.recv_async() => {
+                        match val {
+                            Ok(FinalizeVariant::Normal(r)) => {
+                                if verbose {
+                                    panic!("when verbose, use get_result_verbose()");
+                                }
+                                // this might fail to send, but at this point the stream is already dead so no cleanup is needed
+                                let _ = r.send(Self::get_result_wrapper(&mut socket).await);
+                            }
+                            Ok(FinalizeVariant::Verbose(r)) => {
+                                if !verbose {
+                                    panic!("when not verbose, use get_result()");
+                                }
+                                // this also might fail to send, but at this point the stream is already dead so no cleanup is needed
+                                let _ =r.send(Self::get_result_verbose_wrapper(&mut socket).await);
+                            }
+                            Err(_) => {
+                                let _ = socket.write_u8(0x03).await;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        });
+        Ok(Self {
+            comm: comm_tx,
+            final_comm: final_tx,
+            err_comm: err_rx,
+        })
+    }
+
+    pub fn feed_audio(&self, data: Vec<i16>) -> Result<(), ModelError> {
+        if self.comm.send(data).is_err() {
+            Err(self
+                .err_comm
+                .recv_timeout(Duration::from_micros(10))
+                .expect("error was not sent in time after erroring"))
+        } else {
+            Ok(())
         }
     }
 
-    pub async fn feed_audio(&mut self, audio: &[i16]) -> Result<(), ModelError> {
+    async fn feed_audio_wrapper(socket: &mut UnixStream, audio: &[i16]) -> Result<(), ModelError> {
         // 0x01: Feed Audio
-        self.socket.write_u8(0x01).await?;
+        socket.write_u8(0x01).await?;
 
         let bytes = audio.len() * std::mem::size_of::<i16>();
 
         // field 0: data_len: u32
-        self.socket.write_u32(bytes as u32).await?;
+        socket.write_u32(bytes as u32).await?;
 
         // field 1: data: Vec<i16>
         let mut dst = vec![0; bytes];
         NetworkEndian::write_i16_into(audio, &mut dst);
-        self.socket.write_all(&dst).await?;
+        socket.write_all(&dst).await?;
 
         // flush the socket, waiting at most 1 millisecond
-        match tokio::time::timeout(std::time::Duration::from_millis(1), self.socket.flush()).await {
+        match tokio::time::timeout(std::time::Duration::from_millis(1), socket.flush()).await {
             Ok(Err(e)) => return Err(e.into()),
             Err(_) => warn!("failed to flush socket before timeout"),
             _ => {}
@@ -53,50 +124,64 @@ impl Stream {
         Ok(())
     }
 
-    pub async fn get_result(mut self) -> Result<Transcript, ModelError> {
-        if self.verbose {
-            panic!("when verbose, use get_result_verbose()");
-        }
+    pub async fn get_result(self) -> Result<Transcript, ModelError> {
+        let (tx, rx) = flume::bounded(0);
+        self.final_comm
+            .send(FinalizeVariant::Normal(tx))
+            .expect("failed to send to a channel that should still be open?");
+        rx.recv_async()
+            .await
+            .expect("failed to receive from a open channel?")
+    }
 
+    async fn get_result_wrapper(socket: &mut UnixStream) -> Result<Transcript, ModelError> {
         // 0x02: Get Result
-        self.socket.write_u8(0x02).await?;
-        self.socket.flush().await?;
+        socket.write_u8(0x02).await?;
+        socket.flush().await?;
 
         // wait for response
-        match self.socket.read_u8().await? {
+        match socket.read_u8().await? {
             0x02 => {
                 // read transcript
                 Ok(Transcript {
-                    result: read_string(&mut self.socket).await?,
+                    result: read_string(socket).await?,
                 })
             }
             0x04 => {
                 // read error code
-                Err(ModelError::SttsServer(self.socket.read_i64().await?))
+                Err(ModelError::SttsServer(socket.read_i64().await?))
             }
             _ => Err(ModelError::SttsServer(2147483653)),
         }
     }
 
-    pub async fn get_result_verbose(mut self) -> Result<VerboseTranscript, ModelError> {
-        if !self.verbose {
-            panic!("when not verbose, use get_result()");
-        }
+    pub async fn get_result_verbose(self) -> Result<VerboseTranscript, ModelError> {
+        let (tx, rx) = flume::bounded(0);
+        self.final_comm
+            .send(FinalizeVariant::Verbose(tx))
+            .expect("failed to send to a channel that should still be open?");
+        rx.recv_async()
+            .await
+            .expect("failed to receive from a open channel?")
+    }
 
+    async fn get_result_verbose_wrapper(
+        socket: &mut UnixStream,
+    ) -> Result<VerboseTranscript, ModelError> {
         // 0x02: Get Result
-        self.socket.write_u8(0x02).await?;
-        self.socket.flush().await?;
+        socket.write_u8(0x02).await?;
+        socket.flush().await?;
 
         // wait for response
-        match self.socket.read_u8().await? {
+        match socket.read_u8().await? {
             0x03 => {
                 // read verbose transcript
-                let num_transcripts = self.socket.read_u32().await?;
+                let num_transcripts = socket.read_u32().await?;
                 let mut main_transcript = None;
                 let mut main_confidence = None;
                 if num_transcripts != 0 {
-                    main_transcript = Some(read_string(&mut self.socket).await?);
-                    main_confidence = Some(self.socket.read_f64().await?);
+                    main_transcript = Some(read_string(socket).await?);
+                    main_confidence = Some(socket.read_f64().await?);
                 }
 
                 Ok(VerboseTranscript {
@@ -107,7 +192,7 @@ impl Stream {
             }
             0x04 => {
                 // read error code
-                Err(ModelError::SttsServer(self.socket.read_i64().await?))
+                Err(ModelError::SttsServer(socket.read_i64().await?))
             }
             _ => Err(ModelError::SttsServer(2147483653)),
         }
