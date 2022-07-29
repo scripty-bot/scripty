@@ -36,7 +36,7 @@ impl Stream {
             _ => return Err(ModelError::SttsServer(2147483653)),
         };
 
-        let (comm_tx, comm_rx) = flume::bounded::<Vec<i16>>(16);
+        let (comm_tx, comm_rx) = flume::unbounded::<Vec<i16>>();
         let (final_tx, final_rx) = flume::bounded(0);
         let (err_tx, err_rx) = flume::bounded(1);
 
