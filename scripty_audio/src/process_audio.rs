@@ -4,11 +4,14 @@ use dasp_signal::{from_iter, Signal};
 
 #[inline]
 pub fn process_audio(src: Vec<i16>, src_sample_rate: f64, dst_sample_rate: f64) -> Vec<i16> {
-    let src = if src_sample_rate != dst_sample_rate {
-        // start off by preparing a linear interpolator for the model
-        let interpolator = Linear::new([0i16], [0]);
+    if src_sample_rate != dst_sample_rate {
+        // convert src into an iterator
+        let mut source = from_iter(src.into_iter().map(|v| [v]));
+        let first: [i16; 1] = source.next().expect("should be at least one sample");
+        let second = source.next().unwrap_or(0);
 
-        let source = from_iter(src.iter().map(|v| [*v]));
+        // start off by preparing a linear interpolator for the model
+        let interpolator = Linear::new(first, second);
 
         // then make a converter that takes this interpolator and converts it
         let conv = Converter::from_hz_to_hz(source, interpolator, src_sample_rate, dst_sample_rate);
