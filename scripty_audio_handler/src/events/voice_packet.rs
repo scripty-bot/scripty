@@ -101,9 +101,11 @@ pub async fn voice_packet(
                         trace!(?ssrc, "didn't reach end of silence");
                     } else {
                         trace!(?ssrc, "not a completely silent frame");
+                        *x.value_mut() = 0;
                     }
                 } else {
                     trace!(?ssrc, "not a completely silent frame");
+                    *x.value_mut() = 0;
                 }
             }
         }
