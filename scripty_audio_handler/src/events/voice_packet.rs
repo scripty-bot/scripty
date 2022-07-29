@@ -87,8 +87,8 @@ pub async fn voice_packet(
 
         if let Some(user_id) = ssrc_user_id_map.get(&ssrc) {
             trace!(?ssrc, "found user ID, getting ingest state");
-            if let Some(mut ingest) = ssrc_voice_ingest_map.get_mut(&ssrc) {
-                if let Some(ref mut ingest) = ingest.value_mut() {
+            if let Some(ingest) = ssrc_voice_ingest_map.get(&ssrc) {
+                if let Some(ref ingest) = ingest.value() {
                     trace!(?ssrc, "user has opted in, feeding audio");
                     ingest.ingest(&audio);
                 } else {
