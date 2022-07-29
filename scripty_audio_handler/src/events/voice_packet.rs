@@ -120,8 +120,7 @@ pub async fn voice_packet(
                 let mut silence_start = last_idx;
                 while silence_start > 0 {
                     silence_start -= 5;
-                    if audio.get(silence_start).map_or(false, |x| *x != 0) {
-                    } else {
+                    if audio.get(silence_start).map_or(true, |x| *x != 0) {
                         break;
                     }
                 }
