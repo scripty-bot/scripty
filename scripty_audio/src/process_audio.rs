@@ -22,7 +22,9 @@ pub fn process_audio(src: Vec<i16>, src_sample_rate: f64, dst_sample_rate: f64) 
             .collect()
     } else {
         src
-    }
+    };
+
+    stereo_to_mono(&src)
 }
 
 // this is useless, and only remains here for someone to stumble upon for their own use
