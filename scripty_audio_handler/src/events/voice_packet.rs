@@ -1,7 +1,8 @@
 use crate::consts::SIZE_OF_I16;
 use crate::types::{
-    SsrcIgnoredMap, SsrcLastPktIdMap, SsrcMissedPktList, SsrcMissedPktMap, SsrcSilentFrameCountMap,
-    SsrcStreamMap, SsrcUserIdMap, SsrcVoiceIngestMap,
+    SsrcIgnoredMap, SsrcLastPktIdMap, SsrcMissedPktList, SsrcMissedPktMap,
+    SsrcOutOfOrderPktCountMap, SsrcSilentFrameCountMap, SsrcStreamMap, SsrcUserIdMap,
+    SsrcVoiceIngestMap,
 };
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
@@ -9,7 +10,7 @@ use std::time::Instant;
 
 #[allow(clippy::too_many_arguments)]
 pub async fn voice_packet(
-    audio: Option<Vec<i16>>,
+    mut audio: Option<Vec<i16>>,
     ssrc: u32,
     sequence: u16,
     ssrc_user_id_map: SsrcUserIdMap,
@@ -20,6 +21,7 @@ pub async fn voice_packet(
     ssrc_missed_pkt_list: SsrcMissedPktList,
     ssrc_voice_ingest_map: SsrcVoiceIngestMap,
     ssrc_silent_frame_count_map: SsrcSilentFrameCountMap,
+    ssrc_out_of_order_pkt_count_map: SsrcOutOfOrderPktCountMap,
     verbose: Arc<AtomicBool>,
 ) -> bool {
     let metrics = scripty_metrics::get_metrics();
@@ -39,22 +41,46 @@ pub async fn voice_packet(
         let expected = *pkt_id.value() + 1;
         if expected != sequence {
             // packet is out of order
-            warn!(
-                ?ssrc,
-                "got out of order audio packet! expected {}, got {}", expected, sequence
-            );
-            // update the last packet id
-            *pkt_id.value_mut() = sequence + 1;
-            if let Some(audio) = audio {
-                // hold it in the missed packet map in case we get it again
-                ssrc_missed_pkt_map.insert((ssrc, sequence), audio);
-                if let Some(mut pkt_list) = ssrc_missed_pkt_list.get_mut(&ssrc) {
-                    pkt_list.push(sequence);
-                } else {
-                    ssrc_missed_pkt_list.insert(ssrc, vec![sequence]);
+
+            // first check if this is the 5th out of order one in a row
+            if *ssrc_out_of_order_pkt_count_map
+                .entry(ssrc)
+                .or_insert(0)
+                .value()
+                == 5
+            {
+                // something's gone wrong, likely a dropped packet somewhere, so try to find missing packets and append them
+                if let Some(audio) = audio.as_mut() {
+                    handle_missed_packets(ssrc, sequence + 1, audio, &ssrc_missed_pkt_map);
+                    handle_missed_packets(ssrc, sequence, audio, &ssrc_missed_pkt_map);
+                    handle_missed_packets(ssrc, sequence - 1, audio, &ssrc_missed_pkt_map);
                 }
+                // reset the out of order packet count to 0
+                ssrc_out_of_order_pkt_count_map.insert(ssrc, 0);
+                // set the current packet ID to this packet's ID
+                *pkt_id.value_mut() = sequence;
+            } else {
+                debug!(
+                    ?ssrc,
+                    "got out of order audio packet! expected {}, got {}", expected, sequence
+                );
+                // update the last packet id
+                *pkt_id.value_mut() = sequence + 1;
+                if let Some(audio) = audio {
+                    // hold it in the missed packet map in case we get it again
+                    ssrc_missed_pkt_map.insert((ssrc, sequence), audio);
+                    if let Some(mut pkt_list) = ssrc_missed_pkt_list.get_mut(&ssrc) {
+                        pkt_list.push(sequence);
+                    } else {
+                        ssrc_missed_pkt_list.insert(ssrc, vec![sequence]);
+                    }
+                }
+                *ssrc_out_of_order_pkt_count_map
+                    .entry(ssrc)
+                    .or_insert(0)
+                    .value_mut() += 1;
+                return false;
             }
-            return false;
         } else {
             // packet is in order, update the last packet id
             *pkt_id.value_mut() = expected;

@@ -1,8 +1,8 @@
 use crate::events::*;
 use crate::types::{
     ActiveUserSet, NextUserList, SsrcIgnoredMap, SsrcLastPktIdMap, SsrcMissedPktList,
-    SsrcMissedPktMap, SsrcSilentFrameCountMap, SsrcStreamMap, SsrcUserDataMap, SsrcUserIdMap,
-    SsrcVoiceIngestMap,
+    SsrcMissedPktMap, SsrcOutOfOrderPktCountMap, SsrcSilentFrameCountMap, SsrcStreamMap,
+    SsrcUserDataMap, SsrcUserIdMap, SsrcVoiceIngestMap,
 };
 use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
@@ -26,6 +26,7 @@ pub struct AudioHandler {
     ssrc_missed_pkt_list: SsrcMissedPktList,
     ssrc_voice_ingest_map: SsrcVoiceIngestMap,
     ssrc_silent_frame_count_map: SsrcSilentFrameCountMap,
+    ssrc_out_of_order_pkt_count_map: SsrcOutOfOrderPktCountMap,
     active_user_set: ActiveUserSet,
     next_user_list: NextUserList,
     guild_id: GuildId,
@@ -55,6 +56,7 @@ impl AudioHandler {
             ssrc_missed_pkt_list: Arc::new(DashMap::with_hasher(RandomState::new())),
             ssrc_voice_ingest_map: Arc::new(DashMap::with_hasher(RandomState::new())),
             ssrc_silent_frame_count_map: Arc::new(DashMap::with_hasher(RandomState::new())),
+            ssrc_out_of_order_pkt_count_map: Arc::new(DashMap::with_hasher(RandomState::new())),
             active_user_set: Arc::new(DashSet::with_hasher(RandomState::new())),
             next_user_list: Arc::new(RwLock::new(VecDeque::with_capacity(10))),
             guild_id,
@@ -106,6 +108,8 @@ impl EventHandler for AudioHandler {
                 let ssrc_missed_pkt_list = Arc::clone(&self.ssrc_missed_pkt_list);
                 let ssrc_voice_ingest_map = Arc::clone(&self.ssrc_voice_ingest_map);
                 let ssrc_silent_frame_count_map = Arc::clone(&self.ssrc_silent_frame_count_map);
+                let ssrc_out_of_order_pkt_count_map =
+                    Arc::clone(&self.ssrc_out_of_order_pkt_count_map);
                 let verbose = Arc::clone(&self.verbose);
 
                 let ctx2 = self.context.clone();
@@ -136,6 +140,7 @@ impl EventHandler for AudioHandler {
                         ssrc_missed_pkt_list,
                         ssrc_voice_ingest_map,
                         ssrc_silent_frame_count_map,
+                        ssrc_out_of_order_pkt_count_map,
                         verbose,
                     )
                     .await;
