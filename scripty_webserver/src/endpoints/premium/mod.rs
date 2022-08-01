@@ -110,7 +110,7 @@ pub async fn subscription_update(
                 If you have a moment, it'd be great if you could respond to this message telling us why you cancelled.\
                 In any case, thank you a lot for supporting Scripty.\n\
                 <:meow_heart:1003570104866443274> ~ the Scripty team",
-                data.cancel_at.unwrap_or(0)
+                data.plan_ends_at.unwrap_or(0)
             ));
 
             (false, true, false)
@@ -166,7 +166,7 @@ pub async fn subscription_update(
         .await?;
     }
 
-    if let Some(expiry_timestamp) = data.cancel_at {
+    if let Some(expiry_timestamp) = data.plan_ends_at {
         let db = scripty_db::get_db();
 
         // convert the Unix timestamp in expiry_timestamp to a sqlx::types::time::PrimitiveDateTime

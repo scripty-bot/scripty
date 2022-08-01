@@ -5,7 +5,7 @@ pub struct InvoiceStatusJson {
     pub cost: String,
     /// Unix timestamp
     pub next_attempt: u64,
-    pub invoice_url: String,
+    pub invoice_url: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
