@@ -1,9 +1,15 @@
 use once_cell::sync::OnceCell;
 use parking_lot::Mutex;
+use serenity::client::Cache;
 use serenity::gateway::ConnectionStage;
+use serenity::http::{CacheHttp, Http};
 use serenity::model::channel::ChannelType;
 use std::collections::HashMap;
+use std::sync::Arc;
 use std::time::Instant;
+
+pub use serenity::builder::{CreateEmbed, CreateMessage};
+pub use serenity::model::id::UserId;
 
 pub struct CacheNotInitializedError;
 
@@ -197,4 +203,33 @@ pub async fn get_shard_info() -> Result<HashMap<u32, ShardInfo>, CacheNotInitial
     }
 
     Ok(shard_list)
+}
+
+static HTTP_CLIENT: OnceCell<CacheHttpWrapper> = OnceCell::new();
+
+pub fn get_cache_http() -> &'static CacheHttpWrapper {
+    HTTP_CLIENT
+        .get()
+        .expect("http should be set before calling get_http")
+}
+
+#[derive(Clone)]
+pub struct CacheHttpWrapper {
+    cache: Arc<Cache>,
+    http: Arc<Http>,
+}
+
+impl CacheHttp for CacheHttpWrapper {
+    fn http(&self) -> &Http {
+        &self.http
+    }
+    fn cache(&self) -> Option<&Arc<Cache>> {
+        Some(&self.cache)
+    }
+}
+
+pub(crate) fn set_cache_http(http: Arc<Http>, cache: Arc<Cache>) {
+    HTTP_CLIENT
+        .set(CacheHttpWrapper { cache, http })
+        .unwrap_or_else(|_| panic!("set_cache_http should be called only once"))
 }

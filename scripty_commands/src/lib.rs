@@ -57,6 +57,8 @@ pub async fn entrypoint() {
         })
         .user_data_setup(move |ctx, _, c| {
             Box::pin(async move {
+                set_cache_http(ctx.http.clone(), ctx.cache.clone());
+
                 CLIENT_DATA
                     .set(Data {
                         shard_manager: c.shard_manager().clone(),

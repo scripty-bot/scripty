@@ -141,14 +141,13 @@ ON CONFLICT
     sqlx::query!(
         r#"
 INSERT INTO guilds
-VALUES ($1, $2, $3, $4, 0)
+VALUES ($1, $2, $3, $4, false)
 ON CONFLICT
     ON CONSTRAINT guilds_pkey
     DO UPDATE SET
       target_channel = $2,
       language = $3,
-      be_verbose = $4,
-      premium_level = 0
+      be_verbose = $4
       "#,
         guild_id,
         channel_id,
