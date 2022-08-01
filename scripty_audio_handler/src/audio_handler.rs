@@ -74,15 +74,13 @@ impl AudioHandler {
     pub async fn reload_config(&self) -> Result<(), sqlx::Error> {
         let db = scripty_db::get_db();
         let guild_res = sqlx::query!(
-            "SELECT be_verbose, premium_level FROM guilds WHERE guild_id = $1",
+            "SELECT be_verbose FROM guilds WHERE guild_id = $1",
             self.guild_id.get() as i64
         )
         .fetch_one(db)
         .await?;
 
         self.verbose.store(guild_res.be_verbose, Ordering::Relaxed);
-        self.premium_level
-            .store(guild_res.premium_level as u8, Ordering::Relaxed);
 
         Ok(())
     }
