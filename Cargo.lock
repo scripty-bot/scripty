@@ -2390,8 +2390,10 @@ dependencies = [
  "scripty_config",
  "scripty_db",
  "scripty_metrics",
+ "scripty_utils",
  "serde",
  "serde_json",
+ "sqlx",
  "tokio",
  "tracing",
 ]

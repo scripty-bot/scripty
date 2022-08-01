@@ -22,6 +22,11 @@ pub enum WebServerError {
     ///
     /// Code `2`, no sub-code.
     CacheUnavailable,
+
+    /// The database returned an error.
+    ///
+    /// Code `3`, no sub-code.
+    DatabaseError,
 }
 
 impl From<scripty_commands::CacheNotInitializedError> for WebServerError {
@@ -30,11 +35,18 @@ impl From<scripty_commands::CacheNotInitializedError> for WebServerError {
     }
 }
 
+impl From<sqlx::Error> for WebServerError {
+    fn from(_: sqlx::Error) -> Self {
+        WebServerError::DatabaseError
+    }
+}
+
 impl Display for WebServerError {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         match self {
             WebServerError::AuthenticationFailed(_) => write!(f, "Authentication failed"),
             WebServerError::CacheUnavailable => write!(f, "Cache unavailable"),
+            WebServerError::DatabaseError => write!(f, "Database error"),
         }
     }
 }
@@ -58,6 +70,13 @@ impl IntoResponse for WebServerError {
             WebServerError::CacheUnavailable => (
                 ErrorJson {
                     code: 2,
+                    sub_code: -1,
+                },
+                StatusCode::INTERNAL_SERVER_ERROR,
+            ),
+            WebServerError::DatabaseError => (
+                ErrorJson {
+                    code: 3,
                     sub_code: -1,
                 },
                 StatusCode::INTERNAL_SERVER_ERROR,

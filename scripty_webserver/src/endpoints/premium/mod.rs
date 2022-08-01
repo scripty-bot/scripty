@@ -2,42 +2,186 @@ use crate::auth::Authentication;
 use crate::errors::WebServerError;
 use crate::models::*;
 use axum::{routing::post, Json};
+use std::num::NonZeroU64;
 
 /// # TRIAL END
 pub async fn trial_end(
-    data: Json<TrialWillEndJson>,
+    Json(data): Json<TrialWillEndJson>,
     _: Authentication,
 ) -> Result<(), WebServerError> {
+    // TODO: DM user
+
     Ok(())
 }
 
 /// # SUBSCRIPTION CREATE
 pub async fn subscription_create(
-    data: Json<SubscriptionCreatedJson>,
+    Json(data): Json<SubscriptionCreatedJson>,
     _: Authentication,
 ) -> Result<(), WebServerError> {
+    let hashed_user_id =
+        scripty_utils::hash_user_id(NonZeroU64::new(data.discord_id).expect("expected NonZeroU64"));
+
+    let update_tier = match data.status {
+        SubscriptionStatus::Trialing => {
+            // alter the user in the DB
+            let db = scripty_db::get_db();
+
+            sqlx::query!(
+                "UPDATE users SET trial_used = true AND is_trialing = true WHERE user_id = $1",
+                hashed_user_id
+            )
+            .execute(db)
+            .await?;
+            true
+        }
+        SubscriptionStatus::Active => {
+            // alter the user in the DB
+            let db = scripty_db::get_db();
+
+            sqlx::query!(
+                "UPDATE users SET is_trialing = false WHERE user_id = $1",
+                hashed_user_id
+            )
+            .execute(db)
+            .await?;
+            true
+        }
+        _ => {
+            // alter the user in the DB
+            let db = scripty_db::get_db();
+
+            sqlx::query!(
+                "UPDATE users SET is_trialing = false WHERE user_id = $1",
+                hashed_user_id
+            )
+            .execute(db)
+            .await?;
+            false
+        }
+    };
+
+    if update_tier {
+        let tier = data.tier;
+        let db = scripty_db::get_db();
+        sqlx::query!(
+            "UPDATE users SET premium_level = $1 WHERE user_id = $2",
+            tier,
+            hashed_user_id
+        )
+        .execute(db)
+        .await?;
+    }
+
+    // TODO: DM user
+
     Ok(())
 }
 
 /// # SUBSCRIPTION UPDATE
 pub async fn subscription_update(
-    data: Json<SubscriptionUpdatedJson>,
+    Json(data): Json<SubscriptionUpdatedJson>,
     _: Authentication,
 ) -> Result<(), WebServerError> {
+    let hashed_user_id =
+        scripty_utils::hash_user_id(NonZeroU64::new(data.discord_id).expect("expected NonZeroU64"));
+
+    let update_tier = match data.status {
+        SubscriptionStatus::Trialing => {
+            // alter the user in the DB
+            let db = scripty_db::get_db();
+
+            sqlx::query!(
+                "UPDATE users SET trial_used = true AND is_trialing = true WHERE user_id = $1",
+                hashed_user_id
+            )
+            .execute(db)
+            .await?;
+            true
+        }
+        SubscriptionStatus::Active => {
+            // alter the user in the DB
+            let db = scripty_db::get_db();
+
+            sqlx::query!(
+                "UPDATE users SET is_trialing = false WHERE user_id = $1",
+                hashed_user_id
+            )
+            .execute(db)
+            .await?;
+            true
+        }
+        _ => {
+            // alter the user in the DB
+            let db = scripty_db::get_db();
+
+            sqlx::query!(
+                "UPDATE users SET is_trialing = false WHERE user_id = $1",
+                hashed_user_id
+            )
+            .execute(db)
+            .await?;
+            false
+        }
+    };
+
+    if update_tier {
+        let tier = data.tier;
+        let db = scripty_db::get_db();
+        sqlx::query!(
+            "UPDATE users SET premium_level = $1 WHERE user_id = $2",
+            tier,
+            hashed_user_id
+        )
+        .execute(db)
+        .await?;
+    }
+
+    if let Some(expiry_timestamp) = data.plan_ends_at {
+        let db = scripty_db::get_db();
+        sqlx::query!(
+            "UPDATE users SET premium_expiry = $1 WHERE user_id = $2",
+            data.plan_ends_at,
+            hashed_user_id
+        )
+        .execute(db)
+        .await?;
+    }
+
+    // TODO: DM user
+
     Ok(())
 }
 
 /// # SUBSCRIPTION DELETE
 pub async fn subscription_delete(
-    data: Json<SubscriptionDeletedJson>,
+    Json(data): Json<SubscriptionDeletedJson>,
     _: Authentication,
 ) -> Result<(), WebServerError> {
-    Ok(())
+    let hashed_user_id =
+        scripty_utils::hash_user_id(NonZeroU64::new(data.discord_id).expect("expected NonZeroU64"));
+    let db = scripty_db::get_db();
+
+    if let Some(expiry_timestamp) = data.plan_ends_at {
+        sqlx::query!(
+            "UPDATE users SET premium_expiry = $1 WHERE user_id = $2",
+            data.plan_ends_at,
+            hashed_user_id
+        )
+    } else {
+        // expire now by setting premium level to 0
+        sqlx::query!(
+            "UPDATE users SET premium_level = 0 WHERE user_id = $1",
+            hashed_user_id
+        )
+    }
+
+    // TODO: send DM to the user on Discord
 }
 
 /// # EARLY FRAUD WARNING
 pub async fn early_fraud_warning(
-    data: Json<EarlyFraudWarningJson>,
+    Json(_): Json<EarlyFraudWarningJson>,
     _: Authentication,
 ) -> Result<(), WebServerError> {
     Ok(())
@@ -45,41 +189,51 @@ pub async fn early_fraud_warning(
 
 /// # INVOICE CREATED
 pub async fn invoice_created(
-    data: Json<InvoiceStatusJson>,
+    Json(data): Json<InvoiceStatusJson>,
     _: Authentication,
 ) -> Result<(), WebServerError> {
+    // TODO: DM user
+
     Ok(())
 }
 
 /// # INVOICE PAID
 pub async fn invoice_paid(
-    data: Json<InvoiceStatusJson>,
+    Json(data): Json<InvoiceStatusJson>,
     _: Authentication,
 ) -> Result<(), WebServerError> {
+    // TODO: DM user
+
     Ok(())
 }
 
 /// # INVOICE PAYMENT FAILED
 pub async fn invoice_payment_failed(
-    data: Json<InvoiceStatusJson>,
+    Json(data): Json<InvoiceStatusJson>,
     _: Authentication,
 ) -> Result<(), WebServerError> {
+    // TODO: DM user
+
     Ok(())
 }
 
 /// # INVOICE PAYMENT ACTION REQUIRED
 pub async fn invoice_payment_action_required(
-    data: Json<InvoiceStatusJson>,
+    Json(data): Json<InvoiceStatusJson>,
     _: Authentication,
 ) -> Result<(), WebServerError> {
+    // TODO: DM user
+
     Ok(())
 }
 
 /// # INVOICE UPCOMING
 pub async fn invoice_upcoming(
-    data: Json<InvoiceStatusJson>,
+    Json(data): Json<InvoiceStatusJson>,
     _: Authentication,
 ) -> Result<(), WebServerError> {
+    // TODO: DM user
+
     Ok(())
 }
 
