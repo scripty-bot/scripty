@@ -6,4 +6,5 @@ pub struct SubscriptionUpdatedJson {
     /// Unix timestamp
     pub plan_ends_at: Option<u64>,
     pub current_period_start: u64,
+    pub cancel_at_period_end: bool,
 }

@@ -85,7 +85,7 @@ pub async fn subscription_update(
 
             (true, false, true)
         }
-        SubscriptionStatus::Active => {
+        SubscriptionStatus::Active if !data.cancel_at_period_end => {
             embed = embed
                 .title("Subscription Updated")
                 .description(format!(
@@ -101,6 +101,19 @@ pub async fn subscription_update(
                 ));
 
             (true, false, false)
+        }
+        SubscriptionStatus::Active if data.cancel_at_period_end => {
+            embed = embed.title("Subscription Cancelled").description(format!(
+                "Your subscription to Scripty Premium has been cancelled. \
+                You, and any servers you have activated Premium on, will lose their benefits <t:{0}:F> (<t:{0}:R>)\n\
+                We're sorry to see you go.\n\
+                If you have a moment, it'd be great if you could respond to this message telling us why you cancelled.\
+                In any case, thank you a lot for supporting Scripty.\n\
+                <:meow_heart:1003570104866443274> ~ the Scripty team",
+                data.plan_ends_at.unwrap_or(0)
+            ));
+
+            (false, true, false)
         }
         SubscriptionStatus::Canceled => {
             embed = embed.title("Subscription Cancelled").description(format!(
