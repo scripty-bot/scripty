@@ -1,5 +1,3 @@
-mod graphql_models;
-
 #[cfg(test)]
 mod tests {
     #[test]

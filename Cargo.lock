@@ -101,12 +101,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8da52d66c7071e2e3fa2a1e5c6d088fec47b593032b254f5e980de8ea54454d6"
 
 [[package]]
-name = "ascii"
-version = "0.9.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eab1c04a571841102f5345a8fc0f6bb3d31c315dec879b5c6e42e40ce7ffa34e"
-
-[[package]]
 name = "async-trait"
 version = "0.1.57"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -320,19 +314,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "combine"
-version = "3.8.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "da3da6baa321ec19e1cc41d31bf599f00c783d0517095cdaf0332e3fe8d20680"
-dependencies = [
- "ascii",
- "byteorder",
- "either",
- "memchr",
- "unreachable",
-]
-
-[[package]]
 name = "core-foundation"
 version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -454,76 +435,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "cynic"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9a086fdece2d6206e52894d978a09b09efca1e61ac59d69a934eab74d8d9ee40"
-dependencies = [
- "cynic-proc-macros",
- "json-decode",
- "serde",
- "serde_json",
- "thiserror",
-]
-
-[[package]]
-name = "cynic-codegen"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd9f0852fe3d3637d4dccb4b69e5a8f881214fc38907a528385ff71cd7b15c3e"
-dependencies = [
- "Inflector",
- "darling 0.13.4",
- "graphql-parser",
- "lazy_static",
- "proc-macro2",
- "quote",
- "strsim",
- "syn",
-]
-
-[[package]]
-name = "cynic-proc-macros"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1cabdef46a6ff3c06e337a9c0c6b7d2f71aefae4ab582ed319a0d454ea1085f9"
-dependencies = [
- "cynic-codegen",
- "syn",
-]
-
-[[package]]
-name = "darling"
-version = "0.13.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a01d95850c592940db9b8194bc39f4bc0e89dee5c4265e4b1807c34a9aba453c"
-dependencies = [
- "darling_core 0.13.4",
- "darling_macro 0.13.4",
-]
-
-[[package]]
 name = "darling"
 version = "0.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4529658bdda7fd6769b8614be250cdcfc3aeb0ee72fe66f9e41e5e5eb73eac02"
 dependencies = [
- "darling_core 0.14.1",
- "darling_macro 0.14.1",
-]
-
-[[package]]
-name = "darling_core"
-version = "0.13.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "859d65a907b6852c9361e3185c862aae7fafd2887876799fa55f5f99dc40d610"
-dependencies = [
- "fnv",
- "ident_case",
- "proc-macro2",
- "quote",
- "strsim",
- "syn",
+ "darling_core",
+ "darling_macro",
 ]
 
 [[package]]
@@ -542,22 +460,11 @@ dependencies = [
 
 [[package]]
 name = "darling_macro"
-version = "0.13.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c972679f83bdf9c42bd905396b6c3588a843a17f0f16dfcfa3e2c5d57441835"
-dependencies = [
- "darling_core 0.13.4",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "darling_macro"
 version = "0.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ddfc69c5bfcbd2fc09a0f38451d2daf0e372e367986a83906d1b0dbc88134fb5"
 dependencies = [
- "darling_core 0.14.1",
+ "darling_core",
  "quote",
  "syn",
 ]
@@ -996,16 +903,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "graphql-parser"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d1abd4ce5247dfc04a03ccde70f87a048458c9356c7e41d21ad8c407b3dde6f2"
-dependencies = [
- "combine",
- "thiserror",
-]
-
-[[package]]
 name = "h2"
 version = "0.3.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1277,17 +1174,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "258451ab10b34f8af53416d1fdab72c22e805f0c92a1136d59470ec0b11138b2"
 dependencies = [
  "wasm-bindgen",
-]
-
-[[package]]
-name = "json-decode"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8fd72139ade93da4f8a437afe8654a4a3cf1d858dc195fc6691e6e932fa1b6ee"
-dependencies = [
- "serde",
- "serde_json",
- "thiserror",
 ]
 
 [[package]]
@@ -1790,7 +1676,7 @@ name = "poise_macros"
 version = "0.2.1"
 source = "git+https://github.com/GnomedDev/poise?branch=personal#baa0c6f17425964fbde233ee223e810669fd217e"
 dependencies = [
- "darling 0.14.1",
+ "darling",
  "proc-macro2",
  "quote",
  "syn",
@@ -2347,9 +2233,6 @@ dependencies = [
 [[package]]
 name = "scripty_premium"
 version = "1.0.0"
-dependencies = [
- "cynic",
-]
 
 [[package]]
 name = "scripty_utils"
@@ -3441,15 +3324,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "unreachable"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "382810877fe448991dfc7f0dd6e3ae5d58088fd0ea5e35189655f84e6814fa56"
-dependencies = [
- "void",
-]
-
-[[package]]
 name = "untrusted"
 version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3506,12 +3380,6 @@ name = "version_check"
 version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
-
-[[package]]
-name = "void"
-version = "1.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
 
 [[package]]
 name = "want"
