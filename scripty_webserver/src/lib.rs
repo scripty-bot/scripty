@@ -2,6 +2,7 @@ mod auth;
 mod endpoints;
 mod entrypoint;
 mod errors;
+mod models;
 
 #[macro_use]
 extern crate tracing;

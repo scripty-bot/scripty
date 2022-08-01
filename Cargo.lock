@@ -2203,7 +2203,7 @@ checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 
 [[package]]
 name = "scripty_audio"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "byteorder",
  "dasp_interpolate",
@@ -2217,7 +2217,7 @@ dependencies = [
 
 [[package]]
 name = "scripty_audio_handler"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "ahash",
  "async-trait",
@@ -2237,7 +2237,7 @@ dependencies = [
 
 [[package]]
 name = "scripty_commands"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "async-trait",
  "dashmap",
@@ -2270,7 +2270,7 @@ dependencies = [
 
 [[package]]
 name = "scripty_core"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "num_cpus",
  "scripty_audio",
@@ -2288,7 +2288,7 @@ dependencies = [
 
 [[package]]
 name = "scripty_data_storage"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "aes-gcm",
  "csv",
@@ -2310,7 +2310,7 @@ dependencies = [
 
 [[package]]
 name = "scripty_db"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "once_cell",
  "scripty_config",
@@ -2319,7 +2319,7 @@ dependencies = [
 
 [[package]]
 name = "scripty_i18n"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "dashmap",
  "fluent",
@@ -2336,7 +2336,7 @@ dependencies = [
 
 [[package]]
 name = "scripty_metrics"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "chrono",
  "dashmap",
@@ -2351,14 +2351,14 @@ dependencies = [
 
 [[package]]
 name = "scripty_premium"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "cynic",
 ]
 
 [[package]]
 name = "scripty_utils"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "num",
  "num_cpus",
@@ -2376,14 +2376,14 @@ dependencies = [
 
 [[package]]
 name = "scripty_v2"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "scripty_core",
 ]
 
 [[package]]
 name = "scripty_webserver"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "axum",
  "scripty_commands",
