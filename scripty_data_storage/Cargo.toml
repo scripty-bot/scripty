@@ -8,19 +8,19 @@ edition = "2021"
 [dependencies]
 csv = "1"
 rand = "0.8"
-hound = "3.4"
+hound = "3"
 tracing = "0.1"
 dashmap = "5"
-once_cell = "1.10"
+once_cell = "1"
 ouroboros = "0.15"
 parking_lot = "0.12"
 scripty_db = { path = "../scripty_db" }
 scripty_utils = { path = "../scripty_utils" }
 scripty_config = { path = "../scripty_config" }
-aes-gcm = { version = "0.9", features = ["std"] }
-tokio = { version = "1.16", features = ["parking_lot", "signal"] }
+aes-gcm = { version = "0.10", features = ["std"] }
+tokio = { version = "1", features = ["parking_lot", "signal"] }
 poise = { git = " https://github.com/kangalioo/poise", branch = "develop", features = ["cache", "collector"] }
-sqlx = { version = "0.5", features = ["postgres", "macros", "migrate", "offline", "runtime-tokio-rustls"] }
+sqlx = { version = "0.6", features = ["postgres", "macros", "migrate", "offline", "runtime-tokio-rustls"] }
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [
   "tokio",
   "voice",

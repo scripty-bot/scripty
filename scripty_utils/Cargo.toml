@@ -9,13 +9,13 @@ edition = "2021"
 num = "0.4"
 sha2 = "0.10"
 tracing = "0.1"
-num_cpus = "1.13"
+num_cpus = "1"
 thousands = "0.2"
-once_cell = "1.9"
+once_cell = "1"
 systemstat = "0.1"
 scripty_db = { path = "../scripty_db" }
 scripty_config = { path = "../scripty_config" }
-tokio = { version = "1.16", features = ["parking_lot", "signal"] }
+tokio = { version = "1", features = ["parking_lot", "signal"] }
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [
   "tokio",
   "voice",
@@ -30,4 +30,4 @@ serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", f
   "collector",
   "utils",
 ], default-features = false }
-sqlx = { version = "0.5", features = ["postgres", "macros", "migrate", "offline", "runtime-tokio-rustls", "time"] }
+sqlx = { version = "0.6", features = ["postgres", "macros", "migrate", "offline", "runtime-tokio-rustls", "time"] }
