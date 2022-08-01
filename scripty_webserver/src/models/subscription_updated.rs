@@ -4,5 +4,5 @@ pub struct SubscriptionUpdatedJson {
     pub tier: u8,
     pub status: super::SubscriptionStatus,
     /// Unix timestamp
-    pub plan_ends_at: u64,
+    pub plan_ends_at: Option<u64>,
 }

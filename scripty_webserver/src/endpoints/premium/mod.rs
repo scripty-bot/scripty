@@ -2,6 +2,7 @@ use crate::auth::Authentication;
 use crate::errors::WebServerError;
 use crate::models::*;
 use axum::{routing::post, Json};
+use sqlx::types::time::OffsetDateTime;
 use std::num::NonZeroU64;
 
 /// # TRIAL END
@@ -66,7 +67,7 @@ pub async fn subscription_create(
         let db = scripty_db::get_db();
         sqlx::query!(
             "UPDATE users SET premium_level = $1 WHERE user_id = $2",
-            tier,
+            tier as i16,
             hashed_user_id
         )
         .execute(db)
@@ -130,7 +131,7 @@ pub async fn subscription_update(
         let db = scripty_db::get_db();
         sqlx::query!(
             "UPDATE users SET premium_level = $1 WHERE user_id = $2",
-            tier,
+            tier as i16,
             hashed_user_id
         )
         .execute(db)
@@ -139,9 +140,13 @@ pub async fn subscription_update(
 
     if let Some(expiry_timestamp) = data.plan_ends_at {
         let db = scripty_db::get_db();
+
+        // convert the Unix timestamp in expiry_timestamp to a sqlx::types::time::PrimitiveDateTime
+        let expiry_timestamp = OffsetDateTime::from_unix_timestamp(expiry_timestamp as i64);
+
         sqlx::query!(
             "UPDATE users SET premium_expiry = $1 WHERE user_id = $2",
-            data.plan_ends_at,
+            Some(expiry_timestamp),
             hashed_user_id
         )
         .execute(db)
@@ -163,20 +168,29 @@ pub async fn subscription_delete(
     let db = scripty_db::get_db();
 
     if let Some(expiry_timestamp) = data.plan_ends_at {
+        // convert the Unix timestamp in expiry_timestamp to a sqlx::types::time::PrimitiveDateTime
+        let expiry_timestamp = OffsetDateTime::from_unix_timestamp(expiry_timestamp as i64);
+
         sqlx::query!(
             "UPDATE users SET premium_expiry = $1 WHERE user_id = $2",
-            data.plan_ends_at,
+            Some(expiry_timestamp),
             hashed_user_id
         )
+        .execute(db)
+        .await?
     } else {
         // expire now by setting premium level to 0
         sqlx::query!(
             "UPDATE users SET premium_level = 0 WHERE user_id = $1",
             hashed_user_id
         )
-    }
+        .execute(db)
+        .await?
+    };
 
     // TODO: send DM to the user on Discord
+
+    Ok(())
 }
 
 /// # EARLY FRAUD WARNING
