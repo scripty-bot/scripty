@@ -183,7 +183,7 @@ pub async fn subscription_update(
         let db = scripty_db::get_db();
 
         // convert the Unix timestamp in expiry_timestamp to a sqlx::types::time::PrimitiveDateTime
-        let expiry_timestamp = OffsetDateTime::from_unix_timestamp(expiry_timestamp as i64);
+        let expiry_timestamp = OffsetDateTime::from_unix_timestamp(expiry_timestamp as i64)?;
 
         sqlx::query!(
             "UPDATE users SET premium_expiry = $1 WHERE user_id = $2",

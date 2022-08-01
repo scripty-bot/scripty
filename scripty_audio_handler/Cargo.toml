@@ -17,7 +17,11 @@ scripty_utils = { path = "../scripty_utils" }
 scripty_metrics = { path = "../scripty_metrics" }
 tokio = { version = "1", features = ["parking_lot"] }
 scripty_data_storage = { path = "../scripty_data_storage" }
-songbird = { git = "https://github.com/serenity-rs/songbird", branch = "next" }
+songbird = { git = "https://github.com/serenity-rs/songbird", branch = "next", features = [
+  "receive",
+  "rustls",
+  "simd-json",
+] }
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [
   "tokio",
   "voice",

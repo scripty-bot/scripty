@@ -2,8 +2,7 @@ use dashmap::DashMap;
 use once_cell::sync::OnceCell;
 use poise::BoxFuture;
 use serenity::model::id::{GuildId, UserId};
-use sqlx::types::time::PrimitiveDateTime;
-use std::time::SystemTime;
+use sqlx::types::time::OffsetDateTime;
 
 static BLOCKED_USERS: OnceCell<DashMap<Vec<u8>, Option<String>>> = OnceCell::new();
 static BLOCKED_GUILDS: OnceCell<DashMap<GuildId, Option<String>>> = OnceCell::new();
@@ -103,7 +102,7 @@ pub async fn add_blocked_user(user_id: UserId, reason: Option<String>) -> Result
     let blocked_users = unsafe { BLOCKED_USERS.get().unwrap_unchecked() };
 
     let hashed_user_id = scripty_utils::hash_user_id(user_id.0);
-    let current_timestamp = PrimitiveDateTime::from(SystemTime::now());
+    let current_timestamp = OffsetDateTime::now_utc();
 
     sqlx::query!(
         "INSERT INTO blocked_users (user_id, reason, blocked_since) VALUES ($1, $2, $3)",
@@ -128,7 +127,7 @@ pub async fn add_blocked_guild(
     let blocked_guilds = unsafe { BLOCKED_GUILDS.get().unwrap_unchecked() };
 
     let signed_guild_id = guild_id.get() as i64;
-    let current_timestamp = PrimitiveDateTime::from(SystemTime::now());
+    let current_timestamp = OffsetDateTime::now_utc();
 
     sqlx::query!(
         "INSERT INTO blocked_guilds (guild_id, reason, blocked_since) VALUES ($1, $2, $3)",

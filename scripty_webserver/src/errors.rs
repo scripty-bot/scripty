@@ -5,6 +5,7 @@ use axum::{
 };
 use serde::Serialize;
 use std::fmt::{Display, Formatter};
+use time::error::ComponentRange;
 
 /// All possible errors that can occur when handling a request.
 #[derive(Debug)]
@@ -37,6 +38,12 @@ impl From<scripty_commands::CacheNotInitializedError> for WebServerError {
 
 impl From<sqlx::Error> for WebServerError {
     fn from(_: sqlx::Error) -> Self {
+        WebServerError::DatabaseError
+    }
+}
+
+impl From<ComponentRange> for WebServerError {
+    fn from(_: ComponentRange) -> Self {
         WebServerError::DatabaseError
     }
 }
