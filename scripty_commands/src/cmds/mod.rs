@@ -8,6 +8,7 @@ mod join;
 mod language;
 mod leave;
 mod ping;
+pub mod premium;
 mod register_cmds;
 mod setup;
 

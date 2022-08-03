@@ -31,7 +31,11 @@ pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
             },
             poise::Command {
                 subcommands: vec![crate::dm_support::commands::close()],
-                ..crate::dm_support::commands::close()
+                ..crate::dm_support::commands::ps()
+            },
+            poise::Command {
+                subcommands: vec![cmds::premium::remove(), cmds::premium::claim()],
+                ..cmds::premium::premium()
             },
         ],
         on_error: |error| Box::pin(on_error(error)),
