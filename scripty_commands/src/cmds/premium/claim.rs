@@ -20,7 +20,7 @@ pub async fn claim(ctx: Context<'_>) -> Result<(), Error> {
     .map_or(0, |x| x.premium_level);
 
     if lvl == 0 {
-        ctx.say(format_message!(resolved_language, "not-premium"))
+        ctx.say(format_message!(resolved_language, "premium-not-premium"))
             .await?;
         return Ok(());
     }
@@ -41,8 +41,13 @@ pub async fn claim(ctx: Context<'_>) -> Result<(), Error> {
     .await?
     .guild_count;
     if guild_count > max_servers {
-        ctx.say(format_message!(resolved_language, "too-many-guilds"))
-            .await?;
+        ctx.say(format_message!(
+            resolved_language,
+            "premium-too-many-guilds",
+            totalServers: guild_count,
+            commandPrefix: ctx.prefix(),
+        ))
+        .await?;
         return Ok(());
     }
 
@@ -57,11 +62,14 @@ pub async fn claim(ctx: Context<'_>) -> Result<(), Error> {
     .rows_affected();
 
     if rows_affected == 0 {
-        ctx.say(format_message!(resolved_language, "already-claimed"))
-            .await?;
+        ctx.say(format_message!(
+            resolved_language,
+            "premium-server-not-set-up"
+        ))
+        .await?;
         return Ok(());
     } else {
-        ctx.say(format_message!(resolved_language, "claimed"))
+        ctx.say(format_message!(resolved_language, "premium-claimed"))
             .await?;
     }
 

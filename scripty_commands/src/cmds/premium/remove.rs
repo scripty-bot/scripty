@@ -9,20 +9,22 @@ pub async fn remove(ctx: Context<'_>) -> Result<(), Error> {
 
     let db = scripty_db::get_db();
     let guild_id = ctx.guild().ok_or_else(Error::expected_guild)?.id.0.get() as i64;
+    let hashed_user_id = scripty_utils::hash_user_id(ctx.author().id.0);
 
     let rows_affected = sqlx::query!(
-        "UPDATE guilds SET premium_owner_id = NULL WHERE guild_id = $1",
+        "UPDATE guilds SET premium_owner_id = nullif(premium_owner_id, $2) WHERE guild_id = $1",
         guild_id,
+        hashed_user_id,
     )
     .execute(db)
     .await?
     .rows_affected();
 
     if rows_affected == 0 {
-        ctx.say(format_message!(resolved_language, "not-claimed"))
+        ctx.say(format_message!(resolved_language, "premium-not-claimed"))
             .await?;
     } else {
-        ctx.say(format_message!(resolved_language, "removed"))
+        ctx.say(format_message!(resolved_language, "premium-removed"))
             .await?;
     }
 

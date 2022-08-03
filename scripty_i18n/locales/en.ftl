@@ -19,6 +19,21 @@ donation-description =
     <3
     ~ 0/0 and valkyrie_pilot
 
+## premium command
+# This is shown to the user when they are not subscribed to premium.
+premium-not-premium = You are not a premium subscriber. Subscribe at https://scripty.org/premium.
+# This is shown to the user when they have too many used servers to add more.
+premium-too-many-guilds = You have claimed { $totalServers } premium keys. You cannot add any more, unless you upgrade your premium subscription at https://dash.scripty.org, or remove some with the `{ $commandPrefix }premium remove` command.
+# This is shown when the guild the user is running this command in has not finished setup.
+premium-server-not-set-up = This server has not been set up yet. Do that first with the `{ $commandPrefix }setup` command.
+# This is shown when the user successfully claims one of their premium subscriptions.
+premium-claimed = You have successfully claimed premium on this server. You have { $slotsRemaining } slots remaining. If you would like to upgrade, or purchase more slots, head to https://dash.scripty.org. If you would like to remove your premium from this guild, run `{ $commandPrefix }premium remove`.
+# This is shown when the user fails to remove their premium from this guild.
+premium-not-claimed = Either this guild never had premium in the first place, or you were not the user who had their premium on this guild.
+# This is shown when the user successfully removes their premium from this guild.
+premium-removed = You have successfully removed your premium from this server. If you would like to upgrade, or purchase more slots, head to https://dash.scripty.org.
+
+
 ## Help menu translation strings
 
 command-not-found = No command with name `{ $commandName }` found.
