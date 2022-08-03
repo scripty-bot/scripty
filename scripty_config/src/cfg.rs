@@ -23,7 +23,7 @@ pub struct BotConfig {
     /// Secret key for encrypting messages.
     ///
     /// Generate a new one with `openssl rand -base64 96`.
-    pub secret_key: [u8; 32],
+    pub secret_key: String,
 
     /// DM support settings
     pub dm_support: DmSupport,

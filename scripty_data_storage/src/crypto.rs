@@ -35,6 +35,6 @@ pub fn decrypt_bytes(bytes: &[u8], nonce: [u8; 12]) -> aead::Result<Vec<u8>> {
 
 #[cold]
 fn init_cipher() -> Aes256Gcm {
-    let key = Key::<Aes256Gcm>::from(scripty_config::get_config().secret_key);
-    Aes256Gcm::new(&key)
+    let key = Key::<Aes256Gcm>::from_slice(scripty_config::get_config().secret_key.as_ref());
+    Aes256Gcm::new(key)
 }
