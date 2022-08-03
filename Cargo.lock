@@ -2132,6 +2132,7 @@ dependencies = [
  "scripty_db",
  "scripty_i18n",
  "scripty_metrics",
+ "scripty_premium",
  "scripty_utils",
  "serde",
  "serenity",
@@ -2240,6 +2241,7 @@ dependencies = [
  "scripty_db",
  "sqlx",
  "time 0.3.12",
+ "tracing",
 ]
 
 [[package]]
