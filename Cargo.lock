@@ -2233,6 +2233,14 @@ dependencies = [
 [[package]]
 name = "scripty_premium"
 version = "1.0.0"
+dependencies = [
+ "bitflags",
+ "dashmap",
+ "once_cell",
+ "scripty_db",
+ "sqlx",
+ "time 0.3.12",
+]
 
 [[package]]
 name = "scripty_utils"
