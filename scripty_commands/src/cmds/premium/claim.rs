@@ -45,7 +45,7 @@ pub async fn claim(ctx: Context<'_>) -> Result<(), Error> {
             resolved_language,
             "premium-too-many-guilds",
             totalServers: guild_count,
-            commandPrefix: ctx.prefix(),
+            commandPrefix: ctx.prefix()
         ))
         .await?;
         return Ok(());
