@@ -25,6 +25,27 @@ pub async fn claim(ctx: Context<'_>) -> Result<(), Error> {
         return Ok(());
     }
 
+    let max_servers = match lvl {
+        1 | 2 => 1,
+        3 | 4 => 3,
+        5 | 6 => 5,
+        _ => return Err(Error::expected_guild()),
+    };
+
+    // fetch the number of guilds this user has linked to their account
+    let guild_count = sqlx::query!(
+        r#"SELECT count(*) AS "guild_count!" FROM guilds WHERE premium_owner_id = $1"#,
+        hashed_author_id
+    )
+    .fetch_one(db)
+    .await?
+    .guild_count;
+    if guild_count > max_servers {
+        ctx.say(format_message!(resolved_language, "too-many-guilds"))
+            .await?;
+        return Ok(());
+    }
+
     let guild_id = ctx.guild().ok_or_else(Error::expected_guild)?.id.0.get() as i64;
     let rows_affected: u64 = sqlx::query!(
         "UPDATE guilds SET premium_owner_id = $1 WHERE guild_id = $2",
