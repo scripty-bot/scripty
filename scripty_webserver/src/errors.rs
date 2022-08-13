@@ -28,6 +28,16 @@ pub enum WebServerError {
     ///
     /// Code `3`, no sub-code.
     DatabaseError,
+
+    /// Missing data to process this event.
+    ///
+    /// Code `4`, no sub-code.
+    MissingData,
+
+    /// Parsing an integer failed.
+    ///
+    /// Code `5`, no sub-code.
+    ParseIntError,
 }
 
 impl From<scripty_commands::CacheNotInitializedError> for WebServerError {
@@ -48,12 +58,20 @@ impl From<ComponentRange> for WebServerError {
     }
 }
 
+impl From<std::num::ParseIntError> for WebServerError {
+    fn from(_: std::num::ParseIntError) -> Self {
+        WebServerError::ParseIntError
+    }
+}
+
 impl Display for WebServerError {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         match self {
             WebServerError::AuthenticationFailed(_) => write!(f, "Authentication failed"),
             WebServerError::CacheUnavailable => write!(f, "Cache unavailable"),
             WebServerError::DatabaseError => write!(f, "Database error"),
+            WebServerError::MissingData => write!(f, "Missing data"),
+            WebServerError::ParseIntError => write!(f, "Parse int error"),
         }
     }
 }
@@ -87,6 +105,20 @@ impl IntoResponse for WebServerError {
                     sub_code: -1,
                 },
                 StatusCode::INTERNAL_SERVER_ERROR,
+            ),
+            WebServerError::MissingData => (
+                ErrorJson {
+                    code: 4,
+                    sub_code: -1,
+                },
+                StatusCode::BAD_REQUEST,
+            ),
+            WebServerError::ParseIntError => (
+                ErrorJson {
+                    code: 5,
+                    sub_code: -1,
+                },
+                StatusCode::BAD_REQUEST,
             ),
         };
 

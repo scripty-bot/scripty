@@ -8,7 +8,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Instant;
 
-pub use serenity::builder::{CreateEmbed, CreateMessage};
+pub use serenity::builder::{CreateEmbed, CreateEmbedFooter, CreateMessage};
 pub use serenity::model::id::UserId;
 
 pub struct CacheNotInitializedError;

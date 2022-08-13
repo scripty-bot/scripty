@@ -2,9 +2,74 @@ use crate::auth::Authentication;
 use crate::errors::WebServerError;
 use crate::models::*;
 use axum::{routing::post, Json};
-use scripty_commands::{CreateEmbed, CreateMessage, UserId};
+use scripty_commands::{CreateEmbed, CreateEmbedFooter, CreateMessage, UserId};
 use sqlx::types::time::OffsetDateTime;
 use std::num::NonZeroU64;
+use stripe::{EventObject, EventType, WebhookEvent};
+
+pub async fn stripe_webhook(
+    Json(WebhookEvent {
+        event_type,
+        data,
+        livemode,
+        ..
+    }): Json<WebhookEvent>,
+) -> Result<(), WebServerError> {
+    let mut embed = CreateEmbed::default();
+    if !livemode {
+        // add a field to the footer of the embed to show that this is a test webhook
+        embed = embed.footer(
+            CreateEmbedFooter::default()
+                .text("test data, not real | if you're a user and seeing this, this is a bug"),
+        );
+    }
+
+    let target_user_id = match event_type {
+        EventType::ChargeDisputeCreated => {
+            // right now we don't process these, as the Python server needs work to do this
+            None
+        }
+        EventType::CustomerSourceExpiring => {
+            // process the data as a Card object
+            let card = if let EventObject::Card(card) = data.object {
+                card
+            } else {
+                warn!("missing card data in CustomerSourceExpiring event");
+                return Err(WebServerError::MissingData);
+            };
+            let discord_id = if let Some(customer) = card.customer {
+                // the Python server does hacky stuff and replaces all customer objects with their Discord snowflake ID
+                customer.id().as_str().parse::<u64>()?
+            } else {
+                // the python server should always have a customer ID in here, so panic
+                panic!("missing customer ID in CustomerSourceExpiring event");
+            };
+
+            embed = embed.title("Card Expiring").description(format!(
+                "Heads up: your card ({} **{}) is expiring at the end of this month. Please update your card information. \
+                You can head over to the dashboard at https://dash.scripty.org/ to do so. If you don't want to continue \
+                paying for Scripty Premium, consider cancelling your subscription at the same site.\n\
+                Thanks!\n\n~ the Scripty team",
+                card.brand.unwrap_or_else(|| "Unknown".to_string()),
+                card.last4.unwrap_or_else(|| "Unknown".to_string())
+            ));
+
+            Some(discord_id)
+        }
+        EventType::CustomerSubscriptionCreated => {
+            // really we don't need to do anything here
+            None
+        }
+        // TODO: rest of these enum variants
+        EventType::CustomerSubscriptionDeleted => None,
+        EventType::CustomerSubscriptionTrialWillEnd => None,
+        EventType::CustomerSubscriptionUpdated => None,
+        EventType::RadarEarlyFraudWarningCreated => None,
+        _ => None,
+    };
+
+    Ok(())
+}
 
 /// # TRIAL END
 pub async fn trial_will_end(
