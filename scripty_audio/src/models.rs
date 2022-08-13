@@ -1,9 +1,10 @@
 use byteorder::{ByteOrder, NetworkEndian};
 use flume::{Receiver, Sender};
+use std::net::SocketAddr;
 use std::time::Duration;
 use tokio::io;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
-use tokio::net::UnixStream;
+use tokio::net::TcpStream;
 
 pub struct Stream {
     comm: Sender<Vec<i16>>,
@@ -17,8 +18,12 @@ enum FinalizeVariant {
 }
 
 impl Stream {
-    pub async fn new(language: &str, verbose: bool) -> Result<Self, ModelError> {
-        let mut socket = UnixStream::connect("/tmp/stts.sock").await?;
+    pub(crate) async fn new(
+        language: &str,
+        verbose: bool,
+        remote: SocketAddr,
+    ) -> Result<Self, ModelError> {
+        let mut socket = TcpStream::connect(remote).await?;
 
         // handshake with server
         // 0x00: Initialize Streaming
@@ -100,7 +105,7 @@ impl Stream {
         }
     }
 
-    async fn feed_audio_wrapper(socket: &mut UnixStream, audio: &[i16]) -> Result<(), ModelError> {
+    async fn feed_audio_wrapper(socket: &mut TcpStream, audio: &[i16]) -> Result<(), ModelError> {
         // 0x01: Feed Audio
         socket.write_u8(0x01).await?;
 
@@ -134,7 +139,7 @@ impl Stream {
             .expect("failed to receive from a open channel?")
     }
 
-    async fn get_result_wrapper(socket: &mut UnixStream) -> Result<Transcript, ModelError> {
+    async fn get_result_wrapper(socket: &mut TcpStream) -> Result<Transcript, ModelError> {
         // 0x02: Get Result
         socket.write_u8(0x02).await?;
         socket.flush().await?;
@@ -166,7 +171,7 @@ impl Stream {
     }
 
     async fn get_result_verbose_wrapper(
-        socket: &mut UnixStream,
+        socket: &mut TcpStream,
     ) -> Result<VerboseTranscript, ModelError> {
         // 0x02: Get Result
         socket.write_u8(0x02).await?;
@@ -235,7 +240,7 @@ pub struct VerboseTranscript {
     pub main_confidence: Option<f64>,
 }
 
-async fn read_string(stream: &mut UnixStream) -> io::Result<String> {
+async fn read_string(stream: &mut TcpStream) -> io::Result<String> {
     // strings are encoded as a u64 length followed by the string bytes
     let len = stream.read_u64().await?;
     let mut buf = vec![0u8; len as usize];

@@ -38,7 +38,7 @@ pub async fn speaking_update(
 
     let verbose = verbose.load(Ordering::Relaxed);
 
-    let new_stream = match scripty_audio::Stream::new("en", verbose).await {
+    let new_stream = match scripty_audio::get_stream("en", verbose).await {
         Ok(s) => s,
         Err(e) => {
             error!(?ssrc, "failed to create new stream: {}", e);

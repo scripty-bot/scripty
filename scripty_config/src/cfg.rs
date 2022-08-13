@@ -35,6 +35,9 @@ pub struct BotConfig {
 
     /// Premium config
     pub premium: PremiumConfig,
+
+    /// List of \["host", port] for the STT services.
+    pub stt_services: Vec<(String, u16)>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

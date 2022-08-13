@@ -2298,6 +2298,7 @@ name = "scripty_audio"
 version = "1.0.0"
 dependencies = [
  "byteorder",
+ "dashmap",
  "dasp_interpolate",
  "dasp_signal",
  "flume",

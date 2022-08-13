@@ -212,7 +212,7 @@ pub async fn voice_packet(
         } else {
             warn!(?ssrc, "no stream found for ssrc");
             let new_stream =
-                match scripty_audio::Stream::new("en", verbose.load(Ordering::Relaxed)).await {
+                match scripty_audio::get_stream("en", verbose.load(Ordering::Relaxed)).await {
                     Ok(s) => s,
                     Err(e) => {
                         error!(?ssrc, "failed to create new stream: {}", e);
