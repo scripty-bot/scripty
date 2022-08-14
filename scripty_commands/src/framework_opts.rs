@@ -17,6 +17,7 @@ pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
             cmds::ping(),
             cmds::leave(),
             cmds::delete_all_data(),
+            cmds::throw_error(),
             poise::Command {
                 subcommands: vec![cmds::user_language(), cmds::guild_language()],
                 ..cmds::language()

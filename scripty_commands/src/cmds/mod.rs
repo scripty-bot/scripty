@@ -11,6 +11,7 @@ mod ping;
 pub mod premium;
 mod register_cmds;
 mod setup;
+mod throw_error;
 
 pub use admin::*;
 pub use credits::credits;
@@ -24,3 +25,4 @@ pub use leave::leave;
 pub use ping::ping;
 pub use register_cmds::register_cmds;
 pub use setup::setup;
+pub use throw_error::throw_error;

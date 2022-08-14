@@ -1,10 +1,10 @@
 use crate::Data;
+use backtrace::Backtrace;
 use poise::{Context, CreateReply, FrameworkError};
 use scripty_audio_handler::JoinError;
 use serenity::builder::{CreateEmbed, CreateEmbedAuthor, CreateMessage, ExecuteWebhook};
 use serenity::model::channel::{AttachmentType, ChannelType};
 use serenity::model::webhook::Webhook;
-use std::backtrace::{Backtrace, BacktraceStatus};
 use std::borrow::Cow;
 use std::error::Error as StdError;
 use std::fmt::Write;
@@ -28,13 +28,14 @@ pub enum ErrorEnum {
     Db(sqlx::Error),
     ExpectedGuild,
     Join(JoinError),
+    ManualError,
 }
 
 impl Error {
     #[inline]
     pub fn serenity(err: serenity::Error) -> Self {
         Error {
-            bt: Backtrace::capture(),
+            bt: Backtrace::new(),
             err: ErrorEnum::Serenity(err),
         }
     }
@@ -42,7 +43,7 @@ impl Error {
     #[inline]
     pub fn invalid_channel_type(expected: ChannelType, got: ChannelType) -> Self {
         Error {
-            bt: Backtrace::capture(),
+            bt: Backtrace::new(),
             err: ErrorEnum::InvalidChannelType { expected, got },
         }
     }
@@ -50,7 +51,7 @@ impl Error {
     #[inline]
     pub fn missing_webhook_token() -> Self {
         Error {
-            bt: Backtrace::capture(),
+            bt: Backtrace::new(),
             err: ErrorEnum::MissingWebhookToken,
         }
     }
@@ -58,7 +59,7 @@ impl Error {
     #[inline]
     pub fn db(err: sqlx::Error) -> Self {
         Error {
-            bt: Backtrace::capture(),
+            bt: Backtrace::new(),
             err: ErrorEnum::Db(err),
         }
     }
@@ -66,7 +67,7 @@ impl Error {
     #[inline]
     pub fn expected_guild() -> Self {
         Error {
-            bt: Backtrace::capture(),
+            bt: Backtrace::new(),
             err: ErrorEnum::ExpectedGuild,
         }
     }
@@ -74,9 +75,23 @@ impl Error {
     #[inline]
     pub fn join(err: JoinError) -> Self {
         Error {
-            bt: Backtrace::capture(),
+            bt: Backtrace::new(),
             err: ErrorEnum::Join(err),
         }
+    }
+
+    #[inline]
+    pub fn manual() -> Self {
+        Error {
+            bt: Backtrace::new(),
+            err: ErrorEnum::ManualError,
+        }
+    }
+
+    #[inline]
+    pub fn backtrace(&mut self) -> &Backtrace {
+        self.bt.resolve();
+        &self.bt
     }
 }
 
@@ -95,6 +110,7 @@ impl Display for Error {
             // _ => "an unknown error happened".into(),
             ExpectedGuild => "expected this to be in a guild".into(),
             Join(e) => format!("failed to join VC: {}", e).into(),
+            ManualError => "manual error".into(),
         };
         f.write_str(res.as_ref())
     }
@@ -110,14 +126,7 @@ impl StdError for Error {
             Db(e) => Some(e),
             ExpectedGuild => None,
             Join(e) => Some(e),
-        }
-    }
-
-    #[inline]
-    fn backtrace(&self) -> Option<&Backtrace> {
-        match self.bt.status() {
-            BacktraceStatus::Captured => Some(&self.bt),
-            _ => None,
+            ManualError => None,
         }
     }
 }
@@ -127,7 +136,7 @@ impl From<serenity::Error> for Error {
     fn from(e: serenity::Error) -> Self {
         Self {
             err: ErrorEnum::Serenity(e),
-            bt: Backtrace::capture(),
+            bt: Backtrace::new(),
         }
     }
 }
@@ -137,7 +146,7 @@ impl From<sqlx::Error> for Error {
     fn from(e: sqlx::Error) -> Self {
         Self {
             err: ErrorEnum::Db(e),
-            bt: Backtrace::capture(),
+            bt: Backtrace::new(),
         }
     }
 }
@@ -340,7 +349,7 @@ async fn send_err_msg(
 
 pub async fn log_error_message(
     ctx: &Context<'_, Data, Error>,
-    err: Error,
+    mut err: Error,
     invocation_context: Option<String>,
 ) {
     // build embed
@@ -354,17 +363,15 @@ pub async fn log_error_message(
         e = e.title("Error while doing something");
     }
 
-    if let Some(bt) = err.backtrace() {
-        let fmt_bt = bt.to_string();
-        if fmt_bt.len() > 2048 {
-            e = e.field("Backtrace", "See attached file", false);
-            m = m.add_file(AttachmentType::Bytes {
-                data: fmt_bt.into_bytes().into(),
-                filename: "backtrace.txt".into(),
-            });
-        } else {
-            e = e.field("Backtrace", &fmt_bt, false);
-        }
+    let fmt_bt = format!("{:#?}", err.backtrace());
+    if fmt_bt.len() > 2048 {
+        e = e.field("Backtrace", "See attached file", false);
+        m = m.add_file(AttachmentType::Bytes {
+            data: fmt_bt.into_bytes().into(),
+            filename: "backtrace.txt".into(),
+        });
+    } else {
+        e = e.field("Backtrace", &fmt_bt, false);
     }
 
     e = e.description(err.to_string());
