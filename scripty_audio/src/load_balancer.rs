@@ -44,7 +44,7 @@ impl LoadBalancer {
         let mut do_overload: bool = false;
         let lbs = loop {
             if let Some(lbs) = self.workers.get(&idx) {
-                if !lbs.is_overloaded() || do_overload && lbs.can_overload {
+                if (do_overload && lbs.can_overload) || !lbs.is_overloaded() {
                     // usually this is going to be the fast path and it will immediately return this worker
                     // if it isn't, this is still decently fast, an O(2n) operation worst case
                     // given there's very likely never going to be more than 255 workers, this is fine
@@ -112,6 +112,13 @@ impl LoadBalancedStream {
         // read the fields
         let max_utilization = peer_stream.read_f64().await?;
         let can_overload = peer_stream.read_u8().await? == 1;
+
+        debug!(
+            ?max_utilization,
+            ?can_overload,
+            ?peer_address,
+            "got data for new stream"
+        );
 
         let is_overloaded = Arc::new(AtomicBool::new(false));
         let iso2 = Arc::clone(&is_overloaded);
