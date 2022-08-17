@@ -132,7 +132,8 @@ impl Stream {
     pub async fn get_result(self) -> Result<Transcript, ModelError> {
         let (tx, rx) = flume::bounded(0);
         self.final_comm
-            .send(FinalizeVariant::Normal(tx))
+            .send_async(FinalizeVariant::Normal(tx))
+            .await
             .expect("failed to send to a channel that should still be open?");
         rx.recv_async()
             .await
@@ -163,7 +164,8 @@ impl Stream {
     pub async fn get_result_verbose(self) -> Result<VerboseTranscript, ModelError> {
         let (tx, rx) = flume::bounded(0);
         self.final_comm
-            .send(FinalizeVariant::Verbose(tx))
+            .send_async(FinalizeVariant::Verbose(tx))
+            .await
             .expect("failed to send to a channel that should still be open?");
         rx.recv_async()
             .await
