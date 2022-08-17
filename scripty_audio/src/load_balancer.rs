@@ -57,9 +57,11 @@ impl LoadBalancer {
             if !do_overload {
                 if iter_count > self.workers.len() {
                     do_overload = true;
-                } else {
-                    iter_count += 1;
                 }
+            }
+            iter_count += 1;
+            if iter_count > 1024 {
+                return Err(ModelError::NoAvailableServers);
             }
         };
 

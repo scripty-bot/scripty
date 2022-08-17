@@ -207,6 +207,7 @@ impl Stream {
 pub enum ModelError {
     Io(io::Error),
     SttsServer(i64),
+    NoAvailableServers,
 }
 
 impl From<io::Error> for ModelError {
@@ -226,6 +227,9 @@ impl std::fmt::Display for ModelError {
         match self {
             ModelError::Io(err) => write!(f, "IO error: {}", err),
             ModelError::SttsServer(err) => write!(f, "STTS server error: {}", err),
+            ModelError::NoAvailableServers => {
+                write!(f, "No available STTS servers after 1024 tries")
+            }
         }
     }
 }
