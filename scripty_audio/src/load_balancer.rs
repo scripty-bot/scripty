@@ -39,7 +39,19 @@ impl LoadBalancer {
     }
 
     pub async fn get_stream(&self, language: &str, verbose: bool) -> Result<Stream, ModelError> {
-        let mut idx = self.current_index.fetch_add(1, Ordering::SeqCst);
+        let get_next = || {
+            self.current_index
+                .fetch_update(Ordering::Release, Ordering::Acquire, |x| {
+                    if x == self.workers.len() {
+                        Some(0)
+                    } else {
+                        Some(x + 1)
+                    }
+                })
+                .expect("fetch_update::{closure} should never return None")
+        };
+
+        let mut idx = get_next();
         let mut iter_count: usize = 0;
         let mut do_overload: bool = false;
         let lbs = loop {
@@ -52,12 +64,10 @@ impl LoadBalancer {
                 }
             }
 
-            idx = self.current_index.fetch_add(1, Ordering::SeqCst);
+            idx = get_next();
             // the not op here might seem redundant, but it's added to save a few instructions at the assembly level
-            if !do_overload {
-                if iter_count > self.workers.len() {
-                    do_overload = true;
-                }
+            if !do_overload && iter_count > self.workers.len() {
+                do_overload = true;
             }
             iter_count += 1;
             if iter_count > 1024 {
