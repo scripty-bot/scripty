@@ -53,7 +53,7 @@ impl Stream {
                             Ok(data) => {
                                 if let Err(e) = Self::feed_audio_wrapper(&mut socket, data.as_ref()).await {
                                     error!("error sending audio to stts: {}", e);
-                                    let _ = err_tx.send(e);
+                                    let _ = err_tx.send_async(e).await;
                                 }
                             }
                             Err(_) => {
@@ -69,14 +69,14 @@ impl Stream {
                                     panic!("when verbose, use get_result_verbose()");
                                 }
                                 // this might fail to send, but at this point the stream is already dead so no cleanup is needed
-                                let _ = r.send(Self::get_result_wrapper(&mut socket).await);
+                                let _ = r.send_async(Self::get_result_wrapper(&mut socket).await).await;
                             }
                             Ok(FinalizeVariant::Verbose(r)) => {
                                 if !verbose {
                                     panic!("when not verbose, use get_result()");
                                 }
                                 // this also might fail to send, but at this point the stream is already dead so no cleanup is needed
-                                let _ =r.send(Self::get_result_verbose_wrapper(&mut socket).await);
+                                let _ =r.send_async(Self::get_result_verbose_wrapper(&mut socket).await).await;
                             }
                             Err(_) => {
                                 let _ = socket.write_u8(0x03).await;
