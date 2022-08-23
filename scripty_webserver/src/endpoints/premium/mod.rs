@@ -237,7 +237,7 @@ pub async fn stripe_webhook(
                     );
                     let db = scripty_db::get_db();
 
-                    sqlx::query!("UPDATE users SET premium_level = NULL, premium_expiry = NULL WHERE user_id = $1", hashed_user_id)
+                    sqlx::query!("UPDATE users SET premium_level = 0, premium_expiry = NULL WHERE user_id = $1", hashed_user_id)
                         .execute(db)
                         .await?;
 
@@ -261,7 +261,7 @@ pub async fn stripe_webhook(
                     );
                     let db = scripty_db::get_db();
 
-                    sqlx::query!("UPDATE users SET premium_level = NULL, premium_expiry = NULL WHERE user_id = $1", hashed_user_id)
+                    sqlx::query!("UPDATE users SET premium_level = 0, premium_expiry = NULL WHERE user_id = $1", hashed_user_id)
                         .execute(db)
                         .await?;
 
@@ -299,7 +299,7 @@ pub async fn stripe_webhook(
                         NonZeroU64::new(discord_id).expect("expected non-zero discord ID"),
                     );
                     let db = scripty_db::get_db();
-                    sqlx::query!("UPDATE users SET premium_level = NULL, premium_expiry = NULL WHERE user_id = $1", hashed_user_id)
+                    sqlx::query!("UPDATE users SET premium_level = 0, premium_expiry = NULL WHERE user_id = $1", hashed_user_id)
                         .execute(db)
                         .await?;
 
