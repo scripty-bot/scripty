@@ -20,13 +20,8 @@ pub async fn remove(ctx: Context<'_>) -> Result<(), Error> {
     .await?
     .rows_affected();
 
-    if rows_affected == 0 {
-        ctx.say(format_message!(resolved_language, "premium-not-claimed"))
-            .await?;
-    } else {
-        ctx.say(format_message!(resolved_language, "premium-removed"))
-            .await?;
-    }
+    ctx.say(format_message!(resolved_language, "premium-removed"))
+        .await?;
 
     Ok(())
 }
