@@ -344,6 +344,7 @@ pub async fn stripe_webhook(
     };
 
     if let Some(target_user_id) = target_user_id {
+        debug!("sending DM to user for premium event");
         let cache_http = scripty_commands::get_cache_http();
 
         let dm_channel = UserId::from(target_user_id)
@@ -352,6 +353,8 @@ pub async fn stripe_webhook(
         dm_channel
             .send_message(cache_http, CreateMessage::default().embed(embed))
             .await?;
+    } else {
+        debug!("not sending DM to user");
     }
 
     Ok(())
