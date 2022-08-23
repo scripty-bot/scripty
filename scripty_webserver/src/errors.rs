@@ -27,7 +27,7 @@ pub enum WebServerError {
     /// The database returned an error.
     ///
     /// Code `3`, no sub-code.
-    DatabaseError,
+    DatabaseError(Option<sqlx::Error>),
 
     /// Missing data to process this event.
     ///
@@ -58,14 +58,14 @@ impl From<scripty_commands::SerenityError> for WebServerError {
 }
 
 impl From<sqlx::Error> for WebServerError {
-    fn from(_: sqlx::Error) -> Self {
-        WebServerError::DatabaseError
+    fn from(e: sqlx::Error) -> Self {
+        WebServerError::DatabaseError(Some(e))
     }
 }
 
 impl From<ComponentRange> for WebServerError {
     fn from(_: ComponentRange) -> Self {
-        WebServerError::DatabaseError
+        WebServerError::DatabaseError(None)
     }
 }
 
@@ -80,7 +80,8 @@ impl Display for WebServerError {
         match self {
             WebServerError::AuthenticationFailed(_) => write!(f, "Authentication failed"),
             WebServerError::CacheUnavailable => write!(f, "Cache unavailable"),
-            WebServerError::DatabaseError => write!(f, "Database error"),
+            WebServerError::DatabaseError(Some(e)) => write!(f, "Database error: {:?}", e),
+            WebServerError::DatabaseError(None) => write!(f, "Database error"),
             WebServerError::MissingData => write!(f, "Missing data"),
             WebServerError::ParseIntError => write!(f, "Parse int error"),
             WebServerError::SerenityError => write!(f, "Serenity error"),
@@ -111,7 +112,7 @@ impl IntoResponse for WebServerError {
                 },
                 StatusCode::INTERNAL_SERVER_ERROR,
             ),
-            WebServerError::DatabaseError => (
+            WebServerError::DatabaseError(_) => (
                 ErrorJson {
                     code: 3,
                     sub_code: -1,
