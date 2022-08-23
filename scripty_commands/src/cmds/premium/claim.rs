@@ -64,7 +64,7 @@ pub async fn claim(ctx: Context<'_>) -> Result<(), Error> {
     if rows_affected == 0 {
         ctx.say(format_message!(
             resolved_language,
-            "premium-server-not-set-up"
+            "premium-server-not-set-up",
             commandPrefix: ctx.prefix()
         ))
         .await?;
