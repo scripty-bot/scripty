@@ -88,6 +88,7 @@ pub async fn join(
     .await;
     match res {
         Ok(true) => {
+            #[allow(clippy::wildcard_in_or_patterns)]
             ctx.say(format_message!(
                 resolved_language,
                 "join-success",
@@ -99,7 +100,7 @@ pub async fn join(
                     2 => 25,
                     3 => 50,
                     4 => 75,
-                    5 => 100,
+                    5 | _ => 100,
                 }
             ))
             .await?;
