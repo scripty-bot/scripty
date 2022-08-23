@@ -55,6 +55,10 @@ pub async fn join(
         ));
     }
 
+    let premium_level = scripty_premium::get_guild(guild_id.0)
+        .await
+        .map_or(0, |l| l as u8);
+
     let db = scripty_db::get_db();
     let channel_id = sqlx::query!(
         "SELECT target_channel FROM guilds WHERE guild_id = $1",
@@ -84,7 +88,21 @@ pub async fn join(
     .await;
     match res {
         Ok(true) => {
-            ctx.say(format_message!(resolved_language, "join-success", targetMention: voice_channel.mention().to_string())).await?;
+            ctx.say(format_message!(
+                resolved_language,
+                "join-success",
+                targetMention: voice_channel.mention().to_string(),
+                tier: premium_level,
+                maxUsers: match premium_level {
+                    0 => 5,
+                    1 => 10,
+                    2 => 25,
+                    3 => 50,
+                    4 => 75,
+                    5 => 100,
+                }
+            ))
+            .await?;
         }
         Ok(false) => {
             ctx.say(

@@ -23,13 +23,13 @@ donation-description =
 # This is shown to the user when they are not subscribed to premium.
 premium-not-premium = You are not a premium subscriber. Subscribe at https://scripty.org/premium.
 # This is shown to the user when they have too many used servers to add more.
-premium-too-many-guilds = You have claimed { $totalServers } premium keys. You cannot add any more, unless you upgrade your premium subscription at https://dash.scripty.org, or remove some with the `{ $commandPrefix }premium remove` command.
+premium-too-many-guilds = You have claimed { $totalServers } premium keys. You cannot add any more, unless you upgrade your premium subscription at https://dash.scripty.org/premium, or remove some with the `{ $commandPrefix }premium remove` command.
 # This is shown when the guild the user is running this command in has not finished setup.
 premium-server-not-set-up = This server has not been set up yet. Do that first with the `{ $commandPrefix }setup` command.
 # This is shown when the user successfully claims one of their premium subscriptions.
-premium-claimed = You have successfully claimed premium on this server. If you would like to upgrade, or purchase more slots, head to https://dash.scripty.org. If you would like to remove your premium from this guild, run `{ $commandPrefix }premium remove`.
+premium-claimed = You have successfully claimed premium on this server. If you would like to upgrade, or purchase more slots, head to https://dash.scripty.org/premium. If you would like to remove your premium from this guild, run `{ $commandPrefix }premium remove`.
 # This is shown when the user successfully removes their premium from this guild.
-premium-removed = If you are the user who had claimed Premium, you have now successfully removed your premium from this server. If you would like to upgrade, or purchase more slots, head to https://dash.scripty.org.
+premium-removed = If you are the user who had claimed Premium, you have now successfully removed your premium from this server. If you would like to upgrade, or purchase more slots, head to https://dash.scripty.org/premium.
 
 
 ## Help menu translation strings
@@ -129,6 +129,9 @@ bot-not-set-up = Looks like you haven't set up the bot yet. Do that first with `
 # This message is shown on successfuly joining a voice channel.
 # { $targetMention } is the mention of the channel the bot joined.
 join-success = Successfully joined { $targetMention }.
+  
+  Note: your current premium tier is { $tier }. This allows for { $maxUsers } users to be transcripted at once.
+  If you would like more, and would like to also support the bot, consider subscribing to our Premium: https://dash.scripty.org/premium
 # This message is shown when the user tries to invite the bot to a voice channel,
 # but the webhook used by the bot has been deleted.
 webhook-deleted = Looks like you deleted the webhook I use! *bonk* Re-run `{ $contextPrefix }setup` to fix this.
