@@ -11,7 +11,7 @@ pub async fn remove(ctx: Context<'_>) -> Result<(), Error> {
     let guild_id = ctx.guild().ok_or_else(Error::expected_guild)?.id.0.get() as i64;
     let hashed_user_id = scripty_utils::hash_user_id(ctx.author().id.0);
 
-    let rows_affected = sqlx::query!(
+    sqlx::query!(
         "UPDATE guilds SET premium_owner_id = nullif(premium_owner_id, $2) WHERE guild_id = $1",
         guild_id,
         hashed_user_id,
