@@ -6,8 +6,8 @@ extern crate tracing;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub struct PremiumUserInfo {
-    expiration: Option<OffsetDateTime>,
-    tier: PremiumTierList,
+    pub expiration: Option<OffsetDateTime>,
+    pub tier: PremiumTierList,
 }
 
 #[repr(i16)]

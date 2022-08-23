@@ -15,6 +15,7 @@ scripty_db = { path = "../scripty_db" }
 scripty_audio = { path = "../scripty_audio" }
 scripty_utils = { path = "../scripty_utils" }
 scripty_metrics = { path = "../scripty_metrics" }
+scripty_premium = { path = "../scripty_premium" }
 tokio = { version = "1", features = ["parking_lot"] }
 scripty_data_storage = { path = "../scripty_data_storage" }
 songbird = { git = "https://github.com/serenity-rs/songbird", branch = "next", features = [

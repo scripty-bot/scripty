@@ -1,9 +1,7 @@
-use crate::events::*;
-use crate::types::{
-    ActiveUserSet, NextUserList, SsrcIgnoredMap, SsrcLastPktIdMap, SsrcMissedPktList,
-    SsrcMissedPktMap, SsrcOutOfOrderPktCountMap, SsrcSilentFrameCountMap, SsrcStreamMap,
-    SsrcUserDataMap, SsrcUserIdMap, SsrcVoiceIngestMap,
-};
+use std::collections::VecDeque;
+use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
+use std::sync::Arc;
+
 use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
 use parking_lot::RwLock;
@@ -11,9 +9,13 @@ use serenity::client::Context;
 use serenity::model::id::{ChannelId, GuildId};
 use serenity::model::webhook::Webhook;
 use songbird::{Event, EventContext, EventHandler};
-use std::collections::VecDeque;
-use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
-use std::sync::Arc;
+
+use crate::events::*;
+use crate::types::{
+    ActiveUserSet, NextUserList, SsrcIgnoredMap, SsrcLastPktIdMap, SsrcMissedPktList,
+    SsrcMissedPktMap, SsrcOutOfOrderPktCountMap, SsrcSilentFrameCountMap, SsrcStreamMap,
+    SsrcUserDataMap, SsrcUserIdMap, SsrcVoiceIngestMap,
+};
 
 #[derive(Clone)]
 pub struct AudioHandler {
@@ -99,6 +101,10 @@ impl AudioHandler {
         .await?;
 
         self.verbose.store(guild_res.be_verbose, Ordering::Relaxed);
+
+        if let Some(lvl) = scripty_premium::get_guild(self.guild_id.0).await {
+            self.premium_level.store(lvl as u8, Ordering::Relaxed)
+        }
 
         Ok(())
     }
