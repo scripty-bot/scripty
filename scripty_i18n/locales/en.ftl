@@ -129,11 +129,11 @@ bot-not-set-up = Looks like you haven't set up the bot yet. Do that first with `
 # This message is shown on successfuly joining a voice channel.
 # { $targetMention } is the mention of the channel the bot joined.
 join-success = Successfully joined { $targetMention }.
-  
-  **Keep in mind that the bot is not perfect, and works best when you speak slowly (roughly 40-60 words per minute) and clearly.**
-  
-  Note: your current premium tier is { $tier }. This allows for { $maxUsers } users to be transcripted at once.
-  If you would like more, and would like to also support the bot, consider subscribing to our Premium: <https://dash.scripty.org/premium>
+    
+    **Keep in mind that the bot is not perfect, and works best when you speak slowly (roughly 40-60 words per minute) and clearly.**
+    
+    Note: your current premium tier is { $tier }. This allows for { $maxUsers } users to be transcripted at once.
+    If you would like more, and would like to also support the bot, consider subscribing to our Premium: <https://dash.scripty.org/premium>
 # This message is shown when the user tries to invite the bot to a voice channel,
 # but the webhook used by the bot has been deleted.
 webhook-deleted = Looks like you deleted the webhook I use! *bonk* Re-run `{ $contextPrefix }setup` to fix this.
@@ -252,19 +252,19 @@ voice-connection-error-msg-reconnect = I had an issue ({ $reason }) and disconne
 ## general errors
 general-error-command-process-title = An error happened while processing { $command }.
 general-error-command-process-description = ```
-  { $errorFmt }
-  ```
-  This has been automatically reported. Please do not attempt to repeatedly use this command.
+    { $errorFmt }
+    ```
+    This has been automatically reported. Please do not attempt to repeatedly use this command.
 
 general-error-invalid-args-title = Invalid arguments while parsing { $command }.
 general-error-invalid-args-description = Failed to parse `{ $input }` because `{ $error }`
 
 general-error-invalid-structure-title = Invalid structure from Discord while parsing { $command }.
 general-error-invalid-structure-description = { $description }
-  
-  **Note**: this is a Discord error.
-  The only fix for this is to wait for Discord to propagate slash commands, which can take up to one hour.
-  If you do not want to wait this hour, you should use the prefix commands: run this command with `~{ $qualifiedName } { $args }`.
+    
+    **Note**: this is a Discord error.
+    The only fix for this is to wait for Discord to propagate slash commands, which can take up to one hour.
+    If you do not want to wait this hour, you should use the prefix commands: run this command with `~{ $qualifiedName } { $args }`.
 
 general-error-cooldown-hit-title = Cooldown hit on { $command }
 # Note $time will be a decimal with two digits of accuracy.
