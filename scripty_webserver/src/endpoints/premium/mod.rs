@@ -150,7 +150,10 @@ pub async fn stripe_webhook(
                         .price
                         .as_ref()
                         .expect("item should have price")
-                        .id
+                        .product
+                        .as_ref()
+                        .expect("item should have product")
+                        .id()
                         .as_str(),
                 )
                 .ok_or(WebServerError::MissingData)?;
