@@ -43,7 +43,9 @@ pub async fn stripe_webhook(
             };
             let discord_id = if let Some(customer) = card.customer {
                 // the Python server does hacky stuff and replaces all customer objects with their Discord snowflake ID
-                customer.id().as_str().parse::<u64>()?
+                let mut cid = customer.id().as_str().to_string();
+                cid.remove_matches("cus_");
+                cid.parse::<u64>()?
             } else {
                 // the python server should always have a customer ID in here, so panic
                 panic!("missing customer ID in CustomerSourceExpiring event");
@@ -74,7 +76,9 @@ pub async fn stripe_webhook(
                 return Err(WebServerError::MissingData);
             };
 
-            let discord_id = subscription.customer.id().as_str().parse::<u64>()?;
+            let mut cid = subscription.customer.id().as_str().to_string();
+            cid.remove_matches("cus_");
+            let discord_id = cid.parse::<u64>()?;
 
             embed = embed.title("Subscription Cancelled").description(
                 "Your subscription to Scripty Premium has officially been cancelled. \
@@ -106,7 +110,9 @@ pub async fn stripe_webhook(
                 return Err(WebServerError::MissingData);
             };
 
-            let discord_id = subscription.customer.id().as_str().parse::<u64>()?;
+            let mut cid = subscription.customer.id().as_str().to_string();
+            cid.remove_matches("cus_");
+            let discord_id = cid.parse::<u64>()?;
 
             embed = embed.title("Trial Ending").description(format!(
                 "Please note that your free trial to Scripty Premium will end <t:{0}:F> (<t:{0}:R>).\n\
@@ -128,7 +134,9 @@ pub async fn stripe_webhook(
                 return Err(WebServerError::MissingData);
             };
 
-            let discord_id = subscription.customer.id().as_str().parse::<u64>()?;
+            let mut cid = subscription.customer.id().as_str().to_string();
+            cid.remove_matches("cus_");
+            let discord_id = cid.parse::<u64>()?;
 
             let tier = *scripty_config::get_config()
                 .premium

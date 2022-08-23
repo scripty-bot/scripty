@@ -1,3 +1,5 @@
+#![feature(string_remove_matches)]
+
 mod auth;
 mod endpoints;
 mod entrypoint;
