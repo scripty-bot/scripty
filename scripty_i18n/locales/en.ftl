@@ -130,6 +130,8 @@ bot-not-set-up = Looks like you haven't set up the bot yet. Do that first with `
 # { $targetMention } is the mention of the channel the bot joined.
 join-success = Successfully joined { $targetMention }.
   
+  **Keep in mind that the bot is not perfect, and works best when you speak slowly (roughly 40-60 words per minute) and clearly.**
+  
   Note: your current premium tier is { $tier }. This allows for { $maxUsers } users to be transcripted at once.
   If you would like more, and would like to also support the bot, consider subscribing to our Premium: <https://dash.scripty.org/premium>
 # This message is shown when the user tries to invite the bot to a voice channel,
