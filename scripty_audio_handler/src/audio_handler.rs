@@ -68,6 +68,24 @@ impl AudioHandler {
             verbose: Arc::new(AtomicBool::new(false)),
         };
         this.reload_config().await?;
+
+        let t2 = this.clone();
+        tokio::spawn(async move {
+            const RELOAD_TIME: std::time::Duration = std::time::Duration::from_secs(300);
+
+            loop {
+                tokio::time::sleep(RELOAD_TIME).await;
+                if let Err(e) = t2.reload_config().await {
+                    error!("failed to reload config: {:?}", e);
+                };
+
+                if Arc::<_>::strong_count(&t2.verbose) == 1 {
+                    // this is the last strong pointer because all the others have been dropped
+                    break;
+                }
+            }
+        });
+
         Ok(this)
     }
 
