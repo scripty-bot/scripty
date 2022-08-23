@@ -10,6 +10,7 @@ use std::time::Instant;
 
 pub use serenity::builder::{CreateEmbed, CreateEmbedFooter, CreateMessage};
 pub use serenity::model::id::UserId;
+pub use serenity::Error as SerenityError;
 
 pub struct CacheNotInitializedError;
 

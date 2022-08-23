@@ -1,11 +1,10 @@
 use crate::auth::Authentication;
 use crate::errors::WebServerError;
-use crate::models::*;
 use axum::{routing::post, Json};
 use scripty_commands::{CreateEmbed, CreateEmbedFooter, CreateMessage, UserId};
 use sqlx::types::time::OffsetDateTime;
 use std::num::NonZeroU64;
-use stripe::{EventObject, EventType, WebhookEvent};
+use stripe::{EventObject, EventType, SubscriptionStatus, WebhookEvent};
 
 pub async fn stripe_webhook(
     Json(WebhookEvent {
@@ -14,7 +13,12 @@ pub async fn stripe_webhook(
         livemode,
         ..
     }): Json<WebhookEvent>,
+    Authentication { user_id, .. }: Authentication,
 ) -> Result<(), WebServerError> {
+    if user_id != 0 {
+        return Err(WebServerError::AuthenticationFailed(3));
+    }
+
     let mut embed = CreateEmbed::default();
     if !livemode {
         // add a field to the footer of the embed to show that this is a test webhook
@@ -61,341 +65,298 @@ pub async fn stripe_webhook(
             None
         }
         // TODO: rest of these enum variants
-        EventType::CustomerSubscriptionDeleted => None,
-        EventType::CustomerSubscriptionTrialWillEnd => None,
-        EventType::CustomerSubscriptionUpdated => None,
+        EventType::CustomerSubscriptionDeleted => {
+            // process the data as a Subscription object
+            let subscription = if let EventObject::Subscription(subscription) = data.object {
+                subscription
+            } else {
+                warn!("missing subscription data in CustomerSubscriptionDeleted event");
+                return Err(WebServerError::MissingData);
+            };
+
+            let discord_id = subscription.customer.id().as_str().parse::<u64>()?;
+
+            embed = embed.title("Subscription Cancelled").description(
+                "Your subscription to Scripty Premium has officially been cancelled. \
+                If you would like to reactivate it, head to https://dash.scripty.org/.\n\
+                Thank you for trying out Scripty Premium! We appreciate your support.\n\
+                ~ the Scripty team",
+            );
+
+            // update the user's status in the database
+            let hashed_user_id = scripty_utils::hash_user_id(
+                NonZeroU64::new(discord_id).expect("expected non-zero discord ID"),
+            );
+            let db = scripty_db::get_db();
+            sqlx::query!(
+                "UPDATE users SET premium_level = NULL, premium_expiry = NULL WHERE user_id = $1",
+                hashed_user_id
+            )
+            .execute(db)
+            .await?;
+
+            Some(discord_id)
+        }
+        EventType::CustomerSubscriptionTrialWillEnd => {
+            // process the data as a Subscription object
+            let subscription = if let EventObject::Subscription(subscription) = data.object {
+                subscription
+            } else {
+                warn!("missing subscription data in CustomerSubscriptionDeleted event");
+                return Err(WebServerError::MissingData);
+            };
+
+            let discord_id = subscription.customer.id().as_str().parse::<u64>()?;
+
+            embed = embed.title("Trial Ending").description(format!(
+                "Please note that your free trial to Scripty Premium will end <t:{0}:F> (<t:{0}:R>).\n\
+                At the timestamp marked above, you will be charged for a full month of Scripty Premium.\
+                We do not offer refunds under any circumstances, so if you do not want to pay for this,\
+                please cancel your subscription before the end date at https://dash.scripty.org/.\n\n\
+                Thanks for using Scripty! ~ the Scripty team",
+                subscription.trial_end.unwrap_or(0)
+            ));
+
+            Some(discord_id)
+        }
+        EventType::CustomerSubscriptionUpdated => {
+            // process the data as a Subscription object
+            let subscription = if let EventObject::Subscription(subscription) = data.object {
+                subscription
+            } else {
+                warn!("missing subscription data in CustomerSubscriptionDeleted event");
+                return Err(WebServerError::MissingData);
+            };
+
+            let discord_id = subscription.customer.id().as_str().parse::<u64>()?;
+
+            let tier = *scripty_config::get_config()
+                .premium
+                .tier_map
+                .get(
+                    subscription
+                        .items
+                        .data
+                        .get(0)
+                        .expect("should be at least one subscription item")
+                        .price
+                        .as_ref()
+                        .expect("item should have price")
+                        .id
+                        .as_str(),
+                )
+                .ok_or(WebServerError::MissingData)?;
+
+            // check the status of the subscription
+            let retval = match subscription.status {
+                SubscriptionStatus::Active => {
+                    // check if subscription.cancel_at_period_end is set: if it is, then the user has cancelled their subscription:
+                    // in that case, we should update the premium_expiry field in the database (expiry timestamp is current_period_end)
+                    // if it's not set, then check if subscription.trial_end is set: if it is, then the user has started their trial
+                    // if neither are set, then very likely a tier change has happened, which we'll update regardless later on
+                    if subscription.cancel_at_period_end {
+                        // update the expiry timestamp to the current period end
+                        embed = embed.title("Subscription Cancelled").description(format!(
+                            "Your subscription to Scripty Premium has been cancelled. You, and any servers you have \
+                            activated Premium on, will lose their benefits <t:{0}:F> (<t:{0}:R>)\n\
+                            We're sorry to see you go.\n\
+                            If you have a moment, it'd be great if you could respond to this message telling us why you \
+                            cancelled. In any case, thank you a lot for supporting Scripty.\n\n\
+                            <:meow_heart:1003570104866443274> ~ the Scripty team",
+                            subscription.current_period_end
+                        )).footer(CreateEmbedFooter::default().text("https://xkcd.com/2257/"));
+
+                        // update the expiry timestamp to the current period end
+                        let expiry =
+                            OffsetDateTime::from_unix_timestamp(subscription.current_period_end)?;
+                        let hashed_user_id = scripty_utils::hash_user_id(
+                            NonZeroU64::new(discord_id).expect("expected non-zero discord ID"),
+                        );
+                        let db = scripty_db::get_db();
+                        sqlx::query!(
+                            "UPDATE users SET premium_expiry = $1 WHERE user_id = $2",
+                            expiry,
+                            hashed_user_id
+                        )
+                        .execute(db)
+                        .await?;
+                    } else if let Some(trial_end) = subscription.trial_end {
+                        // update the expiry timestamp to the trial end
+                        embed = embed.title("Trial Started").description(format!(
+                            "Your trial for Tier {0} Scripty Premium has begun. It will end <t:{1}:F> (<t:{1}:R>), at \
+                            which point you will be charged for a full month of the next tier.\n\
+                             Note we do not offer refunds under any circumstances, so if you do not want to pay for \
+                             this, please cancel your subscription before the end date at https://dash.scripty.org/.\n
+                             If you have any questions, you may respond to this message.\n\n\
+                             Thanks!\n\
+                             ~ the Scripty team",
+                            tier,
+                            trial_end
+                        ));
+                    } else {
+                        // update the expiry timestamp to the current period end
+                        embed = embed.title("Tier Changed").description(format!(
+                            "Your subscription has been updated to Tier {1}, and takes effect <t:{0}:F> (<t:{0}:R>).\n\
+                            If you had more servers than you were supposed to with this new Premium tier due to a downgrade,\
+                            all the servers you have added to Premium have been removed. You will need to re-add the \
+                            servers you would like to keep Premium on.\n\
+                            If you had fewer servers than you now have access to, you can use premium claim to add more servers.\
+                            If you have any questions, you may respond to this message for support.",
+                            subscription.current_period_end,
+                            tier
+                        ));
+                    }
+
+                    // update the tier in the database
+                    let hashed_user_id = scripty_utils::hash_user_id(
+                        NonZeroU64::new(discord_id).expect("expected non-zero discord ID"),
+                    );
+                    let db = scripty_db::get_db();
+                    sqlx::query!(
+                        "UPDATE users SET premium_level = $1 WHERE user_id = $2",
+                        tier as i16,
+                        hashed_user_id
+                    )
+                    .execute(db)
+                    .await?;
+
+                    Some(discord_id)
+                }
+                SubscriptionStatus::Canceled => {
+                    // prepare the user's message
+                    embed = embed.title("Subscription Cancelled").description(
+                        "Your subscription to Scripty Premium has been finally cancelled. You, and any servers you have \
+                        activated Premium on, have lost their benefits.\n\
+                        We're sorry to see you go.\n\
+                        If you have a moment, it'd be great if you could respond to this message telling us why you \
+                        cancelled. In any case, thank you a lot for supporting Scripty.\n\n\
+                        <:meow_heart:1003570104866443274> ~ the Scripty team".to_string()
+                    ).footer(CreateEmbedFooter::default().text("https://xkcd.com/2257/"));
+
+                    // remove the user's premium from the db
+                    let hashed_user_id = scripty_utils::hash_user_id(
+                        NonZeroU64::new(discord_id).expect("expected non-zero discord ID"),
+                    );
+                    let db = scripty_db::get_db();
+
+                    sqlx::query!("UPDATE users SET premium_level = NULL, premium_expiry = NULL WHERE user_id = $1", hashed_user_id)
+                        .execute(db)
+                        .await?;
+
+                    Some(discord_id)
+                }
+                SubscriptionStatus::PastDue => {
+                    // prepare the message
+                    embed = embed.title("Subscription Past Due").description(
+                        "Your subscription to Scripty Premium is overdue. You, and any servers you have activated Premium \
+                        on, have lost their benefits.\n\
+                        Your subscription will be cancelled sometime soon if this is not resolved.\n\
+                        If you no longer wish to pay for Premium, simply log in at https://dash.scripty.org/ and cancel your subscription. \
+                        However, if you would like to continue your subscription and continue your access, you can continue \
+                        this subscription at the same site.\n\n\
+                        Thanks for using Scripty! ~ the Scripty team".to_string()
+                    );
+
+                    // remove the user's premium
+                    let hashed_user_id = scripty_utils::hash_user_id(
+                        NonZeroU64::new(discord_id).expect("expected non-zero discord ID"),
+                    );
+                    let db = scripty_db::get_db();
+
+                    sqlx::query!("UPDATE users SET premium_level = NULL, premium_expiry = NULL WHERE user_id = $1", hashed_user_id)
+                        .execute(db)
+                        .await?;
+
+                    Some(discord_id)
+                }
+                SubscriptionStatus::Trialing => {
+                    // prepare embed
+                    embed = embed.title("Trial Started").description(format!(
+                        "Your trial for Tier {0} Scripty Premium has begun. It will end <t:{1}:F> (<t:{1}:R>), at \
+                        which point you will be charged for a full month of the next tier.\n\
+                         Note we do not offer refunds under any circumstances, so if you do not want to pay for \
+                         this, please cancel your subscription before the end date at https://dash.scripty.org/.\n
+                         If you have any questions, you may respond to this message.\n\n\
+                         Thanks!\n\
+                         ~ the Scripty team",
+                        tier,
+                        subscription.trial_end.unwrap_or(0)
+                    ));
+
+                    Some(discord_id)
+                }
+                SubscriptionStatus::Unpaid => {
+                    // prepare embed
+                    embed = embed.title("Subscription Unpaid").description(
+                        "Your subscription to Scripty Premium is unpaid. You, and any servers you have activated Premium \
+                        on, have lost their benefits.\n\
+                        If you no longer wish to pay for Premium, simply log in at https://dash.scripty.org/ and cancel your subscription. \
+                        However, if you would like to continue your subscription and continue your access, you can continue \
+                        this subscription at the same site.\n\n\
+                        Thanks for using Scripty! ~ the Scripty team"
+                    ).footer(CreateEmbedFooter::default().text("this state should never be shown to a real user"));
+
+                    // cancel the subscription
+                    let hashed_user_id = scripty_utils::hash_user_id(
+                        NonZeroU64::new(discord_id).expect("expected non-zero discord ID"),
+                    );
+                    let db = scripty_db::get_db();
+                    sqlx::query!("UPDATE users SET premium_level = NULL, premium_expiry = NULL WHERE user_id = $1", hashed_user_id)
+                        .execute(db)
+                        .await?;
+
+                    Some(discord_id)
+                }
+                SubscriptionStatus::Incomplete => {
+                    // this status is a grace period for newly created subscriptions, where they are not charged yet
+                    // so do nothing here
+                    None
+                }
+                SubscriptionStatus::IncompleteExpired => {
+                    embed = embed.title("Subscription Expired").description(
+                        "Your subscription to Scripty Premium failed to activate, likely due to a missing payment method.\n\
+                        If you would still like to activate it again, head to the dashboard at https://dash.scripty.org.\n\
+                        Otherwise, no action is needed.\n\n\
+                        Thanks for using Scripty! ~ the Scripty team"
+                    );
+
+                    Some(discord_id)
+                }
+            };
+
+            // update user in DB
+            let hashed_user_id = scripty_utils::hash_user_id(
+                NonZeroU64::new(discord_id).expect("expected non-zero discord ID"),
+            );
+            let db = scripty_db::get_db();
+            sqlx::query!(
+                "UPDATE users SET premium_level = $1 WHERE user_id = $2",
+                tier as i16,
+                hashed_user_id
+            )
+            .execute(db)
+            .await?;
+
+            retval
+        }
         EventType::RadarEarlyFraudWarningCreated => None,
         _ => None,
     };
 
-    Ok(())
-}
+    if let Some(target_user_id) = target_user_id {
+        let cache_http = scripty_commands::get_cache_http();
 
-/// # TRIAL END
-pub async fn trial_will_end(
-    Json(data): Json<TrialWillEndJson>,
-    _: Authentication,
-) -> Result<(), WebServerError> {
-    let cache_http = scripty_commands::get_cache_http();
-
-    match UserId::new(data.discord_id).to_user(cache_http).await {
-        Ok(u) => {
-            if let Err(e) = u
-                .direct_message(
-                    &cache_http,
-                    CreateMessage::default().embed(
-                        CreateEmbed::default()
-                            .title("Free Trial Expires Soon")
-                            .description(
-                                "Your free trial for tier 1 Scripty Premium will expire soon.\
-                                See below for the exact expiry timestamp.\n\
-                                Please note: unless you log in to the dashboard at https://dash.scripty.org/ \
-                                and manually cancel your subscription, you will automatically be charged for \
-                                one month of Tier 1 Premium, worth US$5.45.",
-                            )
-                            .field(
-                            "Expiry Timestamp",
-                            format!("<t:{0}:F> (<t:{0}:R>)", data.trial_end),
-                            true
-                            ),
-                    ),
-                )
-                .await
-            {
-                error!("Error sending DM: {}", e);
-            }
-        }
-        Err(e) => {
-            error!("Error fetching user: {}", e);
-        }
+        let dm_channel = UserId::from(target_user_id)
+            .create_dm_channel(cache_http)
+            .await?;
+        dm_channel
+            .send_message(cache_http, CreateMessage::default().embed(embed))
+            .await?;
     }
-
-    Ok(())
-}
-
-/// # SUBSCRIPTION CREATE
-pub async fn subscription_create(
-    Json(_): Json<SubscriptionCreatedJson>,
-    _: Authentication,
-) -> Result<(), WebServerError> {
-    Ok(())
-}
-
-/// # SUBSCRIPTION UPDATE
-pub async fn subscription_update(
-    Json(data): Json<SubscriptionUpdatedJson>,
-    _: Authentication,
-) -> Result<(), WebServerError> {
-    let hashed_user_id =
-        scripty_utils::hash_user_id(NonZeroU64::new(data.discord_id).expect("expected NonZeroU64"));
-
-    let db = scripty_db::get_db();
-
-    let mut embed = CreateEmbed::default();
-
-    let (update_tier, cancel_sub, is_trialing) = match data.status {
-        SubscriptionStatus::Trialing => {
-            embed = embed
-                .title("Trial Started")
-                .description(
-                    "Your trial to Tier 1 Scripty Premium has begun. This trial will expire in three days. \
-                    You will get a DM 24 hours before it expires, that essentially repeats what follows.\n\
-                    If you do not cancel your trial before it expires, you will be charged for one month of \
-                    Tier 1 Premium, worth US$5.45. You can cancel your trial at any time by logging in to the \
-                    dashboard at https://dash.scripty.org/.\n\
-                    You may claim this premium in any server that has not had a trial claimed before, by using \
-                    `premium claim` in that server.\n\
-                    If you have any questions, you may respond to this message for support."
-                );
-
-            (true, false, true)
-        }
-        SubscriptionStatus::Active if !data.cancel_at_period_end => {
-            embed = embed
-                .title("Subscription Updated")
-                .description(format!(
-                    "Your subscription has been updated to Tier {1}, and takes effect <t:{0}:F> (<t:{0}:R>.\n\
-                    If you had more servers than you were supposed to with this new Premium tier due to a downgrade, \
-                    all the servers you have added to Premium have been removed. \
-                    You will need to re-add the servers you would like to keep Premium on.\n\
-                    If you had fewer servers than you now have access to, you can use `premium claim` to add more servers.\n\
-                    If this is a brand new subscription, you can now start using your benefits.\n\
-                    If you have any questions, you may respond to this message for support.",
-                    data.current_period_start,
-                    data.tier
-                ));
-
-            (true, false, false)
-        }
-        SubscriptionStatus::Active if data.cancel_at_period_end => {
-            embed = embed.title("Subscription Cancelled").description(format!(
-                "Your subscription to Scripty Premium has been cancelled. \
-                You, and any servers you have activated Premium on, will lose their benefits <t:{0}:F> (<t:{0}:R>)\n\
-                We're sorry to see you go.\n\
-                If you have a moment, it'd be great if you could respond to this message telling us why you cancelled.\
-                In any case, thank you a lot for supporting Scripty.\n\
-                <:meow_heart:1003570104866443274> ~ the Scripty team",
-                data.plan_ends_at.unwrap_or(0)
-            ));
-
-            (false, true, false)
-        }
-        SubscriptionStatus::Canceled => {
-            embed = embed.title("Subscription Cancelled").description(format!(
-                "Your subscription to Scripty Premium has been cancelled. \
-                You, and any servers you have activated Premium on, will lose their benefits <t:{0}:F> (<t:{0}:R>)\n\
-                We're sorry to see you go.\n\
-                If you have a moment, it'd be great if you could respond to this message telling us why you cancelled.\
-                In any case, thank you a lot for supporting Scripty.\n\
-                <:meow_heart:1003570104866443274> ~ the Scripty team",
-                data.plan_ends_at.unwrap_or(0)
-            ));
-
-            (false, true, false)
-        }
-        SubscriptionStatus::PastDue => {
-            embed = embed.title("Subscription Past Due").description(format!(
-                "Your subscription to Scripty Premium is overdue. You, and any servers you have activated Premium on, \
-                have lost their benefits.\n\
-                If this is not resolved by <t:{0}:F> (<t:{0}:R>), your subscription will be cancelled. \
-                If you no longer wish to pay for Premium, simply log in at https://dash.scripty.org/ and cancel your \
-                subscription.",
-                data.current_period_start + 259200
-            ));
-            (false, true, false)
-        }
-        _ => (false, true, false),
-    };
-
-    if update_tier {
-        let tier = data.tier;
-        let db = scripty_db::get_db();
-        sqlx::query!(
-            "UPDATE users SET premium_level = $1 WHERE user_id = $2",
-            tier as i16,
-            hashed_user_id
-        )
-        .execute(db)
-        .await?;
-    }
-
-    if is_trialing {
-        sqlx::query!(
-            "UPDATE users SET trial_used = true AND is_trialing = true WHERE user_id = $1",
-            hashed_user_id
-        )
-        .execute(db)
-        .await?;
-    } else {
-        sqlx::query!(
-            "UPDATE users SET is_trialing = false WHERE user_id = $1",
-            hashed_user_id
-        )
-        .execute(db)
-        .await?;
-    }
-
-    if cancel_sub {
-        sqlx::query!(
-            "UPDATE users SET premium_level = 0 WHERE user_id = $1",
-            hashed_user_id
-        )
-        .execute(db)
-        .await?;
-    }
-
-    if let Some(expiry_timestamp) = data.plan_ends_at {
-        let db = scripty_db::get_db();
-
-        // convert the Unix timestamp in expiry_timestamp to a sqlx::types::time::PrimitiveDateTime
-        let expiry_timestamp = OffsetDateTime::from_unix_timestamp(expiry_timestamp as i64)?;
-
-        sqlx::query!(
-            "UPDATE users SET premium_expiry = $1 WHERE user_id = $2",
-            Some(expiry_timestamp),
-            hashed_user_id
-        )
-        .execute(db)
-        .await?;
-    }
-
-    let cache_http = scripty_commands::get_cache_http();
-    match UserId::new(data.discord_id).to_user(&cache_http).await {
-        Ok(u) => {
-            if let Err(e) = u
-                .direct_message(&cache_http, CreateMessage::default().embed(embed))
-                .await
-            {
-                error!("Error sending DM: {}", e);
-            }
-        }
-        Err(e) => {
-            error!("Error fetching user: {}", e);
-        }
-    };
-
-    Ok(())
-}
-
-/// # SUBSCRIPTION DELETE
-pub async fn subscription_delete(
-    Json(data): Json<SubscriptionDeletedJson>,
-    _: Authentication,
-) -> Result<(), WebServerError> {
-    let hashed_user_id =
-        scripty_utils::hash_user_id(NonZeroU64::new(data.discord_id).expect("expected NonZeroU64"));
-    let db = scripty_db::get_db();
-
-    // expire now by setting premium level to 0
-    sqlx::query!(
-        "UPDATE users SET premium_level = 0 WHERE user_id = $1",
-        hashed_user_id
-    )
-    .execute(db)
-    .await?;
-
-    let cache_http = scripty_commands::get_cache_http();
-    match UserId::new(data.discord_id).to_user(&cache_http).await {
-        Ok(u) => {
-            if let Err(e) = u.direct_message(
-                cache_http,
-                CreateMessage::default()
-                    .embed(
-                        CreateEmbed::default()
-                            .title("Subscription Cancelled")
-                            .description(
-                                "As of now, your subscription to Scripty Premium has officially been canceled \
-                                and deleted from our systems.\n\
-                                We're sorry to see you go. If you have a moment, it'd be great if you could respond to \
-                                this message telling us why you cancelled.\n\
-                                In any case, thank you a lot for supporting Scripty.\n\
-                                <:meow_heart:1003570104866443274> ~ the Scripty team"
-                            )
-                    )
-            ).await {
-                error!("Error sending DM: {}", e);
-            }
-        }
-        Err(e) => {
-            error!("Error fetching user: {}", e);
-        }
-    }
-
-    Ok(())
-}
-
-/// # EARLY FRAUD WARNING
-pub async fn early_fraud_warning(
-    Json(_): Json<EarlyFraudWarningJson>,
-    _: Authentication,
-) -> Result<(), WebServerError> {
-    Ok(())
-}
-
-/// # INVOICE CREATED
-pub async fn invoice_created(
-    Json(_): Json<InvoiceStatusJson>,
-    _: Authentication,
-) -> Result<(), WebServerError> {
-    // TODO: DM user
-
-    Ok(())
-}
-
-/// # INVOICE PAID
-pub async fn invoice_paid(
-    Json(_): Json<InvoiceStatusJson>,
-    _: Authentication,
-) -> Result<(), WebServerError> {
-    // TODO: DM user
-
-    Ok(())
-}
-
-/// # INVOICE PAYMENT FAILED
-pub async fn invoice_payment_failed(
-    Json(_): Json<InvoiceStatusJson>,
-    _: Authentication,
-) -> Result<(), WebServerError> {
-    // TODO: DM user
-
-    Ok(())
-}
-
-/// # INVOICE PAYMENT ACTION REQUIRED
-pub async fn invoice_payment_action_required(
-    Json(_): Json<InvoiceStatusJson>,
-    _: Authentication,
-) -> Result<(), WebServerError> {
-    Ok(())
-}
-
-/// # INVOICE UPCOMING
-pub async fn invoice_upcoming(
-    Json(_): Json<InvoiceStatusJson>,
-    _: Authentication,
-) -> Result<(), WebServerError> {
-    // TODO: DM user
 
     Ok(())
 }
 
 pub fn router() -> axum::Router {
-    axum::Router::new()
-        .route("/premium/trial_end", post(trial_will_end))
-        .route("/premium/subscription_create", post(subscription_create))
-        .route("/premium/subscription_update", post(subscription_update))
-        .route("/premium/subscription_delete", post(subscription_delete))
-        .route("/premium/early_fraud_warning", post(early_fraud_warning))
-        .route("/premium/invoice_created", post(invoice_created))
-        .route("/premium/invoice_paid", post(invoice_paid))
-        .route(
-            "/premium/invoice_payment_failed",
-            post(invoice_payment_failed),
-        )
-        .route(
-            "/premium/invoice_payment_action_required",
-            post(invoice_payment_action_required),
-        )
-        .route("/premium/invoice_upcoming", post(invoice_upcoming))
+    axum::Router::new().route("/premium/stripe_webhook", post(stripe_webhook))
 }

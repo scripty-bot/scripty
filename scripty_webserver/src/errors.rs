@@ -38,11 +38,22 @@ pub enum WebServerError {
     ///
     /// Code `5`, no sub-code.
     ParseIntError,
+
+    /// Serenity returned an error.
+    ///
+    /// Code `6`, no sub-code.
+    SerenityError,
 }
 
 impl From<scripty_commands::CacheNotInitializedError> for WebServerError {
     fn from(_: scripty_commands::CacheNotInitializedError) -> Self {
         WebServerError::CacheUnavailable
+    }
+}
+
+impl From<scripty_commands::SerenityError> for WebServerError {
+    fn from(_: scripty_commands::SerenityError) -> Self {
+        WebServerError::SerenityError
     }
 }
 
@@ -72,6 +83,7 @@ impl Display for WebServerError {
             WebServerError::DatabaseError => write!(f, "Database error"),
             WebServerError::MissingData => write!(f, "Missing data"),
             WebServerError::ParseIntError => write!(f, "Parse int error"),
+            WebServerError::SerenityError => write!(f, "Serenity error"),
         }
     }
 }
@@ -119,6 +131,13 @@ impl IntoResponse for WebServerError {
                     sub_code: -1,
                 },
                 StatusCode::BAD_REQUEST,
+            ),
+            WebServerError::SerenityError => (
+                ErrorJson {
+                    code: 6,
+                    sub_code: -1,
+                },
+                StatusCode::INTERNAL_SERVER_ERROR,
             ),
         };
 
