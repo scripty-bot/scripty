@@ -65,12 +65,16 @@ pub async fn claim(ctx: Context<'_>) -> Result<(), Error> {
         ctx.say(format_message!(
             resolved_language,
             "premium-server-not-set-up"
+            commandPrefix: ctx.prefix()
         ))
         .await?;
         return Ok(());
     } else {
-        ctx.say(format_message!(resolved_language, "premium-claimed"))
-            .await?;
+        ctx.say(format_message!(
+            resolved_language, "premium-claimed",
+            commandPrefix: ctx.prefix()
+        ))
+        .await?;
     }
 
     Ok(())
