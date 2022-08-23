@@ -191,19 +191,6 @@ pub async fn stripe_webhook(
                         )
                         .execute(db)
                         .await?;
-                    } else if let Some(trial_end) = subscription.trial_end {
-                        // update the expiry timestamp to the trial end
-                        embed = embed.title("Trial Started").description(format!(
-                            "Your trial for Tier {0} Scripty Premium has begun. It will end <t:{1}:F> (<t:{1}:R>), at \
-                            which point you will be charged for a full month of the next tier.\n\
-                             Note we do not offer refunds under any circumstances, so if you do not want to pay for \
-                             this, please cancel your subscription before the end date at https://dash.scripty.org/.\n
-                             If you have any questions, you may respond to this message.\n\n\
-                             Thanks!\n\
-                             ~ the Scripty team",
-                            tier,
-                            trial_end
-                        ));
                     } else {
                         // update the expiry timestamp to the current period end
                         embed = embed.title("Tier Changed").description(format!(
