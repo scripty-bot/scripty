@@ -163,7 +163,8 @@ ON CONFLICT
                 .title(format_message!(resolved_language, "setup-success-title"))
                 .description(format_message!(
                     resolved_language,
-                    "setup-success-description"
+                    "setup-success-description",
+                    contextPrefix: ctx.prefix()
                 )),
         ),
     )

@@ -44,11 +44,13 @@ pub async fn user_language(
                     CreateEmbed::default()
                         .title(format_message!(
                             resolved_language,
-                            "user-language-set-success"
+                            "user-language-set-success",
+                            language: language.as_str()
                         ))
                         .description(format_message!(
                             resolved_language,
-                            "user-language-set-success-description"
+                            "user-language-set-success-description",
+                            contextPrefix: ctx.prefix()
                         )),
                 ),
             )
@@ -122,7 +124,8 @@ pub async fn guild_language(
                     CreateEmbed::default()
                         .title(format_message!(
                             resolved_language,
-                            "guild-language-set-success"
+                            "guild-language-set-success",
+                            language: language.as_str()
                         ))
                         .description(format_message!(
                             resolved_language,
