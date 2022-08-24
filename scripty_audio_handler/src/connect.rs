@@ -1,4 +1,5 @@
 use crate::Error;
+use serenity::builder::CreateWebhook;
 use serenity::model::id::{ChannelId, GuildId};
 use serenity::prelude::Context;
 use songbird::error::JoinError;
@@ -14,26 +15,17 @@ pub async fn connect_to_vc(
     voice_channel_id: ChannelId,
     _force: bool,
 ) -> Result<bool, Error> {
-    debug!("getting webhook id and token");
-    let db = scripty_db::get_db();
-    let res = sqlx::query!(
-        "SELECT webhook_id, webhook_token FROM channels WHERE channel_id = $1",
-        channel_id.get() as i64
-    )
-    .fetch_optional(db)
-    .await;
-
-    let res = match res {
-        Ok(Some(res)) => res,
-        Ok(None) | Err(sqlx::Error::RowNotFound) => return Ok(false),
-        Err(e) => return Err(e.into()),
-    };
-
     debug!("fetching webhook");
-    let webhook = ctx
-        .http
-        .get_webhook_with_token(res.webhook_id as u64, &res.webhook_token)
-        .await?;
+    let webhook = if let Some(h) = channel_id.webhooks(&ctx).await?.pop() {
+        h
+    } else {
+        channel_id
+            .create_webhook(
+                &ctx,
+                CreateWebhook::default().name("Scripty Transcriptions"),
+            )
+            .await?
+    };
 
     debug!("fetching songbird");
     let sb = songbird::get(&ctx).await.expect("songbird not initialized");

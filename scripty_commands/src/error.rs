@@ -24,7 +24,6 @@ pub enum ErrorEnum {
         expected: ChannelType,
         got: ChannelType,
     },
-    MissingWebhookToken,
     Db(sqlx::Error),
     ExpectedGuild,
     Join(JoinError),
@@ -45,14 +44,6 @@ impl Error {
         Error {
             bt: Backtrace::new(),
             err: ErrorEnum::InvalidChannelType { expected, got },
-        }
-    }
-
-    #[inline]
-    pub fn missing_webhook_token() -> Self {
-        Error {
-            bt: Backtrace::new(),
-            err: ErrorEnum::MissingWebhookToken,
         }
     }
 
@@ -105,7 +96,6 @@ impl Display for Error {
                 got, expected
             )
             .into(),
-            MissingWebhookToken => "webhook token was not sent by discord".into(),
             Db(e) => format!("Database returned an error: {:?}", e).into(),
             // _ => "an unknown error happened".into(),
             ExpectedGuild => "expected this to be in a guild".into(),
@@ -122,7 +112,6 @@ impl StdError for Error {
         match &self.err {
             Serenity(e) => Some(e),
             InvalidChannelType { .. } => None,
-            MissingWebhookToken => None,
             Db(e) => Some(e),
             ExpectedGuild => None,
             Join(e) => Some(e),

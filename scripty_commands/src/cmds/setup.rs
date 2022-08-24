@@ -3,13 +3,12 @@ use crate::models::Language;
 use crate::{Context, Error};
 use poise::CreateReply;
 use serenity::builder::{
-    CreateActionRow, CreateButton, CreateComponents, CreateEmbed, CreateWebhook, EditMessage,
+    CreateActionRow, CreateButton, CreateComponents, CreateEmbed, EditMessage,
 };
 use serenity::collector::ComponentInteractionCollectorBuilder;
 use serenity::futures::StreamExt;
 use serenity::model::application::component::ButtonStyle;
 use serenity::model::channel::{ChannelType, GuildChannel};
-use serenity::model::webhook::Webhook;
 
 /// Set the bot up.
 ///
@@ -113,31 +112,8 @@ pub async fn setup(
 
     let guild_id = ctx.guild().expect("asserted in guild").id.get() as i64;
     let channel_id = ctx.channel_id().get() as i64;
-    let Webhook { id, token, .. } = target_channel
-        .create_webhook(
-            ctx.discord(),
-            CreateWebhook::default().name("Scripty Transcriptions"),
-        )
-        .await?;
-    let webhook_id = id.get() as i64;
-    let webhook_token = token.ok_or_else(Error::missing_webhook_token)?;
 
     let db = scripty_db::get_db();
-    sqlx::query!(
-        r#"
-INSERT INTO channels
-    VALUES ($1, $2, $3)
-ON CONFLICT
-    ON CONSTRAINT channels_pkey
-    DO UPDATE SET webhook_id = $2, webhook_token = $3
-        "#,
-        channel_id,
-        webhook_id,
-        webhook_token
-    )
-    .execute(db)
-    .await?;
-
     sqlx::query!(
         r#"
 INSERT INTO guilds
