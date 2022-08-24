@@ -112,11 +112,12 @@ pub async fn set_user_language(
     language: &str,
 ) -> Result<(), InvalidLanguageError> {
     let lang = InvalidLanguageError::check_validity(language)?;
+    let hashed_user_id = scripty_utils::hash_user_id(user_id);
 
     let db = scripty_db::get_db();
     sqlx::query!(
         "INSERT INTO users (user_id, language) VALUES ($1, $2) ON CONFLICT (user_id) DO UPDATE SET language = $2",
-        user_id.get() as i64,
+        hashed_user_id,
         language
     )
     .execute(db).await?;

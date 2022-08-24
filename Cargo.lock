@@ -2468,6 +2468,7 @@ dependencies = [
  "once_cell",
  "scripty_config",
  "scripty_db",
+ "scripty_utils",
  "serde",
  "serde_json",
  "sqlx",

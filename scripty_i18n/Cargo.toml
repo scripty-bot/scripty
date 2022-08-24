@@ -14,6 +14,7 @@ serde_json = "1"
 unic-langid = "0.9"
 intl-memoizer = "0.5"
 scripty_db = { path = "../scripty_db" }
+scripty_utils = { path = "../scripty_utils" }
 scripty_config = { path = "../scripty_config" }
 serde = { version = "1", features = ["derive"] }
 sqlx = { version = "0.6", features = ["postgres", "macros", "migrate", "offline", "runtime-tokio-rustls"] }
