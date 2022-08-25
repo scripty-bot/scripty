@@ -111,7 +111,6 @@ pub async fn setup(
     }
 
     let guild_id = ctx.guild().expect("asserted in guild").id.get() as i64;
-    let channel_id = ctx.channel_id().get() as i64;
 
     let db = scripty_db::get_db();
     sqlx::query!(
@@ -126,7 +125,7 @@ ON CONFLICT
       be_verbose = $4
       "#,
         guild_id,
-        channel_id,
+        target_channel.id.get() as i64,
         language,
         verbose,
     )
