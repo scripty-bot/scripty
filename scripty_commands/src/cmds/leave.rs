@@ -1,6 +1,5 @@
 use crate::checks::is_guild;
 use crate::{Context, Error};
-use serenity::builder::EditMember;
 
 /// Leave any current voice call.
 #[poise::command(prefix_command, slash_command, guild_cooldown = 15, check = "is_guild")]
@@ -17,14 +16,9 @@ pub async fn leave(ctx: Context<'_>) -> Result<(), Error> {
     scripty_audio_handler::disconnect_from_vc(ctx.discord(), guild_id).await?;
 
     // reset the bot's nickname to unset
-    let current_user_id = { ctx.discord().cache.current_user().id };
     ctx.guild_id()
         .expect("asserted we are in guild")
-        .edit_member(
-            ctx.discord(),
-            current_user_id,
-            EditMember::default().nickname(""),
-        )
+        .edit_nickname(ctx.discord(), None)
         .await?;
 
     ctx.say(format_message!(resolved_language, "leave-success"))

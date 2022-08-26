@@ -1,6 +1,5 @@
 use crate::checks::is_guild;
 use crate::{Context, Error};
-use serenity::builder::EditMember;
 use serenity::http::StatusCode;
 use serenity::model::channel::{ChannelType, GuildChannel};
 use serenity::prelude::Mentionable;
@@ -81,15 +80,10 @@ pub async fn join(
 
     // try changing our nickname to "[TRANSCRIBING] Scripty"
     // if we can't, send an error and return
-    let current_user_id = { ctx.discord().cache.current_user().id };
     if let Err(e) = ctx
         .guild_id()
         .expect("asserted we are in guild")
-        .edit_member(
-            ctx.discord(),
-            current_user_id,
-            EditMember::default().nickname("[TRANSCRIBING] Scripty"),
-        )
+        .edit_nickname(ctx.discord(), Some("[TRANSCRIBING] Scripty"))
         .await
     {
         // if we get a 403, it's because we don't have permission to change our nickname
