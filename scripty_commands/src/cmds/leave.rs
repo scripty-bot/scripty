@@ -17,11 +17,12 @@ pub async fn leave(ctx: Context<'_>) -> Result<(), Error> {
     scripty_audio_handler::disconnect_from_vc(ctx.discord(), guild_id).await?;
 
     // reset the bot's nickname to unset
+    let current_user_id = { ctx.discord().cache.current_user().id };
     ctx.guild_id()
         .expect("asserted we are in guild")
         .edit_member(
             ctx.discord(),
-            ctx.discord().cache.current_user().id,
+            current_user_id,
             EditMember::default().nickname(""),
         )
         .await?;

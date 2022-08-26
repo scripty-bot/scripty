@@ -81,15 +81,16 @@ pub async fn join(
 
     // try changing our nickname to "[TRANSCRIBING] Scripty"
     // if we can't, send an error and return
+    let current_user_id = { ctx.discord().cache.current_user().id };
     if let Err(e) = ctx
         .guild_id()
         .expect("asserted we are in guild")
         .edit_member(
             ctx.discord(),
-            ctx.discord().cache.current_user().id,
+            current_user_id,
             EditMember::default().nickname("[TRANSCRIBING] Scripty"),
         )
-        .await?
+        .await
     {
         // if we get a 403, it's because we don't have permission to change our nickname
         // this is because we've been explicitly denied this permission, so this gets a special error message
