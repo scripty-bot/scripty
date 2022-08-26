@@ -1,5 +1,6 @@
 use crate::checks::is_guild;
 use crate::{Context, Error};
+use serenity::builder::EditMember;
 use serenity::http::StatusCode;
 use serenity::model::channel::{ChannelType, GuildChannel};
 use serenity::prelude::Mentionable;
@@ -77,6 +78,32 @@ pub async fn join(
             return Ok(());
         }
     };
+
+    // try changing our nickname to "[TRANSCRIBING] Scripty"
+    // if we can't, send an error and return
+    let mut member = ctx
+        .author_member()
+        .await
+        .ok_or_else(Error::manual)?
+        .into_owned();
+    if let Err(e) = member
+        .edit(
+            &ctx.discord(),
+            EditMember::default().nickname("[TRANSCRIBING] Scripty"),
+        )
+        .await
+    {
+        // if we get a 403, it's because we don't have permission to change our nickname
+        // this is because we've been explicitly denied this permission, so this gets a special error message
+        // anything else should be returned as normal
+        return match e {
+            SerenityError::Http(e) if e.status_code() == Some(StatusCode::FORBIDDEN) => {
+                ctx.say(format_message!(resolved_language, "no-permission-to-change-nickname", contextPrefix: ctx.prefix())).await?;
+                Ok(())
+            }
+            _ => Err(e.into()),
+        };
+    }
 
     let res = scripty_audio_handler::connect_to_vc(
         discord_ctx.clone(),
