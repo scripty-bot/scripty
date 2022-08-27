@@ -38,6 +38,9 @@ pub struct BotConfig {
 
     /// List of \["host", port] for the STT services.
     pub stt_services: Vec<(String, u16)>,
+
+    /// Loki config
+    pub loki: LokiConfig,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -65,4 +68,16 @@ pub struct DmSupport {
 pub struct PremiumConfig {
     /// A map of a tier's Stripe product ID to its name.
     pub tier_map: HashMap<String, u8>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct LokiConfig {
+    /// Loki ingest URL
+    pub url: String,
+
+    /// HashMap of labels
+    pub labels: HashMap<String, String>,
+
+    /// HashMap of extra fields
+    pub extra_fields: HashMap<String, String>,
 }

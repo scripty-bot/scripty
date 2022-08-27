@@ -23,3 +23,8 @@ database = "database"
 [dm_support]
 forwarding_category = 949810605328584709
 guild_id = 942298454804271144
+
+[loki]
+url = "http://server.local:3100/"
+labels = { job = "scripty_node1", env = "dev" }
+extra_fields = {}
