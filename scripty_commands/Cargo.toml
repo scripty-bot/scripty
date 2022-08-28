@@ -20,7 +20,6 @@ scripty_utils = { path = "../scripty_utils" }
 scripty_config = { path = "../scripty_config" }
 scripty_metrics = { path = "../scripty_metrics" }
 scripty_premium = { path = "../scripty_premium" }
-poise = { git = " https://github.com/kangalioo/poise", branch = "develop", features = ["cache", "collector"] }
 scripty_data_storage = { path = "../scripty_data_storage" }
 scripty_audio_handler = { path = "../scripty_audio_handler" }
 tokio = { version = "1", features = ["parking_lot", "signal"] }
@@ -39,3 +38,4 @@ serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", f
   "utils",
 ], default-features = false }
 sqlx = { version = "0.6", features = ["postgres", "macros", "migrate", "offline", "runtime-tokio-rustls", "time"] }
+poise = { git = " https://github.com/kangalioo/poise", branch = "serenity-next", features = ["cache", "collector"] }

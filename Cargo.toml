@@ -31,14 +31,5 @@ members = [
 scripty_core = { path = "scripty_core" }
 
 [patch.crates-io]
-serenity = { git = "https://github.com/tazz4843/serenity", branch = "personal" }
+serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next" }
 songbird = { git = "https://github.com/serenity-rs/songbird", branch = "next" }
-
-[patch."https://github.com/serenity-rs/serenity"]
-serenity = { git = "https://github.com/tazz4843/serenity", branch = "personal" }
-
-[patch."https://github.com/GnomedDev/serenity"]
-serenity = { git = "https://github.com/tazz4843/serenity", branch = "personal" }
-
-[patch."https://github.com/kangalioo/poise"]
-poise = { git = "https://github.com/GnomedDev/poise", branch = "personal" }
