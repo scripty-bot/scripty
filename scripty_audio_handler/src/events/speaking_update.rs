@@ -91,7 +91,7 @@ pub async fn speaking_update(
                         .title(format!("Transcript 1/{}", res.num_transcripts))
                         .field("Transcription", &main_transcript, false)
                         .field("Confidence", &confidence, false)
-                        .footer(CreateEmbedFooter::default().text(format!("ssrc {}", ssrc))),
+                        .footer(CreateEmbedFooter::new(format!("ssrc {}", ssrc))),
                 );
                 Some(main_transcript)
             }

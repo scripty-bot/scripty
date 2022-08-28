@@ -22,10 +22,9 @@ pub async fn stripe_webhook(
     let mut embed = CreateEmbed::default();
     if !livemode {
         // add a field to the footer of the embed to show that this is a test webhook
-        embed = embed.footer(
-            CreateEmbedFooter::default()
-                .text("test data, not real | if you're a user and seeing this, this is a bug"),
-        );
+        embed = embed.footer(CreateEmbedFooter::new(
+            "test data, not real | if you're a user and seeing this, this is a bug",
+        ));
     }
 
     let target_user_id = match event_type {
@@ -175,7 +174,7 @@ pub async fn stripe_webhook(
                             cancelled. In any case, thank you a lot for supporting Scripty.\n\n\
                             <:meow_heart:1003570104866443274> ~ the Scripty team",
                             subscription.current_period_end
-                        )).footer(CreateEmbedFooter::default().text("https://xkcd.com/2257/"));
+                        )).footer(CreateEmbedFooter::new("https://xkcd.com/2257/"));
 
                         // update the expiry timestamp to the current period end
                         let expiry =
@@ -229,7 +228,7 @@ pub async fn stripe_webhook(
                         If you have a moment, it'd be great if you could respond to this message telling us why you \
                         cancelled. In any case, thank you a lot for supporting Scripty.\n\n\
                         <:meow_heart:1003570104866443274> ~ the Scripty team".to_string()
-                    ).footer(CreateEmbedFooter::default().text("https://xkcd.com/2257/"));
+                    ).footer(CreateEmbedFooter::new("https://xkcd.com/2257/"));
 
                     // remove the user's premium from the db
                     let hashed_user_id = scripty_utils::hash_user_id(
@@ -292,7 +291,7 @@ pub async fn stripe_webhook(
                         However, if you would like to continue your subscription and continue your access, you can continue \
                         this subscription at the same site.\n\n\
                         Thanks for using Scripty! ~ the Scripty team"
-                    ).footer(CreateEmbedFooter::default().text("this state should never be shown to a real user"));
+                    ).footer(CreateEmbedFooter::new("this state should never be shown to a real user"));
 
                     // cancel the subscription
                     let hashed_user_id = scripty_utils::hash_user_id(

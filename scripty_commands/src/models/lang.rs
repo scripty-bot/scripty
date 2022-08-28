@@ -61,6 +61,13 @@ impl Display for Language {
     }
 }
 
+impl From<Language> for sqlx::types::JsonValue {
+    #[inline]
+    fn from(language: Language) -> Self {
+        Self::String(language.0)
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 /// Invalid language error type

@@ -191,10 +191,10 @@ pub async fn guild_language(
     Ok(())
 }
 
-async fn available_language_autocomplete(
-    _: Context<'_>,
-    partial: String,
-) -> impl Iterator<Item = String> + '_ {
+async fn available_language_autocomplete<'a>(
+    _: Context<'a>,
+    partial: &'a str,
+) -> impl Iterator<Item = String> + 'a {
     scripty_i18n::get_all_bundle_languages()
         .into_iter()
         .map(|lang| lang.to_string())

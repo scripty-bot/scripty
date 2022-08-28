@@ -20,10 +20,7 @@ pub async fn connect_to_vc(
         h
     } else {
         channel_id
-            .create_webhook(
-                &ctx,
-                CreateWebhook::default().name("Scripty Transcriptions"),
-            )
+            .create_webhook(&ctx, CreateWebhook::new("Scripty Transcriptions"))
             .await?
     };
 

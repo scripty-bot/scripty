@@ -9,7 +9,6 @@ use serenity::collector::ComponentInteractionCollectorBuilder;
 use serenity::futures::StreamExt;
 use serenity::model::application::component::ButtonStyle;
 use serenity::model::channel::MessageFlags;
-use serenity::utils::Color;
 use std::time::Duration;
 
 /// Configure storage settings for your data
@@ -137,7 +136,7 @@ pub async fn delete_all_data(ctx: Context<'_>) -> Result<(), Error> {
                             resolved_language,
                             "delete-data-description"
                         ))
-                        .color(Color::from_rgb(255, 0, 0)),
+                        .color((255, 0, 0)),
                 )
                 .components(
                     CreateComponents::default().set_action_row(

@@ -5,7 +5,7 @@ async fn _post_command(ctx: crate::Context<'_>) {
 
     // log command name invoked
     let command = ctx.command();
-    let command_root = command.category.unwrap_or(command.name);
+    let command_root = command.category.unwrap_or(&command.name);
 
     match command_root {
         "credits" => metrics.commands.credits.inc(),

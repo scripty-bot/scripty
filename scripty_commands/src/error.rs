@@ -155,7 +155,7 @@ pub async fn on_error(error: FrameworkError<'_, Data, crate::Error>) {
     info!("handling error event");
     #[allow(unreachable_patterns)]
     match error {
-        FrameworkError::Setup { error } => panic!("error during bot init: {}", error),
+        FrameworkError::Setup { error, .. } => panic!("error during bot init: {}", error),
         FrameworkError::Listener { error, event, .. } => {
             error!("error in listener for event {}: {}", event.name(), error)
         }
@@ -212,7 +212,7 @@ pub async fn on_error(error: FrameworkError<'_, Data, crate::Error>) {
                         "Invalid structure from Discord while parsing {}",
                         ctx.command.qualified_name
                     ))
-                    .color(serenity::utils::Color::from_rgb(255, 0, 0))
+                    .color((255, 0, 0))
                     .description(format!(
                         "{}\n\n\
                     **Note**: this is a Discord error\n\
@@ -320,7 +320,7 @@ async fn send_err_msg(
 ) {
     let embed = CreateEmbed::default()
         .title(title)
-        .color(serenity::utils::Color::from_rgb(255, 0, 0))
+        .color((255, 0, 0))
         .description(description);
 
     let response = ctx.send(CreateReply::default().embed(embed.clone())).await;
@@ -392,9 +392,7 @@ pub async fn log_error_message(
     let author_name = author.tag();
     let author_pfp = author.face();
     e = e.author(
-        CreateEmbedAuthor::default()
-            .name(format!("{} ({})", author_name, author_id))
-            .icon_url(author_pfp),
+        CreateEmbedAuthor::new(format!("{} ({})", author_name, author_id)).icon_url(author_pfp),
     );
 
     m = m.embed(e);

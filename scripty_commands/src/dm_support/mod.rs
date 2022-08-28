@@ -126,9 +126,7 @@ impl DmSupportStatus {
 
         embed_builder = embed_builder
             .author(
-                CreateEmbedAuthor::default()
-                    .name(message.author.name.clone())
-                    .icon_url(message.author.face()),
+                CreateEmbedAuthor::new(message.author.name.clone()).icon_url(message.author.face()),
             )
             .title("Support Response")
             .description(message.content);
@@ -179,9 +177,8 @@ impl DmSupportStatus {
         let channel = guild_id
             .create_channel(
                 &ctx,
-                CreateChannel::default()
+                CreateChannel::new(user_id_str)
                     .category(category.id)
-                    .name(user_id_str)
                     .kind(ChannelType::Text),
             )
             .await
@@ -190,8 +187,7 @@ impl DmSupportStatus {
         let hook = channel
             .create_webhook(
                 ctx,
-                CreateWebhook::default()
-                    .name(user.tag())
+                CreateWebhook::new(user.tag())
                     .avatar(&ctx, AttachmentType::Image(user.face().parse().unwrap()))
                     .await
                     .expect("failed to fetch image for webhook"),

@@ -44,13 +44,11 @@ async fn help_single_command(
     });
 
     let reply = if let Some(command) = command {
-        match command.multiline_help {
+        match command.help_text {
             Some(f) => Cow::from(f()),
-            None => command.inline_help.map(Cow::from).unwrap_or_else(|| {
-                Cow::from(
-                    format_message!(resolved_language, "no-help-found", commandName: command.name),
-                )
-            }),
+            None => Cow::from(
+                format_message!(resolved_language, "no-help-found", commandName: command.name.clone()),
+            ),
         }
     } else {
         Cow::from(format_message!(
@@ -116,7 +114,10 @@ async fn help_global(ctx: Context<'_>, resolved_language: LanguageIdentifier) ->
                 prefix,
                 command.name,
                 " ".repeat(padding),
-                command.inline_help.unwrap_or("")
+                command
+                    .help_text
+                    .and_then(|x| x().split('\n').next().map(|x| Cow::Owned(x.to_string())))
+                    .unwrap_or(Cow::Borrowed(""))
             )
             .expect("failed to format string: this is a bug");
         }
@@ -125,7 +126,7 @@ async fn help_global(ctx: Context<'_>, resolved_language: LanguageIdentifier) ->
     menu += format_message!(resolved_language, "context-menu-command-title").as_str();
 
     for command in &ctx.framework().options().commands {
-        let name = command.context_menu_name.unwrap_or(command.name);
+        let name = command.context_menu_name.unwrap_or(&command.name);
         menu += match command.context_menu_action {
             Some(poise::ContextMenuCommandAction::User(_)) => format_message!(
                 resolved_language,
@@ -151,10 +152,10 @@ async fn help_global(ctx: Context<'_>, resolved_language: LanguageIdentifier) ->
 }
 
 /// A function to autocomplete help command suggestions for slash commands
-async fn autocomplete_command(
-    ctx: Context<'_>,
-    partial: String,
-) -> impl Iterator<Item = String> + '_ {
+async fn autocomplete_command<'a>(
+    ctx: Context<'a>,
+    partial: &'a str,
+) -> impl Iterator<Item = String> + 'a {
     ctx.framework()
         .options()
         .commands

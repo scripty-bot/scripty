@@ -150,14 +150,12 @@ ON CONFLICT
 
 async fn language_autocomplete(
     _: Context<'_>,
-    partial: String,
+    partial: &str,
 ) -> Vec<poise::AutocompleteChoice<Language>> {
-    let part_str = partial.as_str();
-
     scripty_audio_handler::get_model_languages()
         .into_iter()
         .filter_map(|lang| {
-            lang.starts_with(part_str).then(|| {
+            lang.starts_with(partial).then(|| {
                 let (native, english) = scripty_i18n::get_pretty_language_name(&lang);
                 poise::AutocompleteChoice {
                     name: format!("{} ({})", native, english),

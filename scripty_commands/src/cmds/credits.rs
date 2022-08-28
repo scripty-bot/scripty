@@ -33,7 +33,7 @@ pub async fn credits(ctx: Context<'_>) -> Result<(), Error> {
                     format_message!(resolved_language, "credits-field4-description"),
                     false,
                 )
-                .footer(CreateEmbedFooter::default().text("<3")),
+                .footer(CreateEmbedFooter::new("<3")),
         ),
     )
     .await?;
