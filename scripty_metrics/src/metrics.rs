@@ -19,6 +19,10 @@ make_static_metric! {
 
     pub label_enum EventType {
         application_command_permissions_update,
+        auto_moderation_rule_create,
+        auto_moderation_rule_update,
+        auto_moderation_rule_delete,
+        auto_moderation_action_execution,
         channel_create,
         channel_delete,
         channel_pins_update,
@@ -37,7 +41,6 @@ make_static_metric! {
         guild_role_delete,
         guild_role_update,
         guild_stickers_update,
-        guild_unavailable,
         guild_update,
         invite_create,
         invite_delete,
@@ -70,6 +73,11 @@ make_static_metric! {
         thread_list_sync,
         thread_member_update,
         thread_members_update,
+        guild_scheduled_event_create,
+        guild_scheduled_event_update,
+        guild_scheduled_event_delete,
+        guild_scheduled_event_user_add,
+        guild_scheduled_event_user_remove,
         unknown,
     }
     pub struct EventCounterVec: IntCounter {

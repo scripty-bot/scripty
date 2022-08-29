@@ -66,6 +66,40 @@ impl SerenityRawEventHandler for RawEventHandler {
             Event::VoiceStateUpdate(_) => metrics.events.voice_state_update.inc(),
             Event::VoiceServerUpdate(_) => metrics.events.voice_server_update.inc(),
             Event::WebhookUpdate(_) => metrics.events.webhook_update.inc(),
+            Event::AutoModerationRuleCreate(_) => metrics.events.auto_moderation_rule_create.inc(),
+            Event::AutoModerationRuleUpdate(_) => metrics.events.auto_moderation_rule_update.inc(),
+            Event::AutoModerationRuleDelete(_) => metrics.events.auto_moderation_rule_delete.inc(),
+            Event::AutoModerationActionExecution(_) => {
+                metrics.events.auto_moderation_action_execution.inc()
+            }
+            Event::InteractionCreate(_) => metrics.events.interaction_create.inc(),
+            Event::IntegrationCreate(_) => metrics.events.integration_create.inc(),
+            Event::IntegrationUpdate(_) => metrics.events.integration_update.inc(),
+            Event::IntegrationDelete(_) => metrics.events.integration_delete.inc(),
+            Event::StageInstanceCreate(_) => metrics.events.stage_instance_create.inc(),
+            Event::StageInstanceUpdate(_) => metrics.events.stage_instance_update.inc(),
+            Event::StageInstanceDelete(_) => metrics.events.stage_instance_delete.inc(),
+            Event::ThreadCreate(_) => metrics.events.thread_create.inc(),
+            Event::ThreadUpdate(_) => metrics.events.thread_update.inc(),
+            Event::ThreadDelete(_) => metrics.events.thread_delete.inc(),
+            Event::ThreadListSync(_) => metrics.events.thread_list_sync.inc(),
+            Event::ThreadMemberUpdate(_) => metrics.events.thread_member_update.inc(),
+            Event::ThreadMembersUpdate(_) => metrics.events.thread_members_update.inc(),
+            Event::GuildScheduledEventCreate(_) => {
+                metrics.events.guild_scheduled_event_create.inc()
+            }
+            Event::GuildScheduledEventUpdate(_) => {
+                metrics.events.guild_scheduled_event_update.inc()
+            }
+            Event::GuildScheduledEventDelete(_) => {
+                metrics.events.guild_scheduled_event_delete.inc()
+            }
+            Event::GuildScheduledEventUserAdd(_) => {
+                metrics.events.guild_scheduled_event_user_add.inc()
+            }
+            Event::GuildScheduledEventUserRemove(_) => {
+                metrics.events.guild_scheduled_event_user_remove.inc()
+            }
             _ => metrics.events.unknown.inc(),
         }
     }
