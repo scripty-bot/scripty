@@ -6,7 +6,7 @@ use serenity::model::user::User;
 use serenity::prelude::Mentionable;
 
 /// Blocking commands
-#[poise::command(prefix_command, slash_command)]
+#[poise::command(prefix_command, hide_in_help)]
 pub async fn block(ctx: Context<'_>) -> Result<(), Error> {
     let resolved_language =
         scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
@@ -22,7 +22,7 @@ pub async fn block(ctx: Context<'_>) -> Result<(), Error> {
 }
 
 /// Block a user from using the entire bot. Owners only.
-#[poise::command(prefix_command, slash_command, owners_only, rename = "user")]
+#[poise::command(prefix_command, hide_in_help, owners_only, rename = "user")]
 pub async fn block_user(
     ctx: Context<'_>,
     #[description = "The user to block."] user: User,
@@ -37,7 +37,7 @@ pub async fn block_user(
 }
 
 /// Block a guild from using the entire bot. Owners only.
-#[poise::command(prefix_command, slash_command, owners_only, rename = "guild")]
+#[poise::command(prefix_command, hide_in_help, owners_only, rename = "guild")]
 pub async fn block_guild(
     ctx: Context<'_>,
     #[description = "The guild to block."] guild: Guild,
