@@ -16,14 +16,14 @@ pub async fn leave(ctx: Context<'_>) -> Result<(), Error> {
 
     scripty_audio_handler::disconnect_from_vc(ctx.discord(), guild_id).await?;
 
-    // reset the bot's nickname to unset
-    ctx.guild_id()
-        .expect("asserted we are in guild")
-        .edit_member(
-            ctx.discord(),
-            ctx.discord().cache.current_user().id,
-            EditMember::default().nickname(""),
-        )
+    // reset our nickname to unset
+    let mut member = ctx
+        .author_member()
+        .await
+        .ok_or_else(Error::manual)?
+        .into_owned();
+    member
+        .edit(ctx.discord(), EditMember::default().nickname(""))
         .await?;
 
     ctx.say(format_message!(resolved_language, "leave-success"))
