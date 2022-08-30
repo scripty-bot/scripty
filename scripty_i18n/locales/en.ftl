@@ -175,17 +175,15 @@ setup-success-title = Set up successfully!
 setup-success-description =
     A couple notes:
     
-    1) Do not delete the webhook that was created in the target channel.
+    1) The bot is extremely expensive to run, and requires a serious amount of processing power, so it'd be amazing if you could donate a bit. We offer premium tiers that boost the limit on the number of users transcripted, which defaults to 5. The core features will stay free forever, though. If you're interested, check out the `{ $contextPrefix }donate` command.
     
-    2) The bot is extremely expensive to run, and requires a serious amount of processing power, so it'd be amazing if you could donate a bit. We offer premium tiers that boost the limit on the number of users transcripted, which defaults to 5. The core features will stay free forever, though. If you're interested, check out the `{ $contextPrefix }donate` command.
+    2) If you chose a language other than English (the default) note that transcriptions for it will be much, much lower quality. Soon we will be adding a feature that allows you to help transcription accuracy with your own voice (see note 5).
     
-    3) If you chose a language other than English (the default) note that transcriptions for it will be much, much lower quality. Soon we will be adding a feature that allows you to help transcription accuracy with your own voice (see note 5).
+    3) If you are not a middle-aged American male, expect lower transcription accuracy. This is due to inherent bias within the model, and the only thing we can do about it is train more accurate models (again, see note 5).
     
-    4) If you are not a middle-aged American male, expect lower transcription accuracy. This is due to inherent bias within the model, and the only thing we can do about it is train more accurate models (again, see note 5).
+    4) To help us train more accurate models, consider allowing us to store your audio and transcriptions for training. See the `{ $contextPrefix }train_storage` command.
     
-    5) To help us train more accurate models, consider allowing us to store your audio and transcriptions for training. See the `{ $contextPrefix }train_storage` command.
-    
-    6) I don't exactly want to ask again, but please consider donating. It takes an ***insane*** amount of processing power to train new models (we're talking multiple Nvidia RTX 3090 GPUs), and every little bit of money helps a lot. Again, if you're interested, check out the `{ $contextPrefix }donate` command.
+    5) I don't exactly want to ask again, but please consider donating. It takes an ***insane*** amount of processing power to train new models (we're talking multiple Nvidia RTX 3090 GPUs), and every little bit of money helps a lot. Again, if you're interested, check out the `{ $contextPrefix }donate` command.
     
     
     Thanks for checking out Scripty! <3
