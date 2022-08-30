@@ -137,8 +137,6 @@ join-success = Successfully joined { $targetMention }.
 # This message is shown when the user tries to invite the bot to a voice channel,
 # but the webhook used by the bot has been deleted.
 webhook-deleted = Looks like you deleted the webhook I use! *bonk* Re-run `{ $contextPrefix }setup` to fix this.
-# This messages is shown when the bot no longer has permission to change its nickname.
-no-permission-to-change-nickname = I don't have permission to change my nickname. Please give me the `Change Nickname` permission. The bot *will not* work without this permission.
 
 ## ping command
 # This is shown as the title of the ping command (eg what shows up in the slash command picker)
