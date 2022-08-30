@@ -1,7 +1,8 @@
+use serenity::builder::EditMember;
 use serenity::client::Context;
 use serenity::model::guild::Member;
 
-pub async fn guild_member_update(ctx: Context, _: Option<Member>, new: Member) {
+pub async fn guild_member_update(ctx: Context, _: Option<Member>, mut new: Member) {
     // check that we're looking only at ourself
     if new.user.id != ctx.cache.current_user().id {
         return;
@@ -18,8 +19,10 @@ pub async fn guild_member_update(ctx: Context, _: Option<Member>, new: Member) {
     // if we can't leave the voice channel, log an error
     if new.nick != Some("[TRANSCRIBING] Scripty".to_string()) {
         if let Err(e) = new
-            .guild_id
-            .edit_nickname(&ctx, Some("[TRANSCRIBING] Scripty"))
+            .edit(
+                &ctx,
+                EditMember::default().nickname("[TRANSCRIBING] Scripty"),
+            )
             .await
         {
             error!("failed to reset nickname: {}", e);
