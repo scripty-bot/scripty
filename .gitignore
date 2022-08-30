@@ -6,3 +6,4 @@ scripty_src.zip
 /config.local.toml
 /flamegraph.svg
 /bot_list_app.*
+/bot_lists*
