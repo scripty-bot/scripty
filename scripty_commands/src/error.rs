@@ -162,23 +162,41 @@ pub async fn on_error(error: FrameworkError<'_, Data, crate::Error>) {
         FrameworkError::Command { error, ctx } => {
             let cmd_name = &ctx.command().qualified_name;
 
-            send_err_msg(
-                ctx,
-                format!("An error happened while processing {}", cmd_name),
-                format!(
-                    "```\n{:?}\n```\nThis has been automatically reported. \
+            // if this is a 403 error, it's probably because the bot doesn't have permissions
+            match error.err {
+                ErrorEnum::Serenity(serenity::Error::Http(
+                    serenity::http::error::Error::UnsuccessfulRequest(
+                        serenity::http::error::ErrorResponse { status_code, .. },
+                    ),
+                )) if status_code == http::StatusCode::FORBIDDEN => {
+                    send_err_msg(
+                        ctx,
+                        format!("Missing permissions for {}!", cmd_name),
+                        "I tried doing something (not sure what) but was not allowed to.\
+                     Please check my permissions and try again.",
+                    )
+                    .await;
+                }
+                ref e => {
+                    send_err_msg(
+                        ctx,
+                        format!("An error happened while processing {}", cmd_name),
+                        format!(
+                            "```\n{:?}\n```\nThis has been automatically reported. \
                         Please do not attempt to repeatedly use this command.",
-                    error
-                ),
-            )
-            .await;
+                            e
+                        ),
+                    )
+                    .await;
 
-            log_error_message(
-                &ctx,
-                error,
-                Some(format!("running command {}", ctx.command().name)),
-            )
-            .await;
+                    log_error_message(
+                        &ctx,
+                        error,
+                        Some(format!("running command {}", ctx.command().name)),
+                    )
+                    .await;
+                }
+            }
         }
         FrameworkError::ArgumentParse { error, input, ctx } => {
             send_err_msg(
@@ -299,7 +317,7 @@ pub async fn on_error(error: FrameworkError<'_, Data, crate::Error>) {
                 ctx,
                 format!("A precondition for {} failed", ctx.command().qualified_name),
                 match error {
-                    Some(e) => Cow::from(format!("{}", e)),
+                    Some(e) => Cow::from(format!("{:?}", e.err)),
                     None => Cow::from("no reason provided"),
                 },
             )

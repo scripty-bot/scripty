@@ -2515,6 +2515,7 @@ dependencies = [
  "async-trait",
  "backtrace",
  "dashmap",
+ "http",
  "indexmap",
  "once_cell",
  "parking_lot 0.12.1",
