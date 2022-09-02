@@ -17,15 +17,13 @@ pub async fn data_storage(ctx: Context<'_>) -> Result<(), Error> {
     let resolved_language =
         scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
 
-    let mut msg = ctx
+    let msg = ctx
         .send(
             CreateReply::default()
                 .ephemeral(true)
                 .embed(build_embed(&resolved_language))
                 .components(build_components(false, &resolved_language)),
         )
-        .await?
-        .into_message()
         .await?;
 
     let author_id = ctx.author().id.0;
@@ -48,7 +46,7 @@ VALUES ($1)
     .await?;
 
     let mut collector = ComponentInteractionCollectorBuilder::new(&discord_ctx.shard)
-        .message_id(msg.id)
+        .message_id(msg.message().await?.id)
         .author_id(author_id)
         .timeout(Duration::from_secs(120))
         .build();
@@ -103,8 +101,8 @@ VALUES ($1)
     }
 
     msg.edit(
-        discord_ctx,
-        EditMessage::default()
+        ctx,
+        CreateReply::default()
             .content(format_message!(
                 resolved_language,
                 "data-storage-command-timed-out"
