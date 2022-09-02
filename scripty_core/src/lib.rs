@@ -13,8 +13,6 @@ pub fn start() {
 
     scripty_i18n::init_i18n();
 
-    scripty_data_storage::init_cache();
-
     rt.block_on(async_init());
     rt.spawn(scripty_webserver::entrypoint());
     rt.block_on(scripty_commands::entrypoint());

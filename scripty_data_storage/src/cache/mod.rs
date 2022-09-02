@@ -14,16 +14,9 @@ mod voice;
 pub use text::{change_text_state, get_text_state};
 pub use voice::{change_voice_state, get_voice_state};
 
-/// Initialize the cache. Call this once at startup.
-pub fn init_cache() {
-    voice::init_voice_cache();
-}
-
 /// Optionally load all users in database into cache
-pub async fn init_cache_async() -> Result<(), sqlx::Error> {
-    text::init_text_cache_async()
-        .await
-        .expect("failed to init text cache");
+pub async fn init_cache_async() -> Result<(), scripty_redis::redis::RedisError> {
+    text::init_text_cache_async().await?;
     voice::init_voice_cache_async().await?;
     Ok(())
 }

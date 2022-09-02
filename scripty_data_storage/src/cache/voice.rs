@@ -1,32 +1,30 @@
-use dashmap::DashMap;
-use once_cell::sync::OnceCell;
 use std::num::NonZeroU64;
 
-static VOICE_CACHE_MAP: OnceCell<DashMap<Vec<u8>, bool>> = OnceCell::new();
-
-/// Initialize the voice cache
-///
-/// This only initializes the cache, not storing any data into it.
-/// To pre-populate the cache, use `init_voice_cache_async`
-pub fn init_voice_cache() {
-    VOICE_CACHE_MAP
-        .set(DashMap::new())
-        .expect("don't call `init_voice_cache()` more than once");
-}
-
 /// Pre-populate the cache with voice state data.
-pub async fn init_voice_cache_async() -> Result<(), sqlx::Error> {
+pub async fn init_voice_cache_async() -> Result<(), scripty_redis::redis::RedisError> {
+    let mut pipe = scripty_redis::redis::pipe();
+
     // users is a Vec<adhoc struct>
     // each adhoc struct has a user_id and a store_audio field
     let users = sqlx::query!("SELECT user_id, store_audio FROM users")
         .fetch_all(scripty_db::get_db())
-        .await?;
-
-    let voice_cache_map = VOICE_CACHE_MAP.get_or_init(DashMap::new);
+        .await
+        .expect("failed to run sql query");
 
     for user in users {
-        voice_cache_map.insert(user.user_id, user.store_audio);
+        pipe.set(
+            format!("user:{{{}}}:store_audio", hex::encode(user.user_id)),
+            user.store_audio,
+        );
     }
+    pipe.ignore()
+        .query_async(
+            &mut scripty_redis::get_pool()
+                .get()
+                .await
+                .expect("failed to fetch pool"),
+        )
+        .await?;
 
     Ok(())
 }
@@ -37,6 +35,7 @@ pub async fn init_voice_cache_async() -> Result<(), sqlx::Error> {
 /// Returns Ok(()) if changing state was successful, Err(sqlx::Error) if not
 pub async fn change_voice_state(user_id: NonZeroU64, state: bool) -> Result<(), sqlx::Error> {
     let user_id = scripty_utils::hash_user_id(user_id);
+
     // do db query to change state
     // set store_audio column in users table where user_id = user_id to state
     sqlx::query!(
@@ -47,9 +46,12 @@ pub async fn change_voice_state(user_id: NonZeroU64, state: bool) -> Result<(), 
     .execute(scripty_db::get_db())
     .await?;
 
-    VOICE_CACHE_MAP
-        .get_or_init(DashMap::new)
-        .insert(user_id, state);
+    // set cache value
+    let _ = scripty_redis::run_transaction::<Option<String>>("SET", |con| {
+        con.arg(format!("user:{{{}}}:store_audio", hex::encode(user_id)))
+            .arg(state);
+    })
+    .await;
 
     Ok(())
 }
@@ -66,21 +68,51 @@ pub async fn change_voice_state(user_id: NonZeroU64, state: bool) -> Result<(), 
 /// Errors will prevent the user from being cached.
 pub async fn get_voice_state(raw_user_id: NonZeroU64) -> bool {
     let user_id = scripty_utils::hash_user_id(raw_user_id);
-    let voice_cache_map = VOICE_CACHE_MAP.get_or_init(DashMap::new);
 
-    if let Some(state) = voice_cache_map.get(&user_id) {
-        return *state;
-    }
+    // check cache
+    match scripty_redis::run_transaction("GET", |con| {
+        con.arg(format!(
+            "user:{{{}}}:store_audio",
+            hex::encode(user_id.clone())
+        ));
+    })
+    .await
+    {
+        Ok(r) => return r,
+        Err(e) => {
+            error!("error getting voice state from cache: {}", e);
+        }
+    };
 
     // not cached, fall back to db
     let state = sqlx::query!("SELECT store_audio FROM users WHERE user_id = $1", user_id)
-        .fetch_one(scripty_db::get_db())
+        .fetch_optional(scripty_db::get_db())
         .await;
 
     match state {
-        Ok(state) => {
-            voice_cache_map.insert(user_id, state.store_audio);
+        Ok(Some(state)) => {
+            // cache value
+            let _ = scripty_redis::run_transaction::<Option<String>>("SET", |con| {
+                con.arg(format!(
+                    "user:{{{}}}:store_audio",
+                    hex::encode(user_id.clone())
+                ))
+                .arg(state.store_audio);
+            })
+            .await;
             state.store_audio
+        }
+        Ok(None) => {
+            // user not found, cache false
+            let _ = scripty_redis::run_transaction::<Option<String>>("SET", |con| {
+                con.arg(format!(
+                    "user:{{{}}}:store_audio",
+                    hex::encode(user_id.clone())
+                ))
+                .arg(false);
+            })
+            .await;
+            false
         }
         Err(e) => {
             error!(?raw_user_id, "Error fetching voice state for user: {}", e);
