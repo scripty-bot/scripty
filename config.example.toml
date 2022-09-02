@@ -13,6 +13,9 @@ secret_key = "LcOnTm2274zt7Hh5YboqihqFxUWPksV9"
 # don't bother trying to use this, it's invalid
 error_webhook = "https://discord.com/api/webhooks/998799910017192016/0jLX-WgNhYUBjhqGTO_PESB7jJHRp6SZl9vJoyWKcQPzMtByip19uD5eo6SIiiC8KFw8"
 
+# Redis URL
+redis_url = "redis://localhost:6379"
+
 [database]
 host = "/var/run/postgresql/"
 # host = ["0.0.0.0", 5432]

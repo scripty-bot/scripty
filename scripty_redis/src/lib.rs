@@ -1,14 +1,16 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+//! General wrapper around Redis.
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+mod init;
+mod transaction;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+use deadpool_redis::Pool;
+use once_cell::sync::OnceCell;
+
+pub use init::init_redis;
+pub use transaction::{run_transaction, TransactionError};
+
+static REDIS_POOL: OnceCell<Pool> = OnceCell::new();
+
+pub fn get_pool() -> &'static Pool {
+    REDIS_POOL.get().expect("redis pool not initialized")
 }

@@ -41,6 +41,9 @@ pub struct BotConfig {
 
     /// Loki config
     pub loki: LokiConfig,
+
+    /// Redis URL: `redis://user:pass@host:port/db`
+    pub redis_url: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
