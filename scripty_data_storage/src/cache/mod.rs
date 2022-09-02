@@ -16,13 +16,14 @@ pub use voice::{change_voice_state, get_voice_state};
 
 /// Initialize the cache. Call this once at startup.
 pub fn init_cache() {
-    text::init_text_cache();
     voice::init_voice_cache();
 }
 
 /// Optionally load all users in database into cache
 pub async fn init_cache_async() -> Result<(), sqlx::Error> {
-    text::init_text_cache_async().await?;
+    text::init_text_cache_async()
+        .await
+        .expect("failed to init text cache");
     voice::init_voice_cache_async().await?;
     Ok(())
 }

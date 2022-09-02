@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 csv = "1"
+hex = "0.4"
 rand = "0.8"
 hound = "3"
 tracing = "0.1"

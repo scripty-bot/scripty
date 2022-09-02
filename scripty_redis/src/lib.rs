@@ -7,6 +7,7 @@ use deadpool_redis::Pool;
 use once_cell::sync::OnceCell;
 
 pub use init::init_redis;
+pub use redis;
 pub use transaction::{run_transaction, TransactionError};
 
 static REDIS_POOL: OnceCell<Pool> = OnceCell::new();
