@@ -2482,6 +2482,7 @@ dependencies = [
  "flume",
  "once_cell",
  "scripty_config",
+ "scripty_metrics",
  "tokio",
  "tracing",
 ]

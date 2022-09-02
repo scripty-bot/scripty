@@ -39,6 +39,8 @@ impl LoadBalancer {
     }
 
     pub async fn get_stream(&self, language: &str, verbose: bool) -> Result<Stream, ModelError> {
+        let metrics = scripty_metrics::get_metrics();
+
         let get_next = || {
             self.current_index
                 .fetch_update(Ordering::Release, Ordering::Acquire, |x| {
@@ -71,11 +73,21 @@ impl LoadBalancer {
             }
             iter_count += 1;
             if iter_count > 1024 {
+                metrics.stt_server_fetch_failure.inc_by(1);
                 return Err(ModelError::NoAvailableServers);
             }
         };
 
-        lbs.open_connection(language, verbose).await
+        match lbs.open_connection(language, verbose).await {
+            Ok(s) => {
+                metrics.stt_server_fetch_success.inc_by(1);
+                Ok(s)
+            }
+            Err(e) => {
+                metrics.stt_server_fetch_failure.inc_by(1);
+                Err(e)
+            }
+        }
     }
 }
 

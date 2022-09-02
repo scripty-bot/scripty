@@ -164,6 +164,8 @@ pub struct Metrics {
     pub total_events: IntCounter,
     pub avg_audio_process_time: IntGauge,
     pub total_commands: IntCounter,
+    pub stt_server_fetch_success: IntCounter,
+    pub stt_server_fetch_failure: IntCounter,
     pub commands: CommandsUsedVec,
     pub runtime_metrics: RuntimeMetricsVec,
     pub latency: LatencyVec,
@@ -239,6 +241,24 @@ impl Metrics {
             .register(Box::new(audio_bytes_processed.clone()))
             .unwrap();
 
+        let stt_server_fetch_success = IntCounter::new(
+            "stt_server_fetch_success",
+            "Successful stream creations to any STT server",
+        )
+        .unwrap();
+        registry
+            .register(Box::new(stt_server_fetch_success.clone()))
+            .unwrap();
+
+        let stt_server_fetch_failure = IntCounter::new(
+            "stt_server_fetch_failure",
+            "Failed stream creations to any STT server",
+        )
+        .unwrap();
+        registry
+            .register(Box::new(stt_server_fetch_failure.clone()))
+            .unwrap();
+
         Arc::new(Self {
             registry,
             start_time: Utc::now().naive_utc(),
@@ -254,6 +274,8 @@ impl Metrics {
             commands: commands_used_static,
             runtime_metrics: runtime_metrics_static,
             latency: latency_static,
+            stt_server_fetch_success,
+            stt_server_fetch_failure,
         })
     }
 }
