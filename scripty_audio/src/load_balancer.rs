@@ -175,11 +175,7 @@ impl LoadBalancedStream {
                 };
 
                 // if the utilization is above the threshold, set the overloaded flag
-                if utilization > max_utilization {
-                    iso2.store(true, Ordering::Relaxed);
-                } else {
-                    iso2.store(false, Ordering::Relaxed);
-                }
+                iso2.store(utilization > max_utilization, Ordering::Relaxed);
             }
             // write 0x03 to the stream to close the connection
             if let Err(e) = peer_stream.write_u8(0x03).await {
