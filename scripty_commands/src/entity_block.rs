@@ -1,40 +1,56 @@
-use dashmap::DashMap;
-use once_cell::sync::OnceCell;
 use poise::BoxFuture;
+use scripty_redis::redis::AsyncCommands;
 use serenity::model::id::{GuildId, UserId};
 use sqlx::types::time::OffsetDateTime;
 
-static BLOCKED_USERS: OnceCell<DashMap<Vec<u8>, Option<String>>> = OnceCell::new();
-static BLOCKED_GUILDS: OnceCell<DashMap<GuildId, Option<String>>> = OnceCell::new();
-
-pub async fn init_blocked() -> Result<(), sqlx::Error> {
-    let blocked_guilds = DashMap::new();
-    let blocked_users = DashMap::new();
+pub async fn init_blocked() -> Result<(), scripty_redis::redis::RedisError> {
     let db = scripty_db::get_db();
+    let mut redis_pool = scripty_redis::get_pool()
+        .get()
+        .await
+        .expect("failed to fetch pool");
 
-    for blocked_user in sqlx::query!("SELECT user_id, reason, blocked_since FROM blocked_users")
-        .fetch_all(db)
-        .await?
     {
-        blocked_users.insert(blocked_user.user_id, blocked_user.reason);
+        let mut blocked_user_pipe = scripty_redis::redis::pipe();
+
+        for blocked_user in sqlx::query!("SELECT user_id, reason FROM blocked_users")
+            .fetch_all(db)
+            .await
+            .expect("db returned an error")
+        {
+            blocked_user_pipe.set(
+                format!(
+                    "user:{{{}}}:blocked",
+                    scripty_utils::vec_to_hex(&blocked_user.user_id)
+                ),
+                blocked_user.reason.unwrap_or_else(|| "".to_string()),
+            );
+        }
+        blocked_user_pipe
+            .ignore()
+            .query_async(&mut redis_pool)
+            .await?;
     }
 
-    for blocked_guild in sqlx::query!("SELECT guild_id, reason, blocked_since FROM blocked_guilds")
-        .fetch_all(db)
-        .await?
     {
-        blocked_guilds.insert(
-            GuildId::new(blocked_guild.guild_id as u64),
-            blocked_guild.reason,
-        );
-    }
+        let mut blocked_guild_pipe = scripty_redis::redis::pipe();
 
-    BLOCKED_GUILDS
-        .set(blocked_guilds)
-        .expect("don't call `init_blocked()` more than once");
-    BLOCKED_USERS
-        .set(blocked_users)
-        .expect("don't call `init_blocked()` more than once");
+        for blocked_guild in sqlx::query!("SELECT guild_id, reason FROM blocked_guilds")
+            .fetch_all(db)
+            .await
+            .expect("db returned an error")
+        {
+            blocked_guild_pipe.set(
+                format!("guild:{{{}}}:blocked", blocked_guild.guild_id),
+                blocked_guild.reason.unwrap_or_else(|| "".to_string()),
+            );
+        }
+
+        blocked_guild_pipe
+            .ignore()
+            .query_async(&mut redis_pool)
+            .await?;
+    }
 
     Ok(())
 }
@@ -43,45 +59,57 @@ async fn _check_block(
     ctx: poise::Context<'_, crate::Data, crate::Error>,
 ) -> Result<bool, crate::Error> {
     let cfg = scripty_config::get_config();
+    let mut redis = scripty_redis::get_pool().get().await?;
 
-    let blocked_guilds = unsafe { BLOCKED_GUILDS.get().unwrap_unchecked() };
-    if let Some(reason) = ctx.guild_id().and_then(|id| blocked_guilds.get(&id)) {
-        let resolved_language =
-            scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0))
-                .await;
+    if let Some(guild) = ctx.guild_id() {
+        if let Some(reason) = redis
+            .get::<_, Option<String>>(format!("guild:{{{}}}:blocked", guild))
+            .await?
+        {
+            let resolved_language =
+                scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0))
+                    .await;
 
-        let reason = match reason.value() {
-            Some(reason) => format_message!(
+            let reason = if reason.is_empty() {
+                format_message!(resolved_language, "blocked-entity-no-reason-given")
+            } else {
+                format_message!(
+                    resolved_language,
+                    "blocked-entity-reason-given",
+                    reason: reason
+                )
+            };
+            ctx.say(format_message!(
                 resolved_language,
-                "blocked-entity-reason-given",
-                reason: reason.to_string()
-            ),
-            None => format_message!(resolved_language, "blocked-entity-no-reason-given"),
-        };
-        ctx.say(format_message!(
-            resolved_language,
-            "blocked-entity-guild",
-            reason: reason,
-            supportServerInvite: cfg.support_invite.to_string()
-        ))
-        .await?;
-        return Ok(false);
+                "blocked-entity-guild",
+                reason: reason,
+                supportServerInvite: cfg.support_invite.to_string()
+            ))
+            .await?;
+            return Ok(false);
+        }
     }
 
-    let blocked_users = unsafe { BLOCKED_USERS.get().unwrap_unchecked() };
     let hashed_user_id = scripty_utils::hash_user_id(ctx.author().id.0);
-    if let Some(reason) = blocked_users.get(&hashed_user_id) {
+    if let Some(reason) = redis
+        .get::<_, Option<String>>(format!(
+            "user:{{{}}}:blocked",
+            scripty_utils::vec_to_hex(&hashed_user_id)
+        ))
+        .await?
+    {
         let resolved_language =
             scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0))
                 .await;
 
-        let reason = match reason.value() {
-            Some(reason) => format_message!(
+        let reason = if reason.is_empty() {
+            format_message!(resolved_language, "blocked-entity-no-reason-given")
+        } else {
+            format_message!(
                 resolved_language,
                 "blocked-entity-reason-given",
-                reason: reason.to_string()
-            ),
-            None => format_message!(resolved_language, "blocked-entity-no-reason-given"),
+                reason: reason
+            )
         };
         ctx.say(format_message!(
             resolved_language,
@@ -97,9 +125,9 @@ async fn _check_block(
 }
 
 /// Adds a blocked user to the database and DashMap.
-pub async fn add_blocked_user(user_id: UserId, reason: Option<String>) -> Result<(), sqlx::Error> {
+pub async fn add_blocked_user(user_id: UserId, reason: Option<String>) -> Result<(), crate::Error> {
     let db = scripty_db::get_db();
-    let blocked_users = unsafe { BLOCKED_USERS.get().unwrap_unchecked() };
+    let mut redis = scripty_redis::get_pool().get().await?;
 
     let hashed_user_id = scripty_utils::hash_user_id(user_id.0);
     let current_timestamp = OffsetDateTime::now_utc();
@@ -113,7 +141,15 @@ pub async fn add_blocked_user(user_id: UserId, reason: Option<String>) -> Result
     .execute(db)
     .await?;
 
-    blocked_users.insert(hashed_user_id, reason);
+    redis
+        .set(
+            format!(
+                "user:{{{}}}:blocked",
+                scripty_utils::vec_to_hex(&hashed_user_id)
+            ),
+            reason.unwrap_or_else(|| "".to_string()),
+        )
+        .await?;
 
     Ok(())
 }
@@ -122,9 +158,9 @@ pub async fn add_blocked_user(user_id: UserId, reason: Option<String>) -> Result
 pub async fn add_blocked_guild(
     guild_id: GuildId,
     reason: Option<String>,
-) -> Result<(), sqlx::Error> {
+) -> Result<(), crate::Error> {
     let db = scripty_db::get_db();
-    let blocked_guilds = unsafe { BLOCKED_GUILDS.get().unwrap_unchecked() };
+    let mut redis = scripty_redis::get_pool().get().await?;
 
     let signed_guild_id = guild_id.get() as i64;
     let current_timestamp = OffsetDateTime::now_utc();
@@ -138,7 +174,12 @@ pub async fn add_blocked_guild(
     .execute(db)
     .await?;
 
-    blocked_guilds.insert(guild_id, reason);
+    redis
+        .set(
+            format!("guild:{{{}}}:blocked", guild_id),
+            reason.unwrap_or_else(|| "".to_string()),
+        )
+        .await?;
 
     Ok(())
 }

@@ -2659,6 +2659,7 @@ dependencies = [
 name = "scripty_utils"
 version = "1.0.0"
 dependencies = [
+ "hex",
  "num",
  "num_cpus",
  "once_cell",

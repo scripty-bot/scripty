@@ -6,6 +6,7 @@ mod transaction;
 use deadpool_redis::Pool;
 use once_cell::sync::OnceCell;
 
+pub use deadpool_redis::PoolError;
 pub use init::init_redis;
 pub use redis;
 pub use transaction::{run_transaction, TransactionError};

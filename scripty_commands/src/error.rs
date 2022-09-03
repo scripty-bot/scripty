@@ -28,8 +28,11 @@ pub enum ErrorEnum {
     ExpectedGuild,
     Join(JoinError),
     ManualError,
+    Redis(scripty_redis::redis::RedisError),
+    RedisPool(scripty_redis::PoolError),
 }
 
+#[allow(dead_code)]
 impl Error {
     #[inline]
     pub fn serenity(err: serenity::Error) -> Self {
@@ -80,6 +83,22 @@ impl Error {
     }
 
     #[inline]
+    pub fn redis(err: scripty_redis::redis::RedisError) -> Self {
+        Error {
+            bt: Backtrace::new(),
+            err: ErrorEnum::Redis(err),
+        }
+    }
+
+    #[inline]
+    pub fn redis_pool(err: scripty_redis::PoolError) -> Self {
+        Error {
+            bt: Backtrace::new(),
+            err: ErrorEnum::RedisPool(err),
+        }
+    }
+
+    #[inline]
     pub fn backtrace(&mut self) -> &Backtrace {
         self.bt.resolve();
         &self.bt
@@ -101,6 +120,8 @@ impl Display for Error {
             ExpectedGuild => "expected this to be in a guild".into(),
             Join(e) => format!("failed to join VC: {}", e).into(),
             ManualError => "manual error".into(),
+            Redis(e) => format!("Redis returned an error: {}", e).into(),
+            RedisPool(e) => format!("Redis pool returned an error: {}", e).into(),
         };
         f.write_str(res.as_ref())
     }
@@ -116,6 +137,8 @@ impl StdError for Error {
             ExpectedGuild => None,
             Join(e) => Some(e),
             ManualError => None,
+            Redis(e) => Some(e),
+            RedisPool(e) => Some(e),
         }
     }
 }
@@ -147,6 +170,26 @@ impl From<scripty_audio_handler::Error> for Error {
             scripty_audio_handler::Error::Join(e) => Self::join(e),
             scripty_audio_handler::Error::Database(e) => Self::db(e),
             scripty_audio_handler::Error::Serenity(e) => Self::serenity(e),
+        }
+    }
+}
+
+impl From<scripty_redis::redis::RedisError> for Error {
+    #[inline]
+    fn from(e: scripty_redis::redis::RedisError) -> Self {
+        Self {
+            err: ErrorEnum::Redis(e),
+            bt: Backtrace::new(),
+        }
+    }
+}
+
+impl From<scripty_redis::PoolError> for Error {
+    #[inline]
+    fn from(e: scripty_redis::PoolError) -> Self {
+        Self {
+            err: ErrorEnum::RedisPool(e),
+            bt: Backtrace::new(),
         }
     }
 }
