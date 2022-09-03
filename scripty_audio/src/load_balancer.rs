@@ -4,6 +4,7 @@ use once_cell::sync::OnceCell;
 use std::net::SocketAddr;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
+use std::time::Duration;
 use tokio::io;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
@@ -149,6 +150,7 @@ impl LoadBalancedStream {
 
         // spawn a background task that will monitor the connection, and if it reports being overloaded, sets the overloaded flag
         tokio::spawn(async move {
+            let metrics = scripty_metrics::get_metrics();
             let mut peer_stream = peer_stream;
             loop {
                 let data: u8 = tokio::select! {
@@ -162,6 +164,9 @@ impl LoadBalancedStream {
                                     Ok(s) => s,
                                     Err(e) => {
                                         error!("error reconnecting to peer: {}", e);
+                                        metrics.stt_server_fetch_failure.inc_by(1);
+                                        const ONE_SECOND: Duration = Duration::from_secs(1);
+                                        tokio::time::sleep(ONE_SECOND).await;
                                         continue;
                                     }
                                 };
@@ -175,6 +180,7 @@ impl LoadBalancedStream {
                 };
 
                 assert_eq!(data, 0x07);
+                metrics.stt_server_fetch_success.inc_by(1);
 
                 // read payload (utilization: f64)
                 let utilization = match peer_stream.read_f64().await {
