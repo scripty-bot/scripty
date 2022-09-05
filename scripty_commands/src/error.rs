@@ -249,7 +249,15 @@ pub async fn on_error(error: FrameworkError<'_, Data, crate::Error>) {
                     ctx.command().qualified_name
                 ),
                 match input {
-                    Some(input) => format!("Failed to parse `{}` because `{}`", input, error),
+                    Some(input) => {
+                        format!(
+                            "Failed to parse `{}` because `{}`\n\
+                            **Hint:** if you're trying to mention a channel with prefix commands, use its ID, \
+                            as they are the most reliable way of doing so.",
+                            input,
+                            error
+                        )
+                    },
                     None => format!("{}", error),
                 },
             )
