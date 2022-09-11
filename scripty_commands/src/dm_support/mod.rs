@@ -4,9 +4,7 @@ use serenity::builder::{
     CreateWebhook, ExecuteWebhook,
 };
 use serenity::client::Context;
-use serenity::model::channel::{
-    AttachmentType, ChannelCategory, ChannelType, GuildChannel, Message,
-};
+use serenity::model::channel::{AttachmentType, ChannelType, GuildChannel, Message};
 use serenity::model::id::{ChannelId, GuildId, UserId};
 use serenity::model::user::User;
 use serenity::model::webhook::Webhook;
@@ -292,11 +290,11 @@ impl DmSupportStatus {
     }
 }
 
-async fn get_forwarding_category(ctx: &Context) -> ChannelCategory {
+async fn get_forwarding_category(ctx: &Context) -> GuildChannel {
     ChannelId::new(scripty_config::get_config().dm_support.forwarding_category)
         .to_channel(&ctx)
         .await
         .expect("failed to get forwarding category")
-        .category()
-        .expect("forwarding category is not a category")
+        .guild()
+        .expect("forwarding category is not a guild channel")
 }
