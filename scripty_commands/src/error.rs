@@ -30,6 +30,7 @@ pub enum ErrorEnum {
     ManualError,
     Redis(scripty_redis::redis::RedisError),
     RedisPool(scripty_redis::PoolError),
+    Custom(String),
 }
 
 #[allow(dead_code)]
@@ -99,6 +100,14 @@ impl Error {
     }
 
     #[inline]
+    pub fn custom(err: String) -> Self {
+        Error {
+            bt: Backtrace::new(),
+            err: ErrorEnum::Custom(err),
+        }
+    }
+
+    #[inline]
     pub fn backtrace(&mut self) -> &Backtrace {
         self.bt.resolve();
         &self.bt
@@ -122,6 +131,7 @@ impl Display for Error {
             ManualError => "manual error".into(),
             Redis(e) => format!("Redis returned an error: {}", e).into(),
             RedisPool(e) => format!("Redis pool returned an error: {}", e).into(),
+            Custom(e) => format!("Custom error: {}", e).into(),
         };
         f.write_str(res.as_ref())
     }
@@ -139,6 +149,7 @@ impl StdError for Error {
             ManualError => None,
             Redis(e) => Some(e),
             RedisPool(e) => Some(e),
+            Custom(_) => None,
         }
     }
 }
@@ -189,6 +200,16 @@ impl From<scripty_redis::PoolError> for Error {
     fn from(e: scripty_redis::PoolError) -> Self {
         Self {
             err: ErrorEnum::RedisPool(e),
+            bt: Backtrace::new(),
+        }
+    }
+}
+
+impl From<String> for Error {
+    #[inline]
+    fn from(e: String) -> Self {
+        Self {
+            err: ErrorEnum::Custom(e),
             bt: Backtrace::new(),
         }
     }

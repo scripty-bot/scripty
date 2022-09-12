@@ -48,11 +48,11 @@ pub async fn join(
         }
     };
 
-    if voice_channel.is_text_based() {
-        return Err(Error::invalid_channel_type(
-            ChannelType::Text,
-            voice_channel.kind,
-        ));
+    match voice_channel.kind {
+        ChannelType::Voice | ChannelType::Stage => {}
+        _ => {
+            return Err(Error::custom("expected voice channel"));
+        }
     }
 
     let premium_level = scripty_premium::get_guild(guild_id.0)
