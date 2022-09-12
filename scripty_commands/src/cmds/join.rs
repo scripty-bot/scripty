@@ -51,7 +51,7 @@ pub async fn join(
     match voice_channel.kind {
         ChannelType::Voice | ChannelType::Stage => {}
         _ => {
-            return Err(Error::custom("expected voice channel"));
+            return Err(Error::custom("expected voice channel".to_string()));
         }
     }
 
