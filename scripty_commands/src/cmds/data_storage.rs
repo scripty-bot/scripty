@@ -63,9 +63,10 @@ VALUES ($1)
                 .await?
                 .store_audio;
 
-                Some(match store_audio {
-                    true => "data-storage-opted-in-audio",
-                    false => "data-storage-opted-out-audio",
+                Some(if store_audio {
+                    "data-storage-opted-in-audio"
+                } else {
+                    "data-storage-opted-out-audio"
                 })
             }
             "toggle_msg_storage" => {
@@ -78,9 +79,10 @@ VALUES ($1)
                 .await?
                 .store_msgs;
 
-                Some(match store_msgs {
-                    true => "data-storage-opted-in-msgs",
-                    false => "data-storage-opted-out-msgs",
+                Some(if store_msgs {
+                    "data-storage-opted-in-msgs"
+                } else {
+                    "data-storage-opted-out-msgs"
                 })
             }
             _ => None,
