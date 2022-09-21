@@ -204,6 +204,8 @@ impl EventHandler for AudioHandler {
             EventContext::ClientDisconnect(client_disconnect_data) => {
                 tokio::spawn(client_disconnect(
                     *client_disconnect_data,
+                    self.context.clone(),
+                    self.guild_id,
                     Arc::clone(&self.ssrc_user_id_map),
                     Arc::clone(&self.ssrc_stream_map),
                     Arc::clone(&self.ssrc_user_data_map),

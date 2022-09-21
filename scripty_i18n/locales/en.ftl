@@ -132,8 +132,8 @@ join-success = Successfully joined { $targetMention }.
     
     {"**"}Keep in mind that the bot is not perfect, and works best when you speak slowly (roughly 40-60 words per minute) and clearly.**
     
-    Note: your current premium tier is { $tier }. This allows for { $maxUsers } users to be transcripted at once.
-    If you would like more, and would like to also support the bot, consider subscribing to our Premium: <https://dash.scripty.org/premium>
+    Note: your current premium tier is { $tier }. This allows for { $maxUsers } users to be transcripted at once. Along with this, the bot will automatically leave after { $leaveDuration } seconds, regardless of how many users are in the channel. This is to prevent abuse of our systems.
+    If you would like more users, a longer duration of usage, and would like to also support the bot, consider subscribing to our Premium: <https://dash.scripty.org/premium>
 # This message is shown when the user tries to invite the bot to a voice channel,
 # but the webhook used by the bot has been deleted.
 webhook-deleted = Looks like you deleted the webhook I use! *bonk* Re-run `{ $contextPrefix }setup` to fix this.
