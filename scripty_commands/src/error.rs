@@ -5,6 +5,7 @@ use scripty_audio_handler::JoinError;
 use serenity::builder::{CreateEmbed, CreateEmbedAuthor, CreateMessage, ExecuteWebhook};
 use serenity::model::channel::{AttachmentType, ChannelType};
 use serenity::model::webhook::Webhook;
+use serenity::prelude::SerenityError;
 use std::borrow::Cow;
 use std::error::Error as StdError;
 use std::fmt::Write;
@@ -111,6 +112,38 @@ impl Error {
     pub fn backtrace(&mut self) -> &Backtrace {
         self.bt.resolve();
         &self.bt
+    }
+
+    /// Whether a command handler should actually handle this error and note it for the user,
+    /// or if it should silently be ignored.
+    ///
+    /// Returns true if the error should be handled, false if it should be ignored.
+    pub fn should_handle(&self) -> bool {
+        match &self.err {
+            ErrorEnum::Serenity(SerenityError::Http(
+                serenity::http::error::Error::UnsuccessfulRequest(
+                    serenity::http::error::ErrorResponse {
+                        error: serenity::http::error::DiscordJsonError { code, .. },
+                        ..
+                    },
+                ),
+            )) if code == &10062 => {
+                // ignore unknown interaction errors
+                false
+            }
+            _ => true,
+        }
+    }
+
+    /// If this is a user error. If it is, this should be handled in a different way to
+    /// return a user-friendly error message.
+    ///
+    /// Returns true if this is a user error, false if it is not.
+    pub fn is_user_error(&self) -> bool {
+        match &self.err {
+            ErrorEnum::ExpectedGuild | ErrorEnum::InvalidChannelType { .. } => true,
+            _ => false,
+        }
     }
 }
 
@@ -224,6 +257,10 @@ pub async fn on_error(error: FrameworkError<'_, Data, crate::Error>) {
             error!("error in listener for event {}: {}", event.name(), error)
         }
         FrameworkError::Command { error, ctx } => {
+            if !error.should_handle() {
+                return;
+            }
+
             let cmd_name = &ctx.command().qualified_name;
 
             // if this is a 403 error, it's probably because the bot doesn't have permissions
@@ -241,6 +278,16 @@ pub async fn on_error(error: FrameworkError<'_, Data, crate::Error>) {
                     )
                     .await;
                 }
+
+                _ if error.is_user_error() => {
+                    send_err_msg(
+                        ctx,
+                        format!("Invalid use of {}", cmd_name),
+                        error.to_string(),
+                    )
+                    .await;
+                }
+
                 ref e => {
                     send_err_msg(
                         ctx,
@@ -453,7 +500,8 @@ pub async fn log_error_message(
         e = e.field("Backtrace", &fmt_bt, false);
     }
 
-    e = e.description(err.to_string());
+    e = e.field("Error (debug)", format!("{:?}", err), false);
+    e = e.field("Error (display)", err.to_string(), false);
 
     // cache the cache
     let cache = ctx.discord().cache.clone();
