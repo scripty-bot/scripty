@@ -4,6 +4,7 @@ use crate::types::{
     SsrcOutOfOrderPktCountMap, SsrcSilentFrameCountMap, SsrcStreamMap, SsrcUserIdMap,
     SsrcVoiceIngestMap,
 };
+use parking_lot::RwLock;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::Instant;
@@ -23,6 +24,7 @@ pub async fn voice_packet(
     ssrc_silent_frame_count_map: SsrcSilentFrameCountMap,
     ssrc_out_of_order_pkt_count_map: SsrcOutOfOrderPktCountMap,
     verbose: Arc<AtomicBool>,
+    language: Arc<RwLock<String>>,
 ) -> bool {
     let metrics = scripty_metrics::get_metrics();
     metrics.ms_transcribed.inc_by(20);
@@ -211,8 +213,10 @@ pub async fn voice_packet(
             trace!(?ssrc, "done processing pkt");
         } else {
             warn!(?ssrc, "no stream found for ssrc");
+            // cold path so we can afford to do this
+            let lang = language.read().to_owned();
             let new_stream =
-                match scripty_audio::get_stream("en", verbose.load(Ordering::Relaxed)).await {
+                match scripty_audio::get_stream(&lang, verbose.load(Ordering::Relaxed)).await {
                     Ok(s) => s,
                     Err(e) => {
                         error!(?ssrc, "failed to create new stream: {}", e);

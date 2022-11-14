@@ -2,6 +2,7 @@ use crate::types::{
     SsrcLastPktIdMap, SsrcMissedPktList, SsrcMissedPktMap, SsrcStreamMap, SsrcUserDataMap,
     SsrcUserIdMap, SsrcVoiceIngestMap,
 };
+use parking_lot::RwLock;
 use serenity::builder::{CreateEmbed, CreateEmbedFooter, ExecuteWebhook};
 use serenity::client::Context;
 use serenity::model::webhook::Webhook;
@@ -22,6 +23,7 @@ pub async fn speaking_update(
     ssrc_missed_pkt_list: SsrcMissedPktList,
     ssrc_voice_ingest_map: SsrcVoiceIngestMap,
     verbose: Arc<AtomicBool>,
+    language: Arc<RwLock<String>>,
 ) {
     debug!(?ssrc, ?speaking, "got SpeakingUpdate event");
     if speaking {
@@ -38,7 +40,8 @@ pub async fn speaking_update(
 
     let verbose = verbose.load(Ordering::Relaxed);
 
-    let new_stream = match scripty_audio::get_stream("en", verbose).await {
+    let lang = language.read().to_owned();
+    let new_stream = match scripty_audio::get_stream(&lang, verbose).await {
         Ok(s) => s,
         Err(e) => {
             error!(?ssrc, "failed to create new stream: {}", e);

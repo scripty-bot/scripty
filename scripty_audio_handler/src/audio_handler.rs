@@ -38,6 +38,7 @@ pub struct AudioHandler {
     context: Context,
     premium_level: Arc<AtomicU8>,
     verbose: Arc<AtomicBool>,
+    language: Arc<RwLock<String>>,
 }
 
 impl AudioHandler {
@@ -68,6 +69,7 @@ impl AudioHandler {
             context,
             premium_level: Arc::new(AtomicU8::new(0)),
             verbose: Arc::new(AtomicBool::new(false)),
+            language: Arc::new(Default::default()),
         };
         this.reload_config().await?;
 
@@ -106,6 +108,15 @@ impl AudioHandler {
             self.premium_level.store(lvl as u8, Ordering::Relaxed)
         }
 
+        let mut lang = sqlx::query!(
+            "SELECT language FROM guilds WHERE guild_id = $1",
+            self.guild_id.get() as i64
+        )
+        .fetch_one(db)
+        .await?
+        .language;
+        std::mem::swap(&mut *self.language.write(), &mut lang);
+
         Ok(())
     }
 }
@@ -133,6 +144,7 @@ impl EventHandler for AudioHandler {
                 let ssrc_out_of_order_pkt_count_map =
                     Arc::clone(&self.ssrc_out_of_order_pkt_count_map);
                 let verbose = Arc::clone(&self.verbose);
+                let language = Arc::clone(&self.language);
 
                 let ctx2 = self.context.clone();
                 let webhook_2 = Arc::clone(&self.webhook);
@@ -144,6 +156,7 @@ impl EventHandler for AudioHandler {
                 let ssrc_missed_pkt_list_2 = Arc::clone(&self.ssrc_missed_pkt_list);
                 let ssrc_voice_ingest_map_2 = Arc::clone(&self.ssrc_voice_ingest_map);
                 let verbose_2 = Arc::clone(&self.verbose);
+                let language_2 = Arc::clone(&self.language);
 
                 let audio = voice_data.audio.clone();
                 let ssrc = voice_data.packet.ssrc;
@@ -164,6 +177,7 @@ impl EventHandler for AudioHandler {
                         ssrc_silent_frame_count_map,
                         ssrc_out_of_order_pkt_count_map,
                         verbose,
+                        language,
                     )
                     .await;
 
@@ -181,6 +195,7 @@ impl EventHandler for AudioHandler {
                             ssrc_missed_pkt_list_2,
                             ssrc_voice_ingest_map_2,
                             verbose_2,
+                            language_2,
                         )
                         .await;
                     }
