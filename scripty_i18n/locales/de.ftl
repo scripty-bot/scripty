@@ -127,9 +127,8 @@ latency-description =
     WebSocket-Latenz: { $wsLatencyMs }ms ({ $wsLatencyNs }ns)
     HTTP-Latenz: { $httpLatencyMs }ms ({ $httpLatencyNs }ns)
     Datenbanklatenz: { $pgLatencyMs }ms ({ $pgLatencyNs }ns)
-    
-    Hinweis: eine Latenzzeit von 0ms bedeutet, dass diese Latenzzeit gerade nicht verfügbar ist.
-    Versuche es später noch einmal.
+# This message is shown when the latency value cannot be calculated
+latency-failed = gescheitert
 setup-tos-agree =
     Durch das Einrichten von Scripty stimmst du der Datenschutzerklärung und den Allgemeinen Geschäftsbedingungen zu.
     Datenschutzerklärung: https://scripty.org/privacy

@@ -6,16 +6,16 @@ donations-command-description = Get information on donating to support Scripty.
 donation-title = Donations
 donation-description =
     Scripty is not cheap to run. It is currently running on a $1,500 USD server with an AMD Ryzen 9 3900 CPU and 128GB RAM. Even with that hardware, we estimate it can only handle 100 concurrent transcriptions. Donations would allow us to scale our hardware capacity and handle many more concurrent transcriptions, perhaps tens of thousands someday with enough donations.
-    
+
     Training a model is not easy either, as that needs relatively recent (CUDA 10.1 support) Nvidia GPUs. We hate asking for donations, but we absolutely can't support the bot out of our own pockets, since it's just too expensive. So we're asking for help, and giving rewards in the form of premium subscriptions.
-    
+
     You can view more info at https://scripty.org/premium, but the gist of it is that there are 6 tiers ranging in price from $5 USD to $100 USD per month. The $100 tier comes with its own managed instance of Scripty for your own server, with a custom name, and profile picture.
-    
+
     We also support one-time donations directly through GitHub Sponsors:
     {"[https://github.com/sponsors/tazz4843](https://github.com/sponsors/tazz4843?frequency=one-time&sponsor=tazz4843)"}
-    
+
     You can view these tiers at https://scripty.org/premium.
-    
+
     <3
     ~ 0/0 and valkyrie_pilot
 
@@ -53,7 +53,7 @@ context-menu-command-message =
     { $commandName } (on message)
     {""}
 more-info-on-command =
-    
+
     For more information on a specific command, type `{ $contextPrefix }help <name>`
     ```
 
@@ -62,14 +62,14 @@ more-info-on-command =
 language-root-command-name = language
 # This is shown as the description of the root language command (eg what shows up in the slash command picker)
 language-root-command-description = Modify your language preferences.
-    
+
     Base command of this group. See subcommands for more information.
 
 # This is shown as the title of the user language command (eg what shows up in the slash command picker)
 language-user-command-name = user
 # This is shown as the description of the user language command (eg what shows up in the slash command picker)
 language-user-command-description = Set your user language to one of the available languages.
-    
+
     Note: this only modifies your user language, not your guild language. See `guild_language` for that.
 # This is shown as the description of the first argument to the user language command
 language-user-argument1-description = The language you want to set your user language to.
@@ -78,7 +78,7 @@ language-user-argument1-description = The language you want to set your user lan
 language-guild-command-name = guild
 # This is shown as the description of the guild language command (eg what shows up in the slash command picker)
 language-guild-command-description = Set your guild language to one of the available languages.
-    
+
     Note: this only modifies your guild language, not your user language. See `user_language` for that.
 # This is shown as the description of the first argument to the guild language command
 language-guild-argument1-description = The language you want to set your guild language to.
@@ -116,7 +116,7 @@ root-command-invoked-description = Please invoke only this command's subcommands
 join-command-name = join
 # This is shown as the description of the join command (eg what shows up in the slash command picker)
 join-command-description = Join a voice chat.
-    
+
     Argument 1 is a voice chat to join.
     If you do not specify a voice channel to join, the bot will default to the same one you are in.
 # This is shown as the description of the first argument to the join command
@@ -129,9 +129,9 @@ bot-not-set-up = Looks like you haven't set up the bot yet. Do that first with `
 # This message is shown on successfuly joining a voice channel.
 # { $targetMention } is the mention of the channel the bot joined.
 join-success = Successfully joined { $targetMention }.
-    
+
     {"**"}Keep in mind that the bot is not perfect, and works best when you speak slowly (roughly 40-60 words per minute) and clearly.**
-    
+
     Note: your current premium tier is { $tier }. This allows for { $maxUsers } users to be transcripted at once. Along with this, the bot will automatically leave after { $leaveDuration } seconds, regardless of how many users are in the channel. This is to prevent abuse of our systems.
     If you would like more users, a longer duration of usage, and would like to also support the bot, consider subscribing to our Premium: <https://dash.scripty.org/premium>
 # This message is shown when the user tries to invite the bot to a voice channel,
@@ -150,17 +150,15 @@ latency-description =
     WebSocket latency: { $wsLatencyMs }ms ({ $wsLatencyNs }ns)
     HTTP latency: { $httpLatencyMs }ms ({ $httpLatencyNs }ns)
     Database latency: { $pgLatencyMs }ms ({ $pgLatencyNs }ns)
-    
-    Note: if any latency is equal to 0ms, it means that specific latency could not be calculated right now.
-    Try again later.
-
+# This message is shown when the latency value cannot be calculated
+latency-failed = failed
 ## setup command
 # This is shown as the title of the setup command (eg what shows up in the slash command picker)
 setup-command-name = setup
 # This is shown as the description of the setup command (eg what shows up in the slash command picker)
 setup-command-description =
     Set the bot up.
-    
+
     This will initialize the bare framework of the bot,
     allowing you to use `~join` to bind the bot to a voice chat.
 setup-command-argument1-description = Channel to send transcriptions to. (Required)
@@ -174,18 +172,18 @@ setup-tos-agree-failure = You must agree to both the Terms of Service and the Pr
 setup-success-title = Set up successfully!
 setup-success-description =
     A couple notes:
-    
+
     1) The bot is extremely expensive to run, and requires a serious amount of processing power, so it'd be amazing if you could donate a bit. We offer premium tiers that boost the limit on the number of users transcripted, which defaults to 5. The core features will stay free forever, though. If you're interested, check out the `{ $contextPrefix }donate` command.
-    
+
     2) If you chose a language other than English (the default) note that transcriptions for it will be much, much lower quality. Soon we will be adding a feature that allows you to help transcription accuracy with your own voice (see note 5).
-    
+
     3) If you are not a middle-aged American male, expect lower transcription accuracy. This is due to inherent bias within the model, and the only thing we can do about it is train more accurate models (again, see note 5).
-    
+
     4) To help us train more accurate models, consider allowing us to store your audio and transcriptions for training. See the `{ $contextPrefix }train_storage` command.
-    
+
     5) I don't exactly want to ask again, but please consider donating. It takes an ***insane*** amount of processing power to train new models (we're talking multiple Nvidia RTX 3090 GPUs), and every little bit of money helps a lot. Again, if you're interested, check out the `{ $contextPrefix }donate` command.
-    
-    
+
+
     Thanks for checking out Scripty! <3
     ~ 0/0 + valkyrie_pilot
 
@@ -198,17 +196,17 @@ data-storage-embed-title = Data Storage
 data-storage-embed-description =
     {"**"}NOTE**: everything that follows is **entirely optional**, and opting out **will not**, in any way, affect your experience with Scripty.
     That said, here goes.
-    
+
     Scripty requires a lot of audio and text data to train a proper speech-to-text model. Not everyone is able to donate or buy premium to help us out, so a big way you can help out is by allowing us to store your data like audio and messages for training a model.
     We understand this data can be extremely personal, so this is entirely opt-in and will not affect your experience in any way.
-    
+
     Here's what we'd do with it:
     {"*"} With stored messages, we would feed them into a scorer targeted to your language. This scorer would allow the algorithm to select the most likely words for a given set of sounds. Although immensely helpful, this isn't as important as audio. Note that this message data is encrypted with AES 256-bit encryption.
     {"*"} With stored audio, we would feed it and the transcript of it into a model to increase the accuracy of the speech-to-text model. This is insanely helpful, even if you have a poor microphone and lots of background noise: in fact, the more noise, the better, as long as a human can still make out what you are saying.
-    
+
     If you are opted in, and you decide later to opt out, your data is still stored, but you can request deletion of your voice data by running `{ $contextPrefix }delete_all_data`. However, it is impossible to delete your message data. This is because we do not store a link of what user sent what message.
     Your data is stored on servers that are locked down tightly. It would be extremely difficult for anyone attempting to gain access to successfully do so.
-    
+
     You can toggle your choices using the below buttons.
 data-storage-toggle-audio-btn = Toggle Audio Storage
 data-storage-toggle-msgs-btn = Toggle Message Storage
@@ -259,7 +257,7 @@ general-error-invalid-args-description = Failed to parse `{ $input }` because `{
 
 general-error-invalid-structure-title = Invalid structure from Discord while parsing { $command }.
 general-error-invalid-structure-description = { $description }
-    
+
     {"**"}Note**: this is a Discord error.
     The only fix for this is to wait for Discord to propagate slash commands, which can take up to one hour.
     If you do not want to wait this hour, you should use the prefix commands: run this command with `~{ $qualifiedName } { $args }`.
@@ -300,20 +298,20 @@ transcription-info-transcription-error =
 delete-data-command-name = delete_all_data
 # This is shown as the description of the data_storage command (eg what shows up in the slash command picker)
 delete-data-command-description = Delete all your data.
-    
+
     This command will irreversibly, permanently, delete all your data. There is no undoing this action.
 
 delete-data-title = Delete data
 delete-data-description =
     This will delete all of your data. This action is permanent, irreversible, and cannot be undone.
-    
+
     When we say "all of your data" we mean *all* of it. This includes your voice data, and your user in the database.
     This however, *does not* include any messages we may have stored from you if you opted into that. We cannot delete those messages, simply because we don't know what user sent what message.
-    
+
     If you would like to also be banned from using the bot after this action, that way you do not accidentally readd yourself, you can click the appropriate button below.
     Note that doing so will require us to store your user ID to keep a record of banned users.
     If at any point after this action you would like to be unbanned, you can contact the support server and ask for a manual unban.
-    
+
     Are you sure you want to delete all of your data?
 delete-data-confirm = Yes, delete all data
 delete-data-confirm-banned = Yes, delete all data and ban myself

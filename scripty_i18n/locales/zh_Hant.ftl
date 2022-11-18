@@ -1,16 +1,16 @@
 donation-title = 捐款
 donation-description =
     Scripty 運行起來並不便宜。它目前在配備 AMD Ryzen 9 3900 CPU 和 128GB RAM 的 1,500 美元服務器上運行。即使有那種硬件，我們估計它也只能同時處理100個轉錄。捐贈會讓我們能夠擴展我們的硬件容量和同時處理更多轉錄。如果我們有足夠的捐款的話，我們將能夠擴展我們的硬件容量或許我們還能夠同時處理數以千計的轉錄。
-    
+
     訓練模型同樣不容易, 因為這需要相對較新的 (支持 CUDA 10.1) 英偉達顯卡。我們不喜歡問別人捐款，但我們沒有能力自掏腰包運行 Scripty 因為它運行起來太貴了。所以我們正在尋求幫助，並以高級等級的形式給予獎勵
-    
+
     你可以在網站 https://scripty.org/premium 查看更多信息，但主要的要點是，價格從每月 5 美元到 100 美元不等.100 美元的套餐包括單獨為你的伺服器服務的 Scripty，自定義名稱和頭像。
-    
+
     你還能夠直接通過 GitHub 贊助一次性捐贈:
     { "[https://github.com/sponsors/tazz4843](https://github.com/sponsors/tazz4843?frequency=one-time&sponsor=tazz4843)" }
-    
+
     你可以在 https://scripty.org/premium 查看這些等級。
-    
+
     <3
     ~ 0/0 和 valkyrie_pilot
 # Help menu translation strings
@@ -68,9 +68,9 @@ latency-description =
     WebSocket 延遲: { $wsLatencyMs }ms ({ $wsLatencyNs }ns)
     網際網路 (HTTP) 延遲 { $httpLatencyMs }ms ({ $httpLatencyNs }ns)
     數據庫延遲: { $pgLatencyMs }ms ({ $pgLatencyNs }ns)
-    
-    注意：如果任何延遲等於 0ms，則表示當前無法計算該延遲。
-    請稍後再試。
+
+# This message is shown when the latency value cannot be calculated
+latency-failed = 失败的
 setup-tos-agree =
     通過設置 Scripty，你同意其隱私政策和服務條款。
     隱私政策：https://scripty.org/privacy
@@ -79,20 +79,20 @@ setup-tos-agree-failure = 你必須同意服務條款和隱私政策才能使用
 setup-success-title = 設置成功！
 setup-success-description =
     幾點注意事項：
-    
+
     1）不要刪除在目標頻道中創建的 webhook。
-    
+
     2）Scripty 運行起來非常昂貴，並且需要大量的處理能力，所以如果你能提供捐款，我們將不勝感激。 我們提供其他高級等級，以提高轉錄用戶數量的限制，默認為 5。不過，核心功能將永遠免費。 如果你有興趣，請查看 `{ $contextPrefix }donate` 指令。
-    
+
     3）如果你選擇了英語以外的語言（默認），請注意該語言的轉錄質量會低得多。 很快我們將添加一項功能，讓你可以用自己的聲音幫助轉錄準確性（見註 5）。
-    
+
     4）如果你不是美國中年男性，預計轉錄準確度會降低。 這是由於模型固有的偏差，我們唯一能做的就是訓練更準確的模型（再次參見註釋 5）。
-    
+
     5）為了幫助我們訓練更準確的模型，請考慮允許我們存儲你的音頻和轉錄以進行訓練。 請參見 `{ $contextPrefix }train storage` 指令。
-    
+
     6）我也不好意思再煩你，但請考慮捐贈。 訓練新模型需要***難以想像***的處理能力（我們說的是多個 英偉達 RTX 3090 顯卡），一點錢都有很大幫助。 同樣，如果你有興趣，請查看 `{ $contextPrefix }donate` 指令。
-    
-    
+
+
     感謝你對 Scripty 的興趣！<3
     ~ 0/0 + valkyrie_pilot
 data-storage-embed-title = 數據存儲
@@ -161,15 +161,15 @@ transcription-info-transcription-error =
 data-storage-embed-description =
     { "**" }注意**：以下所有內容**完全可選**，並且選擇退出**無論如何都不會影響你使用 Scripty 的體驗。
     內容如下。
-    
+
     Scripty 需要大量音頻和文本數據來訓練正確的語音到文本模型。 並非每個人都能夠捐贈或購買高級等級來幫助我們，因此你可以提供幫助的一個重要方式是允許我們存儲你的數據，例如用於訓練模型的音頻和信息。
     我們了解這些數據可能非常個人，因此這完全是選擇性的，不會以任何方式影響你的體驗。
-    
+
     下面是我們將如何使用它：
     { "*" } 通過存儲的信息，我們會將它們提供給針對你的語言的記分器。 該記分器將允許算法為一組音頻選擇最可能的單詞。 儘管非常有用，但這並不像音頻那麼重要。
     { "*" } 使用存儲的音頻，我們會將其及其轉錄內容輸入到模型中，以提高語音到文本模型的準確性。 這非常有用，即使你的麥克風很差並且背景噪音很大：事實上，噪音越多越好，只要人類仍然可以聽清你在說什麼。
-    
+
     如果你選擇加入，並且稍後決定退出，你的數據仍會被存儲，但你可以通過聯繫支持服務器中的核心開發人員請求刪除：{ $supportServerInvite }。 我們將永久擦除你的所有數據。
     你的數據存儲在核心開發人員擁有的硬件上，並被鎖定。 對於任何試圖成功訪問的人來說，這將是極其困難的。
-    
+
     你可以使用以下按鈕切換你的選擇。
