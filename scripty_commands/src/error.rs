@@ -140,10 +140,10 @@ impl Error {
     ///
     /// Returns true if this is a user error, false if it is not.
     pub fn is_user_error(&self) -> bool {
-        match &self.err {
-            ErrorEnum::ExpectedGuild | ErrorEnum::InvalidChannelType { .. } => true,
-            _ => false,
-        }
+        matches!(
+            &self.err,
+            ErrorEnum::ExpectedGuild | ErrorEnum::InvalidChannelType { .. }
+        )
     }
 }
 
@@ -511,7 +511,7 @@ pub async fn log_error_message(
             .guild(guild_id)
             .map_or_else(|| "unknown guild".to_string(), |g| g.name.clone());
 
-        e = e.field("Guild ID", &guild_id.to_string(), false);
+        e = e.field("Guild ID", guild_id.to_string(), false);
         e = e.field("Guild Name", &guild_name, true);
 
         (Some(guild_id), Some(guild_name))
@@ -523,7 +523,7 @@ pub async fn log_error_message(
     };
 
     let channel_id = ctx.channel_id();
-    e = e.field("Channel ID", &channel_id.to_string(), false);
+    e = e.field("Channel ID", channel_id.to_string(), false);
 
     let author = ctx.author();
     let author_id = author.id;

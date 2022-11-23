@@ -23,7 +23,7 @@ pub async fn init_blocked() -> Result<(), scripty_redis::redis::RedisError> {
                     "user:{{{}}}:blocked",
                     scripty_utils::vec_to_hex(&blocked_user.user_id)
                 ),
-                blocked_user.reason.unwrap_or_else(|| "".to_string()),
+                blocked_user.reason.unwrap_or_default(),
             );
         }
         blocked_user_pipe
@@ -42,7 +42,7 @@ pub async fn init_blocked() -> Result<(), scripty_redis::redis::RedisError> {
         {
             blocked_guild_pipe.set(
                 format!("guild:{{{}}}:blocked", blocked_guild.guild_id),
-                blocked_guild.reason.unwrap_or_else(|| "".to_string()),
+                blocked_guild.reason.unwrap_or_default(),
             );
         }
 
@@ -147,7 +147,7 @@ pub async fn add_blocked_user(user_id: UserId, reason: Option<String>) -> Result
                 "user:{{{}}}:blocked",
                 scripty_utils::vec_to_hex(&hashed_user_id)
             ),
-            reason.unwrap_or_else(|| "".to_string()),
+            reason.unwrap_or_default(),
         )
         .await?;
 
@@ -177,7 +177,7 @@ pub async fn add_blocked_guild(
     redis
         .set(
             format!("guild:{{{}}}:blocked", guild_id),
-            reason.unwrap_or_else(|| "".to_string()),
+            reason.unwrap_or_default(),
         )
         .await?;
 

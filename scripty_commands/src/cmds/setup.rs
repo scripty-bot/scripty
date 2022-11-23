@@ -1,4 +1,3 @@
-use crate::checks::is_guild;
 use crate::models::Language;
 use crate::{Context, Error};
 use poise::CreateReply;
@@ -24,9 +23,9 @@ use serenity::model::channel::{ChannelType, GuildChannel};
     prefix_command,
     slash_command,
     guild_cooldown = 60,
+    guild_only,
     required_bot_permissions = "MANAGE_WEBHOOKS",
-    required_permissions = "MANAGE_GUILD",
-    check = "is_guild"
+    required_permissions = "MANAGE_GUILD"
 )]
 pub async fn setup(
     ctx: Context<'_>,
@@ -91,7 +90,7 @@ pub async fn setup(
         .author_id(ctx.author().id)
         .build();
 
-    #[allow(clippy::for_loops_over_fallibles)]
+    #[allow(for_loops_over_fallibles)]
     for collected in collector.next().await {
         let custom_id = collected.data.custom_id.as_str();
         if custom_id == "privacy_agree" {
