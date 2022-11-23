@@ -218,6 +218,25 @@ data-storage-opted-in-msgs = You are now opted into storing your messages for sc
 data-storage-opted-out-msgs = You are now opted out of storing your messages for scorer training.
 data-storage-command-timed-out = Timed out. Rerun this command if you still want to manage settings.
 
+## automod root command
+# This is shown as the title of the automod root command (eg what shows up in the slash command picker)
+automod-root-command-name = automod
+# This is shown as the description of the automod root command (eg what shows up in the slash command picker)
+automod-root-command-description = Configure automod settings
+automod-root-response = This is the root command, due to Discord limitations it does nothing. See `{ $contextPrefix }help automod` for more info.
+
+## automod setup command
+# This is shown as the title of the automod setup command (eg what shows up in the slash command picker)
+automod-setup-command-name = setup
+# This is shown as the description of the automod setup command (eg what shows up in the slash command picker)
+automod-setup-command-description = Get started with Scripty's automod.
+automod-setup-argument1-description = The channel to send automod logs to.
+automod-setup-argument2-description = Should a recording of offending speech be sent to the target channel? Defaults to false.
+automod-setup-argument3-description = Should the bot automatically join voice if a user joins? This also causes the `join` and `leave` commands to be gated behind Move Members. Defaults to true.
+automod-setup-embed-complete-title = Automod setup complete!
+automod-setup-embed-complete-description = You can now use `{ $contextPrefix }automod rule add` to add an automod rule. { $extraDetails }
+automod-setup-embed-complete-free-limit = Note that free servers are limited to 25 rules. If you'd like to remove this limit, check out our Premium over at https://scripty.org/premium.
+
 ## blocked entities description
 
 blocked-entity-no-reason-given = No reason was given for the block.

@@ -38,6 +38,10 @@ pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
                 subcommands: vec![cmds::premium::remove(), cmds::premium::claim()],
                 ..cmds::premium::premium()
             },
+            poise::Command {
+                subcommands: vec![cmds::automod::automod_setup()],
+                ..cmds::automod::automod_root()
+            },
         ],
         on_error: |error| Box::pin(on_error(error)),
         command_check: Some(crate::entity_block::check_block),

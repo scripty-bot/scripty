@@ -1,4 +1,5 @@
 mod admin;
+pub mod automod;
 mod credits;
 mod data_storage;
 mod donate;
