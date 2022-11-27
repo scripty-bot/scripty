@@ -39,7 +39,10 @@ pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
                 ..cmds::premium::premium()
             },
             poise::Command {
-                subcommands: vec![cmds::automod::automod_setup()],
+                subcommands: vec![
+                    cmds::automod::automod_setup(),
+                    cmds::automod::automod_add_rule(),
+                ],
                 ..cmds::automod::automod_root()
             },
         ],

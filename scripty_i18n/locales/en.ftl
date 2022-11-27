@@ -237,6 +237,55 @@ automod-setup-embed-complete-title = Automod setup complete!
 automod-setup-embed-complete-description = You can now use `{ $contextPrefix }automod rule add` to add an automod rule. { $extraDetails }
 automod-setup-embed-complete-free-limit = Note that free servers are limited to 25 rules. If you'd like to remove this limit, check out our Premium over at https://scripty.org/premium.
 
+## automod add rule command
+# This is shown as the title of the automod add rule command (eg what shows up in the slash command picker)
+automod-add-rule-command-name = add_rule
+# This is shown as the description of the automod add rule command (eg what shows up in the slash command picker)
+automod-add-rule-command-description = Add an automod rule.
+automod-add-rule-argument1-description = The type of rule to add. See `/automod rule_help` for more info.
+automod-add-rule-argument1-enum-regular-type = Regular
+automod-add-rule-argument2-description = The rule content to add.
+automod-add-rule-argument3-description = The action to take when the rule is triggered.
+automod-add-rule-argument3-enum-silent-delete = Silent delete
+automod-add-rule-argument3-enum-delete-and-log = Delete and log
+automod-add-rule-argument3-enum-delete-log-and-kick = Delete, log, and remove user from voice
+automod-add-rule-embed-success-title = Rule { $ruleId } added!
+automod-add-rule-embed-success-description = { $rulesLeft } rules left out of { $maxRules }. { $extraDetails }
+automod-add-rule-embed-extra-details-free-limit = Free servers are limited to 25 regular rules. If you'd like to increase this limit, check out our Premium over at https://scripty.org/premium.
+automod-add-rule-embed-failure-title = Failed to add rule!
+automod-add-rule-embed-failure-description-free-limit = Free servers are limited to 25 regular rules. If you'd like to increase this limit, check out our Premium over at https://scripty.org/premium.
+automod-add-rule-embed-failure-description-premium-limit = Premium tier { $tier } servers are limited to { $maxRules } rules. If you upgrade to tier { $nextTier }, you can add { $nextTierMaxRules } rules.
+automod-add-rule-embed-failure-description-premium-limit-hard-cap = You've reached the absolute maximum number of rules ({ $hardCap }). This limit exists to ensure we don't add too much latency in a single message.
+automod-add-rule-embed-failure-description-invalid-type = Invalid rule type. See `{ $contextPrefix }automod rule_help` for more info.
+automod-add-rule-embed-failure-description-free-locked-type = Free servers can only use regular rules. If you'd like to use other rule types, check out our Premium over at https://scripty.org/premium.
+automod-add-rule-embed-failure-description-not-setup = You must run `{ $contextPrefix }automod setup` before adding rules.
+
+## automod remove rule command
+# This is shown as the title of the automod remove rule command (eg what shows up in the slash command picker)
+automod-remove-rule-command-name = remove_rule
+# This is shown as the description of the automod remove rule command (eg what shows up in the slash command picker)
+automod-remove-rule-command-description = Remove an automod rule.
+automod-remove-rule-argument1-description = The rule ID to remove.
+automod-remove-rule-embed-success-title = Rule removed!
+automod-remove-rule-embed-success-description = { $rulesLeft } rules left out of { $maxRules }.
+automod-remove-rule-embed-failure-title = Failed to remove rule!
+automod-remove-rule-embed-failure-description-invalid-id = Invalid rule ID. See `{ $contextPrefix }automod list` for more info.
+automod-remove-rule-embed-failure-description-not-setup = You must run `{ $contextPrefix }automod setup` before removing rules.
+
+## automod list rules command
+# This is shown as the title of the automod list rules command (eg what shows up in the slash command picker)
+automod-list-rules-command-name = list_rules
+# This is shown as the description of the automod list rules command (eg what shows up in the slash command picker)
+automod-list-rules-command-description = List all automod rules.
+automod-list-rules-argument1-description = Filter rules by their content. Leave empty to show all rules.
+automod-list-rules-embed-title = Automod rules
+automod-list-rules-embed-description = { $rulesLeft } rules left out of { $maxRules }.
+automod-list-rules-embed-field-name = Rule { $ruleId }
+automod-list-rules-embed-field-value = Type: { $ruleType }
+    Content: { $ruleContent }
+    Action: { $ruleAction }
+automod-list-rules-footer = Page { $page } of { $maxPage }
+
 ## blocked entities description
 
 blocked-entity-no-reason-given = No reason was given for the block.

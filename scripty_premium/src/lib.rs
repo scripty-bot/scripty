@@ -1,3 +1,4 @@
+use std::fmt::Formatter;
 use std::num::NonZeroU64;
 use time::OffsetDateTime;
 
@@ -33,6 +34,27 @@ impl From<i16> for PremiumTierList {
             5 => Self::Tier5,
             6 => Self::Tier6,
             _ => panic!("Invalid tier: {}", i),
+        }
+    }
+}
+
+impl Default for PremiumTierList {
+    #[inline]
+    fn default() -> Self {
+        Self::None
+    }
+}
+
+impl std::fmt::Display for PremiumTierList {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::None => write!(f, "0"),
+            Self::Tier1 => write!(f, "1"),
+            Self::Tier2 => write!(f, "2"),
+            Self::Tier3 => write!(f, "3"),
+            Self::Tier4 => write!(f, "4"),
+            Self::Tier5 => write!(f, "5"),
+            Self::Tier6 => write!(f, "6"),
         }
     }
 }
