@@ -5,17 +5,6 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-# add debug info to the release build
-[profile.release.package."songbird"]
-codegen-units = 1
-debug = true
-[profile.release.package."scripty_audio"]
-codegen-units = 1
-debug = true
-[profile.release.package."scripty_audio_handler"]
-codegen-units = 1
-debug = true
-
 [profile.release-full]
 inherits = "release"
 incremental = false
