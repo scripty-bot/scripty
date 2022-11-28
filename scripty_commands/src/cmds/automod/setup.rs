@@ -22,7 +22,7 @@ pub async fn automod_setup(
     #[description = "Should a recording of offending speech be sent to the target channel? Defaults to false."]
     log_recording: Option<bool>,
 
-    #[description = "Should the bot automatically join voice if a user joins? This also causes the `join` and `leave` commands to be gated behind Move Members. Defaults to true."]
+    #[description = "Should the bot automatically join voice if a user joins? Defaults to true."]
     auto_join: Option<bool>,
 ) -> Result<(), Error> {
     let log_recording = log_recording.unwrap_or(false);
