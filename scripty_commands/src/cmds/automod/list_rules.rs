@@ -1,8 +1,5 @@
-use super::{get_next_tier, get_tier_rule_count, AutomodRuleAction, AutomodRuleType};
 use crate::{Context, Error};
-use poise::CreateReply;
 use scripty_utils::do_paginate;
-use serenity::builder::CreateEmbed;
 
 #[poise::command(
     prefix_command,
@@ -22,7 +19,7 @@ pub async fn automod_list_rules(ctx: Context<'_>) -> Result<(), Error> {
         gid.get() as i64
     ).fetch_all(db).await?;
 
-    let mut formatted_rules = rules
+    let  formatted_rules = rules
         .into_iter()
         .map(|x| (
             format_message!(resolved_language, "automod-list-rules-embed-field-name", ruleId: x.item_id),
