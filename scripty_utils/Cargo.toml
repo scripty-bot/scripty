@@ -18,7 +18,6 @@ scripty_db = { path = "../scripty_db" }
 scripty_config = { path = "../scripty_config" }
 tokio = { version = "1", features = ["parking_lot", "signal"] }
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [
-  "tokio",
   "voice",
   "dashmap",
   "parking_lot",

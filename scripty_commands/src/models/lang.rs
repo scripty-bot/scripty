@@ -1,5 +1,5 @@
 use serenity::async_trait;
-use serenity::client::Context as SerenityContext;
+use serenity::http::CacheHttp;
 use serenity::model::id::{ChannelId, GuildId};
 use serenity::utils::ArgumentConvert;
 use std::fmt::{Display, Formatter};
@@ -14,7 +14,7 @@ impl ArgumentConvert for Language {
     type Err = LanguageInvalid;
 
     async fn convert(
-        _: &SerenityContext,
+        _: impl CacheHttp,
         _: Option<GuildId>,
         _: Option<ChannelId>,
         s: &str,

@@ -1,13 +1,11 @@
 use crate::models::Language;
 use crate::{Context, Error};
 use poise::CreateReply;
-use serenity::builder::{
-    CreateActionRow, CreateButton, CreateComponents, CreateEmbed, EditMessage,
-};
-use serenity::collector::ComponentInteractionCollectorBuilder;
-use serenity::futures::StreamExt;
+use serenity::builder::{CreateActionRow, CreateButton, CreateEmbed, EditMessage};
+use serenity::collector::ComponentInteractionCollector;
 use serenity::model::application::component::ButtonStyle;
 use serenity::model::channel::{ChannelType, GuildChannel};
+use std::time::Duration;
 
 /// Set the bot up.
 ///
@@ -61,52 +59,54 @@ pub async fn setup(
     let mut msg = ctx
         .send(
             CreateReply::default()
-                .components(
-                    CreateComponents::default().set_action_row(
-                        CreateActionRow::default()
-                            .add_button(
-                                CreateButton::default()
-                                    .custom_id("privacy_agree")
-                                    .emoji('✅')
-                                    .label("Agree")
-                                    .style(ButtonStyle::Success),
-                            )
-                            .add_button(
-                                CreateButton::default()
-                                    .custom_id("privacy_disagree")
-                                    .emoji('❎')
-                                    .label("Disagree")
-                                    .style(ButtonStyle::Danger),
-                            ),
-                    ),
-                )
+                .components(vec![CreateActionRow::Buttons(vec![
+                    CreateButton::new("privacy_agree")
+                        .emoji('✅')
+                        .label("Agree")
+                        .style(ButtonStyle::Success),
+                    CreateButton::new("privacy_disagree")
+                        .emoji('❎')
+                        .label("Disagree")
+                        .style(ButtonStyle::Danger),
+                ])])
                 .content(format_message!(resolved_language, "setup-tos-agree")),
         )
         .await?
         .into_message()
         .await?;
-    let mut collector = ComponentInteractionCollectorBuilder::new(&discord_ctx.shard)
+    let one = ComponentInteractionCollector::new(&discord_ctx.shard)
         .channel_id(ctx.channel_id())
         .author_id(ctx.author().id)
-        .build();
+        .timeout(Duration::from_secs(300))
+        .collect_single()
+        .await;
 
-    #[allow(for_loops_over_fallibles)]
-    for collected in collector.next().await {
-        let custom_id = collected.data.custom_id.as_str();
-        if custom_id == "privacy_agree" {
-            msg.delete(discord_ctx).await?;
-            break;
-        } else if custom_id == "privacy_disagree" {
-            msg.edit(
-                discord_ctx,
-                EditMessage::default().content(format_message!(
-                    resolved_language,
-                    "setup-tos-agree-failure"
-                )),
-            )
-            .await?;
-            return Ok(());
+    if let Some(response) = one {
+        match response.data.custom_id.as_str() {
+            "privacy_agree" => msg.delete(discord_ctx).await?,
+            "privacy_disagree" => {
+                msg.edit(
+                    discord_ctx,
+                    EditMessage::default().content(format_message!(
+                        resolved_language,
+                        "setup-tos-agree-failure"
+                    )),
+                )
+                .await?;
+                return Ok(());
+            }
+            _ => unreachable!(),
         }
+    } else {
+        msg.edit(
+            discord_ctx,
+            EditMessage::default().content(format_message!(
+                resolved_language,
+                "setup-tos-agree-failure"
+            )),
+        )
+        .await?;
+        return Ok(());
     }
 
     let guild_id = ctx.guild().expect("asserted in guild").id.get() as i64;

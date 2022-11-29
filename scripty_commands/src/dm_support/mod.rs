@@ -1,10 +1,10 @@
 use dashmap::DashMap;
 use serenity::builder::{
-    CreateAllowedMentions, CreateChannel, CreateEmbed, CreateEmbedAuthor, CreateMessage,
-    CreateWebhook, ExecuteWebhook,
+    CreateAllowedMentions, CreateAttachment, CreateChannel, CreateEmbed, CreateEmbedAuthor,
+    CreateMessage, CreateWebhook, ExecuteWebhook,
 };
 use serenity::client::Context;
-use serenity::model::channel::{AttachmentType, ChannelType, GuildChannel, Message};
+use serenity::model::channel::{ChannelType, GuildChannel, Message};
 use serenity::model::id::{ChannelId, GuildId, UserId};
 use serenity::model::user::User;
 use serenity::model::webhook::Webhook;
@@ -50,9 +50,11 @@ impl DmSupportStatus {
         if !message.attachments.is_empty() {
             let mut attachments = Vec::new();
             for attachment in message.attachments.iter() {
-                attachments.push(AttachmentType::Image(
-                    attachment.url.clone().parse().unwrap(),
-                ));
+                attachments.push(
+                    CreateAttachment::url(&ctx, attachment.url.as_str())
+                        .await
+                        .expect("failed to handle message attachments"),
+                );
             }
             webhook_execute = webhook_execute.files(attachments);
         }
@@ -63,7 +65,7 @@ impl DmSupportStatus {
                 true,
                 webhook_execute
                     .content(message.content.clone())
-                    .allowed_mentions(CreateAllowedMentions::default().empty_parse()),
+                    .allowed_mentions(CreateAllowedMentions::default()),
             )
             .await;
 
@@ -185,10 +187,11 @@ impl DmSupportStatus {
         let hook = channel
             .create_webhook(
                 ctx,
-                CreateWebhook::new(user.tag())
-                    .avatar(&ctx, AttachmentType::Image(user.face().parse().unwrap()))
-                    .await
-                    .expect("failed to fetch image for webhook"),
+                CreateWebhook::new(user.tag()).avatar(
+                    &CreateAttachment::url(ctx, user.face().as_str())
+                        .await
+                        .expect("failed to handle message attachments"),
+                ),
             )
             .await
             .expect("failed to create webhook");

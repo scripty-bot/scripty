@@ -1,7 +1,7 @@
 use crate::cmds;
 use crate::error::on_error;
 use poise::{FrameworkOptions, PrefixFrameworkOptions};
-use serenity::builder::{CreateAllowedMentions, ParseValue};
+use serenity::builder::CreateAllowedMentions;
 use serenity::model::id::UserId;
 use serenity::prelude::GatewayIntents;
 
@@ -53,8 +53,9 @@ pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
         // Only support direct user pings by default
         allowed_mentions: Some(
             CreateAllowedMentions::default()
-                .empty_parse()
-                .parse(ParseValue::Users),
+                .empty_roles()
+                .empty_users()
+                .replied_user(true),
         ),
         prefix_options: PrefixFrameworkOptions {
             prefix: Some("~".to_string()),

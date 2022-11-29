@@ -68,24 +68,21 @@ pub async fn entrypoint() {
                     .set(ctx.cache.clone())
                     .expect("user data setup called more than once: bug?");
 
+                let sm = c.shard_manager().clone();
+                tokio::spawn(async move {
+                    tokio::signal::ctrl_c()
+                        .await
+                        .expect("failed to listen for ctrl+c");
+                    sm.lock().await.shutdown_all().await;
+                });
+
                 Ok(Data {
                     shard_manager: c.shard_manager().clone(),
                 })
             })
         })
         .options(framework_opts::get_framework_opts())
-        .intents(framework_opts::get_gateway_intents())
-        .build()
-        .await
-        .expect("failed to build framework");
+        .intents(framework_opts::get_gateway_intents());
 
-    let c2 = Arc::clone(&client);
-    tokio::spawn(async move {
-        tokio::signal::ctrl_c()
-            .await
-            .expect("failed to listen for ctrl+c");
-        c2.shard_manager().lock().await.shutdown_all().await;
-    });
-
-    client.start_autosharded().await.expect("failed to run bot");
+    client.run_autosharded().await.expect("failed to run bot");
 }

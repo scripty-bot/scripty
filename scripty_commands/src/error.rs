@@ -2,8 +2,10 @@ use crate::Data;
 use backtrace::Backtrace;
 use poise::{Context, CreateReply, FrameworkError};
 use scripty_audio_handler::JoinError;
-use serenity::builder::{CreateEmbed, CreateEmbedAuthor, CreateMessage, ExecuteWebhook};
-use serenity::model::channel::{AttachmentType, ChannelType};
+use serenity::builder::{
+    CreateAttachment, CreateEmbed, CreateEmbedAuthor, CreateMessage, ExecuteWebhook,
+};
+use serenity::model::channel::ChannelType;
 use serenity::model::webhook::Webhook;
 use serenity::prelude::SerenityError;
 use std::borrow::Cow;
@@ -121,12 +123,10 @@ impl Error {
     pub fn should_handle(&self) -> bool {
         match &self.err {
             ErrorEnum::Serenity(SerenityError::Http(
-                serenity::http::error::Error::UnsuccessfulRequest(
-                    serenity::http::error::ErrorResponse {
-                        error: serenity::http::error::DiscordJsonError { code, .. },
-                        ..
-                    },
-                ),
+                serenity::http::HttpError::UnsuccessfulRequest(serenity::http::ErrorResponse {
+                    error: serenity::http::DiscordJsonError { code, .. },
+                    ..
+                }),
             )) if code == &10062 => {
                 // ignore unknown interaction errors
                 false
@@ -254,7 +254,11 @@ pub async fn on_error(error: FrameworkError<'_, Data, crate::Error>) {
     match error {
         FrameworkError::Setup { error, .. } => panic!("error during bot init: {}", error),
         FrameworkError::Listener { error, event, .. } => {
-            error!("error in listener for event {}: {}", event.name(), error)
+            error!(
+                "error in listener for event {}: {}",
+                event.snake_case_name(),
+                error
+            )
         }
         FrameworkError::Command { error, ctx } => {
             if !error.should_handle() {
@@ -266,9 +270,10 @@ pub async fn on_error(error: FrameworkError<'_, Data, crate::Error>) {
             // if this is a 403 error, it's probably because the bot doesn't have permissions
             match error.err {
                 ErrorEnum::Serenity(serenity::Error::Http(
-                    serenity::http::error::Error::UnsuccessfulRequest(
-                        serenity::http::error::ErrorResponse { status_code, .. },
-                    ),
+                    serenity::http::HttpError::UnsuccessfulRequest(serenity::http::ErrorResponse {
+                        status_code,
+                        ..
+                    }),
                 )) if status_code == http::StatusCode::FORBIDDEN => {
                     send_err_msg(
                         ctx,
@@ -492,10 +497,10 @@ pub async fn log_error_message(
     let fmt_bt = format!("{:#?}", err.backtrace());
     if fmt_bt.len() > 2048 {
         e = e.field("Backtrace", "See attached file", false);
-        m = m.add_file(AttachmentType::Bytes {
-            data: fmt_bt.into_bytes().into(),
-            filename: "backtrace.txt".into(),
-        });
+        m = m.add_file(CreateAttachment::bytes(
+            fmt_bt.into_bytes(),
+            "backtrace.txt",
+        ));
     } else {
         e = e.field("Backtrace", &fmt_bt, false);
     }

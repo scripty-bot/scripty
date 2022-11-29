@@ -18,11 +18,11 @@ make_static_metric! {
     }
 
     pub label_enum EventType {
-        application_command_permissions_update,
-        auto_moderation_rule_create,
-        auto_moderation_rule_update,
-        auto_moderation_rule_delete,
-        auto_moderation_action_execution,
+        command_permissions_update,
+        auto_mod_rule_create,
+        auto_mod_rule_update,
+        auto_mod_rule_delete,
+        auto_mod_action_execution,
         channel_create,
         channel_delete,
         channel_pins_update,
@@ -53,6 +53,7 @@ make_static_metric! {
         reaction_add,
         reaction_remove,
         reaction_remove_all,
+        reaction_remove_emoji,
         ready,
         resumed,
         typing_start,
@@ -73,11 +74,11 @@ make_static_metric! {
         thread_list_sync,
         thread_member_update,
         thread_members_update,
-        guild_scheduled_event_create,
-        guild_scheduled_event_update,
-        guild_scheduled_event_delete,
-        guild_scheduled_event_user_add,
-        guild_scheduled_event_user_remove,
+        scheduled_event_create,
+        scheduled_event_update,
+        scheduled_event_delete,
+        scheduled_event_user_add,
+        scheduled_event_user_remove,
         unknown,
     }
     pub struct EventCounterVec: IntCounter {

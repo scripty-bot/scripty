@@ -2,10 +2,10 @@ use crate::{Context, Error};
 use poise::CreateReply;
 use scripty_i18n::LanguageIdentifier;
 use serenity::builder::{
-    CreateActionRow, CreateButton, CreateComponents, CreateEmbed, CreateInteractionResponse,
-    CreateInteractionResponseData, EditMessage,
+    CreateActionRow, CreateButton, CreateEmbed, CreateInteractionResponse,
+    CreateInteractionResponseMessage, EditMessage,
 };
-use serenity::collector::ComponentInteractionCollectorBuilder;
+use serenity::collector::ComponentInteractionCollector;
 use serenity::futures::StreamExt;
 use serenity::model::application::component::ButtonStyle;
 use serenity::model::channel::MessageFlags;
@@ -26,8 +26,8 @@ pub async fn data_storage(ctx: Context<'_>) -> Result<(), Error> {
         )
         .await?;
 
-    let author_id = ctx.author().id.0;
-    let hashed_author_id = scripty_utils::hash_user_id(author_id);
+    let author_id = ctx.author().id;
+    let hashed_author_id = scripty_utils::hash_user_id(author_id.0);
     let discord_ctx = ctx.discord();
     let db = scripty_db::get_db();
 
@@ -45,12 +45,12 @@ VALUES ($1)
     .execute(db)
     .await?;
 
-    let mut collector = ComponentInteractionCollectorBuilder::new(&discord_ctx.shard)
+    let mut collector = ComponentInteractionCollector::new(&discord_ctx.shard)
         .message_id(msg.message().await?.id)
         .author_id(author_id)
         .timeout(Duration::from_secs(120))
-        .build();
-    while let Some(interaction) = collector.next().await {
+        .collect_stream();
+    while let Some(interaction) = StreamExt::next(&mut collector).await {
         let id = interaction.data.custom_id.as_str();
         let message_id = match id {
             "toggle_audio_storage" => {
@@ -90,12 +90,12 @@ VALUES ($1)
 
         if let Some(message_id) = message_id {
             interaction
-                .create_interaction_response(
+                .create_response(
                     discord_ctx,
-                    CreateInteractionResponse::default().interaction_response_data(
-                        CreateInteractionResponseData::default()
-                            .flags(MessageFlags::EPHEMERAL)
-                            .content(format_message!(resolved_language, message_id)),
+                    CreateInteractionResponse::Message(
+                        CreateInteractionResponseMessage::new()
+                            .content(format_message!(resolved_language, message_id))
+                            .flags(MessageFlags::EPHEMERAL),
                     ),
                 )
                 .await?;
@@ -138,56 +138,38 @@ pub async fn delete_all_data(ctx: Context<'_>) -> Result<(), Error> {
                         ))
                         .color((255, 0, 0)),
                 )
-                .components(
-                    CreateComponents::default().set_action_row(
-                        CreateActionRow::default()
-                            .add_button(
-                                CreateButton::default()
-                                    .custom_id("delete_data_confirm")
-                                    .style(ButtonStyle::Danger)
-                                    .label(format_message!(
-                                        resolved_language,
-                                        "delete-data-confirm"
-                                    )),
-                            )
-                            .add_button(
-                                CreateButton::default()
-                                    .custom_id("delete_data_confirm_with_ban")
-                                    .style(ButtonStyle::Danger)
-                                    .label(format_message!(
-                                        resolved_language,
-                                        "delete-data-confirm-banned"
-                                    )),
-                            )
-                            .add_button(
-                                CreateButton::default()
-                                    .custom_id("delete_data_cancel")
-                                    .style(ButtonStyle::Success)
-                                    .label(format_message!(
-                                        resolved_language,
-                                        "delete-data-cancel"
-                                    )),
-                            ),
-                    ),
-                ),
+                .components(vec![CreateActionRow::Buttons(vec![
+                    CreateButton::new("delete_data_confirm")
+                        .style(ButtonStyle::Danger)
+                        .label(format_message!(resolved_language, "delete-data-confirm")),
+                    CreateButton::new("delete_data_confirm_with_ban")
+                        .style(ButtonStyle::Danger)
+                        .label(format_message!(
+                            resolved_language,
+                            "delete-data-confirm-banned"
+                        )),
+                    CreateButton::new("delete_data_cancel")
+                        .style(ButtonStyle::Success)
+                        .label(format_message!(resolved_language, "delete-data-cancel")),
+                ])]),
         )
         .await?
         .into_message()
         .await?;
 
-    let author_id = ctx.author().id.0;
-    let hashed_author_id = scripty_utils::hash_user_id(author_id);
+    let author_id = ctx.author().id;
+    let hashed_author_id = scripty_utils::hash_user_id(author_id.0);
     let discord_ctx = ctx.discord();
     let db = scripty_db::get_db();
 
-    let mut collector = ComponentInteractionCollectorBuilder::new(&discord_ctx.shard)
+    let one = ComponentInteractionCollector::new(&discord_ctx.shard)
         .author_id(author_id)
-        .message_id(msg.id.0)
+        .message_id(msg.id)
         .timeout(Duration::from_secs(120))
-        .filter_limit(1)
-        .build();
+        .collect_single()
+        .await;
 
-    if let Some(interaction) = collector.next().await {
+    if let Some(interaction) = one {
         let status = match interaction.data.custom_id.as_str() {
             "delete_data_confirm" => {
                 sqlx::query!("DELETE FROM users WHERE user_id = $1", hashed_author_id)
@@ -268,28 +250,24 @@ fn build_embed(resolved_language: &LanguageIdentifier) -> CreateEmbed {
         ))
 }
 
-fn build_components(disabled: bool, resolved_language: &LanguageIdentifier) -> CreateComponents {
-    CreateComponents::default().set_action_row(
-        CreateActionRow::default()
-            .add_button(
-                CreateButton::default()
-                    .custom_id("toggle_audio_storage")
-                    .style(ButtonStyle::Primary)
-                    .label(format_message!(
-                        resolved_language,
-                        "data-storage-toggle-audio-btn"
-                    ))
-                    .disabled(disabled),
-            )
-            .add_button(
-                CreateButton::default()
-                    .custom_id("toggle_msg_storage")
-                    .style(ButtonStyle::Primary)
-                    .label(format_message!(
-                        resolved_language,
-                        "data-storage-toggle-msgs-btn"
-                    ))
-                    .disabled(disabled),
-            ),
-    )
+fn build_components(
+    disabled: bool,
+    resolved_language: &LanguageIdentifier,
+) -> Vec<CreateActionRow> {
+    vec![CreateActionRow::Buttons(vec![
+        CreateButton::new("toggle_audio_storage")
+            .style(ButtonStyle::Primary)
+            .label(format_message!(
+                resolved_language,
+                "data-storage-toggle-audio-btn"
+            ))
+            .disabled(disabled),
+        CreateButton::new("toggle_msg_storage")
+            .style(ButtonStyle::Primary)
+            .label(format_message!(
+                resolved_language,
+                "data-storage-toggle-msgs-btn"
+            ))
+            .disabled(disabled),
+    ])]
 }

@@ -1,12 +1,14 @@
+use serenity::all::MessageFlags;
 use serenity::builder::{
-    CreateActionRow, CreateButton, CreateComponents, CreateEmbed, CreateEmbedFooter,
-    CreateInputText, CreateInteractionResponse, CreateInteractionResponseData, CreateMessage,
+    CreateActionRow, CreateButton, CreateEmbed, CreateEmbedFooter, CreateInputText,
+    CreateInteractionResponse, CreateInteractionResponseMessage, CreateMessage, CreateQuickModal,
+    QuickModalResponse,
 };
-use serenity::collector::{ComponentInteractionCollectorBuilder, ModalInteractionCollectorBuilder};
+use serenity::collector::ComponentInteractionCollector;
 use serenity::futures::StreamExt;
 use serenity::model::application::component::{ButtonStyle, InputTextStyle};
-use serenity::model::application::InteractionResponseType;
 use serenity::model::id::{ChannelId, UserId};
+use std::str::FromStr;
 use std::time::Duration;
 
 pub async fn do_paginate(
@@ -46,15 +48,16 @@ pub async fn do_paginate(
         )
         .await?;
 
-    let mut collector = ComponentInteractionCollectorBuilder::new(&ctx.shard)
+    let mut collector = ComponentInteractionCollector::new(&ctx.shard)
         .message_id(m.id)
         .timeout(Duration::from_secs(120));
     if let Some(user) = allowed_user {
         collector = collector.author_id(user);
     }
-    let mut c = collector.build();
+    let mut c = collector.collect_stream();
 
-    while let Some(c) = c.next().await {
+    // need StreamExt::next since otherwise types don't resolve
+    while let Some(c) = StreamExt::next(&mut c).await {
         let did_respond = match c.data.custom_id.as_str() {
             "first_page" => {
                 current_page = 0;
@@ -75,69 +78,43 @@ pub async fn do_paginate(
                 false
             }
             "pick_page" => {
-                c.create_interaction_response(
-                    &ctx,
-                    CreateInteractionResponse::default()
-                        .kind(InteractionResponseType::Modal)
-                        .interaction_response_data(
-                            CreateInteractionResponseData::default()
-                                .title("Pick a page")
-                                .components(
-                                    CreateComponents::default().add_action_row(
-                                        CreateActionRow::default().add_input_text(
-                                            CreateInputText::new(
-                                                InputTextStyle::Short,
-                                                "Page number",
-                                                "pg_n",
-                                            )
-                                            .required(true),
-                                        ),
-                                    ),
-                                ),
-                        ),
-                )
-                .await?;
-
-                // await the response
-                let r = ModalInteractionCollectorBuilder::new(&ctx.shard)
-                    .timeout(Duration::from_secs(120))
-                    .collect_single()
-                    .await;
-                if let Some(r) = r {
-                    r.create_interaction_response(
-                        &ctx,
-                        CreateInteractionResponse::default()
-                            .kind(InteractionResponseType::DeferredChannelMessageWithSource),
+                let modal = CreateQuickModal::new("Pick a page")
+                    .field(
+                        CreateInputText::new(
+                            InputTextStyle::Short,
+                            "Page number (note that closing without a response will incur a 30 second delay)",
+                            "pg_n"
+                        ).required(true),
                     )
-                    .await?;
-                    let num = match r
-                        .data
-                        .components
-                        .get(0)
-                        .expect("expected some inner data")
-                        .components
-                        .get(0)
-                    {
-                        Some(serenity::model::prelude::prelude::component::ActionRowComponent::InputText(t)) => t.value.parse::<usize>(),
-                        _ => panic!("expected input text"),
-                    };
-                    // try parse number, silent fail
-                    if let Ok(num) = num {
-                        if num > 0 && num <= pages.len() {
-                            current_page = num - 1;
+                    .timeout(Duration::from_secs(30));
+
+                let response = c.quick_modal(ctx, modal).await?;
+
+                if let Some(QuickModalResponse {
+                    interaction,
+                    inputs,
+                }) = response
+                {
+                    interaction
+                        .create_response(ctx, CreateInteractionResponse::Acknowledge)
+                        .await?;
+
+                    if let Some(Ok(page)) = inputs.get(0).map(|x| usize::from_str(x)) {
+                        if page > 0 && page <= pages.len() {
+                            current_page = page - 1;
                         }
-                    }
+                    };
                 }
                 true
             }
             _ => {
-                c.create_interaction_response(
+                c.create_response(
                     &ctx,
-                    CreateInteractionResponse::default()
-                        .kind(InteractionResponseType::ChannelMessageWithSource)
-                        .interaction_response_data(
-                            CreateInteractionResponseData::default().content("internal error"),
-                        ),
+                    CreateInteractionResponse::Message(
+                        CreateInteractionResponseMessage::default()
+                            .content("internal error")
+                            .flags(MessageFlags::EPHEMERAL),
+                    ),
                 )
                 .await?;
                 true
@@ -145,21 +122,19 @@ pub async fn do_paginate(
         };
 
         if !did_respond {
-            c.create_interaction_response(
+            c.create_response(
                 &ctx,
-                CreateInteractionResponse::default()
-                    .kind(InteractionResponseType::UpdateMessage)
-                    .interaction_response_data(
-                        CreateInteractionResponseData::default()
-                            .components(build_components())
-                            .embed(format_embed_from_page(
-                                base_embed.clone(),
-                                &pages[current_page],
-                                current_page,
-                                pages.len(),
-                                footer_additional.clone(),
-                            )),
-                    ),
+                CreateInteractionResponse::UpdateMessage(
+                    CreateInteractionResponseMessage::default()
+                        .components(build_components())
+                        .embed(format_embed_from_page(
+                            base_embed.clone(),
+                            &pages[current_page],
+                            current_page,
+                            pages.len(),
+                            footer_additional.clone(),
+                        )),
+                ),
             )
             .await?;
         }
@@ -187,38 +162,22 @@ fn format_embed_from_page(
         )))
 }
 
-fn build_components() -> CreateComponents {
-    CreateComponents::default().add_action_row(
-        CreateActionRow::default()
-            .add_button(
-                CreateButton::default()
-                    .style(ButtonStyle::Primary)
-                    .emoji('⏮')
-                    .custom_id("first_page"),
-            )
-            .add_button(
-                CreateButton::default()
-                    .style(ButtonStyle::Primary)
-                    .emoji('⬅')
-                    .custom_id("previous_page"),
-            )
-            .add_button(
-                CreateButton::default()
-                    .style(ButtonStyle::Primary)
-                    .emoji('➡')
-                    .custom_id("next_page"),
-            )
-            .add_button(
-                CreateButton::default()
-                    .style(ButtonStyle::Primary)
-                    .emoji('⏭')
-                    .custom_id("last_page"),
-            )
-            .add_button(
-                CreateButton::default()
-                    .style(ButtonStyle::Primary)
-                    .emoji('🔢')
-                    .custom_id("pick_page"),
-            ),
-    )
+fn build_components() -> Vec<CreateActionRow> {
+    vec![CreateActionRow::Buttons(vec![
+        CreateButton::new("first_page")
+            .style(ButtonStyle::Primary)
+            .emoji('⏮'),
+        CreateButton::new("previous_page")
+            .style(ButtonStyle::Primary)
+            .emoji('⬅'),
+        CreateButton::new("next_page")
+            .style(ButtonStyle::Primary)
+            .emoji('➡'),
+        CreateButton::new("last_page")
+            .style(ButtonStyle::Primary)
+            .emoji('⏭'),
+        CreateButton::new("pick_page")
+            .style(ButtonStyle::Primary)
+            .emoji('🔢'),
+    ])]
 }

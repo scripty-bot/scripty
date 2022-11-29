@@ -24,7 +24,6 @@ songbird = { git = "https://github.com/serenity-rs/songbird", branch = "next", f
   "simd-json",
 ] }
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [
-  "tokio",
   "voice",
   "dashmap",
   "parking_lot",

@@ -22,7 +22,6 @@ scripty_config = { path = "../scripty_config" }
 aes-gcm = { version = "0.10", features = ["std"] }
 tokio = { version = "1", features = ["parking_lot", "signal"] }
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [
-  "tokio",
   "voice",
   "dashmap",
   "parking_lot",

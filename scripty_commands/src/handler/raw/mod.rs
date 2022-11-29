@@ -26,9 +26,11 @@ impl SerenityRawEventHandler for RawEventHandler {
 
         // increment the total number of events per type
         match event {
-            Event::ApplicationCommandPermissionsUpdate(_) => {
-                metrics.events.application_command_permissions_update.inc()
-            }
+            Event::CommandPermissionsUpdate(_) => metrics.events.command_permissions_update.inc(),
+            Event::AutoModRuleCreate(_) => metrics.events.auto_mod_rule_create.inc(),
+            Event::AutoModRuleUpdate(_) => metrics.events.auto_mod_rule_update.inc(),
+            Event::AutoModRuleDelete(_) => metrics.events.auto_mod_rule_delete.inc(),
+            Event::AutoModActionExecution(_) => metrics.events.auto_mod_action_execution.inc(),
             Event::ChannelCreate(_) => metrics.events.channel_create.inc(),
             Event::ChannelDelete(_) => metrics.events.channel_delete.inc(),
             Event::ChannelPinsUpdate(_) => metrics.events.channel_pins_update.inc(),
@@ -59,6 +61,7 @@ impl SerenityRawEventHandler for RawEventHandler {
             Event::ReactionAdd(_) => metrics.events.reaction_add.inc(),
             Event::ReactionRemove(_) => metrics.events.reaction_remove.inc(),
             Event::ReactionRemoveAll(_) => metrics.events.reaction_remove_all.inc(),
+            Event::ReactionRemoveEmoji(_) => metrics.events.reaction_remove_emoji.inc(),
             Event::Ready(_) => metrics.events.ready.inc(),
             Event::Resumed(_) => metrics.events.resumed.inc(),
             Event::TypingStart(_) => metrics.events.typing_start.inc(),
@@ -66,12 +69,6 @@ impl SerenityRawEventHandler for RawEventHandler {
             Event::VoiceStateUpdate(_) => metrics.events.voice_state_update.inc(),
             Event::VoiceServerUpdate(_) => metrics.events.voice_server_update.inc(),
             Event::WebhookUpdate(_) => metrics.events.webhook_update.inc(),
-            Event::AutoModerationRuleCreate(_) => metrics.events.auto_moderation_rule_create.inc(),
-            Event::AutoModerationRuleUpdate(_) => metrics.events.auto_moderation_rule_update.inc(),
-            Event::AutoModerationRuleDelete(_) => metrics.events.auto_moderation_rule_delete.inc(),
-            Event::AutoModerationActionExecution(_) => {
-                metrics.events.auto_moderation_action_execution.inc()
-            }
             Event::InteractionCreate(_) => metrics.events.interaction_create.inc(),
             Event::IntegrationCreate(_) => metrics.events.integration_create.inc(),
             Event::IntegrationUpdate(_) => metrics.events.integration_update.inc(),
@@ -85,21 +82,11 @@ impl SerenityRawEventHandler for RawEventHandler {
             Event::ThreadListSync(_) => metrics.events.thread_list_sync.inc(),
             Event::ThreadMemberUpdate(_) => metrics.events.thread_member_update.inc(),
             Event::ThreadMembersUpdate(_) => metrics.events.thread_members_update.inc(),
-            Event::GuildScheduledEventCreate(_) => {
-                metrics.events.guild_scheduled_event_create.inc()
-            }
-            Event::GuildScheduledEventUpdate(_) => {
-                metrics.events.guild_scheduled_event_update.inc()
-            }
-            Event::GuildScheduledEventDelete(_) => {
-                metrics.events.guild_scheduled_event_delete.inc()
-            }
-            Event::GuildScheduledEventUserAdd(_) => {
-                metrics.events.guild_scheduled_event_user_add.inc()
-            }
-            Event::GuildScheduledEventUserRemove(_) => {
-                metrics.events.guild_scheduled_event_user_remove.inc()
-            }
+            Event::ScheduledEventCreate(_) => metrics.events.scheduled_event_create.inc(),
+            Event::ScheduledEventUpdate(_) => metrics.events.scheduled_event_update.inc(),
+            Event::ScheduledEventDelete(_) => metrics.events.scheduled_event_delete.inc(),
+            Event::ScheduledEventUserAdd(_) => metrics.events.scheduled_event_user_add.inc(),
+            Event::ScheduledEventUserRemove(_) => metrics.events.scheduled_event_user_remove.inc(),
             _ => metrics.events.unknown.inc(),
         }
     }
