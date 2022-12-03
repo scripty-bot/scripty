@@ -19,6 +19,15 @@ pub async fn automod_list_rules(ctx: Context<'_>) -> Result<(), Error> {
         gid.get() as i64
     ).fetch_all(db).await?;
 
+    if rules.is_empty() {
+        ctx.say(format_message!(
+            resolved_language,
+            "automod-list-rules-no-rules"
+        ))
+        .await?;
+        return Ok(()); // no rules
+    }
+
     let  formatted_rules = rules
         .into_iter()
         .map(|x| (

@@ -285,6 +285,7 @@ automod-list-rules-embed-field-value = Type: { $ruleType }
     Content: { $ruleContent }
     Action: { $ruleAction }
 automod-list-rules-footer = Page { $page } of { $maxPage }
+automod-list-rules-no-rules = You don't have any rules!
 
 ## blocked entities description
 
