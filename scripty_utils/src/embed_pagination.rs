@@ -80,11 +80,8 @@ pub async fn do_paginate(
             "pick_page" => {
                 let modal = CreateQuickModal::new("Pick a page")
                     .field(
-                        CreateInputText::new(
-                            InputTextStyle::Short,
-                            "Page number (note that closing without a response will incur a 30 second delay)",
-                            "pg_n"
-                        ).required(true),
+                        CreateInputText::new(InputTextStyle::Short, "Page number", "pg_n")
+                            .required(true),
                     )
                     .timeout(Duration::from_secs(30));
 
