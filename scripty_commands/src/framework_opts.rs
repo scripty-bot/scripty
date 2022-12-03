@@ -42,6 +42,8 @@ pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
                 subcommands: vec![
                     cmds::automod::automod_setup(),
                     cmds::automod::automod_add_rule(),
+                    cmds::automod::automod_list_rules(),
+                    cmds::automod::automod_remove_rule(),
                 ],
                 ..cmds::automod::automod_root()
             },
