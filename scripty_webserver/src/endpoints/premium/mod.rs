@@ -65,7 +65,6 @@ pub async fn stripe_webhook(
             // really we don't need to do anything here
             None
         }
-        // TODO: rest of these enum variants
         EventType::CustomerSubscriptionDeleted => {
             // process the data as a Subscription object
             let subscription = if let EventObject::Subscription(subscription) = data.object {
@@ -92,7 +91,18 @@ pub async fn stripe_webhook(
             );
             let db = scripty_db::get_db();
             sqlx::query!(
-                "UPDATE users SET premium_level = 0, premium_expiry = NULL WHERE user_id = $1",
+                r#"
+INSERT INTO users
+    (user_id, premium_level, premium_expiry, is_trialing)
+VALUES
+    ($1, 0, NULL, false)
+ON CONFLICT
+    ON CONSTRAINT users_pkey
+    DO UPDATE
+    SET
+        premium_level = 0,
+        premium_expiry = NULL,
+        is_trialing = false"#,
                 hashed_user_id
             )
             .execute(db)
@@ -158,7 +168,7 @@ pub async fn stripe_webhook(
                 .ok_or(WebServerError::MissingData)?;
 
             // check the status of the subscription
-            let retval = match subscription.status {
+            match subscription.status {
                 SubscriptionStatus::Active => {
                     // check if subscription.cancel_at_period_end is set: if it is, then the user has cancelled their subscription:
                     // in that case, we should update the premium_expiry field in the database (expiry timestamp is current_period_end)
@@ -184,12 +194,13 @@ pub async fn stripe_webhook(
                         );
                         let db = scripty_db::get_db();
                         sqlx::query!(
-                            "UPDATE users SET premium_expiry = $1 WHERE user_id = $2",
-                            expiry,
-                            hashed_user_id
+                            "INSERT INTO users (user_id, premium_level, premium_expiry, is_trialing) VALUES ($1, $2, $3, false)",
+                            hashed_user_id,
+                            tier as i16,
+                            expiry
                         )
-                        .execute(db)
-                        .await?;
+                            .execute(db)
+                            .await?;
                     } else {
                         // update the expiry timestamp to the current period end
                         embed = embed.title("Tier Changed").description(format!(
@@ -210,9 +221,22 @@ pub async fn stripe_webhook(
                     );
                     let db = scripty_db::get_db();
                     sqlx::query!(
-                        "UPDATE users SET premium_level = $1 WHERE user_id = $2",
+                        r#"
+INSERT INTO users
+    (user_id, premium_level, premium_expiry, is_trialing)
+VALUES
+    ($1, $2, $3, false)
+ON CONFLICT 
+    ON CONSTRAINT users_pkey
+    DO UPDATE
+    SET
+        premium_level = $2,
+        premium_expiry = $3,
+        is_trialing = false
+"#,
+                        hashed_user_id,
                         tier as i16,
-                        hashed_user_id
+                        OffsetDateTime::from_unix_timestamp(subscription.current_period_end)?,
                     )
                     .execute(db)
                     .await?;
@@ -236,9 +260,24 @@ pub async fn stripe_webhook(
                     );
                     let db = scripty_db::get_db();
 
-                    sqlx::query!("UPDATE users SET premium_level = 0, premium_expiry = NULL WHERE user_id = $1", hashed_user_id)
-                        .execute(db)
-                        .await?;
+                    sqlx::query!(
+                        r#"
+INSERT INTO users
+    (user_id, premium_level, premium_expiry, is_trialing)
+VALUES
+    ($1, 0, NULL, false)
+ON CONFLICT
+    ON CONSTRAINT users_pkey
+    DO UPDATE
+    SET
+        premium_level = 0,
+        premium_expiry = NULL,
+        is_trialing = false
+"#,
+                        hashed_user_id
+                    )
+                    .execute(db)
+                    .await?;
 
                     Some(discord_id)
                 }
@@ -260,9 +299,24 @@ pub async fn stripe_webhook(
                     );
                     let db = scripty_db::get_db();
 
-                    sqlx::query!("UPDATE users SET premium_level = 0, premium_expiry = NULL WHERE user_id = $1", hashed_user_id)
-                        .execute(db)
-                        .await?;
+                    sqlx::query!(
+                        r#"
+INSERT INTO users
+    (user_id, premium_level, premium_expiry, is_trialing)
+VALUES
+    ($1, 0, NULL, false)
+ON CONFLICT
+    ON CONSTRAINT users_pkey
+    DO UPDATE
+    SET
+        premium_level = 0,
+        premium_expiry = NULL,
+        is_trialing = false
+        "#,
+                        hashed_user_id
+                    )
+                    .execute(db)
+                    .await?;
 
                     Some(discord_id)
                 }
@@ -279,6 +333,29 @@ pub async fn stripe_webhook(
                         tier,
                         subscription.trial_end.unwrap_or(0)
                     ));
+
+                    // update user in DB
+                    let hashed_user_id = scripty_utils::hash_user_id(
+                        NonZeroU64::new(discord_id).expect("expected non-zero discord ID"),
+                    );
+                    let db = scripty_db::get_db();
+                    sqlx::query!(
+                        r#"
+INSERT INTO users
+    (user_id, premium_level, premium_expiry)
+VALUES
+    ($1, 1, now() + INTERVAL '1 day')
+ON CONFLICT
+    ON CONSTRAINT users_pkey
+    DO UPDATE
+    SET
+        premium_level = 1,
+        premium_expiry = now() + INTERVAL '1 day'
+"#,
+                        hashed_user_id
+                    )
+                    .execute(db)
+                    .await?;
 
                     Some(discord_id)
                 }
@@ -298,9 +375,24 @@ pub async fn stripe_webhook(
                         NonZeroU64::new(discord_id).expect("expected non-zero discord ID"),
                     );
                     let db = scripty_db::get_db();
-                    sqlx::query!("UPDATE users SET premium_level = 0, premium_expiry = NULL WHERE user_id = $1", hashed_user_id)
-                        .execute(db)
-                        .await?;
+                    sqlx::query!(
+                        r#"
+INSERT INTO users
+    (user_id, premium_level, premium_expiry, is_trialing)
+VALUES
+    ($1, 0, NULL, false)
+ON CONFLICT
+    ON CONSTRAINT users_pkey
+    DO UPDATE
+    SET
+        premium_level = 0,
+        premium_expiry = NULL,
+        is_trialing = false
+        "#,
+                        hashed_user_id
+                    )
+                    .execute(db)
+                    .await?;
 
                     Some(discord_id)
                 }
@@ -319,22 +411,7 @@ pub async fn stripe_webhook(
 
                     Some(discord_id)
                 }
-            };
-
-            // update user in DB
-            let hashed_user_id = scripty_utils::hash_user_id(
-                NonZeroU64::new(discord_id).expect("expected non-zero discord ID"),
-            );
-            let db = scripty_db::get_db();
-            sqlx::query!(
-                "UPDATE users SET premium_level = $1 WHERE user_id = $2",
-                tier as i16,
-                hashed_user_id
-            )
-            .execute(db)
-            .await?;
-
-            retval
+            }
         }
         EventType::RadarEarlyFraudWarningCreated => None,
         _ => None,
