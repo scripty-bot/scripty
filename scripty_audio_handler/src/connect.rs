@@ -76,10 +76,26 @@ pub async fn connect_to_vc(
 
     // spawn background tasks to automatically leave the call after the specified time period
     let sb2 = songbird::get(&ctx).await.expect("songbird not initialized");
+    let ctx2 = ctx.clone();
+
     tokio::spawn(async move {
         tokio::time::sleep(std::time::Duration::from_secs(leave_delta)).await;
+        debug!("leaving call after {} seconds", leave_delta);
+
         if let Err(e) = sb2.remove(guild_id).await {
             error!("failed to leave call: {}", e);
+            return;
+        }
+
+        // send a message to the channel
+        let m = channel_id.say(
+            &ctx2,
+            "I left the voice channel to prevent abuse of our systems. \
+             Just run `/join` again to have me join. \
+              Check out Premium <https://scripty.org/premium> if you'd like to increase how long I stay for before leaving."
+        ).await;
+        if let Err(e) = m {
+            error!("failed to send message: {}", e);
         }
     });
 
