@@ -1,6 +1,7 @@
 use scripty_db::sqlx;
 use songbird::error::JoinError;
 
+#[derive(Debug)]
 pub enum Error {
     Join(JoinError),
     Database(sqlx::Error),
