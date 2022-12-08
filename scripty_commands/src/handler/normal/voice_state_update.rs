@@ -35,6 +35,10 @@ pub async fn voice_state_update(ctx: Context, _: Option<VoiceState>, new: VoiceS
 
     // if we get here, we are the only one in the channel
     // so we should leave
+    debug!(
+        "leaving voice channel {} in guild {} (we're last user)",
+        cid, gid
+    );
     if let Err(e) = scripty_audio_handler::disconnect_from_vc(&ctx, gid).await {
         error!("error disconnecting from voice channel: {:?}", e);
     };
