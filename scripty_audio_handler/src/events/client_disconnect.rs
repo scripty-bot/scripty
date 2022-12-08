@@ -2,8 +2,6 @@ use crate::types::{
     ActiveUserSet, NextUserList, SsrcIgnoredMap, SsrcStreamMap, SsrcUserDataMap, SsrcUserIdMap,
     SsrcVoiceIngestMap,
 };
-use serenity::client::Context;
-use serenity::model::id::GuildId;
 use songbird::model::payload::ClientDisconnect;
 use std::sync::atomic::{AtomicU8, Ordering};
 use std::sync::Arc;
@@ -11,8 +9,6 @@ use std::sync::Arc;
 #[allow(clippy::too_many_arguments)]
 pub async fn client_disconnect(
     client_disconnect_data: ClientDisconnect,
-    ctx: Context,
-    guild_id: GuildId,
     ssrc_user_id_map: SsrcUserIdMap,
     ssrc_stream_map: SsrcStreamMap,
     ssrc_user_data_map: SsrcUserDataMap,
@@ -63,16 +59,6 @@ pub async fn client_disconnect(
         if let Some(next) = next_user_list.write().pop_front() {
             debug!(?ssrc, "inserting new user into map");
             active_user_set.insert(next);
-        }
-    }
-    if active_user_set.is_empty() {
-        debug!(?ssrc, "last user left, bot itself is now leaving");
-        let sb = songbird::get(&ctx)
-            .await
-            .expect("songbird was never initialized");
-
-        if let Err(e) = sb.remove(guild_id).await {
-            error!("failed to leave VC after last legitimate user: {}", e);
         }
     }
 }

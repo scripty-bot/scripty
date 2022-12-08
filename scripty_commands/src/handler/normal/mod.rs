@@ -1,4 +1,5 @@
 use poise::serenity_prelude::EventHandler;
+use serenity::all::VoiceState;
 use serenity::client::Context as SerenityContext;
 use serenity::model::application::interaction::Interaction;
 use serenity::model::channel::Message;
@@ -11,6 +12,7 @@ mod interaction_create;
 mod message;
 mod ready;
 mod resume;
+mod voice_state_update;
 
 pub struct BotEventHandler;
 
@@ -34,6 +36,16 @@ impl EventHandler for BotEventHandler {
     #[inline]
     async fn resume(&self, ctx: SerenityContext, resume: ResumedEvent) {
         resume::resume(ctx, resume).await;
+    }
+
+    #[inline]
+    async fn voice_state_update(
+        &self,
+        ctx: SerenityContext,
+        old: Option<VoiceState>,
+        new: VoiceState,
+    ) {
+        voice_state_update::voice_state_update(ctx, old, new).await;
     }
 
     #[inline]
