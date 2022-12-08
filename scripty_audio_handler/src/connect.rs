@@ -37,6 +37,7 @@ pub async fn connect_to_vc(
         Some(PremiumTierList::Tier6) => 604800, // leave after 604800 seconds (7 days) on tier 6
         None => 1800, // we don't know the tier, so we'll just leave after 30 minutes
     };
+    debug!("leave delta: {}", leave_delta);
 
     debug!("fetching songbird");
     let sb = songbird::get(&ctx).await.expect("songbird not initialized");
