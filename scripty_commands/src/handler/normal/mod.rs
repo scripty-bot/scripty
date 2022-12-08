@@ -16,27 +16,27 @@ pub struct BotEventHandler;
 
 #[async_trait]
 impl EventHandler for BotEventHandler {
-    #[inline(always)]
+    #[inline]
     async fn cache_ready(&self, ctx: SerenityContext, guilds: Vec<GuildId>) {
         cache_ready::cache_ready(ctx, guilds).await;
     }
 
-    #[inline(always)]
+    #[inline]
     async fn message(&self, ctx: SerenityContext, new_message: Message) {
         message::message(ctx, new_message).await;
     }
 
-    #[inline(always)]
+    #[inline]
     async fn ready(&self, ctx: SerenityContext, ready: Ready) {
         ready::ready(ctx, ready).await;
     }
 
-    #[inline(always)]
+    #[inline]
     async fn resume(&self, ctx: SerenityContext, resume: ResumedEvent) {
         resume::resume(ctx, resume).await;
     }
 
-    #[inline(always)]
+    #[inline]
     async fn interaction_create(&self, ctx: SerenityContext, interaction: Interaction) {
         interaction_create::interaction_create(ctx, interaction).await;
     }
