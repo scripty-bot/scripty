@@ -17,20 +17,25 @@ use crate::types::{
     SsrcUserDataMap, SsrcUserIdMap, SsrcVoiceIngestMap,
 };
 
+pub struct SsrcMaps {
+    pub ssrc_user_id_map: SsrcUserIdMap,
+    pub ssrc_stream_map: SsrcStreamMap,
+    pub ssrc_user_data_map: SsrcUserDataMap,
+    pub ssrc_ignored_map: SsrcIgnoredMap,
+    pub ssrc_last_pkt_id_map: SsrcLastPktIdMap,
+    pub ssrc_missed_pkt_map: SsrcMissedPktMap,
+    pub ssrc_missed_pkt_list: SsrcMissedPktList,
+    pub ssrc_voice_ingest_map: SsrcVoiceIngestMap,
+    pub ssrc_silent_frame_count_map: SsrcSilentFrameCountMap,
+    pub ssrc_out_of_order_pkt_count_map: SsrcOutOfOrderPktCountMap,
+    pub active_user_set: ActiveUserSet,
+    pub next_user_list: NextUserList,
+}
+pub type ArcSsrcMaps = Arc<SsrcMaps>;
+
 #[derive(Clone)]
 pub struct AudioHandler {
-    ssrc_user_id_map: SsrcUserIdMap,
-    ssrc_stream_map: SsrcStreamMap,
-    ssrc_user_data_map: SsrcUserDataMap,
-    ssrc_ignored_map: SsrcIgnoredMap,
-    ssrc_last_pkt_id_map: SsrcLastPktIdMap,
-    ssrc_missed_pkt_map: SsrcMissedPktMap,
-    ssrc_missed_pkt_list: SsrcMissedPktList,
-    ssrc_voice_ingest_map: SsrcVoiceIngestMap,
-    ssrc_silent_frame_count_map: SsrcSilentFrameCountMap,
-    ssrc_out_of_order_pkt_count_map: SsrcOutOfOrderPktCountMap,
-    active_user_set: ActiveUserSet,
-    next_user_list: NextUserList,
+    ssrc_state: Arc<SsrcMaps>,
     guild_id: GuildId,
     channel_id: ChannelId,
     voice_channel_id: ChannelId,
@@ -49,19 +54,22 @@ impl AudioHandler {
         channel_id: ChannelId,
         voice_channel_id: ChannelId,
     ) -> Result<Self, sqlx::Error> {
+        let maps = SsrcMaps {
+            ssrc_user_id_map: DashMap::with_hasher(RandomState::new()),
+            ssrc_stream_map: DashMap::with_hasher(RandomState::new()),
+            ssrc_user_data_map: DashMap::with_hasher(RandomState::new()),
+            ssrc_ignored_map: DashMap::with_hasher(RandomState::new()),
+            ssrc_last_pkt_id_map: DashMap::with_hasher(RandomState::new()),
+            ssrc_missed_pkt_map: DashMap::with_hasher(RandomState::new()),
+            ssrc_missed_pkt_list: DashMap::with_hasher(RandomState::new()),
+            ssrc_voice_ingest_map: DashMap::with_hasher(RandomState::new()),
+            ssrc_silent_frame_count_map: DashMap::with_hasher(RandomState::new()),
+            ssrc_out_of_order_pkt_count_map: DashMap::with_hasher(RandomState::new()),
+            active_user_set: DashSet::with_hasher(RandomState::new()),
+            next_user_list: RwLock::new(VecDeque::with_capacity(10)),
+        };
         let this = Self {
-            ssrc_user_id_map: Arc::new(DashMap::with_hasher(RandomState::new())),
-            ssrc_stream_map: Arc::new(DashMap::with_hasher(RandomState::new())),
-            ssrc_user_data_map: Arc::new(DashMap::with_hasher(RandomState::new())),
-            ssrc_ignored_map: Arc::new(DashMap::with_hasher(RandomState::new())),
-            ssrc_last_pkt_id_map: Arc::new(DashMap::with_hasher(RandomState::new())),
-            ssrc_missed_pkt_map: Arc::new(DashMap::with_hasher(RandomState::new())),
-            ssrc_missed_pkt_list: Arc::new(DashMap::with_hasher(RandomState::new())),
-            ssrc_voice_ingest_map: Arc::new(DashMap::with_hasher(RandomState::new())),
-            ssrc_silent_frame_count_map: Arc::new(DashMap::with_hasher(RandomState::new())),
-            ssrc_out_of_order_pkt_count_map: Arc::new(DashMap::with_hasher(RandomState::new())),
-            active_user_set: Arc::new(DashSet::with_hasher(RandomState::new())),
-            next_user_list: Arc::new(RwLock::new(VecDeque::with_capacity(10))),
+            ssrc_state: Arc::new(maps),
             guild_id,
             channel_id,
             voice_channel_id,
@@ -128,33 +136,16 @@ impl EventHandler for AudioHandler {
             EventContext::SpeakingStateUpdate(state_update) => tokio::spawn(speaking_state_update(
                 *state_update,
                 self.context.clone(),
-                Arc::clone(&self.ssrc_user_id_map),
-                Arc::clone(&self.ssrc_user_data_map),
-                Arc::clone(&self.ssrc_ignored_map),
+                Arc::clone(&self.ssrc_state),
             )),
             EventContext::VoicePacket(voice_data) => {
-                let ssrc_user_id_map = Arc::clone(&self.ssrc_user_id_map);
-                let ssrc_stream_map = Arc::clone(&self.ssrc_stream_map);
-                let ssrc_ignored_map = Arc::clone(&self.ssrc_ignored_map);
-                let ssrc_last_pkt_id_map = Arc::clone(&self.ssrc_last_pkt_id_map);
-                let ssrc_missed_pkt_map = Arc::clone(&self.ssrc_missed_pkt_map);
-                let ssrc_missed_pkt_list = Arc::clone(&self.ssrc_missed_pkt_list);
-                let ssrc_voice_ingest_map = Arc::clone(&self.ssrc_voice_ingest_map);
-                let ssrc_silent_frame_count_map = Arc::clone(&self.ssrc_silent_frame_count_map);
-                let ssrc_out_of_order_pkt_count_map =
-                    Arc::clone(&self.ssrc_out_of_order_pkt_count_map);
+                let ssrc_state = Arc::clone(&self.ssrc_state);
                 let verbose = Arc::clone(&self.verbose);
                 let language = Arc::clone(&self.language);
 
+                let ssrc_state_2 = Arc::clone(&self.ssrc_state);
                 let ctx2 = self.context.clone();
                 let webhook_2 = Arc::clone(&self.webhook);
-                let ssrc_user_id_map_2 = Arc::clone(&self.ssrc_user_id_map);
-                let ssrc_user_data_map_2 = Arc::clone(&self.ssrc_user_data_map);
-                let ssrc_stream_map_2 = Arc::clone(&self.ssrc_stream_map);
-                let ssrc_last_pkt_id_map_2 = Arc::clone(&self.ssrc_last_pkt_id_map);
-                let ssrc_missed_pkt_map_2 = Arc::clone(&self.ssrc_missed_pkt_map);
-                let ssrc_missed_pkt_list_2 = Arc::clone(&self.ssrc_missed_pkt_list);
-                let ssrc_voice_ingest_map_2 = Arc::clone(&self.ssrc_voice_ingest_map);
                 let verbose_2 = Arc::clone(&self.verbose);
                 let language_2 = Arc::clone(&self.language);
 
@@ -163,23 +154,8 @@ impl EventHandler for AudioHandler {
                 let sequence = voice_data.packet.sequence.0 .0;
 
                 tokio::spawn(async move {
-                    let is_final = voice_packet(
-                        audio,
-                        ssrc,
-                        sequence,
-                        ssrc_user_id_map,
-                        ssrc_stream_map,
-                        ssrc_ignored_map,
-                        ssrc_last_pkt_id_map,
-                        ssrc_missed_pkt_map,
-                        ssrc_missed_pkt_list,
-                        ssrc_voice_ingest_map,
-                        ssrc_silent_frame_count_map,
-                        ssrc_out_of_order_pkt_count_map,
-                        verbose,
-                        language,
-                    )
-                    .await;
+                    let is_final =
+                        voice_packet(audio, ssrc, sequence, ssrc_state, verbose, language).await;
 
                     if is_final {
                         speaking_update(
@@ -187,13 +163,7 @@ impl EventHandler for AudioHandler {
                             false,
                             ctx2,
                             webhook_2,
-                            ssrc_user_id_map_2,
-                            ssrc_user_data_map_2,
-                            ssrc_stream_map_2,
-                            ssrc_last_pkt_id_map_2,
-                            ssrc_missed_pkt_map_2,
-                            ssrc_missed_pkt_list_2,
-                            ssrc_voice_ingest_map_2,
+                            ssrc_state_2,
                             verbose_2,
                             language_2,
                         )
@@ -204,13 +174,7 @@ impl EventHandler for AudioHandler {
             EventContext::ClientDisconnect(client_disconnect_data) => {
                 tokio::spawn(client_disconnect(
                     *client_disconnect_data,
-                    Arc::clone(&self.ssrc_user_id_map),
-                    Arc::clone(&self.ssrc_stream_map),
-                    Arc::clone(&self.ssrc_user_data_map),
-                    Arc::clone(&self.ssrc_ignored_map),
-                    Arc::clone(&self.ssrc_voice_ingest_map),
-                    Arc::clone(&self.active_user_set),
-                    Arc::clone(&self.next_user_list),
+                    Arc::clone(&self.ssrc_state),
                     Arc::clone(&self.premium_level),
                 ))
             }
@@ -219,7 +183,7 @@ impl EventHandler for AudioHandler {
                 connect_data.session_id.to_owned(),
                 connect_data.guild_id,
                 connect_data.ssrc,
-                Arc::clone(&self.ssrc_ignored_map),
+                Arc::clone(&self.ssrc_state),
             )),
             EventContext::DriverDisconnect(disconnect_data) => tokio::spawn(driver_disconnect(
                 disconnect_data.guild_id,

@@ -1,7 +1,4 @@
-use crate::types::{
-    SsrcLastPktIdMap, SsrcMissedPktList, SsrcMissedPktMap, SsrcStreamMap, SsrcUserDataMap,
-    SsrcUserIdMap, SsrcVoiceIngestMap,
-};
+use crate::audio_handler::ArcSsrcMaps;
 use parking_lot::RwLock;
 use serenity::builder::{CreateEmbed, CreateEmbedFooter, ExecuteWebhook};
 use serenity::client::Context;
@@ -9,19 +6,12 @@ use serenity::model::webhook::Webhook;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
-#[allow(clippy::too_many_arguments)]
 pub async fn speaking_update(
     ssrc: u32,
     speaking: bool,
     ctx: Context,
     webhook: Arc<Webhook>,
-    ssrc_user_id_map: SsrcUserIdMap,
-    ssrc_user_data_map: SsrcUserDataMap,
-    ssrc_stream_map: SsrcStreamMap,
-    ssrc_last_pkt_id_map: SsrcLastPktIdMap,
-    ssrc_missed_pkt_map: SsrcMissedPktMap,
-    ssrc_missed_pkt_list: SsrcMissedPktList,
-    ssrc_voice_ingest_map: SsrcVoiceIngestMap,
+    ssrc_state: ArcSsrcMaps,
     verbose: Arc<AtomicBool>,
     language: Arc<RwLock<String>>,
 ) {
@@ -31,10 +21,10 @@ pub async fn speaking_update(
     }
 
     // clear old data
-    ssrc_last_pkt_id_map.remove(&ssrc);
-    if let Some(pkt_id_list) = ssrc_missed_pkt_list.remove(&ssrc) {
+    ssrc_state.ssrc_last_pkt_id_map.remove(&ssrc);
+    if let Some(pkt_id_list) = ssrc_state.ssrc_missed_pkt_list.remove(&ssrc) {
         for pkt in pkt_id_list.1 {
-            ssrc_missed_pkt_map.remove(&(ssrc, pkt));
+            ssrc_state.ssrc_missed_pkt_map.remove(&(ssrc, pkt));
         }
     }
 
@@ -50,7 +40,7 @@ pub async fn speaking_update(
     };
 
     // user has finished speaking, run the STT algo
-    let old_stream = match ssrc_stream_map.insert(ssrc, new_stream) {
+    let old_stream = match ssrc_state.ssrc_stream_map.insert(ssrc, new_stream) {
         Some(s) => s,
         None => {
             warn!(?ssrc, "stream not found in ssrc_stream_map, bailing");
@@ -59,7 +49,7 @@ pub async fn speaking_update(
     };
     debug!(?ssrc, "found Stream for SSRC");
 
-    let user_data = ssrc_user_data_map.get(&ssrc);
+    let user_data = ssrc_state.ssrc_user_data_map.get(&ssrc);
     let (username, avatar_url) = match user_data {
         Some(ref d) => d.value(),
         None => {
@@ -133,18 +123,21 @@ pub async fn speaking_update(
     debug!(?ssrc, "stream transcription succeeded");
 
     if let Some(transcript) = transcript {
-        if ssrc_voice_ingest_map
+        if ssrc_state
+            .ssrc_voice_ingest_map
             .get(&ssrc)
             .map_or(false, |v| v.is_some())
         {
             debug!(?ssrc, "found voice ingest for SSRC");
-            if let Some(user_id) = ssrc_user_id_map.get(&ssrc) {
+            if let Some(user_id) = ssrc_state.ssrc_user_id_map.get(&ssrc) {
                 debug!(?ssrc, "found user_id for SSRC");
                 if let Some(ingest) =
                     scripty_data_storage::VoiceIngest::new(*user_id.value(), "en".to_string()).await
                 {
                     debug!(?ssrc, "created VoiceIngest, and retrieved old one");
-                    if let Some(voice_ingest) = ssrc_voice_ingest_map.insert(ssrc, Some(ingest)) {
+                    if let Some(voice_ingest) =
+                        ssrc_state.ssrc_voice_ingest_map.insert(ssrc, Some(ingest))
+                    {
                         debug!(?ssrc, "found old VoiceIngest, finalizing");
                         voice_ingest
                             .expect("asserted voice ingest object already exists")

@@ -1,28 +1,16 @@
+use crate::audio_handler::ArcSsrcMaps;
 use crate::consts::SIZE_OF_I16;
-use crate::types::{
-    SsrcIgnoredMap, SsrcLastPktIdMap, SsrcMissedPktList, SsrcMissedPktMap,
-    SsrcOutOfOrderPktCountMap, SsrcSilentFrameCountMap, SsrcStreamMap, SsrcUserIdMap,
-    SsrcVoiceIngestMap,
-};
+use crate::types::SsrcMissedPktMap;
 use parking_lot::RwLock;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::Instant;
 
-#[allow(clippy::too_many_arguments)]
 pub async fn voice_packet(
     mut audio: Option<Vec<i16>>,
     ssrc: u32,
     sequence: u16,
-    ssrc_user_id_map: SsrcUserIdMap,
-    ssrc_stream_map: SsrcStreamMap,
-    ssrc_ignored_map: SsrcIgnoredMap,
-    ssrc_last_pkt_id_map: SsrcLastPktIdMap,
-    ssrc_missed_pkt_map: SsrcMissedPktMap,
-    ssrc_missed_pkt_list: SsrcMissedPktList,
-    ssrc_voice_ingest_map: SsrcVoiceIngestMap,
-    ssrc_silent_frame_count_map: SsrcSilentFrameCountMap,
-    ssrc_out_of_order_pkt_count_map: SsrcOutOfOrderPktCountMap,
+    ssrc_state: ArcSsrcMaps,
     verbose: Arc<AtomicBool>,
     language: Arc<RwLock<String>>,
 ) -> bool {
@@ -34,18 +22,23 @@ pub async fn voice_packet(
 
     let st = Instant::now();
 
-    if ssrc_ignored_map.get(&ssrc).map_or(false, |x| *x.value()) {
+    if ssrc_state
+        .ssrc_ignored_map
+        .get(&ssrc)
+        .map_or(false, |x| *x.value())
+    {
         return false;
     }
 
     // check for out of order packets
-    if let Some(mut pkt_id) = ssrc_last_pkt_id_map.get_mut(&ssrc) {
+    if let Some(mut pkt_id) = ssrc_state.ssrc_last_pkt_id_map.get_mut(&ssrc) {
         let expected = *pkt_id.value() + 1;
         if expected != sequence {
             // packet is out of order
 
             // first check if this is the 5th out of order one in a row
-            if *ssrc_out_of_order_pkt_count_map
+            if *ssrc_state
+                .ssrc_out_of_order_pkt_count_map
                 .entry(ssrc)
                 .or_insert(0)
                 .value()
@@ -53,12 +46,22 @@ pub async fn voice_packet(
             {
                 // something's gone wrong, likely a dropped packet somewhere, so try to find missing packets and append them
                 if let Some(audio) = audio.as_mut() {
-                    handle_missed_packets(ssrc, sequence + 1, audio, &ssrc_missed_pkt_map);
-                    handle_missed_packets(ssrc, sequence, audio, &ssrc_missed_pkt_map);
-                    handle_missed_packets(ssrc, sequence - 1, audio, &ssrc_missed_pkt_map);
+                    handle_missed_packets(
+                        ssrc,
+                        sequence + 1,
+                        audio,
+                        &ssrc_state.ssrc_missed_pkt_map,
+                    );
+                    handle_missed_packets(ssrc, sequence, audio, &ssrc_state.ssrc_missed_pkt_map);
+                    handle_missed_packets(
+                        ssrc,
+                        sequence - 1,
+                        audio,
+                        &ssrc_state.ssrc_missed_pkt_map,
+                    );
                 }
                 // reset the out of order packet count to 0
-                ssrc_out_of_order_pkt_count_map.insert(ssrc, 0);
+                ssrc_state.ssrc_out_of_order_pkt_count_map.insert(ssrc, 0);
                 // set the current packet ID to this packet's ID
                 *pkt_id.value_mut() = sequence;
             } else {
@@ -70,14 +73,17 @@ pub async fn voice_packet(
                 *pkt_id.value_mut() = sequence + 1;
                 if let Some(audio) = audio {
                     // hold it in the missed packet map in case we get it again
-                    ssrc_missed_pkt_map.insert((ssrc, sequence), audio);
-                    if let Some(mut pkt_list) = ssrc_missed_pkt_list.get_mut(&ssrc) {
+                    ssrc_state
+                        .ssrc_missed_pkt_map
+                        .insert((ssrc, sequence), audio);
+                    if let Some(mut pkt_list) = ssrc_state.ssrc_missed_pkt_list.get_mut(&ssrc) {
                         pkt_list.push(sequence);
                     } else {
-                        ssrc_missed_pkt_list.insert(ssrc, vec![sequence]);
+                        ssrc_state.ssrc_missed_pkt_list.insert(ssrc, vec![sequence]);
                     }
                 }
-                *ssrc_out_of_order_pkt_count_map
+                *ssrc_state
+                    .ssrc_out_of_order_pkt_count_map
                     .entry(ssrc)
                     .or_insert(0)
                     .value_mut() += 1;
@@ -88,7 +94,7 @@ pub async fn voice_packet(
             *pkt_id.value_mut() = expected;
         }
     } else {
-        ssrc_last_pkt_id_map.insert(ssrc, sequence);
+        ssrc_state.ssrc_last_pkt_id_map.insert(ssrc, sequence);
     }
 
     if let Some(audio) = audio {
@@ -98,12 +104,21 @@ pub async fn voice_packet(
         let mut audio = scripty_audio::process_audio(audio, 48_000.0, 16_000.0);
 
         // handle any missing packets now
-        handle_missed_packets(ssrc, sequence, &mut audio, &ssrc_missed_pkt_map);
+        handle_missed_packets(ssrc, sequence, &mut audio, &ssrc_state.ssrc_missed_pkt_map);
         // try decrementing sequence number to see if we can get rid of any missed packets
-        handle_missed_packets(ssrc, sequence - 1, &mut audio, &ssrc_missed_pkt_map);
+        handle_missed_packets(
+            ssrc,
+            sequence - 1,
+            &mut audio,
+            &ssrc_state.ssrc_missed_pkt_map,
+        );
 
         // check if silent frames already exist
-        match ssrc_silent_frame_count_map.entry(ssrc).or_default() {
+        match ssrc_state
+            .ssrc_silent_frame_count_map
+            .entry(ssrc)
+            .or_default()
+        {
             x if *x.value() == 0 => {} // no frames exist, no big deal
             mut x => {
                 trace!(?ssrc, "found pre-existing silent frames");
@@ -128,7 +143,7 @@ pub async fn voice_packet(
                             trace!("at end of audio data, bailing out");
                             *x.value_mut() = 0;
                             // reset the last packet ID to the current packet ID
-                            ssrc_last_pkt_id_map.insert(ssrc, sequence);
+                            ssrc_state.ssrc_last_pkt_id_map.insert(ssrc, sequence);
                             return true;
                         }
                         trace!(?ssrc, "didn't reach end of silence");
@@ -171,16 +186,17 @@ pub async fn voice_packet(
                 // calculate silence length
                 let silence_len = last_idx - silence_start;
                 // add it to the silent frame count
-                *ssrc_silent_frame_count_map
+                *ssrc_state
+                    .ssrc_silent_frame_count_map
                     .entry(ssrc)
                     .or_default()
                     .value_mut() += silence_len;
             }
         }
 
-        if let Some(user_id) = ssrc_user_id_map.get(&ssrc) {
+        if let Some(user_id) = ssrc_state.ssrc_user_id_map.get(&ssrc) {
             trace!(?ssrc, "found user ID, getting ingest state");
-            if let Some(ingest) = ssrc_voice_ingest_map.get(&ssrc) {
+            if let Some(ingest) = ssrc_state.ssrc_voice_ingest_map.get(&ssrc) {
                 if let Some(ref ingest) = ingest.value() {
                     trace!(?ssrc, "user has opted in, feeding audio");
                     ingest.ingest(&audio);
@@ -198,7 +214,7 @@ pub async fn voice_packet(
                     trace!(?ssrc, "user has opted out, not creating ingest");
                     None
                 };
-                ssrc_voice_ingest_map.insert(ssrc, ingest);
+                ssrc_state.ssrc_voice_ingest_map.insert(ssrc, ingest);
             }
         }
 
@@ -206,7 +222,7 @@ pub async fn voice_packet(
         // the rare case where we don't have a stream is extremely rare,
         // so doing the above processing is fine, since the speed boost from
         // not holding a mut ref to the stream is worth it
-        if let Some(stream) = ssrc_stream_map.get(&ssrc) {
+        if let Some(stream) = ssrc_state.ssrc_stream_map.get(&ssrc) {
             if let Err(e) = stream.feed_audio(audio) {
                 warn!("failed to feed audio packet: {}", e)
             };
@@ -223,7 +239,7 @@ pub async fn voice_packet(
                         return false;
                     }
                 };
-            ssrc_stream_map.insert(ssrc, new_stream);
+            ssrc_state.ssrc_stream_map.insert(ssrc, new_stream);
         }
     }
 
