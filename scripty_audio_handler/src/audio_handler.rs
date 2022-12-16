@@ -201,21 +201,6 @@ impl EventHandler for AudioHandler {
                     }
                 })
             }
-            // so guess what?
-            // discord, in their infinite wisdom, randomly removed ClientConnect
-            // great job shitcord
-            /*
-            EventContext::ClientConnect(_) => tokio::spawn(client_connect(
-                *client_connect_data,
-                self.context.clone(),
-                Arc::clone(&self.ssrc_user_id_map),
-                Arc::clone(&self.ssrc_user_data_map),
-                Arc::clone(&self.ssrc_ignored_map),
-                Arc::clone(&self.premium_level),
-                Arc::clone(&self.active_user_set),
-                Arc::clone(&self.next_user_list),
-            )),
-            */
             EventContext::ClientDisconnect(client_disconnect_data) => {
                 tokio::spawn(client_disconnect(
                     *client_disconnect_data,
