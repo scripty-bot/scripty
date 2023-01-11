@@ -7,7 +7,6 @@ use serenity::builder::{
 };
 use serenity::collector::ComponentInteractionCollector;
 use serenity::futures::StreamExt;
-use serenity::model::application::component::ButtonStyle;
 use serenity::model::channel::MessageFlags;
 use std::time::Duration;
 

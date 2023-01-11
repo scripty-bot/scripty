@@ -163,6 +163,7 @@ pub struct Metrics {
     pub ms_transcribed: IntCounter,
     pub audio_bytes_processed: IntCounter,
     pub total_events: IntCounter,
+    // TODO: switch to Histogram
     pub avg_audio_process_time: IntGauge,
     pub total_commands: IntCounter,
     pub stt_server_fetch_success: IntCounter,

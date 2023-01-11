@@ -138,39 +138,12 @@ impl EventHandler for AudioHandler {
                 self.context.clone(),
                 Arc::clone(&self.ssrc_state),
             )),
-            EventContext::VoicePacket(voice_data) => {
-                let ssrc_state = Arc::clone(&self.ssrc_state);
-                let verbose = Arc::clone(&self.verbose);
-                let language = Arc::clone(&self.language);
-
-                let ssrc_state_2 = Arc::clone(&self.ssrc_state);
-                let ctx2 = self.context.clone();
-                let webhook_2 = Arc::clone(&self.webhook);
-                let verbose_2 = Arc::clone(&self.verbose);
-                let language_2 = Arc::clone(&self.language);
-
-                let audio = voice_data.audio.clone();
-                let ssrc = voice_data.packet.ssrc;
-                let sequence = voice_data.packet.sequence.0 .0;
-
-                tokio::spawn(async move {
-                    let is_final =
-                        voice_packet(audio, ssrc, sequence, ssrc_state, verbose, language).await;
-
-                    if is_final {
-                        speaking_update(
-                            ssrc,
-                            false,
-                            ctx2,
-                            webhook_2,
-                            ssrc_state_2,
-                            verbose_2,
-                            language_2,
-                        )
-                        .await;
-                    }
-                })
-            }
+            EventContext::VoiceTick(voice_data) => tokio::spawn(voice_tick(
+                voice_data.clone(),
+                Arc::clone(&self.ssrc_state),
+                self.language.clone(),
+                self.verbose.clone(),
+            )),
             EventContext::ClientDisconnect(client_disconnect_data) => {
                 tokio::spawn(client_disconnect(
                     *client_disconnect_data,

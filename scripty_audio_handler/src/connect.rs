@@ -47,9 +47,7 @@ pub async fn connect_to_vc(
         Err(e) => return Err(e.into()),
     };
     debug!("joining new call");
-    let (call_lock, res) = sb.join(guild_id, voice_channel_id).await;
-    debug!("getting call res");
-    let _: () = res?;
+    let call_lock = sb.join(guild_id, voice_channel_id).await?;
 
     debug!("locking call");
     let mut call = call_lock.lock().await;
@@ -64,11 +62,7 @@ pub async fn connect_to_vc(
 
     debug!("adding global events");
     call.add_global_event(Event::Core(CoreEvent::SpeakingStateUpdate), handler.clone());
-    call.add_global_event(Event::Core(CoreEvent::SpeakingUpdate), handler.clone());
-    call.add_global_event(Event::Core(CoreEvent::VoicePacket), handler.clone());
-    // aaaaaa i hate discord
-    // discord randomly stopped sending the ClientConnect event
-    // call.add_global_event(Event::Core(CoreEvent::ClientConnect), handler.clone());
+    call.add_global_event(Event::Core(CoreEvent::VoiceTick), handler.clone());
     call.add_global_event(Event::Core(CoreEvent::ClientDisconnect), handler.clone());
     call.add_global_event(Event::Core(CoreEvent::DriverConnect), handler.clone());
     call.add_global_event(Event::Core(CoreEvent::DriverDisconnect), handler.clone());
