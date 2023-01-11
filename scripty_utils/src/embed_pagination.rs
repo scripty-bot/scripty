@@ -1,4 +1,4 @@
-use serenity::all::MessageFlags;
+use serenity::all::{ButtonStyle, InputTextStyle, MessageFlags};
 use serenity::builder::{
     CreateActionRow, CreateButton, CreateEmbed, CreateEmbedFooter, CreateInputText,
     CreateInteractionResponse, CreateInteractionResponseMessage, CreateMessage, CreateQuickModal,
@@ -6,7 +6,6 @@ use serenity::builder::{
 };
 use serenity::collector::ComponentInteractionCollector;
 use serenity::futures::StreamExt;
-use serenity::model::application::component::{ButtonStyle, InputTextStyle};
 use serenity::model::id::{ChannelId, UserId};
 use std::str::FromStr;
 use std::time::Duration;
@@ -54,7 +53,7 @@ pub async fn do_paginate(
     if let Some(user) = allowed_user {
         collector = collector.author_id(user);
     }
-    let mut c = collector.collect_stream();
+    let mut c = collector.stream();
 
     // need StreamExt::next since otherwise types don't resolve
     while let Some(c) = StreamExt::next(&mut c).await {
