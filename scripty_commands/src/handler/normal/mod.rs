@@ -1,7 +1,6 @@
 use poise::serenity_prelude::EventHandler;
-use serenity::all::VoiceState;
+use serenity::all::{Interaction, VoiceState};
 use serenity::client::Context as SerenityContext;
-use serenity::model::application::interaction::Interaction;
 use serenity::model::channel::Message;
 use serenity::model::event::ResumedEvent;
 use serenity::model::gateway::Ready;

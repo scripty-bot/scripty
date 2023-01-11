@@ -1,9 +1,9 @@
 use crate::models::Language;
 use crate::{Context, Error};
 use poise::CreateReply;
+use serenity::all::ButtonStyle;
 use serenity::builder::{CreateActionRow, CreateButton, CreateEmbed, EditMessage};
 use serenity::collector::ComponentInteractionCollector;
-use serenity::model::application::component::ButtonStyle;
 use serenity::model::channel::{ChannelType, GuildChannel};
 use std::time::Duration;
 
@@ -78,7 +78,7 @@ pub async fn setup(
         .channel_id(ctx.channel_id())
         .author_id(ctx.author().id)
         .timeout(Duration::from_secs(300))
-        .collect_single()
+        .next()
         .await;
 
     if let Some(response) = one {

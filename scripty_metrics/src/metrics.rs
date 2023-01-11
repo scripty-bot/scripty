@@ -74,11 +74,11 @@ make_static_metric! {
         thread_list_sync,
         thread_member_update,
         thread_members_update,
-        scheduled_event_create,
-        scheduled_event_update,
-        scheduled_event_delete,
-        scheduled_event_user_add,
-        scheduled_event_user_remove,
+        guild_scheduled_event_create,
+        guild_scheduled_event_update,
+        guild_scheduled_event_delete,
+        guild_scheduled_event_user_add,
+        guild_scheduled_event_user_remove,
         unknown,
     }
     pub struct EventCounterVec: IntCounter {

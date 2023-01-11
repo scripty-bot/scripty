@@ -82,11 +82,21 @@ impl SerenityRawEventHandler for RawEventHandler {
             Event::ThreadListSync(_) => metrics.events.thread_list_sync.inc(),
             Event::ThreadMemberUpdate(_) => metrics.events.thread_member_update.inc(),
             Event::ThreadMembersUpdate(_) => metrics.events.thread_members_update.inc(),
-            Event::ScheduledEventCreate(_) => metrics.events.scheduled_event_create.inc(),
-            Event::ScheduledEventUpdate(_) => metrics.events.scheduled_event_update.inc(),
-            Event::ScheduledEventDelete(_) => metrics.events.scheduled_event_delete.inc(),
-            Event::ScheduledEventUserAdd(_) => metrics.events.scheduled_event_user_add.inc(),
-            Event::ScheduledEventUserRemove(_) => metrics.events.scheduled_event_user_remove.inc(),
+            Event::GuildScheduledEventCreate(_) => {
+                metrics.events.guild_scheduled_event_create.inc()
+            }
+            Event::GuildScheduledEventUpdate(_) => {
+                metrics.events.guild_scheduled_event_update.inc()
+            }
+            Event::GuildScheduledEventDelete(_) => {
+                metrics.events.guild_scheduled_event_delete.inc()
+            }
+            Event::GuildScheduledEventUserAdd(_) => {
+                metrics.events.guild_scheduled_event_user_add.inc()
+            }
+            Event::GuildScheduledEventUserRemove(_) => {
+                metrics.events.guild_scheduled_event_user_remove.inc()
+            }
             _ => metrics.events.unknown.inc(),
         }
     }

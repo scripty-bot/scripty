@@ -1,6 +1,7 @@
 use crate::{Context, Error};
 use poise::CreateReply;
 use scripty_i18n::LanguageIdentifier;
+use serenity::all::ButtonStyle;
 use serenity::builder::{
     CreateActionRow, CreateButton, CreateEmbed, CreateInteractionResponse,
     CreateInteractionResponseMessage, EditMessage,
@@ -48,7 +49,7 @@ VALUES ($1)
         .message_id(msg.message().await?.id)
         .author_id(author_id)
         .timeout(Duration::from_secs(120))
-        .collect_stream();
+        .stream();
     while let Some(interaction) = StreamExt::next(&mut collector).await {
         let id = interaction.data.custom_id.as_str();
         let message_id = match id {
@@ -165,7 +166,7 @@ pub async fn delete_all_data(ctx: Context<'_>) -> Result<(), Error> {
         .author_id(author_id)
         .message_id(msg.id)
         .timeout(Duration::from_secs(120))
-        .collect_single()
+        .next()
         .await;
 
     if let Some(interaction) = one {
