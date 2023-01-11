@@ -276,52 +276,53 @@ fn push_all_at<T>(v: &mut Vec<T>, offset: usize, s: &[T])
 where
     T: Copy,
 {
-    match (v.len(), s.len()) {
-        (_, 0) => (),
-        (current_len, _) => {
-            // reserve enough space to fit the new data
-            v.reserve_exact(s.len());
-            unsafe {
-                // force the length to be the new length
-                // SAFETY: this is safe because we're reserving the exact
-                // amount of space that was allocated above
-                debug_assert_eq!(v.capacity(), current_len + s.len());
-                v.set_len(current_len + s.len());
-            }
-            let to_move = current_len - offset;
-            let src = unsafe {
-                // calculate the destination pointer offset from the source (ie where the new data will be placed)
-                // SAFETY:
-                // 1) we've already reserved the correct amount of space above
-                // 2) the allocation above would have panicked if the offset overflowed isize
-                // 3) again, the allocation above would have panicked if the offset overflowed usize, as isize is smaller than usize
-                v.as_mut_ptr().add(offset)
-            };
-            // if we have to move data already in the Vec, do it now
-            if to_move > 0 {
-                let dst = unsafe {
-                    // calculate the target pointer offset from the origin (ie where the old data will be moved)
-                    // SAFETY: see comments for other offset calculation above
-                    src.add(s.len())
-                };
-                unsafe {
-                    // copy the data
-                    // SAFETY:
-                    // 1) src is valid for at least to_move elements to be read
-                    // 2) dst is valid for at least to_move elements to be written
-                    // 3) `Vec`s are guaranteed to be aligned properly
-                    std::ptr::copy(src, dst, to_move);
-                }
-            }
-            unsafe {
-                // write the new data
-                // SAFETY:
-                // 1) src is valid for at least s.len() elements to be read
-                // 2) dst is valid for at least s.len() elements to be written
-                // 3) `Vec`s are guaranteed to be aligned properly
-                // 4) the above copy has already moved the data that could've possibly overlapped with the new data
-                std::ptr::copy_nonoverlapping(s.as_ptr(), src, s.len());
-            }
+    if s.len() == 0 {
+        // no data to push
+        return;
+    }
+
+    let current_len = v.len();
+    // reserve enough space to fit the new data
+    v.reserve_exact(s.len());
+    unsafe {
+        // force the length to be the new length
+        // SAFETY: this is safe because we're reserving the exact
+        // amount of space that was allocated above
+        debug_assert_eq!(v.capacity(), current_len + s.len());
+        v.set_len(current_len + s.len());
+    }
+    let to_move = current_len - offset;
+    let src = unsafe {
+        // calculate the destination pointer offset from the source (ie where the new data will be placed)
+        // SAFETY:
+        // 1) we've already reserved the correct amount of space above
+        // 2) the allocation above would have panicked if the offset overflowed isize
+        // 3) again, the allocation above would have panicked if the offset overflowed usize, as isize is smaller than usize
+        v.as_mut_ptr().add(offset)
+    };
+    // if we have to move data already in the Vec, do it now
+    if to_move > 0 {
+        let dst = unsafe {
+            // calculate the target pointer offset from the origin (ie where the old data will be moved)
+            // SAFETY: see comments for other offset calculation above
+            src.add(s.len())
+        };
+        unsafe {
+            // copy the data
+            // SAFETY:
+            // 1) src is valid for at least to_move elements to be read
+            // 2) dst is valid for at least to_move elements to be written
+            // 3) `Vec`s are guaranteed to be aligned properly
+            std::ptr::copy(src, dst, to_move);
         }
+    }
+    unsafe {
+        // write the new data
+        // SAFETY:
+        // 1) src is valid for at least s.len() elements to be read
+        // 2) dst is valid for at least s.len() elements to be written
+        // 3) `Vec`s are guaranteed to be aligned properly
+        // 4) the above copy has already moved the data that could've possibly overlapped with the new data
+        std::ptr::copy_nonoverlapping(s.as_ptr(), src, s.len());
     }
 }
