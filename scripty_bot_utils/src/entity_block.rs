@@ -1,3 +1,4 @@
+use crate::{Data, Error};
 use poise::BoxFuture;
 use scripty_redis::redis::AsyncCommands;
 use serenity::model::id::{GuildId, UserId};
@@ -55,9 +56,7 @@ pub async fn init_blocked() -> Result<(), scripty_redis::redis::RedisError> {
     Ok(())
 }
 
-async fn _check_block(
-    ctx: poise::Context<'_, crate::Data, crate::Error>,
-) -> Result<bool, crate::Error> {
+async fn _check_block(ctx: poise::Context<'_, Data, Error>) -> Result<bool, Error> {
     let cfg = scripty_config::get_config();
     let mut redis = scripty_redis::get_pool().get().await?;
 
@@ -125,7 +124,7 @@ async fn _check_block(
 }
 
 /// Adds a blocked user to the database and DashMap.
-pub async fn add_blocked_user(user_id: UserId, reason: Option<String>) -> Result<(), crate::Error> {
+pub async fn add_blocked_user(user_id: UserId, reason: Option<String>) -> Result<(), Error> {
     let db = scripty_db::get_db();
     let mut redis = scripty_redis::get_pool().get().await?;
 
@@ -155,10 +154,7 @@ pub async fn add_blocked_user(user_id: UserId, reason: Option<String>) -> Result
 }
 
 /// Adds a blocked guild to the database and DashMap.
-pub async fn add_blocked_guild(
-    guild_id: GuildId,
-    reason: Option<String>,
-) -> Result<(), crate::Error> {
+pub async fn add_blocked_guild(guild_id: GuildId, reason: Option<String>) -> Result<(), Error> {
     let db = scripty_db::get_db();
     let mut redis = scripty_redis::get_pool().get().await?;
 
@@ -185,8 +181,6 @@ pub async fn add_blocked_guild(
 }
 
 #[inline]
-pub fn check_block(
-    ctx: poise::Context<'_, crate::Data, crate::Error>,
-) -> BoxFuture<Result<bool, crate::Error>> {
+pub fn check_block(ctx: poise::Context<'_, Data, Error>) -> BoxFuture<Result<bool, Error>> {
     Box::pin(_check_block(ctx))
 }

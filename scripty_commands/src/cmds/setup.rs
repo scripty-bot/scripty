@@ -1,6 +1,6 @@
-use crate::models::Language;
 use crate::{Context, Error};
 use poise::CreateReply;
+use scripty_bot_utils::types::Language;
 use serenity::all::ButtonStyle;
 use serenity::builder::{CreateActionRow, CreateButton, CreateEmbed, EditMessage};
 use serenity::collector::ComponentInteractionCollector;

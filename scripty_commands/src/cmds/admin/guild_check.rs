@@ -1,5 +1,6 @@
 use crate::{Context, Error};
 use poise::CreateReply;
+use scripty_bot_utils::globals::CLIENT_DATA;
 use serenity::client::bridge::gateway::{ChunkGuildFilter, ShardId};
 use std::collections::HashMap;
 use std::fmt::Write;
@@ -39,7 +40,7 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
     // fields of the tuple are, respectively, the guild name, the guild id, and the ratio (bot count / user count)
     let mut guild_warnings: Vec<(String, u64, f64)> = Vec::new();
 
-    let shard_mgr = crate::CLIENT_DATA
+    let shard_mgr = CLIENT_DATA
         .get()
         .expect("client data not initialized")
         .shard_manager
@@ -69,7 +70,7 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
                 // calculate the shard this guild is on
                 let shard_id = serenity::utils::shard_id(guild_id, shard_count);
 
-                let shard_mgr = crate::CLIENT_DATA
+                let shard_mgr = CLIENT_DATA
                     .get()
                     .expect("client data not initialized")
                     .shard_manager

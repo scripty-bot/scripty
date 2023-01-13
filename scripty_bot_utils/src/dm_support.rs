@@ -10,8 +10,6 @@ use serenity::model::user::User;
 use serenity::model::webhook::Webhook;
 use std::cmp::Ordering;
 
-pub mod commands;
-
 pub struct DmSupportStatus {
     webhook_cache: DashMap<ChannelId, Webhook>,
 }

@@ -1,5 +1,5 @@
-use crate::checks::is_guild;
 use crate::{Context, Error};
+use scripty_bot_utils::checks::is_guild;
 
 /// Claim your premium in the server this is run in.
 #[poise::command(prefix_command, slash_command, guild_cooldown = 15, check = "is_guild")]

@@ -8,6 +8,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Instant;
 
+use crate::globals::{CLIENT_CACHE, CLIENT_DATA};
 pub use serenity::builder::{CreateEmbed, CreateEmbedFooter, CreateMessage};
 pub use serenity::model::id::UserId;
 pub use serenity::Error as SerenityError;
@@ -15,7 +16,7 @@ pub use serenity::Error as SerenityError;
 pub struct CacheNotInitializedError;
 
 pub fn get_guild_count() -> Result<usize, CacheNotInitializedError> {
-    Ok(crate::CLIENT_CACHE
+    Ok(CLIENT_CACHE
         .get()
         .ok_or(CacheNotInitializedError)?
         .guild_count())
@@ -35,7 +36,7 @@ pub fn get_user_count() -> Result<usize, CacheNotInitializedError> {
             .expect("checked cache was not set, but it was?");
     }
 
-    let cache = crate::CLIENT_CACHE.get().ok_or(CacheNotInitializedError)?;
+    let cache = CLIENT_CACHE.get().ok_or(CacheNotInitializedError)?;
     let count = cache
         .guilds()
         .into_iter()
@@ -53,7 +54,7 @@ pub fn get_user_count() -> Result<usize, CacheNotInitializedError> {
 }
 
 pub fn get_channel_count() -> Result<usize, CacheNotInitializedError> {
-    Ok(crate::CLIENT_CACHE
+    Ok(CLIENT_CACHE
         .get()
         .ok_or(CacheNotInitializedError)?
         .guild_channel_count())
@@ -73,7 +74,7 @@ pub fn get_voice_channel_count() -> Result<usize, CacheNotInitializedError> {
             .expect("checked cache was not set, but it was?");
     }
     // update the cache
-    let cache = crate::CLIENT_CACHE.get().ok_or(CacheNotInitializedError)?;
+    let cache = CLIENT_CACHE.get().ok_or(CacheNotInitializedError)?;
     let count = cache
         .guilds()
         .into_iter()
@@ -100,7 +101,7 @@ pub fn get_voice_channel_count() -> Result<usize, CacheNotInitializedError> {
 }
 
 pub fn get_shard_count() -> Result<u32, CacheNotInitializedError> {
-    Ok(crate::CLIENT_CACHE
+    Ok(CLIENT_CACHE
         .get()
         .ok_or(CacheNotInitializedError)?
         .shard_count())
@@ -125,8 +126,8 @@ pub struct ShardInfo {
 static CACHED_SHARD_GUILD_COUNT: OnceCell<Mutex<(HashMap<u32, usize>, Instant)>> = OnceCell::new();
 
 pub async fn get_shard_info() -> Result<HashMap<u32, ShardInfo>, CacheNotInitializedError> {
-    let data = crate::CLIENT_DATA.get().ok_or(CacheNotInitializedError)?;
-    let cache = crate::CLIENT_CACHE.get().ok_or(CacheNotInitializedError)?;
+    let data = CLIENT_DATA.get().ok_or(CacheNotInitializedError)?;
+    let cache = CLIENT_CACHE.get().ok_or(CacheNotInitializedError)?;
 
     let should_update = {
         let guard = CACHED_SHARD_GUILD_COUNT.get();
@@ -229,7 +230,7 @@ impl CacheHttp for CacheHttpWrapper {
     }
 }
 
-pub(crate) fn set_cache_http(http: Arc<Http>, cache: Arc<Cache>) {
+pub fn set_cache_http(http: Arc<Http>, cache: Arc<Cache>) {
     HTTP_CLIENT
         .set(CacheHttpWrapper { cache, http })
         .unwrap_or_else(|_| panic!("set_cache_http should be called only once"))

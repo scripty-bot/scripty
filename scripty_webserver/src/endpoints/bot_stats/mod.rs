@@ -7,7 +7,9 @@ mod advanced;
 use crate::errors::WebServerError;
 use axum::routing::get;
 use axum::Json;
-use scripty_commands::{get_channel_count, get_guild_count, get_shard_count, get_user_count};
+use scripty_bot_utils::extern_utils::{
+    get_channel_count, get_guild_count, get_shard_count, get_user_count,
+};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BotStats {

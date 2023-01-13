@@ -45,14 +45,14 @@ pub enum WebServerError {
     SerenityError,
 }
 
-impl From<scripty_commands::CacheNotInitializedError> for WebServerError {
-    fn from(_: scripty_commands::CacheNotInitializedError) -> Self {
+impl From<scripty_bot_utils::extern_utils::CacheNotInitializedError> for WebServerError {
+    fn from(_: scripty_bot_utils::extern_utils::CacheNotInitializedError) -> Self {
         WebServerError::CacheUnavailable
     }
 }
 
-impl From<scripty_commands::SerenityError> for WebServerError {
-    fn from(_: scripty_commands::SerenityError) -> Self {
+impl From<scripty_bot_utils::extern_utils::SerenityError> for WebServerError {
+    fn from(_: scripty_bot_utils::extern_utils::SerenityError) -> Self {
         WebServerError::SerenityError
     }
 }

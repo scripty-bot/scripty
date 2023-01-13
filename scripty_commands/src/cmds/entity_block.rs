@@ -28,7 +28,7 @@ pub async fn block_user(
     #[description = "The user to block."] user: User,
     #[description = "The reason for blocking the user."] reason: Option<String>,
 ) -> Result<(), Error> {
-    crate::entity_block::add_blocked_user(user.id, reason).await?;
+    scripty_bot_utils::entity_block::add_blocked_user(user.id, reason).await?;
 
     ctx.say(format!("Successfully blocked {}", user.mention()))
         .await?;
@@ -43,7 +43,7 @@ pub async fn block_guild(
     #[description = "The guild to block."] guild: Guild,
     #[description = "The reason for blocking the guild."] reason: Option<String>,
 ) -> Result<(), Error> {
-    crate::entity_block::add_blocked_guild(guild.id, reason).await?;
+    scripty_bot_utils::entity_block::add_blocked_guild(guild.id, reason).await?;
 
     ctx.say(format!(
         "Successfully blocked guild {} ({})",

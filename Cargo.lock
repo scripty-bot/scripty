@@ -627,7 +627,7 @@ dependencies = [
  "hashbrown 0.12.3",
  "lock_api",
  "once_cell",
- "parking_lot_core 0.9.5",
+ "parking_lot_core 0.9.6",
  "serde",
 ]
 
@@ -1189,7 +1189,7 @@ version = "0.1.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9e2a3c70a9c00cc1ee87b54e89f9505f73bb17d63f1b25c9a462ba8ef885444f"
 dependencies = [
- "hashbrown 0.13.1",
+ "hashbrown 0.13.2",
  "serde",
 ]
 
@@ -1204,9 +1204,9 @@ dependencies = [
 
 [[package]]
 name = "hashbrown"
-version = "0.13.1"
+version = "0.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33ff8ae62cd3a9102e5637afc8452c55acf3844001bd5374e0b0bd7b6616c038"
+checksum = "43a3c133739dddd0d2990f9a4bdf8eb4b21ef50e4851ca85ab661199821d510e"
 dependencies = [
  "ahash 0.8.2",
 ]
@@ -1872,9 +1872,9 @@ dependencies = [
 
 [[package]]
 name = "object"
-version = "0.30.1"
+version = "0.30.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8d864c91689fdc196779b98dba0aceac6118594c2df6ee5d943eb6a8df4d107a"
+checksum = "2b8c786513eb403643f2a88c244c2aaa270ef2153f55094587d0c48a3cf22a83"
 dependencies = [
  "memchr",
 ]
@@ -1959,7 +1959,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3742b2c103b9f06bc9fff0a37ff4912935851bee6d36f3c02bcc755bcfec228f"
 dependencies = [
  "lock_api",
- "parking_lot_core 0.9.5",
+ "parking_lot_core 0.9.6",
 ]
 
 [[package]]
@@ -1978,9 +1978,9 @@ dependencies = [
 
 [[package]]
 name = "parking_lot_core"
-version = "0.9.5"
+version = "0.9.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7ff9f3fef3968a3ec5945535ed654cb38ff72d7495a25619e2247fb15a2ed9ba"
+checksum = "ba1ef8814b5c993410bb3adfad7a5ed269563e4a2f90c41f5d85be7fb47133bf"
 dependencies = [
  "cfg-if",
  "libc",
@@ -2686,14 +2686,26 @@ dependencies = [
 ]
 
 [[package]]
-name = "scripty_commands"
-version = "1.0.0"
+name = "scripty_bot"
+version = "0.1.0"
+dependencies = [
+ "poise",
+ "scripty_audio_handler",
+ "scripty_bot_utils",
+ "scripty_commands",
+ "scripty_config",
+ "serenity",
+ "sqlx",
+ "tokio",
+]
+
+[[package]]
+name = "scripty_bot_utils"
+version = "0.1.0"
 dependencies = [
  "async-trait",
  "backtrace",
  "dashmap",
- "http",
- "indexmap",
  "once_cell",
  "parking_lot 0.12.1",
  "poise",
@@ -2703,10 +2715,28 @@ dependencies = [
  "scripty_db",
  "scripty_i18n",
  "scripty_metrics",
- "scripty_premium",
  "scripty_redis",
  "scripty_utils",
- "serde",
+ "serenity",
+ "sqlx",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "scripty_commands"
+version = "1.0.0"
+dependencies = [
+ "indexmap",
+ "poise",
+ "scripty_audio_handler",
+ "scripty_bot_utils",
+ "scripty_config",
+ "scripty_data_storage",
+ "scripty_db",
+ "scripty_i18n",
+ "scripty_premium",
+ "scripty_utils",
  "serenity",
  "sqlx",
  "tokio",
@@ -2728,7 +2758,7 @@ version = "1.0.0"
 dependencies = [
  "num_cpus",
  "scripty_audio",
- "scripty_commands",
+ "scripty_bot",
  "scripty_config",
  "scripty_data_storage",
  "scripty_db",
@@ -2864,7 +2894,7 @@ version = "1.0.0"
 dependencies = [
  "async-stripe",
  "axum",
- "scripty_commands",
+ "scripty_bot_utils",
  "scripty_config",
  "scripty_db",
  "scripty_metrics",

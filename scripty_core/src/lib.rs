@@ -15,7 +15,7 @@ pub fn start() {
 
     rt.block_on(async_init());
     rt.spawn(scripty_webserver::entrypoint());
-    rt.block_on(scripty_commands::entrypoint());
+    rt.block_on(scripty_bot::entrypoint());
 }
 
 async fn init_logging() {

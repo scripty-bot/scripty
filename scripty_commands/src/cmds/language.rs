@@ -1,6 +1,6 @@
-use crate::checks::is_guild;
 use crate::{Context, Error};
 use poise::CreateReply;
+use scripty_bot_utils::checks::is_guild;
 use scripty_i18n::InvalidLanguageError;
 use serenity::builder::CreateEmbed;
 

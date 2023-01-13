@@ -1,5 +1,5 @@
-use crate::checks::is_guild;
 use crate::{Context, Error};
+use scripty_bot_utils::checks::is_guild;
 
 /// Remove your premium from this guild.
 #[poise::command(prefix_command, slash_command, guild_cooldown = 15, check = "is_guild")]

@@ -1,5 +1,5 @@
-use crate::checks::is_guild;
 use crate::{Context, Error};
+use scripty_bot_utils::checks::is_guild;
 use serenity::http::StatusCode;
 use serenity::model::channel::{ChannelType, GuildChannel};
 use serenity::prelude::Mentionable;

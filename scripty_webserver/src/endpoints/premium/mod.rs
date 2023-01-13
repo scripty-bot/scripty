@@ -1,7 +1,7 @@
 use crate::auth::Authentication;
 use crate::errors::WebServerError;
 use axum::{routing::post, Json};
-use scripty_commands::{CreateEmbed, CreateEmbedFooter, CreateMessage, UserId};
+use scripty_bot_utils::extern_utils::{CreateEmbed, CreateEmbedFooter, CreateMessage, UserId};
 use sqlx::types::time::OffsetDateTime;
 use std::num::NonZeroU64;
 use stripe::{EventObject, EventType, SubscriptionStatus, WebhookEvent};
@@ -419,7 +419,7 @@ ON CONFLICT
 
     if let Some(target_user_id) = target_user_id {
         debug!("sending DM to user for premium event");
-        let cache_http = scripty_commands::get_cache_http();
+        let cache_http = scripty_bot_utils::extern_utils::get_cache_http();
 
         let dm_channel = UserId::from(target_user_id)
             .create_dm_channel(cache_http)

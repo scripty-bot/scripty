@@ -16,6 +16,6 @@ scripty_utils = { path = "../scripty_utils" }
 scripty_config = { path = "../scripty_config" }
 scripty_metrics = { path = "../scripty_metrics" }
 serde = { version = "1", features = ["derive"] }
-scripty_commands = { path = "../scripty_commands" }
+scripty_bot_utils = { path = "../scripty_bot_utils" }
 tokio = { version = "1", features = ["parking_lot"] }
 sqlx = { version = "0.6", features = ["postgres", "macros", "migrate", "offline", "runtime-tokio-rustls"] }

@@ -1,4 +1,5 @@
-use crate::DmSupportStatus;
+use crate::dm_support::DmSupportStatus;
+use crate::globals::DM_SUPPORT_GLOBAL;
 use serenity::client::Context;
 use serenity::model::id::GuildId;
 
@@ -13,5 +14,5 @@ pub async fn cache_ready(_ctx: Context, guilds: Vec<GuildId>) {
     );
 
     let dm_support = DmSupportStatus::new();
-    let _ = crate::DM_SUPPORT_GLOBAL.set(dm_support);
+    let _ = DM_SUPPORT_GLOBAL.set(dm_support);
 }

@@ -1,4 +1,5 @@
 use crate::background_tasks::core::BackgroundTask;
+use crate::globals::CLIENT_DATA;
 use crate::Error;
 use scripty_metrics::Metrics;
 use serenity::client::Context;
@@ -22,7 +23,7 @@ impl BackgroundTask for LatencyUpdater {
     async fn run(&mut self) {
         self.0.latency.websocket.set(
             scripty_utils::latency::get_ws_latency(
-                &crate::CLIENT_DATA
+                &CLIENT_DATA
                     .get()
                     .expect("client data not set yet")
                     .shard_manager

@@ -1,11 +1,11 @@
-use crate::cmds;
-use crate::error::on_error;
 use poise::{FrameworkOptions, PrefixFrameworkOptions};
+use scripty_bot_utils::error::handler::on_error;
+use scripty_commands::cmds;
 use serenity::builder::CreateAllowedMentions;
 use serenity::model::id::UserId;
 use serenity::prelude::GatewayIntents;
 
-pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
+pub fn get_framework_opts() -> FrameworkOptions<scripty_bot_utils::Data, scripty_bot_utils::Error> {
     FrameworkOptions {
         commands: vec![
             cmds::setup(),
@@ -31,8 +31,8 @@ pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
                 ..cmds::admin()
             },
             poise::Command {
-                subcommands: vec![crate::dm_support::commands::close()],
-                ..crate::dm_support::commands::ps()
+                subcommands: vec![cmds::ps_close()],
+                ..cmds::ps()
             },
             poise::Command {
                 subcommands: vec![cmds::premium::remove(), cmds::premium::claim()],
@@ -49,9 +49,9 @@ pub fn get_framework_opts() -> FrameworkOptions<crate::Data, crate::Error> {
             },
         ],
         on_error: |error| Box::pin(on_error(error)),
-        command_check: Some(crate::entity_block::check_block),
-        pre_command: crate::handler::pre_command,
-        post_command: crate::handler::post_command,
+        command_check: Some(scripty_bot_utils::entity_block::check_block),
+        pre_command: scripty_bot_utils::handler::pre_command,
+        post_command: scripty_bot_utils::handler::post_command,
         // Only support direct user pings by default
         allowed_mentions: Some(
             CreateAllowedMentions::default()

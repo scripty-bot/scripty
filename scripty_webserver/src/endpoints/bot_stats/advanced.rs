@@ -8,7 +8,7 @@
 use crate::errors::WebServerError;
 use axum::routing::get;
 use axum::Json;
-use scripty_commands::{
+use scripty_bot_utils::extern_utils::{
     get_channel_count, get_guild_count, get_shard_count, get_user_count, get_voice_channel_count,
 };
 use std::collections::HashMap;
@@ -33,7 +33,7 @@ pub struct AdvancedBotStatsShard {
 }
 
 pub async fn get_advanced_bot_stats() -> Result<Json<AdvancedBotStats>, WebServerError> {
-    let shard_info = scripty_commands::get_shard_info().await?;
+    let shard_info = scripty_bot_utils::extern_utils::get_shard_info().await?;
 
     let mut processed_shard_info = HashMap::new();
     for (shard_id, shard_info) in shard_info {

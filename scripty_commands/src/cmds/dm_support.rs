@@ -1,5 +1,6 @@
-use crate::checks::is_guild;
 use crate::{Context, Error};
+use scripty_bot_utils::checks::is_guild;
+use scripty_bot_utils::globals::DM_SUPPORT_GLOBAL;
 
 #[poise::command(prefix_command, hide_in_help)]
 pub async fn ps(ctx: Context<'_>) -> Result<(), Error> {
@@ -9,8 +10,8 @@ pub async fn ps(ctx: Context<'_>) -> Result<(), Error> {
 }
 
 #[poise::command(prefix_command, hide_in_help, check = "is_guild")]
-pub async fn close(ctx: Context<'_>) -> Result<(), Error> {
-    if let Some(st) = crate::DM_SUPPORT_GLOBAL.get() {
+pub async fn ps_close(ctx: Context<'_>) -> Result<(), Error> {
+    if let Some(st) = DM_SUPPORT_GLOBAL.get() {
         let dctx = ctx.discord();
         st.close_ticket(
             dctx,
