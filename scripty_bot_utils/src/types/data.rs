@@ -1,4 +1,3 @@
-use crate::Error;
 use serenity::all::ShardManager;
 use std::sync::Arc;
 use tokio::sync::Mutex;

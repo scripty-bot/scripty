@@ -1,17 +1,9 @@
-use crate::{Context, Data, Error};
-use backtrace::Backtrace;
-use poise::{CreateReply, FrameworkError};
-use scripty_audio_handler::JoinError;
+use crate::{Context, Error};
+use poise::CreateReply;
 use serenity::builder::{
     CreateAttachment, CreateEmbed, CreateEmbedAuthor, CreateMessage, ExecuteWebhook,
 };
-use serenity::model::channel::ChannelType;
 use serenity::model::webhook::Webhook;
-use serenity::prelude::SerenityError;
-use std::borrow::Cow;
-use std::error::Error as StdError;
-use std::fmt::Write;
-use std::fmt::{Display, Formatter};
 
 pub async fn send_err_msg(
     ctx: Context<'_>,

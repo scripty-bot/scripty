@@ -2,20 +2,11 @@ use crate::error::error_type::ErrorEnum;
 use crate::error::log_error_message;
 use crate::error::message::send_err_msg;
 use crate::{Data, Error};
-use backtrace::Backtrace;
-use poise::{Context, CreateReply, FrameworkError};
-use scripty_audio_handler::JoinError;
-use serenity::builder::{
-    CreateAttachment, CreateEmbed, CreateEmbedAuthor, CreateMessage, ExecuteWebhook,
-};
+use poise::FrameworkError;
+use serenity::builder::{CreateEmbed, CreateMessage};
 use serenity::http;
-use serenity::model::channel::ChannelType;
-use serenity::model::webhook::Webhook;
-use serenity::prelude::SerenityError;
 use std::borrow::Cow;
-use std::error::Error as StdError;
 use std::fmt::Write;
-use std::fmt::{Display, Formatter};
 
 pub async fn on_error(error: FrameworkError<'_, Data, Error>) {
     info!("handling error event");

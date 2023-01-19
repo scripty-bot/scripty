@@ -14,6 +14,12 @@ pub struct DmSupportStatus {
     webhook_cache: DashMap<ChannelId, Webhook>,
 }
 
+impl Default for DmSupportStatus {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DmSupportStatus {
     pub fn new() -> Self {
         Self {
