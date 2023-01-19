@@ -108,11 +108,11 @@ pub async fn voice_tick(
         }
 
         let et = Instant::now();
-        let tt = et.duration_since(st).as_nanos();
-        // TODO: switch to histogram
+        let tt = et.duration_since(st).as_secs_f64();
+        metrics.audio_process_time.observe(tt);
     }
 
     let tick_end_time = Instant::now();
-    let total_tick_time = tick_end_time.duration_since(tick_start_time).as_nanos();
-    // TODO: add total tick time stat
+    let total_tick_time = tick_end_time.duration_since(tick_start_time).as_secs_f64();
+    metrics.audio_tick_time.observe(total_tick_time);
 }

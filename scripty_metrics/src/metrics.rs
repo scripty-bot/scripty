@@ -3,7 +3,9 @@
 
 use chrono::{NaiveDateTime, Utc};
 use once_cell::sync::OnceCell;
-use prometheus::{IntCounter, IntCounterVec, IntGauge, IntGaugeVec, Opts, Registry};
+use prometheus::{
+    Histogram, HistogramOpts, IntCounter, IntCounterVec, IntGauge, IntGaugeVec, Opts, Registry,
+};
 use prometheus_static_metric::make_static_metric;
 use std::sync::Arc;
 
@@ -164,7 +166,8 @@ pub struct Metrics {
     pub audio_bytes_processed: IntCounter,
     pub total_events: IntCounter,
     // TODO: switch to Histogram
-    pub avg_audio_process_time: IntGauge,
+    pub audio_tick_time: Histogram,
+    pub audio_process_time: Histogram,
     pub total_commands: IntCounter,
     pub stt_server_fetch_success: IntCounter,
     pub stt_server_fetch_failure: IntCounter,
@@ -200,12 +203,35 @@ impl Metrics {
         let events = IntCounter::new("total_events", "Total gateway events").unwrap();
         registry.register(Box::new(events.clone())).unwrap();
 
-        let audio_process = IntGauge::new(
-            "avg_audio_process_time",
-            "Average time to process one audio packet",
+        let audio_tick_time = Histogram::with_opts(
+            HistogramOpts::new("audio_tick_time", "Time to process a full audio tick")
+                // these buckets should be very small, as it could take less than 250 microseconds to process a tick
+                .buckets(vec![
+                    0.000001, 0.0000025, 0.000005, 0.00001, 0.000025, 0.00005, 0.0001, 0.00025,
+                    0.0005, 0.001, 0.0025, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0,
+                ]),
         )
         .unwrap();
-        registry.register(Box::new(audio_process.clone())).unwrap();
+        registry
+            .register(Box::new(audio_tick_time.clone()))
+            .unwrap();
+
+        let audio_process_time = Histogram::with_opts(
+            HistogramOpts::new(
+                "audio_process_time",
+                "Time to process a single user's audio data",
+            )
+            // these buckets should be even smaller, as processing a single user's audio data should be on the order
+            // of hundreds of nanoseconds to tens of microseconds
+            .buckets(vec![
+                0.0000001, 0.00000025, 0.0000005, 0.000001, 0.0000025, 0.000005, 0.00001, 0.000025,
+                0.00005, 0.0001, 0.00025, 0.0005, 0.001, 0.0025, 0.005, 0.01, 0.02,
+            ]),
+        )
+        .unwrap();
+        registry
+            .register(Box::new(audio_process_time.clone()))
+            .unwrap();
 
         let total_commands_used =
             IntCounter::new("total_commands_used", "All commands used").unwrap();
@@ -271,7 +297,8 @@ impl Metrics {
             ms_transcribed,
             audio_bytes_processed,
             total_events: events,
-            avg_audio_process_time: audio_process,
+            audio_tick_time,
+            audio_process_time,
             total_commands: total_commands_used,
             commands: commands_used_static,
             runtime_metrics: runtime_metrics_static,
