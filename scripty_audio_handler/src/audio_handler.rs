@@ -13,8 +13,8 @@ use songbird::{Event, EventContext, EventHandler};
 use crate::events::*;
 use crate::types::{
     ActiveUserSet, NextUserList, SsrcIgnoredMap, SsrcLastPktIdMap, SsrcMissedPktList,
-    SsrcMissedPktMap, SsrcOutOfOrderPktCountMap, SsrcSilentFrameCountMap, SsrcStreamMap,
-    SsrcUserDataMap, SsrcUserIdMap, SsrcVoiceIngestMap,
+    SsrcMissedPktMap, SsrcOutOfOrderPktCountMap, SsrcSilentFrameCountMap, SsrcSpeakingSet,
+    SsrcStreamMap, SsrcUserDataMap, SsrcUserIdMap, SsrcVoiceIngestMap,
 };
 
 pub struct SsrcMaps {
@@ -28,6 +28,7 @@ pub struct SsrcMaps {
     pub ssrc_voice_ingest_map: SsrcVoiceIngestMap,
     pub ssrc_silent_frame_count_map: SsrcSilentFrameCountMap,
     pub ssrc_out_of_order_pkt_count_map: SsrcOutOfOrderPktCountMap,
+    pub ssrc_speaking_set: SsrcSpeakingSet,
     pub active_user_set: ActiveUserSet,
     pub next_user_list: NextUserList,
 }
@@ -65,6 +66,7 @@ impl AudioHandler {
             ssrc_voice_ingest_map: DashMap::with_hasher(RandomState::new()),
             ssrc_silent_frame_count_map: DashMap::with_hasher(RandomState::new()),
             ssrc_out_of_order_pkt_count_map: DashMap::with_hasher(RandomState::new()),
+            ssrc_speaking_set: DashSet::with_hasher(RandomState::new()),
             active_user_set: DashSet::with_hasher(RandomState::new()),
             next_user_list: RwLock::new(VecDeque::with_capacity(10)),
         };
@@ -143,6 +145,8 @@ impl EventHandler for AudioHandler {
                 Arc::clone(&self.ssrc_state),
                 self.language.clone(),
                 self.verbose.clone(),
+                self.context.clone(),
+                Arc::clone(&self.webhook),
             )),
             EventContext::ClientDisconnect(client_disconnect_data) => {
                 tokio::spawn(client_disconnect(

@@ -42,6 +42,9 @@ pub type SsrcSilentFrameCountMap = DashMap<u32, usize, RandomState>;
 /// Type alias for a `DashMap` containing SSRCs mapped to the number of out of order packets in a row.
 pub type SsrcOutOfOrderPktCountMap = DashMap<u32, usize, RandomState>;
 
+/// Type alias for a `DashSet` containing the SSRCs that were speaking this tick.
+pub type SsrcSpeakingSet = DashSet<u32, RandomState>;
+
 /// Type alias for a `DashSet` containing the current list of active users
 pub type ActiveUserSet = DashSet<u32, RandomState>;
 
