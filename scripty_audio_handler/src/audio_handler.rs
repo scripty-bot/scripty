@@ -12,9 +12,8 @@ use songbird::{Event, EventContext, EventHandler};
 
 use crate::events::*;
 use crate::types::{
-    ActiveUserSet, NextUserList, SsrcIgnoredMap, SsrcLastPktIdMap, SsrcMissedPktList,
-    SsrcMissedPktMap, SsrcOutOfOrderPktCountMap, SsrcSilentFrameCountMap, SsrcSpeakingSet,
-    SsrcStreamMap, SsrcUserDataMap, SsrcUserIdMap, SsrcVoiceIngestMap,
+    ActiveUserSet, NextUserList, SsrcIgnoredMap, SsrcSpeakingSet, SsrcStreamMap, SsrcUserDataMap,
+    SsrcUserIdMap, SsrcVoiceIngestMap,
 };
 
 pub struct SsrcMaps {
@@ -22,12 +21,7 @@ pub struct SsrcMaps {
     pub ssrc_stream_map: SsrcStreamMap,
     pub ssrc_user_data_map: SsrcUserDataMap,
     pub ssrc_ignored_map: SsrcIgnoredMap,
-    pub ssrc_last_pkt_id_map: SsrcLastPktIdMap,
-    pub ssrc_missed_pkt_map: SsrcMissedPktMap,
-    pub ssrc_missed_pkt_list: SsrcMissedPktList,
     pub ssrc_voice_ingest_map: SsrcVoiceIngestMap,
-    pub ssrc_silent_frame_count_map: SsrcSilentFrameCountMap,
-    pub ssrc_out_of_order_pkt_count_map: SsrcOutOfOrderPktCountMap,
     pub ssrc_speaking_set: SsrcSpeakingSet,
     pub active_user_set: ActiveUserSet,
     pub next_user_list: NextUserList,
@@ -60,12 +54,7 @@ impl AudioHandler {
             ssrc_stream_map: DashMap::with_hasher(RandomState::new()),
             ssrc_user_data_map: DashMap::with_hasher(RandomState::new()),
             ssrc_ignored_map: DashMap::with_hasher(RandomState::new()),
-            ssrc_last_pkt_id_map: DashMap::with_hasher(RandomState::new()),
-            ssrc_missed_pkt_map: DashMap::with_hasher(RandomState::new()),
-            ssrc_missed_pkt_list: DashMap::with_hasher(RandomState::new()),
             ssrc_voice_ingest_map: DashMap::with_hasher(RandomState::new()),
-            ssrc_silent_frame_count_map: DashMap::with_hasher(RandomState::new()),
-            ssrc_out_of_order_pkt_count_map: DashMap::with_hasher(RandomState::new()),
             ssrc_speaking_set: DashSet::with_hasher(RandomState::new()),
             active_user_set: DashSet::with_hasher(RandomState::new()),
             next_user_list: RwLock::new(VecDeque::with_capacity(10)),
