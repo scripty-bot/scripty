@@ -1,9 +1,5 @@
 **/target
 /.env
-scripty_src.zip
 /.idea
 /config.toml
 /config.local.toml
-/flamegraph.svg
-/bot_list_app.*
-/bot_lists*
