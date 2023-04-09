@@ -1,7 +1,8 @@
-use std::collections::VecDeque;
-use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
-use std::sync::Arc;
-
+use crate::events::*;
+use crate::types::{
+    ActiveUserSet, NextUserList, SsrcIgnoredMap, SsrcSpeakingSet, SsrcStreamMap, SsrcUserDataMap,
+    SsrcUserIdMap, SsrcVoiceIngestMap,
+};
 use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
 use parking_lot::RwLock;
@@ -9,12 +10,9 @@ use serenity::client::Context;
 use serenity::model::id::{ChannelId, GuildId};
 use serenity::model::webhook::Webhook;
 use songbird::{Event, EventContext, EventHandler};
-
-use crate::events::*;
-use crate::types::{
-    ActiveUserSet, NextUserList, SsrcIgnoredMap, SsrcSpeakingSet, SsrcStreamMap, SsrcUserDataMap,
-    SsrcUserIdMap, SsrcVoiceIngestMap,
-};
+use std::collections::VecDeque;
+use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
+use std::sync::Arc;
 
 pub struct SsrcMaps {
     pub ssrc_user_id_map: SsrcUserIdMap,
