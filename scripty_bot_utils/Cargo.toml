@@ -35,4 +35,4 @@ serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", f
   "utils",
 ], default-features = false }
 sqlx = { version = "0.6", features = ["postgres", "macros", "migrate", "offline", "runtime-tokio-rustls", "time"] }
-poise = { git = " https://github.com/kangalioo/poise", branch = "serenity-next", features = ["cache", "collector"] }
+poise = { git = " https://github.com/serenity-rs/poise", branch = "serenity-next", features = ["cache", "collector"] }

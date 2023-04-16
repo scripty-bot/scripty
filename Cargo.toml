@@ -37,4 +37,4 @@ scripty_core = { path = "scripty_core" }
 
 [patch.crates-io]
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next" }
-songbird = { git = "https://github.com/tazz4843/songbird", branch = "next" }
+songbird = { git = "https://github.com/serenity-rs/songbird", branch = "next" }
