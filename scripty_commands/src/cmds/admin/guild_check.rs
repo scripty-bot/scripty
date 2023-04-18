@@ -1,7 +1,7 @@
 use crate::{Context, Error};
 use poise::CreateReply;
 use scripty_bot_utils::globals::CLIENT_DATA;
-use serenity::client::bridge::gateway::{ChunkGuildFilter, ShardId};
+use serenity::gateway::{ChunkGuildFilter, ShardId};
 use std::collections::HashMap;
 use std::fmt::Write;
 use std::ops::Range;

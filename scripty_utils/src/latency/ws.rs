@@ -1,5 +1,5 @@
 use crate::{ShardManagerWrapper, TypeMapKey};
-use serenity::client::bridge::gateway::ShardId;
+use serenity::gateway::ShardId;
 
 pub async fn get_ws_latency(
     mgr: &<ShardManagerWrapper as TypeMapKey>::Value,

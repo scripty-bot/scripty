@@ -1,4 +1,4 @@
-use serenity::client::bridge::gateway::ShardManager;
+use serenity::gateway::ShardManager;
 use serenity::prelude::TypeMapKey;
 use std::sync::Arc;
 use tokio::sync::Mutex;
