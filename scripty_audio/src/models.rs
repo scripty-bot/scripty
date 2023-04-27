@@ -109,7 +109,7 @@ impl Stream {
         // 0x01: Feed Audio
         socket.write_u8(0x01).await?;
 
-        let bytes = audio.len() * std::mem::size_of::<i16>();
+        let bytes = std::mem::size_of_val(audio);
 
         // field 0: data_len: u32
         socket.write_u32(bytes as u32).await?;
@@ -120,7 +120,7 @@ impl Stream {
         socket.write_all(&dst).await?;
 
         // flush the socket, waiting at most 1 millisecond
-        match tokio::time::timeout(std::time::Duration::from_millis(1), socket.flush()).await {
+        match tokio::time::timeout(Duration::from_millis(1), socket.flush()).await {
             Ok(Err(e)) => return Err(e.into()),
             Err(_) => warn!("failed to flush socket before timeout"),
             _ => {}

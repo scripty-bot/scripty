@@ -1,5 +1,6 @@
 use crate::errors::WebServerError;
-use axum::extract::{FromRequest, RequestParts};
+use axum::extract::FromRequestParts;
+use axum::http::request::Parts;
 
 /// A type that handles authentication.
 ///
@@ -14,16 +15,19 @@ pub struct Authentication {
 }
 
 #[axum::async_trait]
-impl<B: Send> FromRequest<B> for Authentication {
+impl<S> FromRequestParts<S> for Authentication
+where
+    S: Send + Sync,
+{
     type Rejection = WebServerError;
 
-    async fn from_request(req: &mut RequestParts<B>) -> Result<Self, Self::Rejection> {
+    async fn from_request_parts(req: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
         // fetch config
         let config = scripty_config::get_config();
 
         // get token from header
-        let headers = req.headers();
-        let token = headers
+        let token = req
+            .headers
             .get("Authorization")
             .ok_or(WebServerError::AuthenticationFailed(1))?;
         // convert to string

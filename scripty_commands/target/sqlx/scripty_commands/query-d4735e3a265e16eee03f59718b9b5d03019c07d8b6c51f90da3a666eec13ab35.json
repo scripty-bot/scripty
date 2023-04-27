@@ -1,14 +1,21 @@
 {
-  "query": "UPDATE guilds SET premium_owner_id = nullif(premium_owner_id, $2) WHERE guild_id = $1",
+  "query": "SELECT premium_level FROM users WHERE user_id = $1",
   "describe": {
-    "columns": [],
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "premium_level",
+        "type_info": "Int2"
+      }
+    ],
     "parameters": {
       "Left": [
-        "Int8",
         "Bytea"
       ]
     },
-    "nullable": []
+    "nullable": [
+      false
+    ]
   },
-  "hash": "2a6d0bd9e502f359d5b3b15298e1caf8d378e9a5eb8cbf44e4033192e5251642"
+  "hash": "f2f065836ccd89c512070fad43b04c5e0a842c6cb7ba09dac4439239db761f74"
 }

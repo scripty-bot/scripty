@@ -4,16 +4,16 @@ use axum::{routing::post, Json};
 use scripty_bot_utils::extern_utils::{CreateEmbed, CreateEmbedFooter, CreateMessage, UserId};
 use sqlx::types::time::OffsetDateTime;
 use std::num::NonZeroU64;
-use stripe::{EventObject, EventType, SubscriptionStatus, WebhookEvent};
+use stripe::{Event as WebhookEvent, EventObject, EventType, SubscriptionStatus};
 
 pub async fn stripe_webhook(
+    Authentication { user_id, .. }: Authentication,
     Json(WebhookEvent {
-        event_type,
+        type_: event_type,
         data,
         livemode,
         ..
     }): Json<WebhookEvent>,
-    Authentication { user_id, .. }: Authentication,
 ) -> Result<(), WebServerError> {
     if user_id != 0 {
         return Err(WebServerError::AuthenticationFailed(3));
@@ -406,6 +406,15 @@ ON CONFLICT
                         "Your subscription to Scripty Premium failed to activate, likely due to a missing payment method.\n\
                         If you would still like to activate it again, head to the dashboard at https://dash.scripty.org.\n\
                         Otherwise, no action is needed.\n\n\
+                        Thanks for using Scripty! ~ the Scripty team"
+                    );
+
+                    Some(discord_id)
+                }
+                SubscriptionStatus::Paused => {
+                    embed = embed.title("Subscription Paused").description(
+                        "Your subscription to Scripty Premium has been paused. \
+                        You will not be charged until you resume it. You can resume it at any time at https://dash.scripty.org/.\n\n\
                         Thanks for using Scripty! ~ the Scripty team"
                     );
 
