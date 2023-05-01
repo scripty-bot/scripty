@@ -82,7 +82,7 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
                     .get(&ShardId(shard_id))
                     .expect("shard should exist")
                     .runner_tx
-                    .chunk_guild(guild_id, None, ChunkGuildFilter::None, None);
+                    .chunk_guild(guild_id, None, false, ChunkGuildFilter::None, None);
             });
         }
 

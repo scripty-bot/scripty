@@ -1,8 +1,9 @@
-use serenity::all::{ButtonStyle, InputTextStyle, MessageFlags};
+use serenity::all::{
+    ButtonStyle, CreateQuickModal, InputTextStyle, MessageFlags, QuickModalResponse,
+};
 use serenity::builder::{
     CreateActionRow, CreateButton, CreateEmbed, CreateEmbedFooter, CreateInputText,
-    CreateInteractionResponse, CreateInteractionResponseMessage, CreateMessage, CreateQuickModal,
-    QuickModalResponse,
+    CreateInteractionResponse, CreateInteractionResponseMessage, CreateMessage,
 };
 use serenity::collector::ComponentInteractionCollector;
 use serenity::futures::StreamExt;
