@@ -2582,6 +2582,7 @@ dependencies = [
 name = "scripty_commands"
 version = "1.0.0"
 dependencies = [
+ "chrono",
  "indexmap",
  "poise",
  "scripty_audio_handler",
@@ -2721,6 +2722,7 @@ dependencies = [
 name = "scripty_utils"
 version = "1.0.0"
 dependencies = [
+ "chrono",
  "hex",
  "num",
  "num_cpus",

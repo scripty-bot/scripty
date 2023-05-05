@@ -86,6 +86,18 @@ pub async fn join(
         false,
     )
     .await;
+    let max_listen_duration_seconds = match premium_level {
+        0 => 1800,
+        1 => 3600,
+        2 => 10800,
+        3 => 21600,
+        4 => 43200,
+        5 => 86400,
+        6 => 604800,
+        _ => 1800,
+    };
+    let max_listen_duration =
+        scripty_utils::humanize_duration(chrono::Duration::seconds(max_listen_duration_seconds));
     match res {
         Ok(true) => {
             #[allow(clippy::wildcard_in_or_patterns)]
@@ -102,16 +114,7 @@ pub async fn join(
                     4 => 75,
                     5 | _ => 100,
                 },
-                leaveDuration: match premium_level {
-                    0 => 1800,
-                    1 => 3600,
-                    2 => 10800,
-                    3 => 21600,
-                    4 => 43200,
-                    5 => 86400,
-                    6 => 604800,
-                    _ => 1800,
-                }
+                leaveDuration: max_listen_duration
             ))
             .await?;
         }

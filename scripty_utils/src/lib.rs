@@ -12,7 +12,9 @@ mod hash_user_id;
 mod hex_vec;
 pub mod latency;
 mod separate_num;
+mod humanize_duration;
 
+pub use humanize_duration::humanize_duration;
 pub use block_in_place::block_in_place;
 pub use embed_pagination::do_paginate;
 pub use hash_user_id::hash_user_id;

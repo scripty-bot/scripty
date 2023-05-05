@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 tracing = "0.1"
 indexmap = "1"
+chrono = "0.4"
 scripty_db = { path = "../scripty_db" }
 scripty_i18n = { path = "../scripty_i18n" }
 scripty_utils = { path = "../scripty_utils" }
