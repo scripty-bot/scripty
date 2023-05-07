@@ -6,7 +6,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tracing = "0.1"
 num_cpus = "1"
 scripty_db = { path = "../scripty_db" }
 scripty_bot = { path = "../scripty_bot" }
@@ -18,5 +17,6 @@ scripty_metrics = { path = "../scripty_metrics" }
 scripty_webserver = { path = "../scripty_webserver" }
 tokio = { version = "1", features = ["parking_lot"] }
 scripty_data_storage = { path = "../scripty_data_storage" }
+tracing = { version = "0.1", features = ["release_max_level_info"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter", "tracing-log"] }
 tracing-loki = { version = "0.2", default-features = false, features = ["rustls", "compat-0-2-1"] }

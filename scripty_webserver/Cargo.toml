@@ -7,7 +7,6 @@ edition = "2021"
 
 [dependencies]
 time = "0.3"
-tracing = "0.1"
 serde_json = "1"
 scripty_db = { path = "../scripty_db" }
 axum = { version = "0.6", features = [] }
@@ -18,4 +17,5 @@ scripty_metrics = { path = "../scripty_metrics" }
 serde = { version = "1", features = ["derive"] }
 scripty_bot_utils = { path = "../scripty_bot_utils" }
 tokio = { version = "1", features = ["parking_lot"] }
+tracing = { version = "0.1", features = ["release_max_level_info"] }
 sqlx = { version = "0.6", features = ["postgres", "macros", "migrate", "offline", "runtime-tokio-rustls"] }
