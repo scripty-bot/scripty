@@ -169,7 +169,7 @@ impl Stream {
             .expect("failed to send to a channel that should still be open?");
         rx.recv_async()
             .await
-            .expect("failed to receive from a open channel?")
+            .expect("failed to receive from an open channel?")
     }
 
     async fn get_result_verbose_wrapper(
