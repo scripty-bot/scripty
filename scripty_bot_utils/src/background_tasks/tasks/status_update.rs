@@ -1,9 +1,9 @@
 use crate::background_tasks::core::BackgroundTask;
 use crate::globals::CLIENT_DATA;
 use crate::Error;
-use serenity::gateway::ShardManager;
 use serenity::client::Context as SerenityContext;
 use serenity::gateway::ActivityData;
+use serenity::gateway::ShardManager;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::Mutex;
