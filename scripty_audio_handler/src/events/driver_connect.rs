@@ -1,17 +1,18 @@
-use crate::audio_handler::ArcSsrcMaps;
 use songbird::id::GuildId;
 
-pub async fn driver_connect(
-    session_id: String,
-    guild_id: GuildId,
-    ssrc: u32,
-    ssrc_state: ArcSsrcMaps,
-) {
-    debug!(
-        "connected to Discord voice gateway: session ID {} for guild {}, with ssrc {}",
-        session_id, guild_id, ssrc
-    );
+use crate::audio_handler::ArcSsrcMaps;
 
-    // ignore self
-    ssrc_state.ssrc_ignored_map.insert(ssrc, true);
+pub async fn driver_connect(
+	session_id: String,
+	guild_id: GuildId,
+	ssrc: u32,
+	ssrc_state: ArcSsrcMaps,
+) {
+	debug!(
+		"connected to Discord voice gateway: session ID {} for guild {}, with ssrc {}",
+		session_id, guild_id, ssrc
+	);
+
+	// ignore self
+	ssrc_state.ssrc_ignored_map.insert(ssrc, true);
 }

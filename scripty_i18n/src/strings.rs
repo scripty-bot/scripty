@@ -1,7 +1,9 @@
-use crate::bundles::get_bundle_for_language;
-use fluent::{FluentArgs, FluentError};
 use std::str::FromStr;
+
+use fluent::{FluentArgs, FluentError};
 use unic_langid::LanguageIdentifier;
+
+use crate::bundles::get_bundle_for_language;
 
 /// Given a language ID and a message ID, returns the formatted message in the given language, or fall back to English.
 /// If the message does not exist, returns None.
@@ -9,25 +11,25 @@ use unic_langid::LanguageIdentifier;
 /// If any errors are encountered during translation, the 2nd element of the returned tuple will contain the errors
 /// that happened. These are not fatal, and the message will still be translated.
 pub fn get_formatted_message<'l>(
-    language: &'l LanguageIdentifier,
-    message_id: &'static str,
-    args: Option<&'l FluentArgs<'_>>,
+	language: &'l LanguageIdentifier,
+	message_id: &'static str,
+	args: Option<&'l FluentArgs<'_>>,
 ) -> Option<(String, Vec<FluentError>)> {
-    let bundle_temp = get_bundle_for_language(language);
-    let en_bundle_temp = get_bundle_for_language(
-        &LanguageIdentifier::from_str("en").expect("english invalid identifier?"),
-    );
-    let bundle = bundle_temp.value();
-    let en_bundle = en_bundle_temp.value();
-    let message = bundle
-        .get_message(message_id)
-        .or_else(|| en_bundle.get_message(message_id))?;
-    let message_pattern = message.value()?;
-    let mut errors = Vec::new();
-    let res = bundle
-        .format_pattern(message_pattern, args, &mut errors)
-        .into_owned();
-    Some((res, errors))
+	let bundle_temp = get_bundle_for_language(language);
+	let en_bundle_temp = get_bundle_for_language(
+		&LanguageIdentifier::from_str("en").expect("english invalid identifier?"),
+	);
+	let bundle = bundle_temp.value();
+	let en_bundle = en_bundle_temp.value();
+	let message = bundle
+		.get_message(message_id)
+		.or_else(|| en_bundle.get_message(message_id))?;
+	let message_pattern = message.value()?;
+	let mut errors = Vec::new();
+	let res = bundle
+		.format_pattern(message_pattern, args, &mut errors)
+		.into_owned();
+	Some((res, errors))
 }
 
 /// Macro that expands to a valid call of get_formatted_message.

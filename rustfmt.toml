@@ -1,0 +1,10 @@
+hard_tabs = true # Not up to negotiation.
+enum_discrim_align_threshold = 20
+hex_literal_case = "Lower"
+imports_layout = "HorizontalVertical"
+imports_granularity = "Crate"
+newline_style = "Unix"
+normalize_comments = true
+reorder_impl_items = true
+group_imports = "StdExternalCrate"
+struct_field_align_threshold = 20

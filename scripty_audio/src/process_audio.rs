@@ -1,50 +1,49 @@
 use dasp_interpolate::linear::Linear;
-use dasp_signal::interpolate::Converter;
-use dasp_signal::{from_iter, Signal};
+use dasp_signal::{from_iter, interpolate::Converter, Signal};
 
 #[inline]
 pub fn process_audio(src: Vec<i16>, src_sample_rate: f64, dst_sample_rate: f64) -> Vec<i16> {
-    let src = if src_sample_rate != dst_sample_rate {
-        // convert src into an iterator
-        let mut source = from_iter(src.into_iter().map(|v| [v]));
-        let first: [i16; 1] = source.next();
-        let second = source.next();
+	let src = if src_sample_rate != dst_sample_rate {
+		// convert src into an iterator
+		let mut source = from_iter(src.into_iter().map(|v| [v]));
+		let first: [i16; 1] = source.next();
+		let second = source.next();
 
-        // start off by preparing a linear interpolator for the model
-        let interpolator = Linear::new(first, second);
+		// start off by preparing a linear interpolator for the model
+		let interpolator = Linear::new(first, second);
 
-        // then make a converter that takes this interpolator and converts it
-        let conv = Converter::from_hz_to_hz(source, interpolator, src_sample_rate, dst_sample_rate);
+		// then make a converter that takes this interpolator and converts it
+		let conv = Converter::from_hz_to_hz(source, interpolator, src_sample_rate, dst_sample_rate);
 
-        // finally, perform the actual conversion
-        conv.until_exhausted()
-            .map(|v| unsafe { *v.get_unchecked(0) })
-            .collect()
-    } else {
-        src
-    };
+		// finally, perform the actual conversion
+		conv.until_exhausted()
+			.map(|v| unsafe { *v.get_unchecked(0) })
+			.collect()
+	} else {
+		src
+	};
 
-    stereo_to_mono(&src)
+	stereo_to_mono(&src)
 }
 
 // this is useless, and only remains here for someone to stumble upon for their own use
 #[allow(dead_code)]
 pub fn stereo_to_mono(src: &[i16]) -> Vec<i16> {
-    // note: we're not doing this the normal way, because in release mode, there are no arithmetic overflow checks
-    // so we divide the samples by two, and then add them together to get the mono sample
-    // this causes a mild distortion, but it's not noticeable (since it only affects the LSB)
-    let chunks = src.as_chunks::<2>();
-    if !chunks.1.is_empty() {
-        warn!("input does not have an even number of samples, ignoring extra samples");
-    }
+	// note: we're not doing this the normal way, because in release mode, there are no arithmetic overflow checks
+	// so we divide the samples by two, and then add them together to get the mono sample
+	// this causes a mild distortion, but it's not noticeable (since it only affects the LSB)
+	let chunks = src.as_chunks::<2>();
+	if !chunks.1.is_empty() {
+		warn!("input does not have an even number of samples, ignoring extra samples");
+	}
 
-    let mut dst = Vec::with_capacity(src.len() / 2);
-    for sample_pair in chunks.0 {
-        // SAFETY: the length of the chunk is defined at compile time, so we can safely index into it up to two elements
-        let s1 = unsafe { sample_pair.get_unchecked(0) };
-        let s2 = unsafe { sample_pair.get_unchecked(1) };
-        // see the notes above for why we're doing it this way
-        dst.push((s1 / 2) + (s2 / 2));
-    }
-    dst
+	let mut dst = Vec::with_capacity(src.len() / 2);
+	for sample_pair in chunks.0 {
+		// SAFETY: the length of the chunk is defined at compile time, so we can safely index into it up to two elements
+		let s1 = unsafe { sample_pair.get_unchecked(0) };
+		let s2 = unsafe { sample_pair.get_unchecked(1) };
+		// see the notes above for why we're doing it this way
+		dst.push((s1 / 2) + (s2 / 2));
+	}
+	dst
 }

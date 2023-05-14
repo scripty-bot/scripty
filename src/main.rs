@@ -1,3 +1,3 @@
 fn main() {
-    scripty_core::start();
+	scripty_core::start();
 }

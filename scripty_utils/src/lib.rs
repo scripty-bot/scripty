@@ -1,6 +1,6 @@
-use serenity::gateway::ShardManager;
-use serenity::prelude::TypeMapKey;
 use std::sync::Arc;
+
+use serenity::{gateway::ShardManager, prelude::TypeMapKey};
 use tokio::sync::Mutex;
 
 #[macro_use]
@@ -21,5 +21,5 @@ pub use separate_num::separate_num;
 
 pub struct ShardManagerWrapper;
 impl TypeMapKey for ShardManagerWrapper {
-    type Value = Arc<Mutex<ShardManager>>;
+	type Value = Arc<Mutex<ShardManager>>;
 }

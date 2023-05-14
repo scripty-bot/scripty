@@ -15,20 +15,17 @@ pub use disconnect::disconnect_from_vc;
 pub use error::Error;
 pub use scripty_audio::{check_model_language, get_model_languages};
 use serenity::client::Context;
-use songbird::driver::DecodeMode;
-pub use songbird::error::JoinError;
-use songbird::id::GuildId;
-pub use songbird::serenity::SerenityInit;
-use songbird::Config;
+use songbird::{driver::DecodeMode, id::GuildId, Config};
+pub use songbird::{error::JoinError, serenity::SerenityInit};
 
 pub fn get_songbird() -> Config {
-    Config::default().decode_mode(DecodeMode::Decode)
+	Config::default().decode_mode(DecodeMode::Decode)
 }
 
 pub async fn check_voice_state(ctx: &Context, guild_id: GuildId) -> bool {
-    songbird::get(ctx)
-        .await
-        .expect("failed to get songbird object")
-        .get(guild_id)
-        .map_or(false, |_| true)
+	songbird::get(ctx)
+		.await
+		.expect("failed to get songbird object")
+		.get(guild_id)
+		.map_or(false, |_| true)
 }
