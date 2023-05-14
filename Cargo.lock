@@ -2671,6 +2671,7 @@ name = "scripty_v2"
 version = "1.0.0"
 dependencies = [
  "scripty_core",
+ "tracing",
 ]
 
 [[package]]

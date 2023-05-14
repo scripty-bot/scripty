@@ -34,6 +34,7 @@ members = [
 
 [dependencies]
 scripty_core = { path = "scripty_core" }
+tracing = { version = "0.1", features = ["release_max_level_info"] }
 
 [patch.crates-io]
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next" }
