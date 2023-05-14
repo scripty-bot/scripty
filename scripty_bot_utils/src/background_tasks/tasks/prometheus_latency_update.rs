@@ -33,10 +33,23 @@ impl BackgroundTask for LatencyUpdater {
             .await
             .unwrap_or(0) as i64,
         );
-        self.0.latency.http.set(
-            scripty_utils::latency::get_http_latency(&self.1, ChannelId::new(983575000034455584))
-                .await as i64,
-        );
+
+        let http_latency = tokio::time::timeout(
+            Duration::from_secs(10),
+            scripty_utils::latency::get_http_latency(&self.1, ChannelId::new(983575000034455584)),
+        )
+        .await;
+
+        match http_latency {
+            Ok(latency) => self.0.latency.http.set(latency as i64),
+            Err(e) => {
+                error!(
+                    "Failed to get HTTP latency due to 10 second timeout: {:?}",
+                    e
+                );
+            }
+        }
+
         self.0
             .latency
             .db
