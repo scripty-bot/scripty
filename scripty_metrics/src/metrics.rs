@@ -295,6 +295,10 @@ impl Metrics {
 			.register(Box::new(stt_server_fetch_failure.clone()))
 			.unwrap();
 
+		let up = IntCounter::new("up", "Always 1").unwrap();
+		registry.register(Box::new(up)).unwrap();
+		up.set(1);
+
 		Arc::new(Self {
 			registry,
 			start_time: Utc::now().naive_utc(),
