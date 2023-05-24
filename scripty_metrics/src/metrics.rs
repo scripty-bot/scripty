@@ -297,7 +297,7 @@ impl Metrics {
 
 		let up = IntCounter::new("up", "Always 1").unwrap();
 		registry.register(Box::new(up)).unwrap();
-		up.set(1);
+		up.inc();
 
 		Arc::new(Self {
 			registry,
