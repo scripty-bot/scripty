@@ -15,21 +15,21 @@ lto = "fat"
 
 [workspace]
 members = [
-  "scripty_config",
-  "scripty_webserver",
-  "scripty_core",
-  "scripty_premium",
-  "scripty_audio",
-  "scripty_audio_handler",
-  "scripty_commands",
-  "scripty_i18n",
-  "scripty_db",
-  "scripty_metrics",
-  "scripty_utils",
-  "scripty_data_storage",
-  "scripty_redis",
-  "scripty_bot",
-  "scripty_bot_utils",
+	"scripty_config",
+	"scripty_webserver",
+	"scripty_core",
+	"scripty_premium",
+	"scripty_audio",
+	"scripty_audio_handler",
+	"scripty_commands",
+	"scripty_i18n",
+	"scripty_db",
+	"scripty_metrics",
+	"scripty_utils",
+	"scripty_data_storage",
+	"scripty_redis",
+	"scripty_bot",
+	"scripty_bot_utils",
 ]
 
 [dependencies]
