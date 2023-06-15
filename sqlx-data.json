@@ -1,388 +1,452 @@
 {
   "db": "PostgreSQL",
   "00668fa18ca090b0a5478725b43404d8d3be40005ef4327b52135b4fd51eef44": {
-    "query": "SELECT store_audio FROM users WHERE user_id = $1",
     "describe": {
       "columns": [
         {
-          "ordinal": 0,
           "name": "store_audio",
+          "ordinal": 0,
           "type_info": "Bool"
         }
+      ],
+      "nullable": [
+        false
       ],
       "parameters": {
         "Left": [
           "Bytea"
         ]
-      },
-      "nullable": [
-        false
-      ]
-    }
+      }
+    },
+    "query": "SELECT store_audio FROM users WHERE user_id = $1"
   },
   "00785ad758eb025ae58825e7337215ce42a9f1295be1ade608a5dca8e1cba1db": {
-    "query": "INSERT INTO blocked_users (user_id, reason, blocked_since) VALUES ($1, $2, localtimestamp)",
     "describe": {
       "columns": [],
+      "nullable": [],
       "parameters": {
         "Left": [
           "Bytea",
           "Text"
         ]
-      },
-      "nullable": []
-    }
+      }
+    },
+    "query": "INSERT INTO blocked_users (user_id, reason, blocked_since) VALUES ($1, $2, localtimestamp)"
   },
   "07b363d149ec563f4dbb48155cfbaf6bea5b11f72f773ff088a6cc11ab9e0fba": {
-    "query": "UPDATE users SET store_msgs = NOT store_msgs WHERE user_id = $1 RETURNING store_msgs",
     "describe": {
       "columns": [
         {
-          "ordinal": 0,
           "name": "store_msgs",
+          "ordinal": 0,
           "type_info": "Bool"
         }
+      ],
+      "nullable": [
+        false
       ],
       "parameters": {
         "Left": [
           "Bytea"
         ]
-      },
+      }
+    },
+    "query": "UPDATE users SET store_msgs = NOT store_msgs WHERE user_id = $1 RETURNING store_msgs"
+  },
+  "13b1e5d17c14aac48d3a7d931a658d68e88405b1ac8ea7c761243755a955290b": {
+    "describe": {
+      "columns": [
+        {
+          "name": "item_id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        }
+      ],
       "nullable": [
         false
-      ]
-    }
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int4"
+        ]
+      }
+    },
+    "query": "DELETE FROM automod_rules WHERE source_id = $1 AND item_id = $2 RETURNING item_id"
   },
   "19257e273e57461861ee036388cc8e956b128cc690bfe408c422945db4d38d01": {
-    "query": "UPDATE guilds SET premium_owner_id = $1 WHERE guild_id = $2",
     "describe": {
       "columns": [],
+      "nullable": [],
       "parameters": {
         "Left": [
           "Bytea",
           "Int8"
         ]
-      },
-      "nullable": []
-    }
+      }
+    },
+    "query": "UPDATE guilds SET premium_owner_id = $1 WHERE guild_id = $2"
   },
-  "28df5cecf132f47eb3eb18cada4c08d0c44f863c691939fdc19eb0e2f9edd016": {
-    "query": "UPDATE users SET store_msgs = $1 WHERE user_id = $2",
+  "1e97a4efe59b3243df8529421c4c1227f4a232c43c1e478aafd448c250ffa3a2": {
     "describe": {
       "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Bytea"
+        ]
+      }
+    },
+    "query": "\nINSERT INTO users\n    (user_id, premium_level, premium_expiry)\nVALUES\n    ($1, 1, now() + INTERVAL '1 day')\nON CONFLICT\n    ON CONSTRAINT users_pkey\n    DO UPDATE\n    SET\n        premium_level = 1,\n        premium_expiry = now() + INTERVAL '1 day'\n"
+  },
+  "28df5cecf132f47eb3eb18cada4c08d0c44f863c691939fdc19eb0e2f9edd016": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
       "parameters": {
         "Left": [
           "Bool",
           "Bytea"
         ]
-      },
-      "nullable": []
-    }
+      }
+    },
+    "query": "UPDATE users SET store_msgs = $1 WHERE user_id = $2"
   },
   "2908c451e2f179410b4eb54ae6e9027d311a4a0528705043993f18179599f29c": {
-    "query": "INSERT INTO message_store (message_content, nonce) VALUES ($1, $2)",
     "describe": {
       "columns": [],
+      "nullable": [],
       "parameters": {
         "Left": [
           "Bytea",
           "Bytea"
         ]
-      },
-      "nullable": []
-    }
+      }
+    },
+    "query": "INSERT INTO message_store (message_content, nonce) VALUES ($1, $2)"
   },
   "2a6d0bd9e502f359d5b3b15298e1caf8d378e9a5eb8cbf44e4033192e5251642": {
-    "query": "UPDATE guilds SET premium_owner_id = nullif(premium_owner_id, $2) WHERE guild_id = $1",
     "describe": {
       "columns": [],
+      "nullable": [],
       "parameters": {
         "Left": [
           "Int8",
           "Bytea"
         ]
-      },
-      "nullable": []
-    }
-  },
-  "3ac62b5f757869952defc1754e6e3595d413dd39e63a52a0a573c77d40e0824d": {
-    "query": "UPDATE users SET premium_expiry = $1 WHERE user_id = $2",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Timestamptz",
-          "Bytea"
-        ]
-      },
-      "nullable": []
-    }
+      }
+    },
+    "query": "UPDATE guilds SET premium_owner_id = nullif(premium_owner_id, $2) WHERE guild_id = $1"
   },
   "3bbdfb879d54c4721345f459ac595463c856c8506235e89cc90e334682f50913": {
-    "query": "INSERT INTO users (user_id, language) VALUES ($1, $2) ON CONFLICT (user_id) DO UPDATE SET language = $2",
     "describe": {
       "columns": [],
+      "nullable": [],
       "parameters": {
         "Left": [
           "Bytea",
           "Text"
         ]
-      },
-      "nullable": []
-    }
+      }
+    },
+    "query": "INSERT INTO users (user_id, language) VALUES ($1, $2) ON CONFLICT (user_id) DO UPDATE SET language = $2"
   },
   "3eeba2e6b37d8c469dedecded74692bc5933621ebbeff3397f6dab98402209ed": {
-    "query": "SELECT store_msgs FROM users WHERE user_id = $1",
     "describe": {
       "columns": [
         {
-          "ordinal": 0,
           "name": "store_msgs",
+          "ordinal": 0,
           "type_info": "Bool"
         }
+      ],
+      "nullable": [
+        false
       ],
       "parameters": {
         "Left": [
           "Bytea"
         ]
-      },
-      "nullable": [
-        false
-      ]
-    }
+      }
+    },
+    "query": "SELECT store_msgs FROM users WHERE user_id = $1"
   },
   "4b41f197184d8aaa3c397617f4111eb3f77db7015bf9b75693fffd1207e9a00f": {
-    "query": "SELECT language FROM guilds WHERE guild_id = $1",
     "describe": {
       "columns": [
         {
-          "ordinal": 0,
           "name": "language",
+          "ordinal": 0,
           "type_info": "Text"
         }
+      ],
+      "nullable": [
+        false
       ],
       "parameters": {
         "Left": [
           "Int8"
         ]
-      },
-      "nullable": [
-        false
-      ]
-    }
+      }
+    },
+    "query": "SELECT language FROM guilds WHERE guild_id = $1"
   },
-  "575d33c3d59b28605db80194225733a45f177f20de593856dfec9cad59cc96a8": {
-    "query": "UPDATE users SET premium_level = $1 WHERE user_id = $2",
+  "5d29e7b84d7f07dbae3aa1050e29f8118590a1f14c6cff076d89b14fd2e17247": {
     "describe": {
-      "columns": [],
+      "columns": [
+        {
+          "name": "count!",
+          "ordinal": 0,
+          "type_info": "Int8"
+        }
+      ],
+      "nullable": [
+        null
+      ],
       "parameters": {
         "Left": [
-          "Int2",
-          "Bytea"
+          "Int4"
         ]
-      },
-      "nullable": []
-    }
+      }
+    },
+    "query": "SELECT COUNT(*) AS \"count!\" FROM automod_rules WHERE source_id = $1"
   },
   "5e3245cf2ff5bbcc8443a0237fcc5a50d558e6c15313fb33595b49e65477570a": {
-    "query": "INSERT INTO blocked_guilds (guild_id, reason, blocked_since) VALUES ($1, $2, $3)",
     "describe": {
       "columns": [],
+      "nullable": [],
       "parameters": {
         "Left": [
           "Int8",
           "Text",
           "Timestamptz"
         ]
-      },
-      "nullable": []
-    }
+      }
+    },
+    "query": "INSERT INTO blocked_guilds (guild_id, reason, blocked_since) VALUES ($1, $2, $3)"
   },
   "5f535bd03724f832cb2c4ad0e5204ef633b789fa8443a5c9d1a9029a4576ac03": {
-    "query": "UPDATE users SET premium_level = 0, premium_expiry = NULL WHERE user_id = $1",
     "describe": {
       "columns": [],
+      "nullable": [],
       "parameters": {
         "Left": [
           "Bytea"
         ]
-      },
-      "nullable": []
-    }
+      }
+    },
+    "query": "UPDATE users SET premium_level = 0, premium_expiry = NULL WHERE user_id = $1"
   },
   "6368dd70667549f0c0b0b9bf33cce5a62eadc15ffd0ea4fb5437a995a153deb0": {
-    "query": "SELECT be_verbose FROM guilds WHERE guild_id = $1",
     "describe": {
       "columns": [
         {
-          "ordinal": 0,
           "name": "be_verbose",
+          "ordinal": 0,
           "type_info": "Bool"
         }
+      ],
+      "nullable": [
+        false
       ],
       "parameters": {
         "Left": [
           "Int8"
         ]
-      },
-      "nullable": [
-        false
-      ]
-    }
+      }
+    },
+    "query": "SELECT be_verbose FROM guilds WHERE guild_id = $1"
   },
   "705f7b60be453ee60099070b5fc5788991e34209f8c0e52f05ed562a7eb52766": {
-    "query": "SELECT count(*) AS \"guild_count!\" FROM guilds WHERE premium_owner_id = $1",
     "describe": {
       "columns": [
         {
-          "ordinal": 0,
           "name": "guild_count!",
+          "ordinal": 0,
           "type_info": "Int8"
         }
+      ],
+      "nullable": [
+        null
       ],
       "parameters": {
         "Left": [
           "Bytea"
         ]
-      },
-      "nullable": [
-        null
-      ]
-    }
+      }
+    },
+    "query": "SELECT count(*) AS \"guild_count!\" FROM guilds WHERE premium_owner_id = $1"
   },
-  "7aa75622d12ee64a87a749e930bfa042f5e7f770d6eb42938fe6ca4397fdc268": {
-    "query": "UPDATE users SET store_audio = $1 WHERE user_id = $2",
+  "725f46b3b42df952d5a36a98fba5dc9ba19f51d74a9072be9653d699cdefcab0": {
     "describe": {
       "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Bytea",
+          "Int2",
+          "Timestamptz"
+        ]
+      }
+    },
+    "query": "\nINSERT INTO users\n    (user_id, premium_level, premium_expiry, is_trialing)\nVALUES\n    ($1, $2, $3, false)\nON CONFLICT \n    ON CONSTRAINT users_pkey\n    DO UPDATE\n    SET\n        premium_level = $2,\n        premium_expiry = $3,\n        is_trialing = false\n"
+  },
+  "7aa75622d12ee64a87a749e930bfa042f5e7f770d6eb42938fe6ca4397fdc268": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
       "parameters": {
         "Left": [
           "Bool",
           "Bytea"
         ]
-      },
-      "nullable": []
-    }
+      }
+    },
+    "query": "UPDATE users SET store_audio = $1 WHERE user_id = $2"
   },
   "7fa4c774189522476a72220b95c4001f89547189eb2aed97067b2688049e8dbf": {
-    "query": "UPDATE users SET store_audio = NOT store_audio WHERE user_id = $1 RETURNING store_audio",
     "describe": {
       "columns": [
         {
-          "ordinal": 0,
           "name": "store_audio",
+          "ordinal": 0,
           "type_info": "Bool"
         }
       ],
-      "parameters": {
-        "Left": [
-          "Bytea"
-        ]
-      },
       "nullable": [
         false
-      ]
-    }
-  },
-  "81c8b76554d6304dea692ac6d7bb95db6b95f381881f7ccdd85d310087e9a46a": {
-    "query": "SELECT language FROM users WHERE user_id = $1",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "language",
-          "type_info": "Text"
-        }
       ],
       "parameters": {
         "Left": [
           "Bytea"
         ]
-      },
-      "nullable": [
-        false
-      ]
-    }
+      }
+    },
+    "query": "UPDATE users SET store_audio = NOT store_audio WHERE user_id = $1 RETURNING store_audio"
   },
-  "858fcc97d3219006632f7e2f0dc89add4ae5b0cbed76e0c32a1c2b4a2ff665f4": {
-    "query": "SELECT user_id, reason FROM blocked_users",
+  "81c8b76554d6304dea692ac6d7bb95db6b95f381881f7ccdd85d310087e9a46a": {
     "describe": {
       "columns": [
         {
+          "name": "language",
           "ordinal": 0,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Bytea"
+        ]
+      }
+    },
+    "query": "SELECT language FROM users WHERE user_id = $1"
+  },
+  "858fcc97d3219006632f7e2f0dc89add4ae5b0cbed76e0c32a1c2b4a2ff665f4": {
+    "describe": {
+      "columns": [
+        {
           "name": "user_id",
+          "ordinal": 0,
           "type_info": "Bytea"
         },
         {
-          "ordinal": 1,
           "name": "reason",
+          "ordinal": 1,
           "type_info": "Text"
         }
       ],
-      "parameters": {
-        "Left": []
-      },
       "nullable": [
         false,
         true
-      ]
-    }
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT user_id, reason FROM blocked_users"
   },
   "85c6d9a2308e670def0903647e7b2f1f41ab934e742b828e839698aea8dfa891": {
-    "query": "SELECT premium_level, premium_expiry, is_trialing FROM users WHERE user_id = $1",
     "describe": {
       "columns": [
         {
-          "ordinal": 0,
           "name": "premium_level",
+          "ordinal": 0,
           "type_info": "Int2"
         },
         {
-          "ordinal": 1,
           "name": "premium_expiry",
+          "ordinal": 1,
           "type_info": "Timestamptz"
         },
         {
-          "ordinal": 2,
           "name": "is_trialing",
+          "ordinal": 2,
           "type_info": "Bool"
         }
       ],
-      "parameters": {
-        "Left": [
-          "Bytea"
-        ]
-      },
       "nullable": [
         false,
         true,
         false
-      ]
-    }
+      ],
+      "parameters": {
+        "Left": [
+          "Bytea"
+        ]
+      }
+    },
+    "query": "SELECT premium_level, premium_expiry, is_trialing FROM users WHERE user_id = $1"
   },
-  "a1f5b1b128ba652811f0e8264bc632c439590e84ebfa6e4ae1b98cb74cf9d28e": {
-    "query": "SELECT target_channel FROM guilds WHERE guild_id = $1",
+  "8ad4efd6021caa4fddc8a622623dd02864162e8ae7d0f2d45600a7d0aadaa1fb": {
     "describe": {
       "columns": [
         {
+          "name": "item_id",
           "ordinal": 0,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int2",
+          "Text",
+          "Int2"
+        ]
+      }
+    },
+    "query": "INSERT INTO automod_rules (source_id, rule_type, rule_data, rule_action) VALUES ($1, $2, $3, $4) RETURNING item_id"
+  },
+  "a1f5b1b128ba652811f0e8264bc632c439590e84ebfa6e4ae1b98cb74cf9d28e": {
+    "describe": {
+      "columns": [
+        {
           "name": "target_channel",
+          "ordinal": 0,
           "type_info": "Int8"
         }
+      ],
+      "nullable": [
+        true
       ],
       "parameters": {
         "Left": [
           "Int8"
         ]
-      },
-      "nullable": [
-        true
-      ]
-    }
+      }
+    },
+    "query": "SELECT target_channel FROM guilds WHERE guild_id = $1"
   },
   "a79cb39778f193bc5d0f987f046f32e9c5558510474cced79325769001f0ae68": {
-    "query": "INSERT INTO audio_store (source_id, audio_data, transcript, transcript_language) VALUES ($1, $2, $3, $4)",
     "describe": {
       "columns": [],
+      "nullable": [],
       "parameters": {
         "Left": [
           "Bytea",
@@ -390,113 +454,183 @@
           "Text",
           "Text"
         ]
-      },
-      "nullable": []
-    }
+      }
+    },
+    "query": "INSERT INTO audio_store (source_id, audio_data, transcript, transcript_language) VALUES ($1, $2, $3, $4)"
   },
   "a7d6020306b32977bb46d702d9c63451e596fdc7dc5698faefb75b6d1ace6ca7": {
-    "query": "SELECT guild_id, reason FROM blocked_guilds",
     "describe": {
       "columns": [
         {
-          "ordinal": 0,
           "name": "guild_id",
+          "ordinal": 0,
           "type_info": "Int8"
         },
         {
-          "ordinal": 1,
           "name": "reason",
+          "ordinal": 1,
           "type_info": "Text"
         }
       ],
-      "parameters": {
-        "Left": []
-      },
       "nullable": [
         false,
         true
-      ]
-    }
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT guild_id, reason FROM blocked_guilds"
   },
   "a87cecbf5594813de9ae09f64bf587c1351b38780227baedb26c86422e2bdaa6": {
-    "query": "INSERT INTO guilds (guild_id, language) VALUES ($1, $2) ON CONFLICT (guild_id) DO UPDATE SET language = $2",
     "describe": {
       "columns": [],
+      "nullable": [],
       "parameters": {
         "Left": [
           "Int8",
           "Text"
         ]
-      },
-      "nullable": []
-    }
+      }
+    },
+    "query": "INSERT INTO guilds (guild_id, language) VALUES ($1, $2) ON CONFLICT (guild_id) DO UPDATE SET language = $2"
   },
   "ab63ab3a8a49e4c632a3e8c65b352f129d1b8cf94214bc9cb993084615a7c16f": {
-    "query": "INSERT INTO blocked_users (user_id, reason, blocked_since) VALUES ($1, $2, $3)",
     "describe": {
       "columns": [],
+      "nullable": [],
       "parameters": {
         "Left": [
           "Bytea",
           "Text",
           "Timestamptz"
         ]
-      },
-      "nullable": []
-    }
+      }
+    },
+    "query": "INSERT INTO blocked_users (user_id, reason, blocked_since) VALUES ($1, $2, $3)"
   },
   "ad1c1a5fbbb5a8912268a65e63eaccfbc16027325cf504cf982fbbc059cdf5fa": {
-    "query": "SELECT user_id, store_msgs FROM users",
     "describe": {
       "columns": [
         {
-          "ordinal": 0,
           "name": "user_id",
+          "ordinal": 0,
           "type_info": "Bytea"
         },
         {
-          "ordinal": 1,
           "name": "store_msgs",
+          "ordinal": 1,
           "type_info": "Bool"
         }
       ],
-      "parameters": {
-        "Left": []
-      },
       "nullable": [
         false,
         false
-      ]
-    }
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT user_id, store_msgs FROM users"
   },
-  "c136281960af2ceb41d6742e7e3589352898f29423e4391544625f57a8f6a988": {
-    "query": "SELECT user_id, store_audio FROM users",
+  "b16a45673e483ada9bfe1a8abbb87d4a340ead03b9eabe78831c57260f4e5c1b": {
     "describe": {
       "columns": [
         {
+          "name": "item_id",
           "ordinal": 0,
-          "name": "user_id",
-          "type_info": "Bytea"
-        },
-        {
-          "ordinal": 1,
-          "name": "store_audio",
-          "type_info": "Bool"
+          "type_info": "Int4"
         }
       ],
-      "parameters": {
-        "Left": []
-      },
       "nullable": [
-        false,
         false
-      ]
-    }
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT item_id FROM automod_config WHERE guild_id = $1"
   },
-  "d2f46e47f509a6d342aa0e07d08e4a78caec327b1c8b6b36062d10ceb338efd4": {
-    "query": "\nINSERT INTO guilds\nVALUES ($1, $2, $3, $4, false)\nON CONFLICT\n    ON CONSTRAINT guilds_pkey\n    DO UPDATE SET\n      target_channel = $2,\n      language = $3,\n      be_verbose = $4\n      ",
+  "b6c6c3af88d80513ae83e8f6423b54f0eb8b7344a765f5205b2ae35347e0ee00": {
     "describe": {
       "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Bytea"
+        ]
+      }
+    },
+    "query": "\nINSERT INTO users\n    (user_id, premium_level, premium_expiry, is_trialing)\nVALUES\n    ($1, 0, NULL, false)\nON CONFLICT\n    ON CONSTRAINT users_pkey\n    DO UPDATE\n    SET\n        premium_level = 0,\n        premium_expiry = NULL,\n        is_trialing = false\n        "
+  },
+  "bfca9396251c01fbf9510069699b07a287ac149e0598f5056d25b8582481a44d": {
+    "describe": {
+      "columns": [
+        {
+          "name": "item_id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "rule_type",
+          "ordinal": 1,
+          "type_info": "Int2"
+        },
+        {
+          "name": "rule_action",
+          "ordinal": 2,
+          "type_info": "Int2"
+        },
+        {
+          "name": "rule_data",
+          "ordinal": 3,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT item_id, rule_type, rule_action, rule_data FROM automod_rules WHERE source_id = (SELECT item_id FROM automod_config WHERE guild_id = $1) ORDER BY item_id ASC"
+  },
+  "c136281960af2ceb41d6742e7e3589352898f29423e4391544625f57a8f6a988": {
+    "describe": {
+      "columns": [
+        {
+          "name": "user_id",
+          "ordinal": 0,
+          "type_info": "Bytea"
+        },
+        {
+          "name": "store_audio",
+          "ordinal": 1,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT user_id, store_audio FROM users"
+  },
+  "d2f46e47f509a6d342aa0e07d08e4a78caec327b1c8b6b36062d10ceb338efd4": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
       "parameters": {
         "Left": [
           "Int8",
@@ -504,90 +638,143 @@
           "Text",
           "Bool"
         ]
-      },
-      "nullable": []
-    }
+      }
+    },
+    "query": "\nINSERT INTO guilds\nVALUES ($1, $2, $3, $4, false)\nON CONFLICT\n    ON CONSTRAINT guilds_pkey\n    DO UPDATE SET\n      target_channel = $2,\n      language = $3,\n      be_verbose = $4\n      "
+  },
+  "d67442045192e2232c7bf93c4e24f9d4ee342573e73eb75688c7d5b70197becc": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int8",
+          "Bool",
+          "Bool"
+        ]
+      }
+    },
+    "query": "INSERT INTO automod_config \n            (guild_id, enabled, log_channel_id, log_recording, auto_join_voice)\n        VALUES \n            ($1, true, $2, $3, $4)\n        "
   },
   "d95a944ff53eac4be1375577edabda691086a1475563fbb23c80128f44fc0ede": {
-    "query": "\nINSERT INTO users\n(user_id)\nVALUES ($1)\n ON CONFLICT\n     ON CONSTRAINT users_pkey\n     DO NOTHING\n     ",
     "describe": {
       "columns": [],
+      "nullable": [],
       "parameters": {
         "Left": [
           "Bytea"
         ]
-      },
-      "nullable": []
-    }
+      }
+    },
+    "query": "\nINSERT INTO users\n(user_id)\nVALUES ($1)\n ON CONFLICT\n     ON CONSTRAINT users_pkey\n     DO NOTHING\n     "
   },
   "dfa520877c017cd5808d02c24ef2d71938b68093974f335a4d89df91874fdaa2": {
-    "query": "DELETE FROM users WHERE user_id = $1",
     "describe": {
       "columns": [],
+      "nullable": [],
       "parameters": {
         "Left": [
           "Bytea"
         ]
-      },
-      "nullable": []
-    }
+      }
+    },
+    "query": "DELETE FROM users WHERE user_id = $1"
   },
   "e1758cf7ba1424941e3c07f12c0b28f338781ab348743979c57d8a8e8336a9b7": {
-    "query": "SELECT premium_level FROM users INNER JOIN guilds g on users.user_id = g.premium_owner_id WHERE guild_id = $1",
     "describe": {
       "columns": [
         {
-          "ordinal": 0,
           "name": "premium_level",
+          "ordinal": 0,
           "type_info": "Int2"
         }
+      ],
+      "nullable": [
+        false
       ],
       "parameters": {
         "Left": [
           "Int8"
         ]
-      },
-      "nullable": [
-        false
-      ]
-    }
+      }
+    },
+    "query": "SELECT premium_level FROM users INNER JOIN guilds g on users.user_id = g.premium_owner_id WHERE guild_id = $1"
+  },
+  "e20129046ffbefeacec498611c65ecaa944eae3ca76f87b02c93118aa663791b": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Bytea"
+        ]
+      }
+    },
+    "query": "\nINSERT INTO users\n    (user_id, premium_level, premium_expiry, is_trialing)\nVALUES\n    ($1, 0, NULL, false)\nON CONFLICT\n    ON CONSTRAINT users_pkey\n    DO UPDATE\n    SET\n        premium_level = 0,\n        premium_expiry = NULL,\n        is_trialing = false\n"
+  },
+  "e29d6c14dd6a870b84d0452f08e779cea383a3a8946227f572d8602488bf2e03": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Bytea",
+          "Int2",
+          "Timestamptz"
+        ]
+      }
+    },
+    "query": "INSERT INTO users (user_id, premium_level, premium_expiry, is_trialing) VALUES ($1, $2, $3, false)"
   },
   "f2f065836ccd89c512070fad43b04c5e0a842c6cb7ba09dac4439239db761f74": {
-    "query": "SELECT premium_level FROM users WHERE user_id = $1",
     "describe": {
       "columns": [
         {
-          "ordinal": 0,
           "name": "premium_level",
+          "ordinal": 0,
           "type_info": "Int2"
         }
+      ],
+      "nullable": [
+        false
       ],
       "parameters": {
         "Left": [
           "Bytea"
         ]
-      },
-      "nullable": [
-        false
-      ]
-    }
+      }
+    },
+    "query": "SELECT premium_level FROM users WHERE user_id = $1"
   },
   "f393e5d7b3793b4659c01a8e8e03401327102fc07499f598cc4db7cc9084a091": {
-    "query": "SELECT guild_id FROM prefixes LIMIT 1",
     "describe": {
       "columns": [
         {
-          "ordinal": 0,
           "name": "guild_id",
+          "ordinal": 0,
           "type_info": "Int8"
         }
       ],
-      "parameters": {
-        "Left": []
-      },
       "nullable": [
         false
-      ]
-    }
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT guild_id FROM prefixes LIMIT 1"
+  },
+  "fa9bd7bdaa7ecd515b79993101eacfb3c3b0394fc7e6a75c5bec43c239a9ef90": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Bytea"
+        ]
+      }
+    },
+    "query": "\nINSERT INTO users\n    (user_id, premium_level, premium_expiry, is_trialing)\nVALUES\n    ($1, 0, NULL, false)\nON CONFLICT\n    ON CONSTRAINT users_pkey\n    DO UPDATE\n    SET\n        premium_level = 0,\n        premium_expiry = NULL,\n        is_trialing = false"
   }
 }
