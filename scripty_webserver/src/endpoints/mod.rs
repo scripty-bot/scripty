@@ -1,4 +1,5 @@
 pub mod bot_stats;
+pub mod languages;
 pub mod metrics;
 pub mod premium;
 
@@ -7,4 +8,5 @@ pub fn router() -> axum::Router {
 		.merge(bot_stats::router())
 		.merge(metrics::router())
 		.merge(premium::router())
+		.merge(languages::router())
 }

@@ -1,4 +1,9 @@
-languages = ["en"]
+# By default, whisper supports a serious number of languages
+languages = [
+	"es", "it", "en", "pt", "de", "ja", "pl", "ru", "nl", "id", "ca", "fr", "tr", "sv", "uk", "ms", "no", "fi", "vi", "th",
+  "sk", "el", "cs", "hr", "tl", "da", "ko", "ro", "bg", "zh", "gl", "ar", "mk", "hu", "ta", "hi", "et", "ur", "sl", "lv",
+  "he", "lt", "fa", "cy", "sr", "af", "kn", "kk", "is", "mr", "mi", "sw", "hy", "be", "ne"
+]
 token = "a.b.c"
 support_invite = "https://discord.gg/xSpNJSjNhq"
 i18n_dir = "/home/user/scripty/scripty_i18n/locales"

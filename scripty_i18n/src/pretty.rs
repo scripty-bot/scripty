@@ -8,8 +8,8 @@ pub type LanguageMap = HashMap<String, LanguageMapValue>;
 
 #[derive(Serialize, Deserialize)]
 pub struct LanguageMapValue {
-	native:  String,
-	english: String,
+	pub native:  String,
+	pub english: String,
 }
 
 const LANGUAGE_MAP: &str = include_str!("../locales/codes.json");
