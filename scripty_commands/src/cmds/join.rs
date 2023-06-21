@@ -63,6 +63,23 @@ pub async fn join(
 		}
 	}
 
+	if &voice_channel
+		.guild(discord_ctx)
+		.ok_or(Error::custom(
+			"the current server was not found in the cache (Discord didn't send data)".to_string(),
+		))?
+		.voice_states
+		.values()
+		.filter(|state| state.channel_id == Some(voice_channel.id))
+		.count() == 0
+	{
+		ctx.say(
+			format_message!(resolved_language, "join-no-one-in-channel", targetMention: voice_channel.mention().to_string()),
+		)
+		.await?;
+		return Ok(());
+	}
+
 	let premium_level = scripty_premium::get_guild(guild_id.0)
 		.await
 		.map_or(0, |l| l as u8);

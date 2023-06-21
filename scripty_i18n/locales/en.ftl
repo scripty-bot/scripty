@@ -142,6 +142,8 @@ join-success = Successfully joined { $targetMention }.
 # This message is shown when the user tries to invite the bot to a voice channel,
 # but the webhook used by the bot has been deleted.
 webhook-deleted = Looks like you deleted the webhook I use! *bonk* Re-run `{ $contextPrefix }setup` to fix this.
+# This message is shown when the user attempts to make Scripty join a voice channel, but there is no one in the channel.
+join-no-one-in-channel = There's no one in { $targetMention }. I'm not joining if there's no one there, as that's a waste of limited resources.
 
 ## ping command
 # This is shown as the title of the ping command (eg what shows up in the slash command picker)
