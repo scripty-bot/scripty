@@ -1,3 +1,7 @@
+## generic strings
+# Message shown if a guild has not claimed their free trial of premium. Always appears on its own standalone line in the surrounding message.
+free-trial-upsell = We offer 3-day trials of Scripty Premium if you would like to try it out and see if it is right for you. Send the bot a DM to get started with a free trial.
+
 ## donate command
 # This is shown as the title of the donate command (eg what shows up in the slash command picker)
 donations-command-name = donate
@@ -134,6 +138,7 @@ join-success = Successfully joined { $targetMention }.
     
     Note: your current premium tier is { $tier }. This allows for { $maxUsers } users to be transcripted at once. Along with this, the bot will automatically leave after { $leaveDuration } seconds, regardless of how many users are in the channel. This is to prevent abuse of our systems.
     If you would like more users, a longer duration of usage, and would like to also support the bot, consider subscribing to our Premium: <https://dash.scripty.org/premium>
+    { $freeTrialUpsell }
 # This message is shown when the user tries to invite the bot to a voice channel,
 # but the webhook used by the bot has been deleted.
 webhook-deleted = Looks like you deleted the webhook I use! *bonk* Re-run `{ $contextPrefix }setup` to fix this.
@@ -175,16 +180,9 @@ setup-success-title = Set up successfully!
 setup-success-description =
     A couple notes:
     
-    1) The bot is extremely expensive to run, and requires a serious amount of processing power, so it'd be amazing if you could donate a bit. We offer premium tiers that boost the limit on the number of users transcripted, which defaults to 5. The core features will stay free forever, though. If you're interested, check out the `{ $contextPrefix }donate` command.
-    
-    2) If you chose a language other than English (the default) note that transcriptions for it will be much, much lower quality. Soon we will be adding a feature that allows you to help transcription accuracy with your own voice (see note 5).
-    
-    3) If you are not a middle-aged American male, expect lower transcription accuracy. This is due to inherent bias within the model, and the only thing we can do about it is train more accurate models (again, see note 5).
-    
-    4) To help us train more accurate models, consider allowing us to store your audio and transcriptions for training. See the `{ $contextPrefix }train_storage` command.
-    
-    5) I don't exactly want to ask again, but please consider donating. It takes an ***insane*** amount of processing power to train new models (we're talking multiple Nvidia RTX 3090 GPUs), and every little bit of money helps a lot. Again, if you're interested, check out the `{ $contextPrefix }donate` command.
-    
+    1) The bot is extremely expensive to run, and requires a serious amount of processing power, so it'd be amazing if you could donate a bit. We offer premium tiers that come with many more features than the free version. You can find a comparison and a list of premium tiers at <https://scripty.org/premium>. The core features will stay free forever, though.
+
+    2) If you chose a language other than English (the default) note that transcriptions for it will be much, much lower quality. You can see each language's accuracy at https://scripty.org/languages.
     
     Thanks for checking out Scripty! <3
     ~ 0/0 + valkyrie_pilot
@@ -402,8 +400,6 @@ credits-field1-title = Core Developers
 credits-field1-description = 0/0 and valkyrie_pilot
 credits-field2-title = Translators
 credits-field2-description = Many, many people have helped translate the bot. See the `{ $contextPrefix }translators` command for a list of translators.
-credits-field3-title = Hosting Provider
-credits-field3-description = Droplet Development has graciously given Scripty a powerful host, with a decent amount of power to scale to roughly 2,500 servers. You can check them out at https://droplet.gg/
 credits-field4-title = All Our Users
 credits-field4-description = Yes, this includes you! We appreciate you using Scripty, and we hope you enjoy using it.
 

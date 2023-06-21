@@ -627,6 +627,26 @@
     },
     "query": "SELECT user_id, store_audio FROM users"
   },
+  "c64344ea6ce81c78c9fc536e72422e1d3d863f5d17844221b875dabcbab0fc3a": {
+    "describe": {
+      "columns": [
+        {
+          "name": "transcribe_voice_messages",
+          "ordinal": 0,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT transcribe_voice_messages FROM guilds WHERE guild_id = $1"
+  },
   "d2f46e47f509a6d342aa0e07d08e4a78caec327b1c8b6b36062d10ceb338efd4": {
     "describe": {
       "columns": [],

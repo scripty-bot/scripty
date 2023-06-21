@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use scripty_bot_utils::checks::is_guild;
 use serenity::{
 	http::StatusCode,
@@ -66,14 +68,16 @@ pub async fn join(
 		.map_or(0, |l| l as u8);
 
 	let db = scripty_db::get_db();
-	let channel_id = sqlx::query!(
-		"SELECT target_channel FROM guilds WHERE guild_id = $1",
+	let res = sqlx::query!(
+		"SELECT target_channel, trial_used FROM guilds WHERE guild_id = $1",
 		guild_id.get() as i64
 	)
 	.fetch_optional(db)
-	.await?
-	.and_then(|id| id.target_channel.map(|id| id as u64));
-	let channel_id = match channel_id {
+	.await?;
+	let channel_id = match res
+		.as_ref()
+		.and_then(|row| row.target_channel.map(|id| id as u64))
+	{
 		Some(id) => id.into(),
 		None => {
 			ctx.say(
@@ -83,6 +87,10 @@ pub async fn join(
 			return Ok(());
 		}
 	};
+	// the above checks that the row exists already, so we do not need to do anything besides a unwrap
+	let trial_used = res
+		.expect("above should have checked successfully that row exists")
+		.trial_used;
 
 	let res = scripty_audio_handler::connect_to_vc(
 		discord_ctx.clone(),
@@ -117,6 +125,11 @@ pub async fn join(
 					5 => 86400,
 					6 => 604800,
 					_ => 1800,
+				},
+				freeTrialUpsell: if trial_used {
+					Cow::Borrowed("")
+				} else {
+					Cow::Owned(format_message!(resolved_language, "free-trial-upsell"))
 				}
 			))
 			.await?;
