@@ -63,7 +63,7 @@ pub async fn join(
 		}
 	}
 
-	if &voice_channel
+	if voice_channel
 		.guild(discord_ctx)
 		.ok_or(Error::custom(
 			"the current server was not found in the cache (Discord didn't send data)".to_string(),
