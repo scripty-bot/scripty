@@ -17,7 +17,7 @@ scripty_db = { path = "../scripty_db" }
 scripty_config = { path = "../scripty_config" }
 tokio = { version = "1", features = ["parking_lot", "signal"] }
 tracing = { version = "0.1", features = ["release_max_level_info"] }
-serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [
+serenity = { git = "https://github.com/mkrasnitski/serenity", branch = "gateway-revert", features = [
 	"voice",
 	"dashmap",
 	"parking_lot",
@@ -29,5 +29,5 @@ serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", f
 	"builder",
 	"collector",
 	"utils",
-], default-features = false }
+] }
 sqlx = { version = "0.6", features = ["postgres", "macros", "migrate", "offline", "runtime-tokio-rustls", "time"] }

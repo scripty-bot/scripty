@@ -26,7 +26,7 @@ impl BackgroundTask for LatencyUpdater {
 					.expect("client data not set yet")
 					.shard_manager
 					.clone(),
-				self.1.shard_id,
+				self.1.shard_id.0,
 			)
 			.await
 			.unwrap_or(0) as i64,

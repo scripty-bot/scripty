@@ -1,4 +1,4 @@
-use serenity::gateway::ShardId;
+use serenity::all::ShardId;
 
 use crate::{ShardManagerWrapper, TypeMapKey};
 

@@ -15,7 +15,7 @@ pub async fn ping(ctx: Context<'_>) -> Result<(), Error> {
 	// all latency methods return a latency in nanoseconds
 
 	// get WebSocket latency in nanoseconds and milliseconds, defaulting to 0 if it fails
-	let ws_latency_ns = get_ws_latency(&ctx.data().shard_manager, dctx.shard_id)
+	let ws_latency_ns = get_ws_latency(&ctx.data().shard_manager, dctx.shard_id.0)
 		.await
 		.unwrap_or(0);
 	let ws_latency_ms = (ws_latency_ns as f64 / 1_000_000.0).round();

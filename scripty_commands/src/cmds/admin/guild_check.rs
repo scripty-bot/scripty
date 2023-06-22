@@ -2,7 +2,7 @@ use std::{collections::HashMap, fmt::Write, ops::Range};
 
 use poise::CreateReply;
 use scripty_bot_utils::globals::CLIENT_DATA;
-use serenity::gateway::{ChunkGuildFilter, ShardId};
+use serenity::{all::ShardId, gateway::ChunkGuildFilter};
 
 use crate::{Context, Error};
 

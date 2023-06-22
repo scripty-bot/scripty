@@ -22,7 +22,7 @@ songbird = { git = "https://github.com/serenity-rs/songbird", branch = "next", f
 	"receive",
 	"rustls",
 ] }
-serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [
+serenity = { git = "https://github.com/mkrasnitski/serenity", branch = "gateway-revert", features = [
 	"voice",
 	"dashmap",
 	"parking_lot",
@@ -34,5 +34,5 @@ serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", f
 	"builder",
 	"collector",
 	"utils",
-], default-features = false }
+] }
 sqlx = { version = "0.6", features = ["postgres", "macros", "migrate", "offline", "runtime-tokio-rustls"] }

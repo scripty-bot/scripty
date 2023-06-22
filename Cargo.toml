@@ -37,5 +37,8 @@ scripty_core = { path = "scripty_core" }
 tracing = { version = "0.1", features = ["release_max_level_info"] }
 
 [patch.crates-io]
-serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next" }
+serenity = { git = "https://github.com/mkrasnitski/serenity", branch = "gateway-revert" }
 songbird = { git = "https://github.com/serenity-rs/songbird", branch = "next" }
+
+[patch."https://github.com/serenity-rs/serenity"]
+serenity = { git = "https://github.com/mkrasnitski/serenity", branch = "gateway-revert" }
