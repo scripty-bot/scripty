@@ -34,7 +34,7 @@ pub fn stereo_to_mono(src: &[i16]) -> Vec<i16> {
 	// this causes a mild distortion, but it's not noticeable (since it only affects the LSB)
 	let chunks = src.as_chunks::<2>();
 	if !chunks.1.is_empty() {
-		warn!("input does not have an even number of samples, ignoring extra samples");
+		trace!("input does not have an even number of samples, ignoring extra samples");
 	}
 
 	let mut dst = Vec::with_capacity(src.len() / 2);
