@@ -2,6 +2,7 @@ use std::{borrow::Cow, fmt::Write};
 
 use poise::FrameworkError;
 use serenity::{
+	all::DiscordJsonError,
 	builder::{CreateEmbed, CreateMessage},
 	http,
 };
@@ -35,14 +36,20 @@ pub async fn on_error(error: FrameworkError<'_, Data, Error>) {
 			match error.err {
 				ErrorEnum::Serenity(serenity::Error::Http(
 					http::HttpError::UnsuccessfulRequest(http::ErrorResponse {
-						status_code, ..
+						status_code,
+						error: DiscordJsonError { code, message, .. },
+						..
 					}),
 				)) if status_code == http::StatusCode::FORBIDDEN => {
 					send_err_msg(
 						ctx,
 						format!("Missing permissions for {}!", cmd_name),
-						"I tried doing something (not sure what) but was not allowed to.\
-                     Please check my permissions and try again.",
+						format!(
+							"I tried doing something (not sure what) but was not allowed to.\
+                             Please check my permissions and try again.\n\
+                             Discord error code {}, message: `{}`",
+							code, message
+						),
 					)
 					.await;
 				}
