@@ -12,7 +12,7 @@ rand = "0.8"
 hound = "3"
 dashmap = "5"
 once_cell = "1"
-ouroboros = "0.15"
+ouroboros = "0.17"
 parking_lot = "0.12"
 scripty_db = { path = "../scripty_db" }
 scripty_utils = { path = "../scripty_utils" }
