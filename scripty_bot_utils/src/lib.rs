@@ -1,3 +1,4 @@
+#![feature(let_chains)]
 #[macro_use]
 extern crate tracing;
 #[macro_use]
@@ -14,6 +15,7 @@ pub mod extern_utils;
 pub mod globals;
 pub mod handler;
 pub mod types;
+mod voice_message;
 
 pub use error::error_type::Error;
 pub use types::{Context, Data};

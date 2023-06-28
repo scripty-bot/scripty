@@ -208,11 +208,14 @@ impl Stream {
 	}
 }
 
+#[derive(Debug)]
 pub enum ModelError {
 	Io(io::Error),
 	SttsServer(i64),
 	NoAvailableServers,
 }
+
+impl std::error::Error for ModelError {}
 
 impl From<io::Error> for ModelError {
 	fn from(err: io::Error) -> Self {

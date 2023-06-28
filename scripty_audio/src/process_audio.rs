@@ -17,6 +17,7 @@ pub fn process_audio(src: Vec<i16>, src_sample_rate: f64, dst_sample_rate: f64) 
 
 		// finally, perform the actual conversion
 		conv.until_exhausted()
+			// an array of [i16; 1] is always safe to get the 0th index
 			.map(|v| unsafe { *v.get_unchecked(0) })
 			.collect()
 	} else {

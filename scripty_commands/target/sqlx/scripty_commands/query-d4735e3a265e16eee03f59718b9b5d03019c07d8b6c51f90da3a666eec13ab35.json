@@ -1,21 +1,17 @@
 {
-  "query": "SELECT premium_level FROM users WHERE user_id = $1",
+  "query": "\nINSERT INTO guilds\nVALUES ($1, $2, $3, $4, false)\nON CONFLICT\n    ON CONSTRAINT guilds_pkey\n    DO UPDATE SET\n      target_channel = $2,\n      language = $3,\n      be_verbose = $4,\n      transcribe_voice_messages = $5\n      ",
   "describe": {
-    "columns": [
-      {
-        "ordinal": 0,
-        "name": "premium_level",
-        "type_info": "Int2"
-      }
-    ],
+    "columns": [],
     "parameters": {
       "Left": [
-        "Bytea"
+        "Int8",
+        "Int8",
+        "Text",
+        "Bool",
+        "Bool"
       ]
     },
-    "nullable": [
-      false
-    ]
+    "nullable": []
   },
-  "hash": "f2f065836ccd89c512070fad43b04c5e0a842c6cb7ba09dac4439239db761f74"
+  "hash": "24886fc426e1621677fb6cdc0a3fa4d6169fb0695a05c3c0809fe317040d7ea7"
 }

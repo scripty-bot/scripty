@@ -5,6 +5,7 @@ use std::{
 };
 
 use backtrace::Backtrace;
+use scripty_audio::{ModelError, OggOpusDecodeError};
 use scripty_audio_handler::JoinError;
 use serenity::{model::channel::ChannelType, prelude::SerenityError};
 
@@ -28,6 +29,8 @@ pub enum ErrorEnum {
 	ManualError,
 	Redis(scripty_redis::redis::RedisError),
 	RedisPool(scripty_redis::PoolError),
+	VoiceMessageDecode(OggOpusDecodeError),
+	Transcription(ModelError),
 	Custom(String),
 }
 
@@ -98,6 +101,22 @@ impl Error {
 	}
 
 	#[inline]
+	pub fn voice_message_decode(err: OggOpusDecodeError) -> Self {
+		Error {
+			bt:  Backtrace::new(),
+			err: ErrorEnum::VoiceMessageDecode(err),
+		}
+	}
+
+	#[inline]
+	pub fn transcription(err: ModelError) -> Self {
+		Error {
+			bt:  Backtrace::new(),
+			err: ErrorEnum::Transcription(err),
+		}
+	}
+
+	#[inline]
 	pub fn custom(err: String) -> Self {
 		Error {
 			bt:  Backtrace::new(),
@@ -159,6 +178,14 @@ impl Display for Error {
 			ManualError => "manual error".into(),
 			Redis(e) => format!("Redis returned an error: {}", e).into(),
 			RedisPool(e) => format!("Redis pool returned an error: {}", e).into(),
+			VoiceMessageDecode(e) => format!(
+				"Failed to decode voice message: {}\n\
+			Note: this error can be caused by uploading custom voice message files. \
+			Scripty will only attempt to decode those uploaded with the same format as the official client.",
+				e
+			)
+			.into(),
+			Transcription(e) => format!("STT model returned an error: {}", e).into(),
 			Custom(e) => format!("Custom error: {}", e).into(),
 		};
 		f.write_str(res.as_ref())
@@ -177,6 +204,8 @@ impl StdError for Error {
 			ManualError => None,
 			Redis(e) => Some(e),
 			RedisPool(e) => Some(e),
+			VoiceMessageDecode(e) => Some(e),
+			Transcription(e) => Some(e),
 			Custom(_) => None,
 		}
 	}
@@ -238,6 +267,26 @@ impl From<String> for Error {
 	fn from(e: String) -> Self {
 		Self {
 			err: ErrorEnum::Custom(e),
+			bt:  Backtrace::new(),
+		}
+	}
+}
+
+impl From<OggOpusDecodeError> for Error {
+	#[inline]
+	fn from(e: OggOpusDecodeError) -> Self {
+		Self {
+			err: ErrorEnum::VoiceMessageDecode(e),
+			bt:  Backtrace::new(),
+		}
+	}
+}
+
+impl From<ModelError> for Error {
+	#[inline]
+	fn from(e: ModelError) -> Self {
+		Self {
+			err: ErrorEnum::Transcription(e),
 			bt:  Backtrace::new(),
 		}
 	}

@@ -3,11 +3,13 @@
 #[macro_use]
 extern crate tracing;
 
+mod decode_ogg_opus;
 mod init;
 mod load_balancer;
 mod models;
 mod process_audio;
 
+pub use decode_ogg_opus::{decode_ogg_opus_file, OggOpusDecodeError};
 pub use init::init_stt;
 pub use models::*;
 pub use process_audio::process_audio;

@@ -41,6 +41,9 @@ pub async fn setup(
 
 	#[description = "During transcriptions, be verbose? This adds no extra overhead."]
 	verbose: Option<bool>,
+
+	#[description = "Transcribe voice messages? This is limited by your guild's premium status. Defaults to true."]
+	transcribe_voice_messages: Option<bool>,
 ) -> Result<(), Error> {
 	let resolved_language =
 		scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
@@ -125,12 +128,14 @@ ON CONFLICT
     DO UPDATE SET
       target_channel = $2,
       language = $3,
-      be_verbose = $4
+      be_verbose = $4,
+      transcribe_voice_messages = $5
       "#,
 		guild_id,
 		target_channel.id.get() as i64,
 		language,
 		verbose,
+		transcribe_voice_messages.unwrap_or(true),
 	)
 	.execute(db)
 	.await?;
