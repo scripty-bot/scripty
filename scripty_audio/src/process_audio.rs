@@ -34,6 +34,7 @@ pub fn stereo_to_mono(src: &[i16]) -> Vec<i16> {
 	// this causes a mild distortion, but it's not noticeable (since it only affects the LSB)
 	let chunks = src.as_chunks::<2>();
 	if !chunks.1.is_empty() {
+		// it seems the vast majority of voice packets trigger this error
 		trace!("input does not have an even number of samples, ignoring extra samples");
 	}
 
