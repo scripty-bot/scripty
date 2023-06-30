@@ -87,6 +87,32 @@
     },
     "query": "UPDATE guilds SET premium_owner_id = $1 WHERE guild_id = $2"
   },
+  "19cf749364993c44a8f059b604105b128aae64d968fa426ba795469f0087dea4": {
+    "describe": {
+      "columns": [
+        {
+          "name": "target_channel",
+          "ordinal": 0,
+          "type_info": "Int8"
+        },
+        {
+          "name": "trial_used",
+          "ordinal": 1,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        true,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT target_channel, trial_used FROM guilds WHERE guild_id = $1"
+  },
   "1e97a4efe59b3243df8529421c4c1227f4a232c43c1e478aafd448c250ffa3a2": {
     "describe": {
       "columns": [],
@@ -98,6 +124,22 @@
       }
     },
     "query": "\nINSERT INTO users\n    (user_id, premium_level, premium_expiry)\nVALUES\n    ($1, 1, now() + INTERVAL '1 day')\nON CONFLICT\n    ON CONSTRAINT users_pkey\n    DO UPDATE\n    SET\n        premium_level = 1,\n        premium_expiry = now() + INTERVAL '1 day'\n"
+  },
+  "24886fc426e1621677fb6cdc0a3fa4d6169fb0695a05c3c0809fe317040d7ea7": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int8",
+          "Text",
+          "Bool",
+          "Bool"
+        ]
+      }
+    },
+    "query": "\nINSERT INTO guilds\nVALUES ($1, $2, $3, $4, false)\nON CONFLICT\n    ON CONSTRAINT guilds_pkey\n    DO UPDATE SET\n      target_channel = $2,\n      language = $3,\n      be_verbose = $4,\n      transcribe_voice_messages = $5\n      "
   },
   "28df5cecf132f47eb3eb18cada4c08d0c44f863c691939fdc19eb0e2f9edd016": {
     "describe": {
@@ -423,26 +465,6 @@
     },
     "query": "INSERT INTO automod_rules (source_id, rule_type, rule_data, rule_action) VALUES ($1, $2, $3, $4) RETURNING item_id"
   },
-  "a1f5b1b128ba652811f0e8264bc632c439590e84ebfa6e4ae1b98cb74cf9d28e": {
-    "describe": {
-      "columns": [
-        {
-          "name": "target_channel",
-          "ordinal": 0,
-          "type_info": "Int8"
-        }
-      ],
-      "nullable": [
-        true
-      ],
-      "parameters": {
-        "Left": [
-          "Int8"
-        ]
-      }
-    },
-    "query": "SELECT target_channel FROM guilds WHERE guild_id = $1"
-  },
   "a79cb39778f193bc5d0f987f046f32e9c5558510474cced79325769001f0ae68": {
     "describe": {
       "columns": [],
@@ -646,21 +668,6 @@
       }
     },
     "query": "SELECT transcribe_voice_messages FROM guilds WHERE guild_id = $1"
-  },
-  "d2f46e47f509a6d342aa0e07d08e4a78caec327b1c8b6b36062d10ceb338efd4": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Int8",
-          "Int8",
-          "Text",
-          "Bool"
-        ]
-      }
-    },
-    "query": "\nINSERT INTO guilds\nVALUES ($1, $2, $3, $4, false)\nON CONFLICT\n    ON CONSTRAINT guilds_pkey\n    DO UPDATE SET\n      target_channel = $2,\n      language = $3,\n      be_verbose = $4\n      "
   },
   "d67442045192e2232c7bf93c4e24f9d4ee342573e73eb75688c7d5b70197becc": {
     "describe": {
