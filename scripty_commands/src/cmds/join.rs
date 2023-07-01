@@ -20,9 +20,13 @@ pub async fn join(
 	#[description = "Voice chat to bind to"]
 	#[channel_types("Voice")]
 	voice_channel: Option<GuildChannel>,
+
+	#[description = "Log all transcripts? Users will be DMed when Scripty leaves the channel. Defaults to false."]
+	record_transcriptions: Option<bool>,
 ) -> Result<(), Error> {
 	let resolved_language =
 		scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
+	let record_transcriptions = record_transcriptions.unwrap_or(false);
 
 	let _typing = ctx.defer_or_broadcast();
 
@@ -59,7 +63,10 @@ pub async fn join(
 	match voice_channel.kind {
 		ChannelType::Voice | ChannelType::Stage => {}
 		_ => {
-			return Err(Error::custom("expected voice channel".to_string()));
+			return Err(Error::invalid_channel_type(
+				ChannelType::Voice,
+				voice_channel.kind,
+			));
 		}
 	}
 
@@ -104,7 +111,7 @@ pub async fn join(
 			return Ok(());
 		}
 	};
-	// the above checks that the row exists already, so we do not need to do anything besides a unwrap
+	// the above checks that the row exists already, so we do not need to do anything besides an unwrap
 	let trial_used = res
 		.expect("above should have checked successfully that row exists")
 		.trial_used;
@@ -115,6 +122,7 @@ pub async fn join(
 		channel_id,
 		voice_channel.id,
 		false,
+		record_transcriptions,
 	)
 	.await;
 	match res {

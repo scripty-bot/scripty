@@ -1,13 +1,18 @@
 use std::{borrow::Cow, sync::Arc};
 
 use serenity::{
-	builder::ExecuteWebhook,
+	all::UserId,
+	builder::{CreateAttachment, CreateMessage, ExecuteWebhook},
 	client::Context,
 	model::{id::ChannelId, webhook::Webhook},
 };
 use songbird::{events::context_data::DisconnectReason, id::GuildId, model::CloseCode};
 
-use crate::{connect_to_vc, Error};
+use crate::{
+	connect_to_vc,
+	types::{SeenUsers, TranscriptResults},
+	Error,
+};
 
 pub async fn driver_disconnect(
 	guild_id: GuildId,
@@ -16,6 +21,8 @@ pub async fn driver_disconnect(
 	webhook: Arc<Webhook>,
 	channel_id: ChannelId,
 	voice_channel_id: ChannelId,
+	transcript_results: TranscriptResults,
+	seen_users: SeenUsers,
 ) {
 	debug!(?guild_id, "handler disconnected");
 	let (should_reconnect, reason) = match reason {
@@ -66,6 +73,7 @@ pub async fn driver_disconnect(
 	if should_reconnect {
 		debug!(?guild_id, "scheduling reconnect");
 		// retry connection in 30 seconds
+		let record_transcriptions = transcript_results.is_some();
 		let webhook2 = webhook.clone();
 		let ctx2 = ctx.clone();
 		let ctx3 = ctx.clone();
@@ -80,6 +88,7 @@ pub async fn driver_disconnect(
 				channel_id,
 				voice_channel_id,
 				false,
+				record_transcriptions,
 			)
 			.await
 			{
@@ -105,7 +114,7 @@ pub async fn driver_disconnect(
 		debug!(?guild_id, "giving user reason for disconnection");
 		if let Err(e) = webhook
 			.execute(
-				ctx,
+				&ctx,
 				false,
 				ExecuteWebhook::default().content(format!(
 					"I had an issue ({}) and disconnected from the voice chat. {}",
@@ -123,6 +132,33 @@ pub async fn driver_disconnect(
 				?guild_id,
 				"failed to notify user about disconnection: {}", e
 			);
+		}
+	}
+
+	// send all users the results of their transcriptions
+	if let (Some(transcript_results), Some(seen_users)) = (transcript_results, seen_users) {
+		let final_text_output = transcript_results.read().join("\n");
+		let attachment = CreateAttachment::bytes(final_text_output, "transcript.txt");
+		let message = CreateMessage::new().add_file(attachment.clone()).content(
+			"This transcript was automatically sent to all users who spoke in the voice chat.",
+		);
+		for user in seen_users.iter() {
+			match UserId::new(*user).create_dm_channel(&ctx).await {
+				Ok(user) => {
+					if let Err(e) = user.send_message(&ctx, message.clone()).await {
+						debug!(?guild_id, "failed to send transcript to {}: {}", user, e);
+					}
+				}
+				Err(e) => {
+					warn!(?guild_id, "failed to get user {}: {}", *user, e);
+					continue;
+				}
+			}
+		}
+
+		// send the transcript to the channel
+		if let Err(e) = webhook.execute(&ctx, false, ExecuteWebhook::new().content("This transcript was automatically sent to all users who spoke in the voice chat.").add_file(attachment)).await {
+			debug!(?guild_id, "failed to send transcript to channel: {}", e);
 		}
 	}
 }

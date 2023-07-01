@@ -3,11 +3,17 @@ use std::num::NonZeroU64;
 use serenity::prelude::Context;
 use songbird::model::payload::Speaking;
 
-use crate::audio_handler::ArcSsrcMaps;
+use crate::{audio_handler::ArcSsrcMaps, types::SeenUsers};
 
-pub async fn speaking_state_update(state_update: Speaking, ctx: Context, ssrc_state: ArcSsrcMaps) {
+pub async fn speaking_state_update(
+	state_update: Speaking,
+	ctx: Context,
+	ssrc_state: ArcSsrcMaps,
+	seen_users: SeenUsers,
+) {
 	let ssrc = state_update.ssrc;
 	debug!(?state_update.speaking, ?state_update.ssrc, ?state_update.user_id, "SpeakingStateUpdate event fired");
+
 	// check if the user ID is in the state update, or in the SSRC map, and bail if not in either
 	let user_id = match state_update.user_id.map_or_else(
 		|| {
@@ -24,6 +30,11 @@ pub async fn speaking_state_update(state_update: Speaking, ctx: Context, ssrc_st
 			return;
 		}
 	};
+
+	// add to seen users
+	if let Some(seen_users) = seen_users {
+		seen_users.insert(user_id.get());
+	}
 
 	debug!("checking if either ssrc_ignored_map or ssrc_user_data_map does not contain key");
 	if !ssrc_state.ssrc_ignored_map.contains_key(&ssrc)

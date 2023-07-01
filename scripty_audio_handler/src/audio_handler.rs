@@ -23,12 +23,14 @@ use crate::{
 	types::{
 		ActiveUserSet,
 		NextUserList,
+		SeenUsers,
 		SsrcIgnoredMap,
 		SsrcSpeakingSet,
 		SsrcStreamMap,
 		SsrcUserDataMap,
 		SsrcUserIdMap,
 		SsrcVoiceIngestMap,
+		TranscriptResults,
 	},
 };
 
@@ -46,15 +48,17 @@ pub type ArcSsrcMaps = Arc<SsrcMaps>;
 
 #[derive(Clone)]
 pub struct AudioHandler {
-	ssrc_state:       Arc<SsrcMaps>,
-	guild_id:         GuildId,
-	channel_id:       ChannelId,
-	voice_channel_id: ChannelId,
-	webhook:          Arc<Webhook>,
-	context:          Context,
-	premium_level:    Arc<AtomicU8>,
-	verbose:          Arc<AtomicBool>,
-	language:         Arc<RwLock<String>>,
+	ssrc_state:         Arc<SsrcMaps>,
+	guild_id:           GuildId,
+	channel_id:         ChannelId,
+	voice_channel_id:   ChannelId,
+	webhook:            Arc<Webhook>,
+	context:            Context,
+	premium_level:      Arc<AtomicU8>,
+	verbose:            Arc<AtomicBool>,
+	language:           Arc<RwLock<String>>,
+	transcript_results: TranscriptResults,
+	seen_users:         SeenUsers,
 }
 
 impl AudioHandler {
@@ -64,6 +68,7 @@ impl AudioHandler {
 		context: Context,
 		channel_id: ChannelId,
 		voice_channel_id: ChannelId,
+		record_transcriptions: bool,
 	) -> Result<Self, sqlx::Error> {
 		let maps = SsrcMaps {
 			ssrc_user_id_map:      DashMap::with_hasher(RandomState::new()),
@@ -85,6 +90,16 @@ impl AudioHandler {
 			premium_level: Arc::new(AtomicU8::new(0)),
 			verbose: Arc::new(AtomicBool::new(false)),
 			language: Arc::new(Default::default()),
+			transcript_results: if record_transcriptions {
+				Some(Arc::new(RwLock::new(Vec::new())))
+			} else {
+				None
+			},
+			seen_users: if record_transcriptions {
+				Some(Arc::new(DashSet::with_hasher(RandomState::new())))
+			} else {
+				None
+			},
 		};
 		this.reload_config().await?;
 
@@ -144,6 +159,7 @@ impl EventHandler for AudioHandler {
 				*state_update,
 				self.context.clone(),
 				Arc::clone(&self.ssrc_state),
+				self.seen_users.clone(),
 			)),
 			EventContext::VoiceTick(voice_data) => tokio::spawn(voice_tick(
 				voice_data.clone(),
@@ -152,6 +168,7 @@ impl EventHandler for AudioHandler {
 				self.verbose.clone(),
 				self.context.clone(),
 				Arc::clone(&self.webhook),
+				self.transcript_results.clone(),
 			)),
 			EventContext::ClientDisconnect(client_disconnect_data) => {
 				tokio::spawn(client_disconnect(
@@ -174,6 +191,8 @@ impl EventHandler for AudioHandler {
 				Arc::clone(&self.webhook),
 				self.channel_id,
 				self.voice_channel_id,
+				self.transcript_results.clone(),
+				self.seen_users.clone(),
 			)),
 			_ => return None,
 		};

@@ -24,6 +24,7 @@ pub async fn voice_tick(
 	verbose: Arc<AtomicBool>,
 	ctx: Context,
 	webhook: Arc<Webhook>,
+	transcript_results: Option<Arc<RwLock<Vec<String>>>>,
 ) {
 	let metrics = scripty_metrics::get_metrics();
 	let tick_start_time = Instant::now();
@@ -172,10 +173,17 @@ pub async fn voice_tick(
 				// we've already checked if the user is opted in or not
 				if let Some(ingest) = x {
 					trace!(?ssrc, "user has opted in, finalizing audio");
-					tokio::spawn(ingest.destroy(final_result));
+					tokio::spawn(ingest.destroy(final_result.clone()));
 				} else {
 					trace!(?ssrc, "user has opted out, not attempting to finalize");
 				}
+			}
+
+			if let Some(transcript_results) = &transcript_results {
+				let username = &user_details.0;
+				transcript_results
+					.write()
+					.push(format!("[{}]: {}", username, final_result));
 			}
 		}
 	}

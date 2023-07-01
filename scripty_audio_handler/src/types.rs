@@ -1,4 +1,4 @@
-use std::{collections::VecDeque, num::NonZeroU64};
+use std::{collections::VecDeque, num::NonZeroU64, sync::Arc};
 
 use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
@@ -33,3 +33,10 @@ pub type ActiveUserSet = DashSet<u32, RandomState>;
 
 /// Type alias for a `RwLock<Vec>` containing the next users to be added
 pub type NextUserList = RwLock<VecDeque<u32>>;
+
+/// Type alias for a `Arc<RwLock<Vec<String>>>` containing the transcript results
+pub type TranscriptResults = Option<Arc<RwLock<Vec<String>>>>;
+
+/// Type alias for a `Arc<DashSet<u64>>` containing the users that have been seen and who should
+/// get a transcript at the end of the session.
+pub type SeenUsers = Option<Arc<DashSet<u64, RandomState>>>;
