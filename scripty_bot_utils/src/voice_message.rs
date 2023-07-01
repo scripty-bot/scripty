@@ -7,6 +7,7 @@ pub async fn handle_message(ctx: Context, msg: Message) {
 					debug!(%msg.id, %duration_secs, "got voice message");
 
 					if !voice_message_enabled_for_guild(msg.guild_id.unwrap()).await {
+						debug!(%msg.id, "voice message not enabled for guild");
 						return;
 					}
 
@@ -34,9 +35,11 @@ async fn internal_handle_message(
 	msg: Message,
 	waveform: Vec<u8>,
 ) -> Result<(), crate::Error> {
+	debug!(%msg.id, "decoding voice message");
 	// start by trying to decode the waveform: it should be 1 channel, 48000Hz,32Kbps Opus in an OGG container
 	let output = scripty_audio::decode_ogg_opus_file(waveform)?;
 
+	debug!(%msg.id, "decoded voice message, feeding to speech-to-text");
 	// fetch guild language
 	let db = scripty_db::get_db();
 	let lang = sqlx::query!(
@@ -51,8 +54,10 @@ async fn internal_handle_message(
 	stream.feed_audio(output)?;
 	let res = stream.get_result().await?.result;
 
+	debug!(%msg.id, "got result from speech-to-text, sending to channel");
 	msg.reply(ctx, res).await?;
 
+	debug!(%msg.id, "done handling voice message");
 	Ok(())
 }
 
