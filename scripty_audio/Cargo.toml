@@ -17,4 +17,4 @@ tokio = { version = "1", features = ["sync"] }
 scripty_config = { path = "../scripty_config" }
 scripty_metrics = { path = "../scripty_metrics" }
 dasp_interpolate = { version = "0.11", features = ["linear"] }
-tracing = { version = "0.1", features = ["release_max_level_info"] }
+tracing = { version = "0.1", features = ["release_max_level_debug"] }
