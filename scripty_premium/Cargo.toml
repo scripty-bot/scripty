@@ -8,8 +8,8 @@ edition = "2021"
 [dependencies]
 time = "0.3"
 dashmap = "5"
+tracing = "0.1"
 bitflags = "2"
 once_cell = "1"
 scripty_db = { path = "../scripty_db" }
-tracing = { version = "0.1", features = ["release_max_level_debug"] }
 sqlx = { version = "0.6", features = ["postgres", "macros", "migrate", "offline", "runtime-tokio-rustls"] }

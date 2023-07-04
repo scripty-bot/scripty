@@ -7,7 +7,6 @@ edition = "2021"
 
 [dependencies]
 url = "2"
-fern = { version = "0.6" }
 num_cpus = "1"
 fenrir-rs = "0.4"
 humantime = "2"
@@ -17,8 +16,9 @@ scripty_i18n = { path = "../scripty_i18n" }
 scripty_audio = { path = "../scripty_audio" }
 scripty_redis = { path = "../scripty_redis" }
 scripty_config = { path = "../scripty_config" }
+tracing = { version = "0.1", features = ["log"] }
 scripty_metrics = { path = "../scripty_metrics" }
+fern = { version = "0.6", features = ["colored"] }
 scripty_webserver = { path = "../scripty_webserver" }
 tokio = { version = "1", features = ["parking_lot"] }
 scripty_data_storage = { path = "../scripty_data_storage" }
-tracing = { version = "0.1", features = ["log"] }
