@@ -42,7 +42,7 @@ pub async fn automod_setup(
 		"".to_string()
 	};
 
-	sqlx::query!(
+	match sqlx::query!(
 		"INSERT INTO automod_config 
             (guild_id, enabled, log_channel_id, log_recording, auto_join_voice)
         VALUES 
@@ -54,7 +54,31 @@ pub async fn automod_setup(
 		auto_join
 	)
 	.execute(db)
-	.await?;
+	.await
+	{
+		Ok(_) => {}
+		// if we get a 23503 error, it means this server has not been set up yet
+		// tell the user to run the setup command first
+		Err(sqlx::Error::Database(e)) if e.code() == Some("23503".into()) => {
+			ctx.send(
+				CreateReply::default().embed(
+					CreateEmbed::default()
+						.title(format_message!(
+							resolved_language,
+							"automod-setup-embed-not-setup-title"
+						))
+						.description(format_message!(
+							resolved_language,
+							"automod-setup-embed-not-setup-description",
+							contextPrefix: ctx.prefix()
+						)),
+				),
+			)
+			.await?;
+			return Ok(());
+		}
+		Err(e) => return Err(e.into()),
+	}
 
 	ctx.send(
 		CreateReply::default().embed(

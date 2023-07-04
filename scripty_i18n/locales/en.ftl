@@ -236,6 +236,8 @@ automod-setup-argument3-description = Should the bot automatically join voice if
 automod-setup-embed-complete-title = Automod setup complete!
 automod-setup-embed-complete-description = You can now use `{ $contextPrefix }automod rule add` to add an automod rule. { $extraDetails }
 automod-setup-embed-complete-free-limit = Note that free servers are limited to 25 rules. If you'd like to remove this limit, check out our Premium over at https://scripty.org/premium.
+automod-setup-embed-not-setup-title = The bot has not been set up!
+automod-setup-embed-not-setup-description = Set it up first by running `{ $contextPrefix } setup`.
 
 ## automod add rule command
 # This is shown as the title of the automod add rule command (eg what shows up in the slash command picker)
