@@ -1,8 +1,13 @@
 #[macro_use]
 extern crate tracing;
 
+use std::time::SystemTime;
+
 use fenrir_rs::{NetworkingBackend, SerializationFormat};
-use fern::Dispatch;
+use fern::{
+	colors::{Color, ColoredLevelConfig},
+	Dispatch,
+};
 use url::Url;
 
 pub fn start() {
@@ -22,6 +27,21 @@ pub fn start() {
 async fn init_logging() {
 	let cfg = scripty_config::get_config();
 
+	// configure colors for the whole line
+	let colors_line = ColoredLevelConfig::new()
+		.error(Color::Red)
+		.warn(Color::Yellow)
+		// we actually don't need to specify the color for debug and info, they are white by default
+		.info(Color::White)
+		.debug(Color::White)
+		// depending on the terminals color scheme, this is the same as the background color
+		.trace(Color::BrightBlack);
+
+	// configure colors for the name of the level.
+	// since almost all of them are the same as the color for the whole line, we
+	// just clone `colors_line` and overwrite our changes
+	let colors_level = colors_line.info(Color::Green);
+
 	let mut builder = fenrir_rs::Fenrir::builder()
 		.endpoint(Url::parse(&cfg.loki.url).expect("invalid loki url"))
 		.network(NetworkingBackend::Ureq)
@@ -34,24 +54,25 @@ async fn init_logging() {
 	let fenrir = builder.build();
 
 	Dispatch::new()
-		.format(|out, message, record| {
+		.format(move |out, message, record| {
 			out.finish(format_args!(
-				"[{} {} {}] {}",
-				humantime::format_rfc3339(std::time::SystemTime::now()),
-				record.level(),
-				record.target(),
-				message
-			))
+				"{color_line}[{date} {level} {target} {color_line}] {message}\x1B[0m",
+				color_line = format_args!(
+					"\x1B[{}m",
+					colors_line.get_color(&record.level()).to_fg_str()
+				),
+				date = humantime::format_rfc3339(SystemTime::now()),
+				target = record.target(),
+				level = colors_level.color(record.level()),
+				message = message,
+			));
 		})
-		// just log messages with TRACE or higher log level
-		.level(tracing::log::LevelFilter::Debug)
-		// do not log messages from the websocket library below TRACE
-		.level_for("tokio_tungstenite", tracing::log::LevelFilter::Debug.into())
-		.level_for("tungstenite", tracing::log::LevelFilter::Debug.into())
+		// just log messages with INFO or higher log level
+		.level(tracing::log::LevelFilter::Info)
 		// completely ignore ureq logs
 		.level_for("ureq", tracing::log::LevelFilter::Off.into())
-		// other spammy utilities
-		.level_for("h2", tracing::log::LevelFilter::Debug.into())
+		// boost fenrir_rs logs to DEBUG
+		.level_for("fenrir_rs", tracing::log::LevelFilter::Debug.into())
 		// print the log messages to the console ...
 		.chain(std::io::stdout())
 		// ... and to the corresponding loki endpoint
