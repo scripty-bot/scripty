@@ -1,7 +1,9 @@
 #[macro_use]
 extern crate tracing;
 
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use fenrir_rs::{NetworkingBackend, SerializationFormat};
+use fern::Dispatch;
+use url::Url;
 
 pub fn start() {
 	load_config();
@@ -19,20 +21,43 @@ pub fn start() {
 
 async fn init_logging() {
 	let cfg = scripty_config::get_config();
-	let (layer, task) = tracing_loki::layer(
-		cfg.loki.url.parse().expect("invalid Loki URL"),
-		cfg.loki.labels.clone(),
-		cfg.loki.extra_fields.clone(),
-	)
-	.expect("failed to initialize loki ingestor");
 
-	tracing_subscriber::registry()
-		.with(layer)
-		.with(tracing_subscriber::fmt::Layer::default())
-		.init();
+	let mut builder = fenrir_rs::Fenrir::builder()
+		.endpoint(Url::parse(&cfg.loki.url).expect("invalid loki url"))
+		.network(NetworkingBackend::Ureq)
+		.format(SerializationFormat::Json)
+		.include_level();
 
-	// spawn the background task for loki ingest
-	tokio::spawn(task);
+	for field in cfg.loki.extra_fields.iter() {
+		builder = builder.tag(field.0, field.1);
+	}
+	let fenrir = builder.build();
+
+	Dispatch::new()
+		.format(|out, message, record| {
+			out.finish(format_args!(
+				"[{} {} {}] {}",
+				humantime::format_rfc3339(std::time::SystemTime::now()),
+				record.level(),
+				record.target(),
+				message
+			))
+		})
+		// just log messages with TRACE or higher log level
+		.level(tracing::log::LevelFilter::Debug)
+		// do not log messages from the websocket library below TRACE
+		.level_for("tokio_tungstenite", tracing::log::LevelFilter::Debug.into())
+		.level_for("tungstenite", tracing::log::LevelFilter::Debug.into())
+		// completely ignore ureq logs
+		.level_for("ureq", tracing::log::LevelFilter::Off.into())
+		// other spammy utilities
+		.level_for("h2", tracing::log::LevelFilter::Debug.into())
+		// print the log messages to the console ...
+		.chain(std::io::stdout())
+		// ... and to the corresponding loki endpoint
+		.chain(Box::new(fenrir) as Box<dyn tracing::log::Log>)
+		.apply()
+		.expect("failed to init logger");
 }
 
 async fn async_init() {
