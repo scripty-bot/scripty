@@ -17,6 +17,8 @@ use songbird::events::context_data::VoiceTick;
 
 use crate::{audio_handler::SsrcMaps, consts::SIZE_OF_I16};
 
+// cannot use this inspection because the duplicated code uses `continue`
+// noinspection DuplicatedCode
 pub async fn voice_tick(
 	voice_data: VoiceTick,
 	ssrc_state: Arc<SsrcMaps>,
@@ -141,7 +143,7 @@ pub async fn voice_tick(
 	let mut hooks = Vec::with_capacity(last_tick_speakers.len());
 
 	for ssrc in last_tick_speakers {
-		// make a new stream for next time they speak and remove their old one
+		// make a new stream for the next time they speak and remove their old one
 		let lang = language.read().to_owned();
 		let new_stream =
 			match scripty_audio::get_stream(&lang, verbose.load(Ordering::Relaxed)).await {
