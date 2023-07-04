@@ -2608,6 +2608,7 @@ dependencies = [
 name = "scripty_commands"
 version = "1.0.0"
 dependencies = [
+ "hex",
  "indexmap",
  "poise",
  "scripty_audio_handler",

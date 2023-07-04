@@ -25,7 +25,7 @@ pub fn get_framework_opts() -> FrameworkOptions<scripty_bot_utils::Data, scripty
 				..cmds::block()
 			},
 			poise::Command {
-				subcommands: vec![cmds::check_guilds()],
+				subcommands: vec![cmds::check_guilds(), cmds::hash_user_id()],
 				..cmds::admin()
 			},
 			poise::Command {
