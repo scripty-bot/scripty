@@ -15,11 +15,12 @@ pub async fn init_blocked() -> Result<(), scripty_redis::redis::RedisError> {
 	{
 		let mut blocked_user_pipe = scripty_redis::redis::pipe();
 
-		for blocked_user in sqlx::query!("SELECT user_id, reason FROM blocked_users")
+		let blocked_users = sqlx::query!("SELECT user_id, reason FROM blocked_users")
 			.fetch_all(db)
 			.await
-			.expect("db returned an error")
-		{
+			.expect("db returned an error");
+		info!("fetched {} blocked users", blocked_users.len());
+		for blocked_user in blocked_users {
 			blocked_user_pipe.set(
 				format!(
 					"user:{{{}}}:blocked",
@@ -37,11 +38,12 @@ pub async fn init_blocked() -> Result<(), scripty_redis::redis::RedisError> {
 	{
 		let mut blocked_guild_pipe = scripty_redis::redis::pipe();
 
-		for blocked_guild in sqlx::query!("SELECT guild_id, reason FROM blocked_guilds")
+		let blocked_guilds = sqlx::query!("SELECT guild_id, reason FROM blocked_guilds")
 			.fetch_all(db)
 			.await
-			.expect("db returned an error")
-		{
+			.expect("db returned an error");
+		info!("fetched {} blocked guilds", blocked_guilds.len());
+		for blocked_guild in blocked_guilds {
 			blocked_guild_pipe.set(
 				format!("guild:{{{}}}:blocked", blocked_guild.guild_id),
 				blocked_guild.reason.unwrap_or_default(),
@@ -60,12 +62,15 @@ pub async fn init_blocked() -> Result<(), scripty_redis::redis::RedisError> {
 async fn _check_block(ctx: poise::Context<'_, Data, Error>) -> Result<bool, Error> {
 	let cfg = scripty_config::get_config();
 	let mut redis = scripty_redis::get_pool().get().await?;
+	let ctx_id = ctx.id();
+	trace!(%ctx_id, "checking if user is blocked");
 
 	if let Some(guild) = ctx.guild_id() {
 		if let Some(reason) = redis
 			.get::<_, Option<String>>(format!("guild:{{{}}}:blocked", guild))
 			.await?
 		{
+			trace!(%ctx_id, "guild is blocked");
 			let resolved_language =
 				scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0))
 					.await;
@@ -98,6 +103,7 @@ async fn _check_block(ctx: poise::Context<'_, Data, Error>) -> Result<bool, Erro
 		))
 		.await?
 	{
+		trace!(%ctx_id, "user is blocked");
 		let resolved_language =
 			scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0))
 				.await;

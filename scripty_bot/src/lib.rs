@@ -3,6 +3,9 @@
 
 mod framework_opts;
 
+#[macro_use]
+extern crate tracing;
+
 use poise::FrameworkBuilder;
 use scripty_audio_handler::SerenityInit;
 use scripty_bot_utils::{
@@ -16,7 +19,8 @@ pub async fn entrypoint() {
 	// fetch the config
 	let cfg = scripty_config::get_config();
 
-	// initialize blocked entity list
+	// initialize the blocked entity list
+	info!("fetching blocked entities");
 	scripty_bot_utils::entity_block::init_blocked()
 		.await
 		.expect("failed to init blocked entities");
