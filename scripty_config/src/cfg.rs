@@ -80,7 +80,4 @@ pub struct LokiConfig {
 
 	/// HashMap of labels
 	pub labels: HashMap<String, String>,
-
-	/// HashMap of extra fields
-	pub extra_fields: HashMap<String, String>,
 }
