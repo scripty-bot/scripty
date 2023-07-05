@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate tracing;
 
-use std::time::SystemTime;
+use std::{fs::OpenOptions, time::SystemTime};
 
 use fenrir_rs::{NetworkingBackend, SerializationFormat};
 use fern::{
@@ -48,35 +48,81 @@ async fn init_logging() {
 		.format(SerializationFormat::Json)
 		.include_level();
 
-	for field in cfg.loki.extra_fields.iter() {
+	for field in cfg.loki.labels.iter() {
 		builder = builder.tag(field.0, field.1);
 	}
 	let fenrir = builder.build();
 
 	Dispatch::new()
-		.format(move |out, message, record| {
-			out.finish(format_args!(
-				"{color_line}[{date} {level} {target} {color_line}] {message}\x1B[0m",
-				color_line = format_args!(
-					"\x1B[{}m",
-					colors_line.get_color(&record.level()).to_fg_str()
+		.chain(
+			Dispatch::new()
+				// configure this logger instance to make a fancy, colorful output
+				.format(move |out, message, record| {
+					out.finish(format_args!(
+						"{color_line}[{date} {level} {target} {color_line}] {message}\x1B[0m",
+						color_line = format_args!(
+							"\x1B[{}m",
+							colors_line.get_color(&record.level()).to_fg_str()
+						),
+						date = humantime::format_rfc3339(SystemTime::now()),
+						target = record.target(),
+						level = colors_level.color(record.level()),
+						message = message,
+					));
+				})
+				// just log messages with INFO or higher log level
+				.level(tracing::log::LevelFilter::Info)
+				// completely ignore ureq logs
+				.level_for("ureq", tracing::log::LevelFilter::Off.into())
+				// boost fenrir_rs logs to TRACE
+				.level_for("fenrir_rs", tracing::log::LevelFilter::Trace.into())
+				// quieten tracing spans
+				.level_for("tracing::span", tracing::log::LevelFilter::Off.into())
+				// print this setup of log messages to the console
+				.chain(std::io::stdout()),
+		)
+		.chain(
+			Dispatch::new()
+				// output a raw message
+				.format(|out, message, record| out.finish(format_args!("{}", message)))
+				// log everything
+				.level(tracing::log::LevelFilter::Trace)
+				// send this setup of log messages to Loki
+				.chain(Box::new(fenrir) as Box<dyn tracing::log::Log>),
+		)
+		.chain(
+			Dispatch::new()
+				// configure this logger instance to make a slightly more informative output, but without colors
+				.format(move |out, message, record| {
+					out.finish(format_args!(
+						"[{date} {level} {target}] {message}",
+						date = humantime::format_rfc3339(SystemTime::now()),
+						target = record.target(),
+						level = record.level(),
+						message = message,
+					))
+				})
+				// log most things
+				.level(tracing::log::LevelFilter::Debug)
+				// again, ignore tracing spans
+				.level_for("tracing::span", tracing::log::LevelFilter::Off.into())
+				// quieten ureq logs
+				.level_for("ureq", tracing::log::LevelFilter::Warn.into())
+				// quieten hyper
+				.level_for("hyper", tracing::log::LevelFilter::Warn.into())
+				// quieten h2
+				.level_for("h2", tracing::log::LevelFilter::Warn.into())
+				// quieten rustls
+				.level_for("rustls", tracing::log::LevelFilter::Warn.into())
+				// send this setup of log messages to a file named `output.log`
+				.chain(
+					OpenOptions::new()
+						.write(true)
+						.create(true)
+						.open("output.log")
+						.expect("failed to open output.log"),
 				),
-				date = humantime::format_rfc3339(SystemTime::now()),
-				target = record.target(),
-				level = colors_level.color(record.level()),
-				message = message,
-			));
-		})
-		// just log messages with INFO or higher log level
-		.level(tracing::log::LevelFilter::Info)
-		// completely ignore ureq logs
-		.level_for("ureq", tracing::log::LevelFilter::Off.into())
-		// boost fenrir_rs logs to DEBUG
-		.level_for("fenrir_rs", tracing::log::LevelFilter::Debug.into())
-		// print the log messages to the console ...
-		.chain(std::io::stdout())
-		// ... and to the corresponding loki endpoint
-		.chain(Box::new(fenrir) as Box<dyn tracing::log::Log>)
+		)
 		.apply()
 		.expect("failed to init logger");
 }

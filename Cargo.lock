@@ -889,8 +889,7 @@ dependencies = [
 [[package]]
 name = "fenrir-rs"
 version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "299b67cfb17986dea06d7685b95446c61a0edf14d33bbedb58471b3ad67d59ac"
+source = "git+https://github.com/tazz4843/fenrir-rs?branch=json-logs#3fe025380838129d454a6002b59f709b3bac89ab"
 dependencies = [
  "base64 0.21.2",
  "log",
