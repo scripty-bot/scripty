@@ -91,7 +91,10 @@ pub async fn voice_tick(
 					// user has not opted in or out yet, check if they have allowed voice ingest
 
 					// fetch user ID
-					let Some(user_id) = ssrc_state.ssrc_user_id_map.get(&ssrc).map(|x| *x.value()) else { continue };
+					let Some(user_id) = ssrc_state.ssrc_user_id_map.get(&ssrc).map(|x| *x.value())
+					else {
+						continue;
+					};
 
 					let ingest = if let Some(ingest) =
 						scripty_data_storage::VoiceIngest::new(user_id, "en".to_string()).await
@@ -153,10 +156,14 @@ pub async fn voice_tick(
 					continue;
 				}
 			};
-		let Some(old_stream) = ssrc_state.ssrc_stream_map.insert(ssrc, new_stream) else { continue };
+		let Some(old_stream) = ssrc_state.ssrc_stream_map.insert(ssrc, new_stream) else {
+			continue;
+		};
 
 		// fetch user data
-		let Some(user_details) = ssrc_state.ssrc_user_data_map.get(&ssrc) else { continue };
+		let Some(user_details) = ssrc_state.ssrc_user_data_map.get(&ssrc) else {
+			continue;
+		};
 
 		// finalize the stream
 		let (final_result, hook) = finalize_stream(
@@ -166,6 +173,14 @@ pub async fn voice_tick(
 			verbose.load(Ordering::Relaxed),
 		)
 		.await;
+
+		if let Some(ref final_result) = final_result {
+			// skip garbage strings
+			if ["[BLANK_AUDIO]"].contains(&final_result.as_str()) {
+				continue;
+			}
+		}
+
 		if let Some(hook) = hook {
 			hooks.push((hook, ssrc));
 		}
