@@ -3,3 +3,6 @@
 /.idea
 /config.toml
 /config.local.toml
+/output.log
+# not ignored by **/target for some reason
+scripty_commands/target/*
