@@ -19,12 +19,31 @@ pub async fn connect_to_vc(
 	record_transcriptions: bool,
 ) -> Result<bool, Error> {
 	debug!("fetching webhook");
-	let webhook = if let Some(h) = channel_id.webhooks(&ctx).await?.pop() {
-		h
-	} else {
+	// thanks to Discord undocumented breaking changes, we have to do this
+	// <3 shitcord
+	let hooks = channel_id.webhooks(&ctx).await?;
+	let webhook = if hooks.len() == 0 {
 		channel_id
 			.create_webhook(&ctx, CreateWebhook::new("Scripty Transcriptions"))
 			.await?
+	} else {
+		// iterate through each hook and find one where token is not None
+		// if none are found, create a new one
+		let mut found = None;
+		for hook in hooks {
+			if hook.token.is_some() {
+				found = Some(hook);
+				break;
+			}
+		}
+		match found {
+			Some(hook) => hook,
+			None => {
+				channel_id
+					.create_webhook(&ctx, CreateWebhook::new("Scripty Transcriptions"))
+					.await?
+			}
+		}
 	};
 
 	// automatically leave after the specified time period
