@@ -21,4 +21,4 @@ fern = { version = "0.6", features = ["colored"] }
 scripty_webserver = { path = "../scripty_webserver" }
 tokio = { version = "1", features = ["parking_lot"] }
 scripty_data_storage = { path = "../scripty_data_storage" }
-fenrir-rs = { git = "https://github.com/tazz4843/fenrir-rs", branch = "json-logs" 	 }
+fenrir-rs = { git = "https://github.com/tazz4843/fenrir-rs", branch = "json-logs" }

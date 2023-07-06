@@ -84,7 +84,7 @@ async fn init_logging() {
 		.chain(
 			Dispatch::new()
 				// output a raw message
-				.format(|out, message, record| out.finish(format_args!("{}", message)))
+				.format(|out, message, _record| out.finish(format_args!("{}", message)))
 				// log everything
 				.level(tracing::log::LevelFilter::Trace)
 				// send this setup of log messages to Loki
