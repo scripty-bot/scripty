@@ -80,4 +80,7 @@ pub struct LokiConfig {
 
 	/// HashMap of labels
 	pub labels: HashMap<String, String>,
+
+	/// Maximum size of one message before being dropped. Defaults to infinite.
+	pub max_message_size: Option<usize>,
 }

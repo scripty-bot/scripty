@@ -46,6 +46,7 @@ async fn init_logging() {
 		.endpoint(Url::parse(&cfg.loki.url).expect("invalid loki url"))
 		.network(NetworkingBackend::Ureq)
 		.format(SerializationFormat::Json)
+		.max_message_size(cfg.loki.max_message_size)
 		.include_level();
 
 	for field in cfg.loki.labels.iter() {
