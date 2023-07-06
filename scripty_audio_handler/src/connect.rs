@@ -22,7 +22,7 @@ pub async fn connect_to_vc(
 	// thanks to Discord undocumented breaking changes, we have to do this
 	// <3 shitcord
 	let hooks = channel_id.webhooks(&ctx).await?;
-	let webhook = if hooks.len() == 0 {
+	let webhook = if hooks.is_empty() {
 		channel_id
 			.create_webhook(&ctx, CreateWebhook::new("Scripty Transcriptions"))
 			.await?

@@ -73,11 +73,11 @@ async fn init_logging() {
 				// just log messages with INFO or higher log level
 				.level(tracing::log::LevelFilter::Info)
 				// completely ignore ureq logs
-				.level_for("ureq", tracing::log::LevelFilter::Off.into())
+				.level_for("ureq", tracing::log::LevelFilter::Off)
 				// boost fenrir_rs logs to TRACE
-				.level_for("fenrir_rs", tracing::log::LevelFilter::Trace.into())
+				.level_for("fenrir_rs", tracing::log::LevelFilter::Trace)
 				// quieten tracing spans
-				.level_for("tracing::span", tracing::log::LevelFilter::Off.into())
+				.level_for("tracing::span", tracing::log::LevelFilter::Off)
 				// print this setup of log messages to the console
 				.chain(std::io::stdout()),
 		)
@@ -105,15 +105,15 @@ async fn init_logging() {
 				// log most things
 				.level(tracing::log::LevelFilter::Debug)
 				// again, ignore tracing spans
-				.level_for("tracing::span", tracing::log::LevelFilter::Off.into())
+				.level_for("tracing::span", tracing::log::LevelFilter::Off)
 				// quieten ureq logs
-				.level_for("ureq", tracing::log::LevelFilter::Warn.into())
+				.level_for("ureq", tracing::log::LevelFilter::Warn)
 				// quieten hyper
-				.level_for("hyper", tracing::log::LevelFilter::Warn.into())
+				.level_for("hyper", tracing::log::LevelFilter::Warn)
 				// quieten h2
-				.level_for("h2", tracing::log::LevelFilter::Warn.into())
+				.level_for("h2", tracing::log::LevelFilter::Warn)
 				// quieten rustls
-				.level_for("rustls", tracing::log::LevelFilter::Warn.into())
+				.level_for("rustls", tracing::log::LevelFilter::Warn)
 				// send this setup of log messages to a file named `output.log`
 				.chain(
 					OpenOptions::new()
