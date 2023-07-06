@@ -1,7 +1,7 @@
 use std::{
 	borrow::Cow,
 	error::Error as StdError,
-	fmt::{Display, Formatter},
+	fmt::{Debug, Display, Formatter},
 };
 
 use backtrace::Backtrace;
@@ -9,10 +9,15 @@ use scripty_audio::{ModelError, OggOpusDecodeError};
 use scripty_audio_handler::JoinError;
 use serenity::{model::channel::ChannelType, prelude::SerenityError};
 
-#[derive(Debug)]
 pub struct Error {
 	bt:             Backtrace,
 	pub(super) err: ErrorEnum,
+}
+
+impl Debug for Error {
+	fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+		f.debug_struct("Error").field("err", &self.err).finish()
+	}
 }
 
 #[derive(Debug)]
