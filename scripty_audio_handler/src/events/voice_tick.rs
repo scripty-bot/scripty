@@ -160,15 +160,10 @@ pub async fn voice_tick(
 			continue;
 		};
 
-		// fetch user data
-		let Some(user_details) = ssrc_state.ssrc_user_data_map.get(&ssrc) else {
-			continue;
-		};
-
 		// finalize the stream
 		let (final_result, hook) = finalize_stream(
 			old_stream,
-			&user_details,
+			ssrc_state.ssrc_user_data_map.clone(),
 			ssrc,
 			verbose.load(Ordering::Relaxed),
 		)
@@ -197,10 +192,16 @@ pub async fn voice_tick(
 			}
 
 			if let Some(transcript_results) = &transcript_results {
-				let username = &user_details.0;
-				transcript_results
-					.write()
-					.push(format!("[{}]: {}", username, final_result));
+				// place this in a block that way we don't try holding two locks at once
+				let fmt_transcript = {
+					// fetch user data
+					let Some(user_details) = ssrc_state.ssrc_user_data_map.get(&ssrc) else {
+						continue;
+					};
+					let username = &user_details.0;
+					format!("[{}]: {}", username, final_result)
+				};
+				transcript_results.write().push(fmt_transcript);
 			}
 		}
 	}
@@ -223,7 +224,7 @@ pub async fn voice_tick(
 
 async fn finalize_stream(
 	stream: Stream,
-	user_details: &(String, String),
+	user_data_map: SsrcUserDataMap,
 	ssrc: u32,
 	verbose: bool,
 ) -> (Option<String>, Option<ExecuteWebhook>) {
@@ -268,6 +269,11 @@ async fn finalize_stream(
 			Ok(_) => return (None, None),
 			Err(error) => handle_error(error, ssrc),
 		}
+	};
+
+	let Some(user_details) = user_data_map.get(&ssrc) else {
+		warn!("no user details for ssrc {}", ssrc);
+		return (None, None);
 	};
 
 	(
