@@ -15,7 +15,7 @@ use serenity::{
 };
 use songbird::events::context_data::VoiceTick;
 
-use crate::{audio_handler::SsrcMaps, consts::SIZE_OF_I16};
+use crate::{audio_handler::SsrcMaps, consts::SIZE_OF_I16, types::SsrcUserDataMap};
 
 // cannot use this inspection because the duplicated code uses `continue`
 // noinspection DuplicatedCode
