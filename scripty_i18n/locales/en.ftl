@@ -240,6 +240,7 @@ automod-setup-embed-complete-description = You can now use `{ $contextPrefix }au
 automod-setup-embed-complete-free-limit = Note that free servers are limited to 25 rules. If you'd like to remove this limit, check out our Premium over at https://scripty.org/premium.
 automod-setup-embed-not-setup-title = The bot has not been set up!
 automod-setup-embed-not-setup-description = Set it up first by running `{ $contextPrefix } setup`.
+automod-setup-auto-join-premium-only = Auto-join is a premium feature. Check out our Premium over at https://scripty.org/premium.
 
 ## automod add rule command
 # This is shown as the title of the automod add rule command (eg what shows up in the slash command picker)
