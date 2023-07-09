@@ -176,7 +176,7 @@ pub async fn join(
 		}
 		Err(scripty_audio_handler::Error::Join(JoinError::Dropped)) => {
 			ctx.say(
-				format_message!(resolved_language "join-failed-dropped", contextPrefix: ctx.prefix()),
+				format_message!(resolved_language, "join-failed-dropped", contextPrefix: ctx.prefix()),
 			)
 			.await?;
 		}
