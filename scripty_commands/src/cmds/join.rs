@@ -166,15 +166,13 @@ pub async fn join(
 			)
 			.await?;
 		}
-		Err(scripty_audio_handler::Error::Serenity(SerenityError::Http(e))) => {
-			if let Some(code) = e.status_code() {
-				if code == StatusCode::NOT_FOUND {
-					ctx.say(
-						format_message!(resolved_language, "webhook-deleted", contextPrefix: ctx.prefix()),
-					)
-					.await?;
-				}
-			}
+		Err(scripty_audio_handler::Error::Serenity(SerenityError::Http(e)))
+			if e.status_code() == Some(StatusCode::NOT_FOUND) =>
+		{
+			ctx.say(
+				format_message!(resolved_language, "webhook-deleted", contextPrefix: ctx.prefix()),
+			)
+			.await?;
 		}
 		Err(scripty_audio_handler::Error::Join(JoinError::Dropped)) => {
 			ctx.say(
