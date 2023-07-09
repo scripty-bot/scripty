@@ -44,7 +44,7 @@ async fn init_logging() {
 
 	let mut builder = fenrir_rs::Fenrir::builder()
 		.endpoint(Url::parse(&cfg.loki.url).expect("invalid loki url"))
-		.network(NetworkingBackend::Ureq)
+		.network(NetworkingBackend::Reqwest)
 		.format(SerializationFormat::Json)
 		.max_message_size(cfg.loki.max_message_size)
 		.include_level();
