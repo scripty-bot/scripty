@@ -144,6 +144,8 @@ join-success = Successfully joined { $targetMention }.
 webhook-deleted = Looks like you deleted the webhook I use! *bonk* Re-run `{ $contextPrefix }setup` to fix this.
 # This message is shown when the user attempts to make Scripty join a voice channel, but there is no one in the channel.
 join-no-one-in-channel = There's no one in { $targetMention }. I'm not joining if there's no one there, as that's a waste of limited resources.
+# This message is shown when Discord tosses a Dropped error when trying to join a voice channel.
+join-failed-dropped = Discord appears to be having issues, we cannot do anything about this. Please try again later.
 
 ## ping command
 # This is shown as the title of the ping command (eg what shows up in the slash command picker)

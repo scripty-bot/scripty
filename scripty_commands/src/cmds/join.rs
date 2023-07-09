@@ -1,5 +1,6 @@
 use std::borrow::Cow;
 
+use scripty_audio_handler::JoinError;
 use scripty_bot_utils::checks::is_guild;
 use serenity::{
 	http::StatusCode,
@@ -174,6 +175,12 @@ pub async fn join(
 					.await?;
 				}
 			}
+		}
+		Err(scripty_audio_handler::Error::Join(JoinError::Dropped)) => {
+			ctx.say(
+				format_message!(resolved_language "join-failed-dropped", contextPrefix: ctx.prefix()),
+			)
+			.await?;
 		}
 		Err(e) => return Err(e.into()),
 	};
