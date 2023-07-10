@@ -55,7 +55,7 @@ pub struct AutomodRuleGroup {
 	pub rules:      Vec<String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct AutomodServerConfig {
 	pub guild_id:        u64,
 	pub internal_id:     i32,
@@ -125,22 +125,5 @@ impl AutomodServerConfig {
 		}
 
 		None
-	}
-}
-
-impl Default for AutomodServerConfig {
-	fn default() -> Self {
-		Self {
-			guild_id:        0,
-			internal_id:     0,
-			enabled:         false,
-			groups:          vec![],
-			rules:           vec![],
-			rule_action_map: Default::default(),
-			rule_array:      vec![],
-			log_channel_id:  0,
-			log_recording:   false,
-			auto_join_voice: false,
-		}
 	}
 }

@@ -14,7 +14,7 @@ use serenity::{
 	builder::{CreateEmbed, CreateMessage, EditMember, ExecuteWebhook},
 	client::Context,
 };
-use songbird::{events::context_data::VoiceTick, id::ChannelId};
+use songbird::events::context_data::VoiceTick;
 
 use crate::{audio_handler::SsrcMaps, consts::SIZE_OF_I16, types::SsrcUserDataMap};
 
@@ -24,8 +24,6 @@ pub async fn voice_tick(
 	voice_data: VoiceTick,
 	ssrc_state: Arc<SsrcMaps>,
 	guild_id: GuildId,
-	channel_id: SerenityChannelId,
-	voice_channel_id: SerenityChannelId,
 	language: Arc<RwLock<String>>,
 	verbose: Arc<AtomicBool>,
 	ctx: Context,
@@ -183,68 +181,66 @@ pub async fn voice_tick(
 			// run automod
 			if !automod_server_cfg.enabled {
 				trace!("automod disabled, skipping");
-			} else {
-				if let Some(res) = automod_server_cfg.get_action(&final_result) {
-					trace!(?res, ?ssrc, "automod action taken on rule match");
-					// user did something bad
-					let Some(user_id) = ssrc_state.ssrc_user_id_map.get(&ssrc).map(|x| *x.value())
-					else {
-						warn!(?ssrc, "no user ID found for ssrc");
-						continue;
-					};
+			} else if let Some(res) = automod_server_cfg.get_action(final_result) {
+				trace!(?res, ?ssrc, "automod action taken on rule match");
+				// user did something bad
+				let Some(user_id) = ssrc_state.ssrc_user_id_map.get(&ssrc).map(|x| *x.value())
+				else {
+					warn!(?ssrc, "no user ID found for ssrc");
+					continue;
+				};
 
-					match res {
-						AutomodRuleAction::SilentDelete => continue, /* don't need to do anything more */
-						// we'll handle logging after each branch falls through
-						AutomodRuleAction::DeleteAndLog => {}
-						AutomodRuleAction::DeleteLogAndKick => {
-							// remove the user from the voice channel
-							if let Err(e) = guild_id.disconnect_member(&ctx, user_id).await {
-								error!("failed to remove user from VC: {}", e);
-							}
-						}
-						AutomodRuleAction::DeleteLogAndSilence => {
-							// mute the user
-							if let Err(e) = guild_id
-								.edit_member(&ctx, user_id, EditMember::new().mute(true))
-								.await
-							{
-								error!("failed to mute user: {}", e);
-							}
+				match res {
+					AutomodRuleAction::SilentDelete => continue, /* don't need to do anything more */
+					// we'll handle logging after each branch falls through
+					AutomodRuleAction::DeleteAndLog => {}
+					AutomodRuleAction::DeleteLogAndKick => {
+						// remove the user from the voice channel
+						if let Err(e) = guild_id.disconnect_member(&ctx, user_id).await {
+							error!("failed to remove user from VC: {}", e);
 						}
 					}
-
-					if let Err(e) = SerenityChannelId::from(channel_id)
-						.send_message(
-							&ctx,
-							CreateMessage::new().embed(
-								CreateEmbed::new()
-									.title("User said a forbidden word")
-									.description(format!(
-										"{}\nUser: <@{}>\nDetected word: {}",
-										match res {
-											AutomodRuleAction::SilentDelete => unreachable!(),
-											AutomodRuleAction::DeleteAndLog => "Deleted message",
-											AutomodRuleAction::DeleteLogAndKick =>
-												"Deleted message and kicked user from the VC",
-											AutomodRuleAction::DeleteLogAndSilence => {
-												"Deleted message and muted user"
-											}
-										},
-										user_id.get(),
-										final_result
-									)),
-							),
-						)
-						.await
-					{
-						error!("failed to send log message: {}", e);
-					};
-
-					continue;
-				} else {
-					trace!(?ssrc, "no automod action taken");
+					AutomodRuleAction::DeleteLogAndSilence => {
+						// mute the user
+						if let Err(e) = guild_id
+							.edit_member(&ctx, user_id, EditMember::new().mute(true))
+							.await
+						{
+							error!("failed to mute user: {}", e);
+						}
+					}
 				}
+
+				if let Err(e) = SerenityChannelId::from(automod_server_cfg.log_channel_id)
+					.send_message(
+						&ctx,
+						CreateMessage::new().embed(
+							CreateEmbed::new()
+								.title("User said a forbidden word")
+								.description(format!(
+									"{}\nUser: <@{}>\nDetected word: {}",
+									match res {
+										AutomodRuleAction::SilentDelete => unreachable!(),
+										AutomodRuleAction::DeleteAndLog => "Deleted message",
+										AutomodRuleAction::DeleteLogAndKick =>
+											"Deleted message and kicked user from the VC",
+										AutomodRuleAction::DeleteLogAndSilence => {
+											"Deleted message and muted user"
+										}
+									},
+									user_id.get(),
+									final_result
+								)),
+						),
+					)
+					.await
+				{
+					error!("failed to send log message: {}", e);
+				};
+
+				continue;
+			} else {
+				trace!(?ssrc, "no automod action taken");
 			}
 		}
 

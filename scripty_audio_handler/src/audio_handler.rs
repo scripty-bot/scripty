@@ -169,8 +169,6 @@ impl EventHandler for AudioHandler {
 				voice_data.clone(),
 				Arc::clone(&self.ssrc_state),
 				self.guild_id,
-				self.channel_id,
-				self.voice_channel_id,
 				self.language.clone(),
 				self.verbose.clone(),
 				self.context.clone(),
