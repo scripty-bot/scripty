@@ -53,6 +53,50 @@
     },
     "query": "UPDATE users SET store_msgs = NOT store_msgs WHERE user_id = $1 RETURNING store_msgs"
   },
+  "11fd4f50cfb79809d07429d7f28a2393ff8d181da61abc682895601e968c5655": {
+    "describe": {
+      "columns": [
+        {
+          "name": "item_id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "source_id",
+          "ordinal": 1,
+          "type_info": "Int4"
+        },
+        {
+          "name": "rule_type",
+          "ordinal": 2,
+          "type_info": "Int2"
+        },
+        {
+          "name": "rule_data",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "rule_action",
+          "ordinal": 4,
+          "type_info": "Int2"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT * FROM automod_rules WHERE source_id = $1"
+  },
   "13b1e5d17c14aac48d3a7d931a658d68e88405b1ac8ea7c761243755a955290b": {
     "describe": {
       "columns": [
@@ -179,6 +223,56 @@
       }
     },
     "query": "UPDATE guilds SET premium_owner_id = nullif(premium_owner_id, $2) WHERE guild_id = $1"
+  },
+  "2d2cb73ba3afc97d626f14bfe088d7d35359331378d0b93cf58aca1318ee5fb9": {
+    "describe": {
+      "columns": [
+        {
+          "name": "item_id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "guild_id",
+          "ordinal": 1,
+          "type_info": "Int8"
+        },
+        {
+          "name": "enabled",
+          "ordinal": 2,
+          "type_info": "Bool"
+        },
+        {
+          "name": "log_channel_id",
+          "ordinal": 3,
+          "type_info": "Int8"
+        },
+        {
+          "name": "log_recording",
+          "ordinal": 4,
+          "type_info": "Bool"
+        },
+        {
+          "name": "auto_join_voice",
+          "ordinal": 5,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      }
+    },
+    "query": "SELECT * FROM automod_config WHERE guild_id = $1"
   },
   "3bbdfb879d54c4721345f459ac595463c856c8506235e89cc90e334682f50913": {
     "describe": {
@@ -517,6 +611,21 @@
     },
     "query": "INSERT INTO guilds (guild_id, language) VALUES ($1, $2) ON CONFLICT (guild_id) DO UPDATE SET language = $2"
   },
+  "a9dcbbad2a02e8967566386e09c48b2e2a158a6c7c50c0e7281479b5210650cc": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int8",
+          "Bool",
+          "Bool"
+        ]
+      }
+    },
+    "query": "INSERT INTO automod_config \n            (guild_id, enabled, log_channel_id, log_recording, auto_join_voice)\n        VALUES \n            ($1, true, $2, $3, $4)\n\t\tON CONFLICT (guild_id) DO UPDATE SET\n\t\t\tlog_channel_id = $2,\n\t\t\tlog_recording = $3,\n\t\t\tauto_join_voice = $4\n        "
+  },
   "ab63ab3a8a49e4c632a3e8c65b352f129d1b8cf94214bc9cb993084615a7c16f": {
     "describe": {
       "columns": [],
@@ -668,21 +777,6 @@
       }
     },
     "query": "SELECT transcribe_voice_messages FROM guilds WHERE guild_id = $1"
-  },
-  "d67442045192e2232c7bf93c4e24f9d4ee342573e73eb75688c7d5b70197becc": {
-    "describe": {
-      "columns": [],
-      "nullable": [],
-      "parameters": {
-        "Left": [
-          "Int8",
-          "Int8",
-          "Bool",
-          "Bool"
-        ]
-      }
-    },
-    "query": "INSERT INTO automod_config \n            (guild_id, enabled, log_channel_id, log_recording, auto_join_voice)\n        VALUES \n            ($1, true, $2, $3, $4)\n        "
   },
   "d95a944ff53eac4be1375577edabda691086a1475563fbb23c80128f44fc0ede": {
     "describe": {
