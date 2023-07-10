@@ -60,6 +60,12 @@ pub async fn connect_to_vc(
 	};
 	debug!("leave delta: {}", leave_delta);
 
+	// fetch automod
+	debug!("fetching automod");
+	let automod_server_cfg = scripty_automod::db::get_guild_config(guild_id.0.get())
+		.await?
+		.unwrap_or_default();
+
 	debug!("fetching songbird");
 	let sb = songbird::get(&ctx).await.expect("songbird not initialized");
 	debug!("leaving old call");
@@ -84,6 +90,7 @@ pub async fn connect_to_vc(
 		channel_id,
 		voice_channel_id,
 		record_transcriptions,
+		automod_server_cfg,
 	)
 	.await?;
 

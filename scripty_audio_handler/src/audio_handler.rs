@@ -9,6 +9,7 @@ use std::{
 use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
 use parking_lot::RwLock;
+use scripty_automod::types::AutomodServerConfig;
 use serenity::{
 	client::Context,
 	model::{
@@ -59,6 +60,7 @@ pub struct AudioHandler {
 	language:           Arc<RwLock<String>>,
 	transcript_results: TranscriptResults,
 	seen_users:         SeenUsers,
+	automod_server_cfg: Arc<AutomodServerConfig>,
 }
 
 impl AudioHandler {
@@ -69,6 +71,7 @@ impl AudioHandler {
 		channel_id: ChannelId,
 		voice_channel_id: ChannelId,
 		record_transcriptions: bool,
+		automod_server_cfg: AutomodServerConfig,
 	) -> Result<Self, sqlx::Error> {
 		let maps = SsrcMaps {
 			ssrc_user_id_map:      DashMap::with_hasher(RandomState::new()),
@@ -100,6 +103,7 @@ impl AudioHandler {
 			} else {
 				None
 			},
+			automod_server_cfg: Arc::new(automod_server_cfg),
 		};
 		this.reload_config().await?;
 
@@ -164,11 +168,15 @@ impl EventHandler for AudioHandler {
 			EventContext::VoiceTick(voice_data) => tokio::spawn(voice_tick(
 				voice_data.clone(),
 				Arc::clone(&self.ssrc_state),
+				self.guild_id,
+				self.channel_id,
+				self.voice_channel_id,
 				self.language.clone(),
 				self.verbose.clone(),
 				self.context.clone(),
 				Arc::clone(&self.webhook),
 				self.transcript_results.clone(),
+				Arc::clone(&self.automod_server_cfg),
 			)),
 			EventContext::ClientDisconnect(client_disconnect_data) => {
 				tokio::spawn(client_disconnect(

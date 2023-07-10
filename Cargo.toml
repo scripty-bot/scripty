@@ -30,6 +30,8 @@ members = [
 	"scripty_redis",
 	"scripty_bot",
 	"scripty_bot_utils",
+	"scripty_automod",
+	"scripty_botlists"
 ]
 
 [dependencies]

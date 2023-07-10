@@ -1,7 +1,10 @@
 use poise::CreateReply;
+use scripty_automod::{
+	types::{AutomodRuleAction, AutomodRuleType},
+	utils::{get_next_tier, get_tier_rule_count},
+};
 use serenity::builder::CreateEmbed;
 
-use super::{get_next_tier, get_tier_rule_count, AutomodRuleAction, AutomodRuleType};
 use crate::{Context, Error};
 
 #[poise::command(

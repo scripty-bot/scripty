@@ -98,7 +98,7 @@ pub async fn automod_remove_rule(
 					resolved_language,
 					"automod-remove-rule-embed-success-description",
 					rulesLeft: count - 1,
-					maxRules: super::get_tier_rule_count(premium_tier)
+					maxRules: scripty_automod::utils::get_tier_rule_count(premium_tier)
 				)),
 		),
 	)

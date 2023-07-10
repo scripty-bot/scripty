@@ -894,8 +894,10 @@ dependencies = [
  "base64 0.21.2",
  "log",
  "parking_lot 0.12.1",
+ "reqwest",
  "serde",
  "serde_json",
+ "tokio",
  "ureq",
  "url",
 ]
@@ -2598,6 +2600,7 @@ dependencies = [
  "dashmap",
  "parking_lot 0.12.1",
  "scripty_audio",
+ "scripty_automod",
  "scripty_data_storage",
  "scripty_db",
  "scripty_metrics",
@@ -2607,6 +2610,18 @@ dependencies = [
  "songbird",
  "sqlx",
  "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "scripty_automod"
+version = "0.1.0"
+dependencies = [
+ "poise",
+ "scripty_db",
+ "scripty_premium",
+ "sqlx",
+ "stfu",
  "tracing",
 ]
 
@@ -2651,6 +2666,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "scripty_botlists"
+version = "0.1.0"
+dependencies = [
+ "scripty_config",
+ "serde",
+ "serde_derive",
+ "serde_json",
+]
+
+[[package]]
 name = "scripty_commands"
 version = "1.0.0"
 dependencies = [
@@ -2658,6 +2683,7 @@ dependencies = [
  "indexmap",
  "poise",
  "scripty_audio_handler",
+ "scripty_automod",
  "scripty_bot_utils",
  "scripty_config",
  "scripty_data_storage",
@@ -3316,6 +3342,12 @@ name = "static_assertions"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
+
+[[package]]
+name = "stfu"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dff363338772ab860ac252b77ad98a526c0dcaca7471471869ddebdf7ddc3db4"
 
 [[package]]
 name = "streamcatcher"

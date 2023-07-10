@@ -1,17 +1,21 @@
 {
-  "query": "\nINSERT INTO guilds\nVALUES ($1, $2, $3, $4, false)\nON CONFLICT\n    ON CONSTRAINT guilds_pkey\n    DO UPDATE SET\n      target_channel = $2,\n      language = $3,\n      be_verbose = $4,\n      transcribe_voice_messages = $5\n      ",
+  "query": "SELECT COUNT(*) AS \"count!\" FROM automod_rules WHERE source_id = $1",
   "describe": {
-    "columns": [],
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
     "parameters": {
       "Left": [
-        "Int8",
-        "Int8",
-        "Text",
-        "Bool",
-        "Bool"
+        "Int4"
       ]
     },
-    "nullable": []
+    "nullable": [
+      null
+    ]
   },
-  "hash": "24886fc426e1621677fb6cdc0a3fa4d6169fb0695a05c3c0809fe317040d7ea7"
+  "hash": "5d29e7b84d7f07dbae3aa1050e29f8118590a1f14c6cff076d89b14fd2e17247"
 }
