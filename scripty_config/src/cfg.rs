@@ -41,6 +41,9 @@ pub struct BotConfig {
 
 	/// Redis URL: `redis://user:pass@host:port/db`
 	pub redis_url: String,
+
+	/// Bind address for the webserver.
+	pub bind_address: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

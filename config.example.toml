@@ -9,6 +9,7 @@ support_invite = "https://discord.gg/xSpNJSjNhq"
 i18n_dir = "/home/user/scripty/scripty_i18n/locales"
 api_tokens = []
 owners = [661660243033456652, 788222689126776832]
+bind_address = "0.0.0.0:42069"
 
 ### !!!! YOU MUST CHANGE THIS SECRET KEY !!!! ###
 # the bot will not start if the secret key is not changed
