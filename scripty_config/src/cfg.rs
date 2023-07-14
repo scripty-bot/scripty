@@ -33,9 +33,6 @@ pub struct BotConfig {
 	/// Automated error webhook URL.
 	pub error_webhook: String,
 
-	/// Premium config
-	pub premium: PremiumConfig,
-
 	/// List of \["host", port] for the STT services.
 	pub stt_services: Vec<(String, u16)>,
 
@@ -65,12 +62,6 @@ pub enum DatabaseConnection {
 pub struct DmSupport {
 	pub forwarding_category: u64,
 	pub guild_id:            u64,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct PremiumConfig {
-	/// A map of a tier's Stripe product ID to its name.
-	pub tier_map: HashMap<String, u8>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
