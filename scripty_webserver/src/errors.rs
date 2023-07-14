@@ -30,11 +30,6 @@ pub enum WebServerError {
 	/// Code `3`, no sub-code.
 	DatabaseError(Option<sqlx::Error>),
 
-	/// Missing data to process this event.
-	///
-	/// Code `4`, no sub-code.
-	MissingData,
-
 	/// Parsing an integer failed.
 	///
 	/// Code `5`, no sub-code.
@@ -83,7 +78,6 @@ impl Display for WebServerError {
 			WebServerError::CacheUnavailable => write!(f, "Cache unavailable"),
 			WebServerError::DatabaseError(Some(e)) => write!(f, "Database error: {:?}", e),
 			WebServerError::DatabaseError(None) => write!(f, "Database error"),
-			WebServerError::MissingData => write!(f, "Missing data"),
 			WebServerError::ParseIntError => write!(f, "Parse int error"),
 			WebServerError::SerenityError => write!(f, "Serenity error"),
 		}
@@ -119,13 +113,6 @@ impl IntoResponse for WebServerError {
 					sub_code: -1,
 				},
 				StatusCode::INTERNAL_SERVER_ERROR,
-			),
-			WebServerError::MissingData => (
-				ErrorJson {
-					code:     4,
-					sub_code: -1,
-				},
-				StatusCode::BAD_REQUEST,
 			),
 			WebServerError::ParseIntError => (
 				ErrorJson {

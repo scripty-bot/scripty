@@ -19,4 +19,3 @@ scripty_metrics = { path = "../scripty_metrics" }
 tokio = { version = "1", features = ["parking_lot"] }
 scripty_bot_utils = { path = "../scripty_bot_utils" }
 sqlx = { version = "0.6", features = ["postgres", "macros", "migrate", "offline", "runtime-tokio-rustls"] }
-async-stripe = { version = "0.22", features = ["async", "runtime-tokio-hyper-rustls", "webhook-events", "billing", "checkout", "connect"], default-features = false }

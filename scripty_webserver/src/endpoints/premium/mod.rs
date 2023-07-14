@@ -3,82 +3,54 @@ use std::num::NonZeroU64;
 use axum::{routing::post, Json};
 use scripty_bot_utils::extern_utils::{CreateEmbed, CreateEmbedFooter, CreateMessage, UserId};
 use sqlx::types::time::OffsetDateTime;
-use stripe::{Event as WebhookEvent, EventObject, EventType, SubscriptionStatus};
 
-use crate::{auth::Authentication, errors::WebServerError};
+use crate::{
+	auth::Authentication,
+	errors::WebServerError,
+	models::{StripeWebhookEvent, StripeWebhookEventEnum, SubscriptionStatus},
+};
 
 pub async fn stripe_webhook(
-	Authentication { user_id, .. }: Authentication,
-	Json(WebhookEvent {
-		type_: event_type,
-		data,
-		livemode,
+	Authentication {
+		user_id: auth_user_id,
 		..
-	}): Json<WebhookEvent>,
+	}: Authentication,
+	Json(StripeWebhookEvent {
+		user_id,
+		live_mode,
+		event,
+	}): Json<StripeWebhookEvent>,
 ) -> Result<(), WebServerError> {
-	if user_id != 0 {
+	if auth_user_id != 0 {
 		return Err(WebServerError::AuthenticationFailed(3));
 	}
 
 	let mut embed = CreateEmbed::default();
-	if !livemode {
+	if !live_mode {
 		// add a field to the footer of the embed to show that this is a test webhook
 		embed = embed.footer(CreateEmbedFooter::new(
 			"test data, not real | if you're a user and seeing this, this is a bug",
 		));
 	}
 
-	let target_user_id = match event_type {
-		EventType::ChargeDisputeCreated => {
-			// right now we don't process these, as the Python server needs work to do this
-			None
-		}
-		EventType::CustomerSourceExpiring => {
-			// process the data as a Card object
-			let card = if let EventObject::Card(card) = data.object {
-				card
-			} else {
-				warn!("missing card data in CustomerSourceExpiring event");
-				return Err(WebServerError::MissingData);
-			};
-			let discord_id = if let Some(customer) = card.customer {
-				// the Python server does hacky stuff and replaces all customer objects with their Discord snowflake ID
-				let mut cid = customer.id().as_str().to_string();
-				cid.remove_matches("cus_");
-				cid.parse::<u64>()?
-			} else {
-				// the python server should always have a customer ID in here, so panic
-				panic!("missing customer ID in CustomerSourceExpiring event");
-			};
-
+	let should_fire_webhook = match event {
+		StripeWebhookEventEnum::CustomerSourceExpiring(evt) => {
 			embed = embed.title("Card Expiring").description(format!(
                 "Heads up: your card ({} **{}) is expiring at the end of this month. Please update your card information. \
                 You can head over to the dashboard at https://dash.scripty.org/ to do so. If you don't want to continue \
                 paying for Scripty Premium, consider cancelling your subscription at the same site.\n\
                 Thanks!\n\n~ the Scripty team",
-                card.brand.unwrap_or_else(|| "Unknown".to_string()),
-                card.last4.unwrap_or_else(|| "Unknown".to_string())
+                evt.brand.unwrap_or_else(|| "Unknown".to_string()),
+                evt.last4.unwrap_or_else(|| "Unknown".to_string())
             ));
 
-			Some(discord_id)
+			true
 		}
-		EventType::CustomerSubscriptionCreated => {
+		StripeWebhookEventEnum::CustomerSubscriptionCreated(_) => {
 			// really we don't need to do anything here
-			None
+			false
 		}
-		EventType::CustomerSubscriptionDeleted => {
-			// process the data as a Subscription object
-			let subscription = if let EventObject::Subscription(subscription) = data.object {
-				subscription
-			} else {
-				warn!("missing subscription data in CustomerSubscriptionDeleted event");
-				return Err(WebServerError::MissingData);
-			};
-
-			let mut cid = subscription.customer.id().as_str().to_string();
-			cid.remove_matches("cus_");
-			let discord_id = cid.parse::<u64>()?;
-
+		StripeWebhookEventEnum::CustomerSubscriptionDeleted(_) => {
 			embed = embed.title("Subscription Cancelled").description(
 				"Your subscription to Scripty Premium has officially been cancelled. \
                 If you would like to reactivate it, head to https://dash.scripty.org/.\n\
@@ -88,7 +60,7 @@ pub async fn stripe_webhook(
 
 			// update the user's status in the database
 			let hashed_user_id = scripty_utils::hash_user_id(
-				NonZeroU64::new(discord_id).expect("expected non-zero discord ID"),
+				NonZeroU64::new(user_id).expect("expected non-zero discord ID"),
 			);
 			let db = scripty_db::get_db();
 			sqlx::query!(
@@ -109,73 +81,31 @@ ON CONFLICT
 			.execute(db)
 			.await?;
 
-			Some(discord_id)
+			true
 		}
-		EventType::CustomerSubscriptionTrialWillEnd => {
-			// process the data as a Subscription object
-			let subscription = if let EventObject::Subscription(subscription) = data.object {
-				subscription
-			} else {
-				warn!("missing subscription data in CustomerSubscriptionDeleted event");
-				return Err(WebServerError::MissingData);
-			};
-
-			let mut cid = subscription.customer.id().as_str().to_string();
-			cid.remove_matches("cus_");
-			let discord_id = cid.parse::<u64>()?;
-
+		StripeWebhookEventEnum::CustomerSubscriptionTrialWillEnd(evt) => {
 			embed = embed.title("Trial Ending").description(format!(
                 "Please note that your free trial to Scripty Premium will end <t:{0}:F> (<t:{0}:R>).\n\
                 At the timestamp marked above, you will be charged for a full month of Scripty Premium.\
                 We do not offer refunds under any circumstances, so if you do not want to pay for this,\
                 please cancel your subscription before the end date at https://dash.scripty.org/.\n\n\
                 Thanks for using Scripty! ~ the Scripty team",
-                subscription.trial_end.unwrap_or(0)
+                evt.trial_end.unwrap_or(0)
             ));
 
-			Some(discord_id)
+			true
 		}
-		EventType::CustomerSubscriptionUpdated => {
-			// process the data as a Subscription object
-			let subscription = if let EventObject::Subscription(subscription) = data.object {
-				subscription
-			} else {
-				warn!("missing subscription data in CustomerSubscriptionDeleted event");
-				return Err(WebServerError::MissingData);
-			};
-
-			let mut cid = subscription.customer.id().as_str().to_string();
-			cid.remove_matches("cus_");
-			let discord_id = cid.parse::<u64>()?;
-
-			let tier = *scripty_config::get_config()
-				.premium
-				.tier_map
-				.get(
-					subscription
-						.items
-						.data
-						.get(0)
-						.expect("should be at least one subscription item")
-						.price
-						.as_ref()
-						.expect("item should have price")
-						.product
-						.as_ref()
-						.expect("item should have product")
-						.id()
-						.as_str(),
-				)
-				.ok_or(WebServerError::MissingData)?;
+		StripeWebhookEventEnum::CustomerSubscriptionUpdated(evt) => {
+			let tier = evt.tier;
 
 			// check the status of the subscription
-			match subscription.status {
+			match evt.status {
 				SubscriptionStatus::Active => {
 					// check if subscription.cancel_at_period_end is set: if it is, then the user has cancelled their subscription:
 					// in that case, we should update the premium_expiry field in the database (expiry timestamp is current_period_end)
 					// if it's not set, then check if subscription.trial_end is set: if it is, then the user has started their trial
 					// if neither are set, then very likely a tier change has happened, which we'll update regardless later on
-					if subscription.cancel_at_period_end {
+					if evt.cancel_at_period_end {
 						// update the expiry timestamp to the current period end
 						embed = embed.title("Subscription Cancelled").description(format!(
                             "Your subscription to Scripty Premium has been cancelled. You, and any servers you have \
@@ -184,24 +114,36 @@ ON CONFLICT
                             If you have a moment, it'd be great if you could respond to this message telling us why you \
                             cancelled. In any case, thank you a lot for supporting Scripty.\n\n\
                             <:meow_heart:1003570104866443274> ~ the Scripty team",
-                            subscription.current_period_end
+                            evt.current_period_end
                         )).footer(CreateEmbedFooter::new("https://xkcd.com/2257/"));
 
 						// update the expiry timestamp to the current period end
 						let expiry =
-							OffsetDateTime::from_unix_timestamp(subscription.current_period_end)?;
+							OffsetDateTime::from_unix_timestamp(evt.current_period_end as i64)?;
 						let hashed_user_id = scripty_utils::hash_user_id(
-							NonZeroU64::new(discord_id).expect("expected non-zero discord ID"),
+							NonZeroU64::new(user_id).expect("expected non-zero discord ID"),
 						);
 						let db = scripty_db::get_db();
 						sqlx::query!(
-                            "INSERT INTO users (user_id, premium_level, premium_expiry, is_trialing) VALUES ($1, $2, $3, false)",
-                            hashed_user_id,
-                            tier as i16,
-                            expiry
-                        )
-                            .execute(db)
-                            .await?;
+							r#"
+INSERT INTO users
+    (user_id, premium_level, premium_expiry, is_trialing)
+VALUES
+    ($1, $2, $3, false)
+ON CONFLICT 
+    ON CONSTRAINT users_pkey
+    DO UPDATE 
+    SET
+        premium_level = $2,
+        premium_expiry = $3,
+        is_trialing = false
+"#,
+							hashed_user_id,
+							tier as i16,
+							expiry
+						)
+						.execute(db)
+						.await?;
 					} else {
 						// update the expiry timestamp to the current period end
 						embed = embed.title("Tier Changed").description(format!(
@@ -211,14 +153,14 @@ ON CONFLICT
                             servers you would like to keep Premium on.\n\
                             If you had fewer servers than you now have access to, you can use premium claim to add more servers.\
                             If you have any questions, you may respond to this message for support.",
-                            subscription.current_period_end,
+                            evt.current_period_end,
                             tier
                         ));
 					}
 
 					// update the tier in the database
 					let hashed_user_id = scripty_utils::hash_user_id(
-						NonZeroU64::new(discord_id).expect("expected non-zero discord ID"),
+						NonZeroU64::new(user_id).expect("expected non-zero discord ID"),
 					);
 					let db = scripty_db::get_db();
 					sqlx::query!(
@@ -227,7 +169,7 @@ INSERT INTO users
     (user_id, premium_level, premium_expiry, is_trialing)
 VALUES
     ($1, $2, $3, false)
-ON CONFLICT 
+ON CONFLICT
     ON CONSTRAINT users_pkey
     DO UPDATE
     SET
@@ -237,12 +179,12 @@ ON CONFLICT
 "#,
 						hashed_user_id,
 						tier as i16,
-						OffsetDateTime::from_unix_timestamp(subscription.current_period_end)?,
+						OffsetDateTime::from_unix_timestamp(evt.current_period_end as i64)?,
 					)
 					.execute(db)
 					.await?;
 
-					Some(discord_id)
+					true
 				}
 				SubscriptionStatus::Canceled => {
 					// prepare the user's message
@@ -257,7 +199,7 @@ ON CONFLICT
 
 					// remove the user's premium from the db
 					let hashed_user_id = scripty_utils::hash_user_id(
-						NonZeroU64::new(discord_id).expect("expected non-zero discord ID"),
+						NonZeroU64::new(user_id).expect("expected non-zero discord ID"),
 					);
 					let db = scripty_db::get_db();
 
@@ -280,7 +222,7 @@ ON CONFLICT
 					.execute(db)
 					.await?;
 
-					Some(discord_id)
+					true
 				}
 				SubscriptionStatus::PastDue => {
 					// prepare the message
@@ -296,7 +238,7 @@ ON CONFLICT
 
 					// remove the user's premium
 					let hashed_user_id = scripty_utils::hash_user_id(
-						NonZeroU64::new(discord_id).expect("expected non-zero discord ID"),
+						NonZeroU64::new(user_id).expect("expected non-zero discord ID"),
 					);
 					let db = scripty_db::get_db();
 
@@ -319,7 +261,7 @@ ON CONFLICT
 					.execute(db)
 					.await?;
 
-					Some(discord_id)
+					true
 				}
 				SubscriptionStatus::Trialing => {
 					// prepare embed
@@ -332,12 +274,12 @@ ON CONFLICT
                          Thanks!\n\
                          ~ the Scripty team",
                         tier,
-                        subscription.trial_end.unwrap_or(0)
+                        evt.trial_end.unwrap_or(0)
                     ));
 
 					// update user in DB
 					let hashed_user_id = scripty_utils::hash_user_id(
-						NonZeroU64::new(discord_id).expect("expected non-zero discord ID"),
+						NonZeroU64::new(user_id).expect("expected non-zero discord ID"),
 					);
 					let db = scripty_db::get_db();
 					sqlx::query!(
@@ -358,7 +300,7 @@ ON CONFLICT
 					.execute(db)
 					.await?;
 
-					Some(discord_id)
+					true
 				}
 				SubscriptionStatus::Unpaid => {
 					// prepare embed
@@ -373,7 +315,7 @@ ON CONFLICT
 
 					// cancel the subscription
 					let hashed_user_id = scripty_utils::hash_user_id(
-						NonZeroU64::new(discord_id).expect("expected non-zero discord ID"),
+						NonZeroU64::new(user_id).expect("expected non-zero discord ID"),
 					);
 					let db = scripty_db::get_db();
 					sqlx::query!(
@@ -395,12 +337,12 @@ ON CONFLICT
 					.execute(db)
 					.await?;
 
-					Some(discord_id)
+					true
 				}
 				SubscriptionStatus::Incomplete => {
 					// this status is a grace period for newly created subscriptions, where they are not charged yet
 					// so do nothing here
-					None
+					false
 				}
 				SubscriptionStatus::IncompleteExpired => {
 					embed = embed.title("Subscription Expired").description(
@@ -410,7 +352,7 @@ ON CONFLICT
                         Thanks for using Scripty! ~ the Scripty team"
                     );
 
-					Some(discord_id)
+					true
 				}
 				SubscriptionStatus::Paused => {
 					embed = embed.title("Subscription Paused").description(
@@ -419,21 +361,49 @@ ON CONFLICT
                         Thanks for using Scripty! ~ the Scripty team"
                     );
 
-					Some(discord_id)
+					true
 				}
 			}
 		}
-		EventType::RadarEarlyFraudWarningCreated => None,
-		_ => None,
+		StripeWebhookEventEnum::ChargeDisputeCreated(_) => {
+			// prepare embed
+			embed = embed.title("Dispute Created").description(
+				"Your payment for Scripty Premium has been disputed. \n\
+				This means that your Premium has been revoked, and you have been banned from the bot. \
+				You can appeal this ban by responding to this message. If you appeal successfully, \
+				there will still be a $30 fee to cover the cost of the dispute that must be paid before \
+				you can use Scripty again.\n\n\
+				~ the Scripty team",
+			);
+
+			// ban the user
+			let hashed_user_id = scripty_utils::hash_user_id(
+				NonZeroU64::new(user_id).expect("expected non-zero discord ID"),
+			);
+			let db = scripty_db::get_db();
+			sqlx::query!(
+				r#"
+INSERT INTO blocked_users
+	(user_id, reason, blocked_since)
+VALUES
+	($1, 'disputed payment', now())
+ON CONFLICT
+	DO NOTHING
+				"#,
+				hashed_user_id
+			)
+			.execute(db)
+			.await?;
+
+			true
+		}
 	};
 
-	if let Some(target_user_id) = target_user_id {
+	if should_fire_webhook {
 		debug!("sending DM to user for premium event");
 		let cache_http = scripty_bot_utils::extern_utils::get_cache_http();
 
-		let dm_channel = UserId::from(target_user_id)
-			.create_dm_channel(cache_http)
-			.await?;
+		let dm_channel = UserId::from(user_id).create_dm_channel(cache_http).await?;
 		dm_channel
 			.send_message(cache_http, CreateMessage::default().embed(embed))
 			.await?;
