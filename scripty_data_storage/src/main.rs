@@ -5,11 +5,10 @@ use std::collections::HashMap;
 
 #[tokio::main]
 async fn main() {
-	scripty_config::load_config(
-		&std::env::args()
-			.nth(1)
-			.expect("first arg should be path to bot config"),
-	);
+	let cfg_path = std::env::args()
+		.nth(1)
+		.unwrap_or_else(|| "./config.toml".to_string());
+	scripty_config::load_config(&cfg_path);
 
 	let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL not set");
 
