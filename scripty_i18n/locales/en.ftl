@@ -25,7 +25,7 @@ donation-description =
 
 ## premium command
 # This is shown to the user when they are not subscribed to premium.
-premium-not-premium = You are not a premium subscriber. Subscribe at https://scripty.org/premium.
+premium-not-premium = You are not a premium subscriber. Subscribe at https://scripty.org/premium. If you know you are one, please DM the bot that way we can reinstate your premium.
 # This is shown to the user when they have too many used servers to add more.
 premium-too-many-guilds = You have claimed { $totalServers } premium keys. You cannot add any more, unless you upgrade your premium subscription at <https://dash.scripty.org/premium>, or remove some with the `{ $commandPrefix }premium remove` command.
 # This is shown when the guild the user is running this command in has not finished setup.
@@ -138,6 +138,7 @@ join-success = Successfully joined { $targetMention }.
     
     Note: your current premium tier is { $tier }. This allows for { $maxUsers } users to be transcripted at once. Along with this, the bot will automatically leave after { $leaveDuration } seconds, regardless of how many users are in the channel. This is to prevent abuse of our systems.
     If you would like more users, a longer duration of usage, and would like to also support the bot, consider subscribing to our Premium: <https://dash.scripty.org/premium>
+    If you know you are a Premium subscriber already, please DM the bot that way we can reinstate your Premium.
     { $freeTrialUpsell }
 # This message is shown when the user tries to invite the bot to a voice channel,
 # but the webhook used by the bot has been deleted.
