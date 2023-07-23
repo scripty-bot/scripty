@@ -3,7 +3,6 @@ command-not-found = Imperatus cum nomen `{ $commandName }` non est.
 command-not-found-suggestions = Nisi fallor `{ $suggestion }` sit?
 no-help-found = Auxilium imperio `{ $commandName }` non habeo.
 default-category-name = Imperii
-donation-title = Donationes
 more-info-on-command =
     { " " }
     Si vis informationem de imperium, dice `{ $contextPrefix }help <name>`
