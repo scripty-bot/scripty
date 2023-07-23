@@ -71,7 +71,6 @@
 language-set-failure-description-unsupported = Wenn du mithelfen möchtest, den Bot in diese Sprache zu übersetzen, trete dem Support-Server bei: { $supportServerInvite }.
 # This message is shown as the embed description when the database returns an error when setting the language for an entity.
 language-set-failure-description-db = Es gab einen Fehler in der Datenbank beim Speichern deiner Sprache. Der Fehler ist gemeldet und wir werden ihn uns anschauen. Bitte spamme diesen Befehl nicht. (Für die Neugierigen ist hier der Fehler: { $error })
-donation-title = Spenden
 command-not-found = Kein Befehl mit Name `{ $commandName }` gefunden.
 command-not-found-suggestions = Meintest du `{ $suggestion }`?
 no-help-found = Keine Hilfe gefunden für Befehl `{ $commandName }`.
@@ -127,7 +126,7 @@ latency-description =
     WebSocket-Latenz: { $wsLatencyMs }ms ({ $wsLatencyNs }ns)
     HTTP-Latenz: { $httpLatencyMs }ms ({ $httpLatencyNs }ns)
     Datenbanklatenz: { $pgLatencyMs }ms ({ $pgLatencyNs }ns)
-    
+
     Hinweis: eine Latenzzeit von 0ms bedeutet, dass diese Latenzzeit gerade nicht verfügbar ist.
     Versuche es später noch einmal.
 setup-tos-agree =
@@ -138,10 +137,6 @@ setup-tos-agree-failure = Du musst den Allgemeinen Geschäftsbedingungen und der
 setup-success-title = Einrichtung erfolgreich!
 voice-connection-error-ws-closed-server-not-found = Voiceserver konnte nicht gefunden werden
 voice-connection-error-ws-closed-session-timeout = Zeitüberschreitung der Session
-# This is shown as the title of the donate command (eg what shows up in the slash command picker)
-donations-command-name = spenden
-# This is shown as the description of the donate command (eg what shows up in the slash command picker)
-donations-command-description = Erhalte Informationen, wie du Scripty mit Spenden unterstützen kannst.
 # This is shown as the description of the join command (eg what shows up in the slash command picker)
 join-command-description = Einem Sprachchat beitreten.
 delete-data-title = Daten löschen
@@ -194,7 +189,6 @@ delete-data-cancel = Nein, abbrechen
 credits-description = Das ist eine Liste an Leuten, die bei Scripty geholfen haben.
 credits-field1-description = 0/0 and valkyrie_pilot
 credits-field2-title = Übersetzer
-credits-field3-title = Hosting Anbieter
 # This is shown as the description of the user language command (eg what shows up in the slash command picker)
 language-user-command-description = Setze deine Sprache auf eine der verfügbaren Sprachen.
 # This is shown as the description of the credits command (eg what shows up in the slash command picker)
@@ -213,7 +207,6 @@ data-storage-embed-title = Datenspeicher
 join-command-argument1-description = Zu bindender Sprachchat.
 voice-connection-error-ws-closed-unknown-protocol = Discord konnte das Protokoll nicht erkennen
 credits-field2-description = Viele Leute haben bei den Übersetzungen für den Bot geholfen. Du kannst mit dem `{ $contextPrefix }translators` eine Liste an Übersetzern sehen.
-credits-field3-description = Droplet Development hat Scripty großzügigerweise einen leistungsstarken Server zur Verfügung gestellt, mit genug Leistung um auf ca. 2.500 Discord Server zu skalieren. Du kannst ihre Seite hier besuchen: https://droplet.gg/
 credits-field4-title = Alle unsere Nutzer
 credits-field4-description = Ja, das beinhaltet dich! Wir freuen uns dass du Scripty benutzt und hoffen dass du ihn gerne benutzt.
 voice-connection-error-msg-reconnect = Bei mir ist ein Problem aufgetreten ({ $reason }) und habe die Verbindung zum Sprachchat getrennt. Ich werde versuchen mich in 30 Sekunden erneut zu verbinden.
@@ -229,4 +222,3 @@ transcription-info-transcription-ssrc = SSRC { $ssrc }
 # This is shown when the algorithm encounters an error
 transcription-info-transcription-error = Interner Fehler: Ausführen des STT Algorithmus ist fehlgeschlagen mit dem Fehler: { $error }
 delete-data-description = Dies wird alle deine Daten löschen. Diese Aktion ist permanent, irreversibel und kann nicht rückgängig gemacht werden.
-donation-description = Es ist nicht sehr günstig Scripty zu betreiben. Scripty läuft momentan auf einem 1.500$ Server mit einer AMD Ryzen 9 3900 CPU und 128 GB RAM. Selbst mit dieser Hardware, schätzen wir, dass Scripty höchstens etwa 100 Zeitgleiche Transkriptionen durchführen kann. Spenden würden uns helfen unsere Hardware Kapazität zu erweitern um viel mehr Transkriptionen zeitgleich durchzuführen, vielleicht sogar Zehntausende eines Tages, mit genug Spenden.

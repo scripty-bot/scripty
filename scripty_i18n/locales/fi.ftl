@@ -1,5 +1,3 @@
-donation-title = Lahjoitukset
-
 # This message is shown when the user tries to invite the bot to a voice channel, but the bot has not been set up.
 
 
