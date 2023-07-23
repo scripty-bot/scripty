@@ -33,3 +33,9 @@ it should start up
 
 # docker? 
 https://www.youtube.com/watch?v=PivpCKEiQOQ
+
+# translations?
+
+<a href="https://hosted.weblate.org/engage/scripty-bot/">
+<img src="https://hosted.weblate.org/widgets/scripty-bot/-/open-graph.png" alt="Translation status" />
+</a>
