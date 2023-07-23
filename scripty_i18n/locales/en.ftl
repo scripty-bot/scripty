@@ -2,27 +2,6 @@
 # Message shown if a guild has not claimed their free trial of premium. Always appears on its own standalone line in the surrounding message.
 free-trial-upsell = We offer 3-day trials of Scripty Premium if you would like to try it out and see if it is right for you. Send the bot a DM to get started with a free trial.
 
-## donate command
-# This is shown as the title of the donate command (eg what shows up in the slash command picker)
-donations-command-name = donate
-# This is shown as the description of the donate command (eg what shows up in the slash command picker)
-donations-command-description = Get information on donating to support Scripty.
-donation-title = Donations
-donation-description =
-    Scripty is not cheap to run. It is currently running on a $1,500 USD server with an AMD Ryzen 9 3900 CPU and 128GB RAM. Even with that hardware, we estimate it can only handle 100 concurrent transcriptions. Donations would allow us to scale our hardware capacity and handle many more concurrent transcriptions, perhaps tens of thousands someday with enough donations.
-    
-    Training a model is not easy either, as that needs relatively recent (CUDA 10.1 support) Nvidia GPUs. We hate asking for donations, but we absolutely can't support the bot out of our own pockets, since it's just too expensive. So we're asking for help, and giving rewards in the form of premium subscriptions.
-    
-    You can view more info at https://scripty.org/premium, but the gist of it is that there are 6 tiers ranging in price from $5 USD to $100 USD per month. The $100 tier comes with its own managed instance of Scripty for your own server, with a custom name, and profile picture.
-    
-    We also support one-time donations directly through GitHub Sponsors:
-    {"[https://github.com/sponsors/tazz4843](https://github.com/sponsors/tazz4843?frequency=one-time&sponsor=tazz4843)"}
-    
-    You can view these tiers at https://scripty.org/premium.
-    
-    <3
-    ~ 0/0 and valkyrie_pilot
-
 ## premium command
 # This is shown to the user when they are not subscribed to premium.
 premium-not-premium = You are not a premium subscriber. Subscribe at https://scripty.org/premium. If you know you are one, please DM the bot that way we can reinstate your premium.
@@ -145,7 +124,7 @@ join-success = Successfully joined { $targetMention }.
 webhook-deleted = Looks like you deleted the webhook I use! *bonk* Re-run `{ $contextPrefix }setup` to fix this.
 # This message is shown when the user attempts to make Scripty join a voice channel, but there is no one in the channel.
 join-no-one-in-channel = There's no one in { $targetMention }. I'm not joining if there's no one there, as that's a waste of limited resources.
-# This message is shown when Discord tosses a Dropped error when trying to join a voice channel.
+# This message is shown when Discord tosses a Dropped or TimedOut error when trying to join a voice channel.
 join-failed-dropped = Discord appears to be having issues, we cannot do anything about this. Please try again later.
 
 ## ping command

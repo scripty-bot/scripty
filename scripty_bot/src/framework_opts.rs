@@ -11,7 +11,6 @@ pub fn get_framework_opts() -> FrameworkOptions<scripty_bot_utils::Data, scripty
 			cmds::help(),
 			cmds::join(),
 			cmds::data_storage(),
-			cmds::donate(),
 			cmds::ping(),
 			cmds::leave(),
 			cmds::delete_all_data(),
