@@ -29,7 +29,7 @@ pub async fn join(
 		scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
 	let record_transcriptions = record_transcriptions.unwrap_or(false);
 
-	let _typing = ctx.defer_or_broadcast();
+	ctx.defer();
 
 	let discord_ctx = ctx.discord();
 
