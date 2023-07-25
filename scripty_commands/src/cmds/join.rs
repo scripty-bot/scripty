@@ -71,6 +71,17 @@ pub async fn join(
 		}
 	}
 
+	// resolve our permissions in the channel
+	let permissions = voice_channel.permissions_for_user(discord_ctx, ctx.framework().bot_id)?;
+	// do we have permission to view and connect to the channel?
+	if !permissions.connect() || !permissions.view_channel() {
+		ctx.say(
+			format_message!(resolved_language, "join-no-permission", targetMention: voice_channel.mention().to_string()),
+		)
+		.await?;
+		return Ok(());
+	}
+
 	if voice_channel
 		.guild(discord_ctx)
 		.ok_or(Error::custom(
