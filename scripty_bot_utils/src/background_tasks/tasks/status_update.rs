@@ -1,6 +1,7 @@
 use std::{sync::Arc, time::Duration};
 
 use serenity::{
+	all::ActivityType,
 	client::Context as SerenityContext,
 	gateway::{ActivityData, ShardManager},
 };
@@ -50,7 +51,12 @@ impl BackgroundTask for StatusUpdater {
 			);
 
 			// create activity
-			let activity = ActivityData::playing(shard_status);
+			let activity = ActivityData {
+				name:  "UwU~".to_string(),
+				kind:  ActivityType::Custom,
+				state: Some(shard_status),
+				url:   None,
+			};
 
 			// set activity
 			shard_info.runner_tx.set_activity(Some(activity));
