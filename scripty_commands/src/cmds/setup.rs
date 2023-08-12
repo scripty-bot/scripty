@@ -49,7 +49,7 @@ pub async fn setup(
 		scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
 
 	match target_channel.kind {
-		ChannelType::Text | ChannelType::Voice => {}
+		ChannelType::Text | ChannelType::Voice | ChannelType::PublicThread => {}
 		_ => {
 			return Err(Error::invalid_channel_type(
 				ChannelType::Text,
