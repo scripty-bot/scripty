@@ -101,12 +101,17 @@ ON CONFLICT
 			// check the status of the subscription
 			match evt.status {
 				SubscriptionStatus::Active => {
-					// check if subscription.cancel_at_period_end is set: if it is, then the user has cancelled their subscription:
-					// in that case, we should update the premium_expiry field in the database (expiry timestamp is current_period_end)
-					// if it's not set, then check if subscription.trial_end is set: if it is, then the user has started their trial
-					// if neither are set, then very likely a tier change has happened, which we'll update regardless later on
-					if evt.cancel_at_period_end {
-						// update the expiry timestamp to the current period end
+					if evt.is_length_change && evt.is_tier_change {
+						embed = embed.title("Subscription Updated").description(format!(
+							"Your subscription to Scripty Premium has been updated to Tier {0}, and will take effect \
+							<t:{1}:F> (<t:{1}:R>).\n\
+							If you have any questions, you may respond to this message for support.\n\
+							Thanks for supporting Scripty!\n\n\
+							~ the Scripty team",
+							tier,
+							evt.current_period_start
+						));
+					} else if evt.cancel_at_period_end {
 						embed = embed.title("Subscription Cancelled").description(format!(
                             "Your subscription to Scripty Premium has been cancelled. You, and any servers you have \
                             activated Premium on, will lose their benefits <t:{0}:F> (<t:{0}:R>)\n\
@@ -116,46 +121,67 @@ ON CONFLICT
                             <:meow_heart:1003570104866443274> ~ the Scripty team",
                             evt.current_period_end
                         )).footer(CreateEmbedFooter::new("https://xkcd.com/2257/"));
-
-						// update the expiry timestamp to the current period end
-						let expiry =
-							OffsetDateTime::from_unix_timestamp(evt.current_period_end as i64)?;
-						let hashed_user_id = scripty_utils::hash_user_id(
-							NonZeroU64::new(user_id).expect("expected non-zero discord ID"),
+					} else if evt.is_new {
+						embed = embed.title("Subscription Started").description(format!(
+							"Your subscription to Scripty Premium has started, and takes effect <t:{0}:F> (<t:{0}:R>).\n\
+							If you have any questions, you may respond to this message for support.\n\
+							Thanks for supporting Scripty!\n\n\
+							~ the Scripty team",
+							evt.current_period_start
+						));
+					} else if evt.is_renewal {
+						embed = embed.title("Subscription Renewed").description(
+							"Your subscription to Scripty Premium has successfully renewed! Thank you for your continued support.\n\
+							If you did not want to renew your subscription, you may cancel it at https://dash.scripty.org/ to prevent \
+							further charges, and reply to this message requesting a refund. A human will get back to you.\n\n\
+							If you have any questions, you may respond to this message for support.\n\n\
+							~ the Scripty team"
 						);
-						let db = scripty_db::get_db();
-						sqlx::query!(
-							r#"
-INSERT INTO users
-    (user_id, premium_level, premium_expiry, is_trialing)
-VALUES
-    ($1, $2, $3, false)
-ON CONFLICT 
-    ON CONSTRAINT users_pkey
-    DO UPDATE 
-    SET
-        premium_level = $2,
-        premium_expiry = $3,
-        is_trialing = false
-"#,
-							hashed_user_id,
-							tier as i16,
-							expiry
-						)
-						.execute(db)
-						.await?;
-					} else {
-						// update the expiry timestamp to the current period end
+					} else if evt.is_length_change {
+						embed = embed.title("Subscription Length Changed").description(format!(
+							"The length of your subscription has successfully been changed! It now ends on <t:{0}:F> (<t:{0}:R>).\n\
+							If you have any questions, you may respond to this message for support.\n\
+							Thanks for supporting Scripty!\n\n\
+							~ the Scripty team",
+							evt.current_period_end
+						));
+					} else if evt.is_tier_change {
 						embed = embed.title("Tier Changed").description(format!(
                             "Your subscription has been updated to Tier {1}, and takes effect <t:{0}:F> (<t:{0}:R>).\n\
-                            If you had more servers than you were supposed to with this new Premium tier due to a downgrade,\
+                            If you had more servers than you were supposed to with this new Premium tier due to a downgrade, \
                             all the servers you have added to Premium have been removed. You will need to re-add the \
                             servers you would like to keep Premium on.\n\
-                            If you had fewer servers than you now have access to, you can use premium claim to add more servers.\
-                            If you have any questions, you may respond to this message for support.",
+                            If you had fewer servers than you now have access to, you can use `/premium claim` to add more servers. \
+                            If you have any questions, you may respond to this message for support.\n\n\
+                            ~ the Scripty team",
                             evt.current_period_end,
                             tier
                         ));
+					} else {
+						embed = embed.title("Subscription Update").description(format!(
+							"I am unable to determine what has changed about your subscription. You may want to review the following \
+							information and contact support if you believe this is an error.\n\n\
+							**Current Subscription End Date**: <t:{0}:F> (<t:{0}:R>)\n\
+							**Current Subscription Tier**: {1}\n\
+							**Current Subscription Status**: {2}\n\
+							**Cancelling at Period End**: {3}\n\
+							**Current Trial End**: {4}\n\
+							**Is New**: {5}\n\
+							**Is Renewal**: {6}\n\
+							**Is Length Change**: {7}\n\
+							**Is Tier Change**: {8}\n\
+							If you're unsure what this means, you may respond to this message for support, \
+							and we will dig into it for you.",
+							evt.current_period_end,
+							tier,
+							evt.status,
+							evt.cancel_at_period_end,
+							evt.trial_end.map_or_else(|| "None".to_string(), |t| format!("<t:{0}:F> (<t:{0}:R>)", t)),
+							evt.is_new,
+							evt.is_renewal,
+							evt.is_length_change,
+							evt.is_tier_change
+						));
 					}
 
 					// update the tier in the database
