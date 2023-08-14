@@ -19,7 +19,7 @@ use crate::{Context, Error};
 pub async fn join(
 	ctx: Context<'_>,
 	#[description = "Voice chat to bind to"]
-	#[channel_types("Voice")]
+	#[channel_types("Voice", "Stage")]
 	voice_channel: Option<GuildChannel>,
 
 	#[description = "Log all transcripts? Users will be DMed when Scripty leaves the channel. Defaults to false."]
