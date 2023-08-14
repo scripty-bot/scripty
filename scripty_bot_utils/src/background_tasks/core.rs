@@ -41,7 +41,7 @@ macro_rules! init_task {
 			loop {
 				match task.timeout() {
 					Some(timeout) => {
-						if let Err(e) = tokio::time::timeout(timeout, task.run()).await {
+						if tokio::time::timeout(timeout, task.run()).await.is_err() {
 							error!(concat!("background task timed out: ", stringify!($path)));
 						}
 					}
