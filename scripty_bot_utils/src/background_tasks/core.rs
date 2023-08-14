@@ -12,6 +12,16 @@ pub trait BackgroundTask: Sized {
 	///
 	/// This gets called every `interval()`.
 	async fn run(&mut self);
+
+	/// Timeout for the task.
+	/// If this returns `None`, the task will never time out.
+	///
+	/// This gets called just before every call to `run()`.
+	/// If the task times out,
+	/// its future will be dropped, and after `interval()` has passed, it will be rerun.
+	fn timeout(&mut self) -> Option<std::time::Duration> {
+		None
+	}
 }
 
 /// Initialize a task. Accepts one argument, the full path to the task struct from the crate root.
@@ -20,7 +30,7 @@ macro_rules! init_task {
 	($path: ty, $ctx: expr) => {{
 		let ctx = $ctx.clone();
 		tokio::spawn(async move {
-			let mut task = match <$path>::init(ctx).await {
+			let mut task = match <$path as BackgroundTask>::init(ctx).await {
 				Ok(t) => t,
 				Err(e) => {
 					error!("background task failed to initialize: {:?}", e);
@@ -29,7 +39,14 @@ macro_rules! init_task {
 			};
 			let mut interval;
 			loop {
-				task.run().await;
+				match task.timeout() {
+					Some(timeout) => {
+						if let Err(e) = tokio::time::timeout(timeout, task.run()).await {
+							error!(concat!("background task timed out: ", stringify!($path)));
+						}
+					}
+					None => task.run().await,
+				}
 				interval = task.interval();
 				tokio::time::sleep(interval).await;
 			}

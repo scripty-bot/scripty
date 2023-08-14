@@ -62,4 +62,8 @@ impl BackgroundTask for StatusUpdater {
 			shard_info.runner_tx.set_activity(Some(activity));
 		}
 	}
+
+	fn timeout(&mut self) -> Option<Duration> {
+		Some(Duration::from_secs(5))
+	}
 }

@@ -84,6 +84,7 @@ pub async fn setup(
 	let one = ComponentInteractionCollector::new(&discord_ctx.shard)
 		.channel_id(ctx.channel_id())
 		.author_id(ctx.author().id)
+		.message_id(msg.id)
 		.timeout(Duration::from_secs(300))
 		.next()
 		.await;
