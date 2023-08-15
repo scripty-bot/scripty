@@ -9,6 +9,7 @@ edition = "2021"
 hex = "0.4"
 tracing = "0.1"
 indexmap = "1"
+humantime = "2"
 scripty_db = { path = "../scripty_db" }
 scripty_i18n = { path = "../scripty_i18n" }
 scripty_utils = { path = "../scripty_utils" }

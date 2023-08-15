@@ -11,7 +11,7 @@ mod leave;
 mod ping;
 pub mod premium;
 mod register_cmds;
-mod setup;
+mod terms_of_service;
 mod throw_error;
 
 pub use admin::*;
@@ -25,5 +25,5 @@ pub use language::*;
 pub use leave::leave;
 pub use ping::ping;
 pub use register_cmds::register_cmds;
-pub use setup::setup;
+pub use terms_of_service::terms_of_service;
 pub use throw_error::throw_error;

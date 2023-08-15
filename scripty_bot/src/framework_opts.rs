@@ -6,7 +6,6 @@ use serenity::{builder::CreateAllowedMentions, model::id::UserId, prelude::Gatew
 pub fn get_framework_opts() -> FrameworkOptions<scripty_bot_utils::Data, scripty_bot_utils::Error> {
 	FrameworkOptions {
 		commands: vec![
-			cmds::setup(),
 			cmds::register_cmds(),
 			cmds::help(),
 			cmds::join(),
@@ -15,6 +14,7 @@ pub fn get_framework_opts() -> FrameworkOptions<scripty_bot_utils::Data, scripty
 			cmds::leave(),
 			cmds::delete_all_data(),
 			cmds::throw_error(),
+			cmds::terms_of_service(),
 			poise::Command {
 				subcommands: vec![cmds::user_language(), cmds::guild_language()],
 				..cmds::language()

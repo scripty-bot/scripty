@@ -10,7 +10,7 @@ use parking_lot::RwLock;
 use scripty_audio::{ModelError, Stream};
 use scripty_automod::types::{AutomodRuleAction, AutomodServerConfig};
 use serenity::{
-	all::{ChannelId as SerenityChannelId, GuildId, Webhook},
+	all::{ChannelId as SerenityChannelId, ChannelId, GuildId, Webhook},
 	builder::{CreateEmbed, CreateMessage, EditMember, ExecuteWebhook},
 	client::Context,
 };
@@ -28,6 +28,7 @@ pub async fn voice_tick(
 	verbose: Arc<AtomicBool>,
 	ctx: Context,
 	webhook: Arc<Webhook>,
+	thread_id: Option<ChannelId>,
 	transcript_results: Option<Arc<RwLock<Vec<String>>>>,
 	automod_server_cfg: Arc<AutomodServerConfig>,
 ) {
@@ -167,6 +168,7 @@ pub async fn voice_tick(
 		let (final_result, hook) = finalize_stream(
 			old_stream,
 			ssrc_state.ssrc_user_data_map.clone(),
+			thread_id,
 			ssrc,
 			verbose.load(Ordering::Relaxed),
 		)
@@ -293,12 +295,13 @@ pub async fn voice_tick(
 async fn finalize_stream(
 	stream: Stream,
 	user_data_map: SsrcUserDataMap,
+	thread_id: Option<ChannelId>,
 	ssrc: u32,
 	verbose: bool,
 ) -> (Option<String>, Option<ExecuteWebhook>) {
 	let mut final_transcript = None;
 
-	let webhook_executor = if verbose {
+	let mut webhook_executor = if verbose {
 		let res = stream.get_result_verbose().await;
 		match res {
 			Ok(res) => {
@@ -343,6 +346,10 @@ async fn finalize_stream(
 		warn!("no user details for ssrc {}", ssrc);
 		return (None, None);
 	};
+
+	if let Some(thread_id) = thread_id {
+		webhook_executor = webhook_executor.in_thread(thread_id);
+	}
 
 	(
 		final_transcript,

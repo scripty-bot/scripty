@@ -111,9 +111,7 @@ no-channel-specified = You're not in a voice chat, nor did you tell me a channel
 bot-not-set-up = Looks like you haven't set up the bot yet. Do that first with `{ $contextPrefix }setup`.
 # This message is shown on successfuly joining a voice channel.
 # { $targetMention } is the mention of the channel the bot joined.
-join-success = Successfully joined { $targetMention }.
-    
-    {"**"}Keep in mind that the bot is not perfect, and works best when you speak slowly (roughly 40-60 words per minute) and clearly.**
+join-success = Successfully joined { $voiceTargetMention }, and sending transcription output to { $outputChannelMention }.
     
     Note: your current premium tier is { $tier }. This allows for { $maxUsers } users to be transcripted at once. Along with this, the bot will automatically leave after { $leaveDuration } seconds, regardless of how many users are in the channel. This is to prevent abuse of our systems.
     If you would like more users, a longer duration of usage, and would like to also support the bot, consider subscribing to our Premium: <https://dash.scripty.org/premium>
@@ -128,6 +126,32 @@ join-no-one-in-channel = There's no one in { $targetMention }. I'm not joining i
 join-failed-dropped = Discord appears to be having issues, we cannot do anything about this. Please try again later.
 # This message is shown when the bot does not have permissions for the voice channel it is trying to join.
 join-no-permission = I don't have permission to join { $targetMention }. Please give me the View Channel and Join permissions, or join a different voice chat where I do have permissions.
+# This message is shown when the user tries to tell the bot to join, but they have not agreed to the ToS.
+must-agree-to-tos = You must agree to the Terms of Service and Privacy Policy to use Scripty. See `{ $contextPrefix }terms_of_service` for more info.
+# This message is shown when the user has told the bot to create a thread while in a thread.
+join-create-thread-in-thread = I can't create a thread while in a thread. Please run this command in a normal channel, likely { $parentChannelMention }.
+# If the user specifies they would like to create a thread, this is set as the thread name. { $timestamp } is the current timestamp, in ISO format.
+join-thread-title = Transcription from { $timestamp }
+# If the user specifies they would like to create a forum post, this is the contents of the initial message. { $timestamp } is the current timestamp, in ISO format, and { $authorMention } is the mention of the user who ran the command.
+join-forum-thread-content = { $authorMention } started a transcription at { $timestamp }.
+# This message is shown when the user has told a bot to join a forum channel, but the forum requires tags. This is not possible for the bot to work around as it has no way of knowing what tags to use.
+join-forum-requires-tags = The forum channel you tried to make me use requires tags. I have no way of knowing what tags to use, so I cannot join that channel. Please use a different channel, or ask an admin to remove the tag requirement.
+
+## ToS command
+# This is shown as the title of the ToS command (eg what shows up in the slash command picker)
+tos-command-name = terms_of_service
+# This is shown as the description of the ToS command (eg what shows up in the slash command picker)
+tos-command-description = View and agree to Scripty's Terms of Service and Privacy Policy.
+# This is sent when the user has not yet agreed to the ToS and must do so.
+agreeing-to-tos = You can view Scripty's Terms of Service and Privacy Policy at https://scripty.org/terms and https://scripty.org/privacy respectively. You may click the button below to agree to both of these documents, and use Scripty.
+# This is sent when the user has already agreed to the ToS and does not need to do so again.
+already-agreed-to-tos = You have already agreed to Scripty's Terms of Service and Privacy Policy. If you would like to view them again, you can do so at https://scripty.org/terms and https://scripty.org/privacy respectively.
+# This replaces the original content of the message (key agreeing-to-tos) when the user fails to select a button in time.
+tos-agree-timed-out = Timed out. Rerun this command if you still want to agree to the ToS.
+# This replaces the original content of the message (key agreeing-to-tos) when the user agrees to the ToS.
+tos-agree-success = You have successfully agreed to Scripty's Terms of Service and Privacy Policy. You may now use Scripty.
+# This replaces the original content of the message (key agreeing-to-tos) when the user fails to agree to the ToS, usually by explicitly clicking the "No" button.
+disagreed-to-tos = You have disagreed to Scripty's Terms of Service and Privacy Policy. If you would like to use Scripty, you must agree to these documents. You may do so by running this command again.
 
 ## ping command
 # This is shown as the title of the ping command (eg what shows up in the slash command picker)
@@ -144,34 +168,6 @@ latency-description =
     
     Note: if any latency is equal to 0ms, it means that specific latency could not be calculated right now.
     Try again later.
-
-## setup command
-# This is shown as the title of the setup command (eg what shows up in the slash command picker)
-setup-command-name = setup
-# This is shown as the description of the setup command (eg what shows up in the slash command picker)
-setup-command-description =
-    Set the bot up.
-    
-    This will initialize the bare framework of the bot,
-    allowing you to use `~join` to bind the bot to a voice chat.
-setup-command-argument1-description = Channel to send transcriptions to. (Required)
-setup-command-argument2-description = Target language to run the STT algorithm in. (Optional, defaults to English)
-setup-command-argument3-description = During transcriptions, be verbose? This adds no extra overhead. (Optional, defaults to false)
-setup-tos-agree =
-    By setting up Scripty, you agree to both its Privacy Policy and Terms of Service.
-    Privacy Policy: https://scripty.org/privacy
-    Terms of Service: https://scripty.org/terms
-setup-tos-agree-failure = You must agree to both the Terms of Service and the Privacy Policy to use Scripty. Cancelling setup.
-setup-success-title = Set up successfully!
-setup-success-description =
-    A couple notes:
-    
-    1) The bot is extremely expensive to run, and requires a serious amount of processing power, so it'd be amazing if you could donate a bit. We offer premium tiers that come with many more features than the free version. You can find a comparison and a list of premium tiers at <https://scripty.org/premium>. The core features will stay free forever, though.
-
-    2) If you chose a language other than English (the default) note that transcriptions for it will be much, much lower quality. You can see each language's accuracy at https://scripty.org/languages.
-    
-    Thanks for checking out Scripty! <3
-    ~ 0/0 + valkyrie_pilot
 
 ## data_storage command
 # This is shown as the title of the data_storage command (eg what shows up in the slash command picker).

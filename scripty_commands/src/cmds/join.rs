@@ -1,8 +1,11 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, time::SystemTime};
 
+use humantime::format_rfc3339_seconds;
 use scripty_audio_handler::JoinError;
 use scripty_bot_utils::checks::is_guild;
 use serenity::{
+	all::{AutoArchiveDuration, ChannelFlags},
+	builder::{CreateForumPost, CreateMessage, CreateThread},
 	http::StatusCode,
 	model::channel::{ChannelType, GuildChannel},
 	prelude::Mentionable,
@@ -12,6 +15,7 @@ use serenity::{
 use crate::{Context, Error};
 
 /// Join a voice chat.
+/// Transcripts will be logged to the channel you run this command in.
 ///
 /// Argument 1 is a voice chat to join.
 /// If you do not specify a voice channel to join, the bot will default to the same one you are in.
@@ -24,14 +28,56 @@ pub async fn join(
 
 	#[description = "Log all transcripts? Users will be DMed when Scripty leaves the channel. Defaults to false."]
 	record_transcriptions: Option<bool>,
+
+	#[description = "Send transcripts here, instead of the current channel. Target a forum to create a new post."]
+	target_channel: Option<GuildChannel>,
+
+	#[description = "Create a new thread for this transcription? Defaults to false."]
+	create_thread: Option<bool>,
 ) -> Result<(), Error> {
 	let resolved_language =
 		scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
-	let record_transcriptions = record_transcriptions.unwrap_or(false);
-
 	let _typing = ctx.defer_or_broadcast().await;
-
 	let discord_ctx = ctx.discord();
+	let db = scripty_db::get_db();
+
+	// validate arguments
+	let record_transcriptions = record_transcriptions.unwrap_or(false);
+	let mut create_thread = create_thread.unwrap_or(false);
+	let target_channel = match target_channel {
+		Some(c) => c,
+		None => ctx
+			.channel_id()
+			.to_channel(&discord_ctx)
+			.await?
+			.guild()
+			.ok_or_else(Error::expected_guild)?,
+	};
+
+	if target_channel.kind == ChannelType::Forum {
+		// we do this before the thread check just as a double check, even though that should never happen
+		create_thread = true;
+	}
+
+	if create_thread && target_channel.thread_metadata.is_some() && let Some(parent_id) = target_channel.parent_id {
+		ctx.say(format_message!(
+			resolved_language,
+			"join-create-thread-in-thread",
+			parentChannelMention: parent_id.mention().to_string()
+		))
+		.await?;
+		return Ok(());
+	}
+
+	if target_channel.kind == ChannelType::Forum
+		&& target_channel.flags.contains(ChannelFlags::REQUIRE_TAG)
+	{
+		ctx.say(
+			format_message!(resolved_language, "join-forum-requires-tags", targetMention: target_channel.mention().to_string()),
+		)
+		.await?;
+		return Ok(());
+	}
 
 	let (guild_id, voice_channel) = {
 		let guild = ctx.guild().ok_or_else(Error::expected_guild)?;
@@ -45,6 +91,25 @@ pub async fn join(
 			}),
 		)
 	};
+
+	let res = sqlx::query!(
+		"SELECT trial_used, agreed_tos FROM guilds WHERE guild_id = $1",
+		guild_id.get() as i64
+	)
+	.fetch_optional(db)
+	.await?;
+	let (trial_used, agreed_tos) = res
+		.as_ref()
+		.map_or((false, false), |row| (row.trial_used, row.agreed_tos));
+
+	if !agreed_tos {
+		ctx.say(
+			format_message!(resolved_language, "must-agree-to-tos", contextPrefix: ctx.prefix()),
+		)
+		.await?;
+		return Ok(());
+	}
+
 	let voice_channel = match voice_channel {
 		Ok(vc) => vc,
 		Err(Some(state)) => state
@@ -82,6 +147,8 @@ pub async fn join(
 		return Ok(());
 	}
 
+	// check if there are any users in the channel
+	// prevents Join(Dropped) errors being thrown, as this would be confusing to the user
 	if voice_channel
 		.guild(discord_ctx)
 		.ok_or(Error::custom(
@@ -103,47 +170,72 @@ pub async fn join(
 		.await
 		.map_or(0, |l| l as u8);
 
-	let db = scripty_db::get_db();
-	let res = sqlx::query!(
-		"SELECT target_channel, trial_used FROM guilds WHERE guild_id = $1",
-		guild_id.get() as i64
-	)
-	.fetch_optional(db)
-	.await?;
-	let channel_id = match res
-		.as_ref()
-		.and_then(|row| row.target_channel.map(|id| id as u64))
+	let (target_thread, target_channel) = if create_thread
+		&& target_channel.kind != ChannelType::Forum
 	{
-		Some(id) => id.into(),
-		None => {
-			ctx.say(
-				format_message!(resolved_language, "bot-not-set-up", contextPrefix: ctx.prefix()),
-			)
-			.await?;
-			return Ok(());
-		}
+		let timestamp = format_rfc3339_seconds(SystemTime::now()).to_string();
+		(
+			Some(
+				target_channel
+					.create_thread(
+						&discord_ctx,
+						CreateThread::new(
+							format_message!(resolved_language, "join-thread-title", timestamp: timestamp),
+						)
+						.invitable(true)
+						.auto_archive_duration(AutoArchiveDuration::OneHour)
+						.kind(ChannelType::PublicThread),
+					)
+					.await?,
+			),
+			target_channel.id,
+		)
+	} else if create_thread && target_channel.kind == ChannelType::Forum {
+		let timestamp = format_rfc3339_seconds(SystemTime::now()).to_string();
+		(
+			Some(target_channel.create_forum_post(
+				&discord_ctx,
+				CreateForumPost::new(
+					format_message!(resolved_language, "join-thread-title", timestamp: &*timestamp),
+					CreateMessage::new().content(
+						format_message!(resolved_language, "join-forum-thread-content", timestamp: timestamp, authorMention: ctx.author().mention().to_string())
+					)
+				),
+			).await?),
+			target_channel.id,
+		)
+	} else if target_channel.thread_metadata.is_some() {
+		let parent_id = target_channel
+			.parent_id
+			.ok_or(Error::custom("thread has no parent".to_string()))?;
+		(Some(target_channel), parent_id)
+	} else {
+		(None, target_channel.id)
 	};
-	// the above checks that the row exists already, so we do not need to do anything besides an unwrap
-	let trial_used = res
-		.expect("above should have checked successfully that row exists")
-		.trial_used;
 
+	let output_channel_mention = if let Some(ref target_thread) = target_thread {
+		target_thread.mention().to_string()
+	} else {
+		target_channel.mention().to_string()
+	};
 	let res = scripty_audio_handler::connect_to_vc(
 		discord_ctx.clone(),
 		guild_id,
-		channel_id,
+		target_channel,
 		voice_channel.id,
+		target_thread.map(|x| x.id),
 		false,
 		record_transcriptions,
 	)
 	.await;
 	match res {
-		Ok(true) => {
+		Ok(_) => {
 			#[allow(clippy::wildcard_in_or_patterns)]
 			ctx.say(format_message!(
 				resolved_language,
 				"join-success",
-				targetMention: voice_channel.mention().to_string(),
+				voiceTargetMention: voice_channel.mention().to_string(),
+				outputChannelMention: output_channel_mention,
 				tier: premium_level,
 				maxUsers: match premium_level {
 					0 => 5,
@@ -171,12 +263,6 @@ pub async fn join(
 			))
 			.await?;
 		}
-		Ok(false) => {
-			ctx.say(
-				format_message!(resolved_language, "bot-not-set-up", contextPrefix: ctx.prefix()),
-			)
-			.await?;
-		}
 		Err(scripty_audio_handler::Error::Serenity(SerenityError::Http(e)))
 			if e.status_code() == Some(StatusCode::NOT_FOUND) =>
 		{
@@ -193,8 +279,6 @@ pub async fn join(
 		}
 		Err(e) => return Err(e.into()),
 	};
-
-	// scripty_audio_handler::check_voice_state(&discord_ctx, ctx.guild_id())
 
 	Ok(())
 }

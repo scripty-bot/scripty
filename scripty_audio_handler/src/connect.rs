@@ -15,9 +15,10 @@ pub async fn connect_to_vc(
 	guild_id: GuildId,
 	channel_id: ChannelId,
 	voice_channel_id: ChannelId,
+	thread_id: Option<ChannelId>,
 	_force: bool,
 	record_transcriptions: bool,
-) -> Result<bool, Error> {
+) -> Result<(), Error> {
 	debug!("fetching webhook");
 	// thanks to Discord undocumented breaking changes, we have to do this
 	// <3 shitcord
@@ -89,6 +90,7 @@ pub async fn connect_to_vc(
 		ctx.clone(),
 		channel_id,
 		voice_channel_id,
+		thread_id,
 		record_transcriptions,
 		automod_server_cfg,
 	)
@@ -127,5 +129,5 @@ pub async fn connect_to_vc(
 		}
 	});
 
-	Ok(true)
+	Ok(())
 }
