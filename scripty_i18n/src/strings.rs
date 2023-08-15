@@ -71,7 +71,7 @@ macro_rules! format_message {
         $(
             args.set(stringify!($arg), $value);
         )*
-        let (fstr, errs) = $crate::get_formatted_message(&$language, $message_id, Some(&args)).expect("invalid message ID");
+        let (fstr, errs) = $crate::get_formatted_message(&$language, $message_id, Some(&args)).expect("invalid internationalization message ID");
         for err in errs {
             warn!(message_id=%$message_id, "errors encountered during message formatting: {}", err);
         }
