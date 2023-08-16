@@ -95,23 +95,6 @@ make_static_metric! {
 		"event_type" => EventType,
 	}
 
-	pub label_enum CommandsUsed {
-		credits,
-		data_storage,
-		donate,
-		block,
-		help,
-		join,
-		language,
-		ping,
-		register_cmds,
-		setup,
-		unknown
-	}
-	pub struct CommandsUsedVec: IntCounter {
-		"command_name" => CommandsUsed,
-	}
-
 	pub label_enum RuntimeMetrics {
 		workers_count,
 		total_park_count,
@@ -179,7 +162,7 @@ pub struct Metrics {
 	pub total_commands:           IntCounter,
 	pub stt_server_fetch_success: IntCounter,
 	pub stt_server_fetch_failure: IntCounter,
-	pub commands:                 CommandsUsedVec,
+	pub commands:                 IntCounterVec,
 	pub runtime_metrics:          RuntimeMetricsVec,
 	pub latency:                  LatencyVec,
 }
@@ -241,19 +224,21 @@ impl Metrics {
 			.register(Box::new(audio_process_time.clone()))
 			.unwrap();
 
-		let total_commands_used =
-			IntCounter::new("total_commands_used", "All commands used").unwrap();
+		let total_commands_used = IntCounter::new(
+			"total_commands_used",
+			"Overall total of commands used across the entire bot",
+		)
+		.unwrap();
 		registry
 			.register(Box::new(total_commands_used.clone()))
 			.unwrap();
 
 		let commands_used = IntCounterVec::new(
-			Opts::new("commands_used", "Commands used"),
+			Opts::new("commands_used", "Breakdown of each command used"),
 			&["command_name"],
 		)
 		.unwrap();
-		let commands_used_static = CommandsUsedVec::from(&commands_used);
-		registry.register(Box::new(commands_used)).unwrap();
+		registry.register(Box::new(commands_used.clone())).unwrap();
 
 		let runtime_metrics_stats = IntGaugeVec::new(
 			Opts::new("runtime_metrics", "Tokio runtime metrics"),
@@ -312,7 +297,7 @@ impl Metrics {
 			audio_tick_time,
 			audio_process_time,
 			total_commands: total_commands_used,
-			commands: commands_used_static,
+			commands: commands_used,
 			runtime_metrics: runtime_metrics_static,
 			latency: latency_static,
 			stt_server_fetch_success,
