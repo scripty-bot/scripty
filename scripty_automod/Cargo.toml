@@ -10,5 +10,5 @@ stfu = "0.1"
 tracing = "0.1"
 scripty_db = { path = "../scripty_db" }
 scripty_premium = { path = "../scripty_premium" }
-sqlx = { version = "0.6", features = ["postgres", "macros", "migrate", "offline", "runtime-tokio-rustls", "time"] }
+sqlx = { version = "0.7", features = ["postgres", "macros", "migrate", "runtime-tokio-rustls", "time"] }
 poise = { git = "https://github.com/serenity-rs/poise", branch = "serenity-next", features = ["cache", "collector"] }
