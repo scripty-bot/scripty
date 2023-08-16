@@ -179,6 +179,9 @@ impl EventHandler for AudioHandler {
 					*client_disconnect_data,
 					Arc::clone(&self.ssrc_state),
 					Arc::clone(&self.premium_level),
+					self.context.clone(),
+					Arc::clone(&self.webhook),
+					self.transcript_results.clone(),
 				))
 			}
 			EventContext::DriverConnect(connect_data)

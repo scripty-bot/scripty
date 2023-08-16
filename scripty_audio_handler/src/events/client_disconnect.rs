@@ -3,14 +3,22 @@ use std::sync::{
 	Arc,
 };
 
+use parking_lot::RwLock;
+use serenity::{
+	all::{Context, Webhook},
+	builder::ExecuteWebhook,
+};
 use songbird::model::payload::ClientDisconnect;
 
-use crate::audio_handler::ArcSsrcMaps;
+use crate::{audio_handler::ArcSsrcMaps, types::TranscriptResults};
 
 pub async fn client_disconnect(
 	client_disconnect_data: ClientDisconnect,
 	ssrc_state: ArcSsrcMaps,
 	premium_level: Arc<AtomicU8>,
+	ctx: Context,
+	webhook: Arc<Webhook>,
+	transcript_results: TranscriptResults,
 ) {
 	let user_id = client_disconnect_data.user_id;
 
@@ -33,9 +41,11 @@ pub async fn client_disconnect(
 
 	assert!(ssrc_state.ssrc_user_id_map.remove(&ssrc).is_some());
 	ssrc_state.ssrc_stream_map.remove(&ssrc);
-	ssrc_state.ssrc_user_data_map.remove(&ssrc);
 	ssrc_state.ssrc_ignored_map.remove(&ssrc);
 	ssrc_state.ssrc_voice_ingest_map.remove(&ssrc);
+	let Some((_, (username, avatar_url))) = ssrc_state.ssrc_user_data_map.remove(&ssrc) else {
+		warn!(%ssrc, "got no user data for ssrc");
+	};
 
 	#[allow(clippy::wildcard_in_or_patterns)]
 	let max_users = match premium_level.load(Ordering::Relaxed) {
@@ -56,5 +66,24 @@ pub async fn client_disconnect(
 			debug!(?ssrc, "inserting new user into map");
 			ssrc_state.active_user_set.insert(next);
 		}
+	}
+
+	if let Err(e) = webhook
+		.execute(
+			&ctx,
+			false,
+			ExecuteWebhook::new()
+				.content(format!("{} disconnected", username))
+				.avatar_url(avatar_url)
+				.username(username),
+		)
+		.await
+	{
+		warn!(%ssrc, "failed to send the user leave webhook: {}", e);
+	}
+
+	if let Some(transcript_results) = transcript_results {
+		let mut transcript_results = transcript_results.write();
+		transcript_results.push(format!("[{}] - event: disconnected", username));
 	}
 }
