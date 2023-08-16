@@ -129,12 +129,6 @@ latency-description =
 
     Hinweis: eine Latenzzeit von 0ms bedeutet, dass diese Latenzzeit gerade nicht verfügbar ist.
     Versuche es später noch einmal.
-setup-tos-agree =
-    Durch das Einrichten von Scripty stimmst du der Datenschutzerklärung und den Allgemeinen Geschäftsbedingungen zu.
-    Datenschutzerklärung: https://scripty.org/privacy
-    Allgemeine Geschäftsbedingungen: https://scripty.org/terms
-setup-tos-agree-failure = Du musst den Allgemeinen Geschäftsbedingungen und der Datenschutzerklärung zustimmen, um Scripty zu benutzen. Einrichtung abgebrochen.
-setup-success-title = Einrichtung erfolgreich!
 voice-connection-error-ws-closed-server-not-found = Voiceserver konnte nicht gefunden werden
 voice-connection-error-ws-closed-session-timeout = Zeitüberschreitung der Session
 # This is shown as the description of the join command (eg what shows up in the slash command picker)
@@ -152,8 +146,6 @@ delete-data-confirm = Ja, lösche alle Daten
 language-root-command-description = Modifiziere deine Spracheinstellungen.
 # This is shown as the description of the guild language command (eg what shows up in the slash command picker)
 language-guild-command-description = Setze deine Server Sprache auf eine der verfügbaren Sprachen.
-# This is shown as the description of the setup command (eg what shows up in the slash command picker)
-setup-command-description = Setze den Bot auf.
 # Embed title for the credits command
 credits-title = Anerkennungen
 credits-field1-title = Hauptentwickler
@@ -163,13 +155,8 @@ voice-connection-error-host-io-error = Host IO Fehler
 language-user-argument1-description = Die Sprache die du für deinen Benutzer einstellen willst.
 # This is shown as the description of the first argument to the guild language command
 language-guild-argument1-description = The Sprache auf die deine Server Sprache gesetzt werden soll.
-# This is shown as the title of the setup command (eg what shows up in the slash command picker)
-setup-command-name = Einrichtung
-setup-command-argument1-description = Channel, in den Transkriptionen gesendet werden sollen. (Erforderlich)
-setup-command-argument2-description = Zielsprache des STT Algorithmus. (Optional, Standardsprache ist Englisch)
 # This is shown as the title of the transcript
 transcription-info-transcription-title = Transkript
-setup-command-argument3-description = Bei Transkriptionen wortreich sein? Dies fügt keinen zusätzlichen Overhead hinzu. (Optional, Standardwert: false)
 # This is shown as the description of the data_storage command. (eg what shows up in the slash command picker).
 data-storage-command-description = Konfiguriere deine Datenspeichereinstellungen
 data-storage-toggle-msgs-btn = Nachrichtenspeicherung umschalten

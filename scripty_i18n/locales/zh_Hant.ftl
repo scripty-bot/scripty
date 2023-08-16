@@ -56,30 +56,6 @@ latency-description =
 
     注意：如果任何延遲等於 0ms，則表示當前無法計算該延遲。
     請稍後再試。
-setup-tos-agree =
-    通過設置 Scripty，你同意其隱私政策和服務條款。
-    隱私政策：https://scripty.org/privacy
-    服務條款：https://scripty.org/terms
-setup-tos-agree-failure = 你必須同意服務條款和隱私政策才能使用 Scripty。 正在取消設置。
-setup-success-title = 設置成功！
-setup-success-description =
-    幾點注意事項：
-
-    1）不要刪除在目標頻道中創建的 webhook。
-
-    2）Scripty 運行起來非常昂貴，並且需要大量的處理能力，所以如果你能提供捐款，我們將不勝感激。 我們提供其他高級等級，以提高轉錄用戶數量的限制，默認為 5。不過，核心功能將永遠免費。 如果你有興趣，請查看 `{ $contextPrefix }donate` 指令。
-
-    3）如果你選擇了英語以外的語言（默認），請注意該語言的轉錄質量會低得多。 很快我們將添加一項功能，讓你可以用自己的聲音幫助轉錄準確性（見註 5）。
-
-    4）如果你不是美國中年男性，預計轉錄準確度會降低。 這是由於模型固有的偏差，我們唯一能做的就是訓練更準確的模型（再次參見註釋 5）。
-
-    5）為了幫助我們訓練更準確的模型，請考慮允許我們存儲你的音頻和轉錄以進行訓練。 請參見 `{ $contextPrefix }train storage` 指令。
-
-    6）我也不好意思再煩你，但請考慮捐贈。 訓練新模型需要***難以想像***的處理能力（我們說的是多個 英偉達 RTX 3090 顯卡），一點錢都有很大幫助。 同樣，如果你有興趣，請查看 `{ $contextPrefix }donate` 指令。
-
-    
-    感謝你對 Scripty 的興趣！<3
-    ~ 0/0 + valkyrie_pilot
 data-storage-embed-title = 數據存儲
 data-storage-toggle-msgs-btn = 開啟或關閉信息存儲
 
