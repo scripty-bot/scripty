@@ -389,7 +389,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.1"
-source = "git+https://github.com/tazz4843/serenity?branch=forum-channel-webhooks#5d7a8cfafabcc592ee63cc62ee1d91bdf1eb0868"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#29e8ff008c6ac3cdd030baf6cff60a4fd8de1867"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2931,7 +2931,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.5"
-source = "git+https://github.com/tazz4843/serenity?branch=forum-channel-webhooks#5d7a8cfafabcc592ee63cc62ee1d91bdf1eb0868"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#29e8ff008c6ac3cdd030baf6cff60a4fd8de1867"
 dependencies = [
  "arrayvec",
  "async-trait",
@@ -2965,7 +2965,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#4bb5d9512e3b43d35197b015cd6120e23787a05d"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#29e8ff008c6ac3cdd030baf6cff60a4fd8de1867"
 dependencies = [
  "bitflags 1.3.2",
  "enum_primitive",
@@ -4423,8 +4423,3 @@ name = "zeroize"
 version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2a0956f1ba7c7909bfb66c2e9e4124ab6f6482560f6628b5aaeba39207c9aad9"
-
-[[patch.unused]]
-name = "serenity"
-version = "0.11.5"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#4bb5d9512e3b43d35197b015cd6120e23787a05d"
