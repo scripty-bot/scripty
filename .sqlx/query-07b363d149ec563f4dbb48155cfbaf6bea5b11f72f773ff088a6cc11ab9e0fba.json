@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE users SET store_msgs = NOT store_msgs WHERE user_id = $1 RETURNING store_msgs",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "store_msgs",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "07b363d149ec563f4dbb48155cfbaf6bea5b11f72f773ff088a6cc11ab9e0fba"
+}

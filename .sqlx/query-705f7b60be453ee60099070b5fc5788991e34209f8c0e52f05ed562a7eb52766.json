@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT count(*) AS \"guild_count!\" FROM guilds WHERE premium_owner_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "guild_count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "705f7b60be453ee60099070b5fc5788991e34209f8c0e52f05ed562a7eb52766"
+}

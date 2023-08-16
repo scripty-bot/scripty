@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE users SET store_msgs = $1 WHERE user_id = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bool",
+        "Bytea"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "28df5cecf132f47eb3eb18cada4c08d0c44f863c691939fdc19eb0e2f9edd016"
+}

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE users SET store_audio = $1 WHERE user_id = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bool",
+        "Bytea"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "7aa75622d12ee64a87a749e930bfa042f5e7f770d6eb42938fe6ca4397fdc268"
+}
