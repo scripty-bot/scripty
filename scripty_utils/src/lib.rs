@@ -3,9 +3,6 @@ use std::sync::Arc;
 use serenity::{gateway::ShardManager, prelude::TypeMapKey};
 use tokio::sync::Mutex;
 
-#[macro_use]
-extern crate tracing;
-
 mod embed_pagination;
 mod hash_user_id;
 mod hex_vec;

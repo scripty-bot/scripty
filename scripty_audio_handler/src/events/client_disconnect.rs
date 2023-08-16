@@ -45,6 +45,7 @@ pub async fn client_disconnect(
 	ssrc_state.ssrc_voice_ingest_map.remove(&ssrc);
 	let Some((_, (username, avatar_url))) = ssrc_state.ssrc_user_data_map.remove(&ssrc) else {
 		warn!(%ssrc, "got no user data for ssrc");
+		return;
 	};
 
 	#[allow(clippy::wildcard_in_or_patterns)]
@@ -73,9 +74,9 @@ pub async fn client_disconnect(
 			&ctx,
 			false,
 			ExecuteWebhook::new()
-				.content(format!("{} disconnected", username))
+				.content(format!("{} disconnected", &username))
 				.avatar_url(avatar_url)
-				.username(username),
+				.username(&username),
 		)
 		.await
 	{
