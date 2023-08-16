@@ -8,6 +8,7 @@ pub struct IncomingWebhook {
 }
 
 #[derive(Debug, Deserialize, Copy, Clone)]
+#[serde(rename_all = "snake_case")]
 pub enum VoteWebhookType {
 	Upvote,
 	Test,
