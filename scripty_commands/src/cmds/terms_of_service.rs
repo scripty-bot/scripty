@@ -2,7 +2,12 @@ use poise::CreateReply;
 use scripty_bot_utils::checks::is_guild;
 use serenity::{
 	all::ButtonStyle,
-	builder::{CreateActionRow, CreateButton},
+	builder::{
+		CreateActionRow,
+		CreateButton,
+		CreateInteractionResponse,
+		CreateInteractionResponseMessage,
+	},
 	collector::ComponentInteractionCollector,
 };
 
@@ -66,32 +71,37 @@ pub async fn terms_of_service(ctx: Context<'_>) -> Result<(), Error> {
 			.await;
 
 		if let Some(interaction) = maybe_interaction {
-			if interaction.data.custom_id == "tos_agree" {
+			let did_agree = interaction.data.custom_id == "tos_agree";
+
+			interaction
+				.create_response(
+					ctx.discord(),
+					CreateInteractionResponse::UpdateMessage(
+						CreateInteractionResponseMessage::new()
+							.content(if did_agree {
+								format_message!(resolved_language, "tos-agree-success")
+							} else {
+								format_message!(resolved_language, "disagreed-to-tos")
+							})
+							.components(vec![]),
+					),
+				)
+				.await?;
+
+			if did_agree {
 				sqlx::query!(
 					"UPDATE guilds SET agreed_tos = true WHERE guild_id = $1",
 					guild_id.get() as i64
 				)
 				.execute(db)
 				.await?;
-				m.edit(
-					ctx,
-					CreateReply::new()
-						.content(format_message!(resolved_language, "tos-agree-success")),
-				)
-				.await?;
-			} else {
-				m.edit(
-					ctx,
-					CreateReply::new()
-						.content(format_message!(resolved_language, "disagreed-to-tos")),
-				)
-				.await?;
 			}
 		} else {
 			m.edit(
 				ctx,
 				CreateReply::new()
-					.content(format_message!(resolved_language, "tos-agree-timed-out")),
+					.content(format_message!(resolved_language, "tos-agree-timed-out"))
+					.components(vec![]),
 			)
 			.await?;
 		}
