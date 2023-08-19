@@ -5,13 +5,17 @@ use scripty_i18n::LanguageIdentifier;
 pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 	let languages = scripty_i18n::get_all_bundle_languages();
 	for cmd in cmds {
+		if cmd.slash_action.is_none() {
+			// prefix-only commands don't need to be localized
+			continue;
+		}
+
 		// translation key is "cmds_{command_name}"
 		let key = format!("cmds_{}", cmd.name);
 		let command_name = cmd.name.as_str();
 
 		for language in languages.iter() {
-			let Some(formatted_command_name) =
-				get_fmt_msg(language, &key, Some("name"), command_name)
+			let Some(formatted_command_name) = get_fmt_msg(language, &key, None, command_name)
 			else {
 				continue;
 			};
