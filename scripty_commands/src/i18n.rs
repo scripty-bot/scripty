@@ -89,7 +89,7 @@ fn get_fmt_msg(
 	command_name: &str,
 ) -> Option<String> {
 	let Some((fmt_message, errors)) =
-		scripty_i18n::get_formatted_message(language, message_id, attribute_id, None)
+		scripty_i18n::get_formatted_message(language, message_id, attribute_id, None, true)
 	else {
 		warn!("Failed to format message for command {} in language {}: you may want to double-check the string exists", command_name, language);
 		return None;
