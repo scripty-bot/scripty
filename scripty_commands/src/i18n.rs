@@ -101,5 +101,5 @@ fn get_fmt_msg(
 		);
 	}
 
-	Some(fmt_message)
+	Some(fmt_message.trim().to_lowercase())
 }
