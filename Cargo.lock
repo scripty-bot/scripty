@@ -4423,8 +4423,3 @@ name = "zeroize"
 version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2a0956f1ba7c7909bfb66c2e9e4124ab6f6482560f6628b5aaeba39207c9aad9"
-
-[[patch.unused]]
-name = "serde_derive"
-version = "1.0.183"
-source = "git+https://github.com/serde-rs/serde.git?tag=v1.0.183#05a5b7e3c6de502d45597cbc083f28bc1d4f4626"
