@@ -12,7 +12,8 @@ use crate::bundles::get_bundle_for_language;
 /// that happened. These are not fatal, and the message will still be translated.
 pub fn get_formatted_message<'l>(
 	language: &'l LanguageIdentifier,
-	message_id: &'static str,
+	message_id: &'l str,
+	attribute_id: Option<&'l str>,
 	args: Option<&'l FluentArgs<'_>>,
 ) -> Option<(String, Vec<FluentError>)> {
 	let bundle_temp = get_bundle_for_language(language);
@@ -24,7 +25,11 @@ pub fn get_formatted_message<'l>(
 	let message = bundle
 		.get_message(message_id)
 		.or_else(|| en_bundle.get_message(message_id))?;
-	let message_pattern = message.value()?;
+	let message_pattern = if let Some(attribute) = attribute_id {
+		message.get_attribute(attribute)?.value()
+	} else {
+		message.value()?
+	};
 	let mut errors = Vec::new();
 	let res = bundle
 		.format_pattern(message_pattern, args, &mut errors)
@@ -37,23 +42,17 @@ pub fn get_formatted_message<'l>(
 ///
 /// # Examples
 /// ```
+/// # use scripty_i18n::format_message;
 /// format_message!("en-US", "hello-world", arg1: "value1", arg2: "value2");
 /// ```
 /// This expands to the following code:
 /// ```rust,no_run
-/// use crate::{FluentArgs, get_formatted_message};
+/// # use fluent::FluentArgs;
+/// # use scripty_i18n::get_formatted_message;
 /// let mut args = FluentArgs::new();
 /// args.set("arg1", "value1");
 /// args.set("arg2", "value2");
-/// get_formatted_message("en-US", "hello-world", Some(&args));
-/// ```
-///
-/// ```
-/// format_message!("en-US", "hello-world");
-/// ```
-/// This expands to:
-/// ```rust,no_run
-/// get_formatted_message("en-US", "hello-world", None);
+/// get_formatted_message("en-US", "hello-world", None, Some(&args));
 /// ```
 ///
 /// # Panics
@@ -66,18 +65,15 @@ pub fn get_formatted_message<'l>(
 /// Any errors returned during formatting are logged at the `warn` level and not returned.
 #[macro_export]
 macro_rules! format_message {
-    ($language:expr, $message_id:expr $(, $arg:ident: $value:expr)*) => {{
+    ($language:expr, $message_id:expr $(, $arg:ident: $value:expr)* $(,)?) => {{
         let mut args = $crate::FluentArgs::new();
         $(
             args.set(stringify!($arg), $value);
         )*
-        let (fstr, errs) = $crate::get_formatted_message(&$language, $message_id, Some(&args)).expect("invalid internationalization message ID");
+        let (fstr, errs) = $crate::get_formatted_message(&$language, $message_id, None, Some(&args)).expect("invalid internationalization message ID");
         for err in errs {
             warn!(message_id=%$message_id, "errors encountered during message formatting: {}", err);
         }
         fstr
     }};
-    ($language:expr, $message_id:expr) => {
-        $crate::get_formatted_message(&$language, $message_id, None).expect("invalid message ID")
-    };
 }

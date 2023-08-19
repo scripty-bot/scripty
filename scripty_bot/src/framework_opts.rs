@@ -1,50 +1,11 @@
 use poise::{FrameworkOptions, PrefixFrameworkOptions};
 use scripty_bot_utils::error::handler::on_error;
-use scripty_commands::cmds;
+use scripty_commands::build_commands;
 use serenity::{builder::CreateAllowedMentions, model::id::UserId, prelude::GatewayIntents};
 
 pub fn get_framework_opts() -> FrameworkOptions<scripty_bot_utils::Data, scripty_bot_utils::Error> {
 	FrameworkOptions {
-		commands: vec![
-			cmds::register_cmds(),
-			cmds::help(),
-			cmds::join(),
-			cmds::data_storage(),
-			cmds::ping(),
-			cmds::leave(),
-			cmds::delete_all_data(),
-			cmds::throw_error(),
-			cmds::terms_of_service(),
-			poise::Command {
-				subcommands: vec![cmds::user_language(), cmds::guild_language()],
-				..cmds::language()
-			},
-			poise::Command {
-				subcommands: vec![cmds::block_user(), cmds::block_guild()],
-				..cmds::block()
-			},
-			poise::Command {
-				subcommands: vec![cmds::check_guilds(), cmds::hash_user_id()],
-				..cmds::admin()
-			},
-			poise::Command {
-				subcommands: vec![cmds::ps_close()],
-				..cmds::ps()
-			},
-			poise::Command {
-				subcommands: vec![cmds::premium::remove(), cmds::premium::claim()],
-				..cmds::premium::premium()
-			},
-			poise::Command {
-				subcommands: vec![
-					cmds::automod::automod_setup(),
-					cmds::automod::automod_add_rule(),
-					cmds::automod::automod_list_rules(),
-					cmds::automod::automod_remove_rule(),
-				],
-				..cmds::automod::automod_root()
-			},
-		],
+		commands: build_commands(),
 		on_error: |error| Box::pin(on_error(error)),
 		command_check: Some(scripty_bot_utils::entity_block::check_block),
 		pre_command: scripty_bot_utils::handler::pre_command,
