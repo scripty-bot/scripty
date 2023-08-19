@@ -407,10 +407,7 @@ cmds_setup = setup
 # Data deletion command
 # This and all attributes show up exclusively in the slash command picker when `delete_all_data` is selected.
 cmds_delete_all_data = alle_daten_löschen
-    .description =
-        Alle deine Daten löschen.
-
-        Mit diesem Befehl werden alle deine Daten unwiderruflich und dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.
+    .description = Alle deine Daten löschen.
 # automod add rule command
 # This and all attributes show up exclusively in the slash command picker when `automod add rule` is selected.
 cmds_add_rule = regel_hinzufügen
