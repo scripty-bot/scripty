@@ -74,10 +74,10 @@ cmds_premium = premium
     .description = Premium commands
 # This and all attributes show up exclusively in the slash command picker when `premium claim` is selected.
 cmds_premium_claim = claim
-    .description = Claim your premium in the server this is ran in.
+    .description = Claim your premium within the server where this command is executed.
 # This and all attributes show up exclusively in the slash command picker when `premium remove` is selected.
 cmds_premium_remove = remove
-    .description = Remove your premium from the server this is ran in.
+    .description = Remove your premium from the server where this command is executed.
 # This is shown to the user when they are not subscribed to premium.
 premium-not-premium = You are not a premium subscriber. Subscribe at https://scripty.org/premium. If you know you are one, please DM the bot that way we can reinstate your premium.
 # This is shown to the user when they have too many used servers to add more.
