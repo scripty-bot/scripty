@@ -32,11 +32,11 @@ disagreed-to-tos = Je hebt niet ingestemd met de Gebruiksvoorwaarden en het Priv
 # join command
 # This and all attributes show up exclusively in the slash command picker when `join` is selected.
 cmds_join = join
-    .description = Neem deel aan een spraakchat. Transcripties worden vastgelegd in het kanaal waarin je deze opdracht uitvoert.
+    .description = Join een spraakchat. Transcripties worden vastgelegd in het kanaal waarin je het commando uitvoert.
     .voice_channel = voice_channel
     .voice_channel-description = Spraak kanaal om te koppelen.
     .record_transcriptions = record_transcriptions
-    .record_transcriptions-description = Alle transcripties opslaan? Gebruikers krijgen een DM wanneer Scripty het kanaal verlaat. Dit staat standaard uit.
+    .record_transcriptions-description = Sla alle Scripty transcripties op, dit staat standaard uit.
     .target_channel = target_channel
     .target_channel-description = Stuur transcripties hier, in plaats van het huidige kanaal. Doel naar een forum om een nieuwe post te creëren.
     .create_thread = create_thread
@@ -51,9 +51,9 @@ leave-success = Succesvol het spraak kanaal verlaten.
 # Help command
 # This and all attributes show up exclusively in the slash command picker when `help` is selected.
 cmds_help = help
-    .description = Toon het help menu.
+    .description = Toon het help menu
     .command = opdracht
-    .command-description = Specifieke opdracht om help over te tonen.
+    .command-description = Specifieke opdracht om help over te tonen
 # premium command
 # This and all attributes show up exclusively in the slash command picker when `premium` is selected.
 cmds_premium = premium
@@ -212,9 +212,9 @@ cmds_setup = setup
     .target_channel = doelkanaal
     .target_channel-description = Het kanaal om automod logs naartoe te sturen.
     .log_recording = log_opname
-    .log_recording-description = Moet er een opname van beledigende taal naar het doelkanaal worden gestuurd? Standaard is dit uitgeschakeld (false).
+    .log_recording-description = Moet er een opname van de huidige taal gestuurd worden? Standaard staat dit uit.
     .auto_join = auto_join
-    .auto_join-description = Moet de bot automatisch deelnemen aan spraak als een gebruiker zich aansluit? Standaard is dit ingeschakeld (true).
+    .auto_join-description = Scripty automatisch joinen als een gebruiker joint? Standaard is dit ingeschakeld.
 # automod setup command
 automod-setup-embed-complete-title = Automatische moderatie setup voltooid!
 # automod setup command
@@ -392,3 +392,78 @@ general-error-invalid-args-title = Ongeldige argumenten tijdens het verwerken va
 # This is shown as the user's SSRC (Synchonization Source)
 # You do not need to translate this, but it is here if your language can provide a more accurate translation.
 transcription-info-transcription-ssrc = SSRC { $ssrc }
+# join command
+# This message is shown when the user tries to tell the bot to join, but they have not agreed to the ToS.
+must-agree-to-tos = Je moet akkoord gaan met de Algemene Voorwaarden en het Privacybeleid om Scripty te gebruiken. Zie `{ $contextPrefix }terms_of_service` voor meer informatie.
+# join command
+# This message is shown when the user is not in a voice channel, nor was a voice channel specified.
+no-channel-specified = Je zit niet in een spraakchat en je hebt me ook geen kanaal opgegeven om naartoe te gaan. Probeer `{ $contextPrefix }join <kanaal>` om een spraakchat op te geven, of ga zelf naar een spraakchat en voer deze opdracht opnieuw uit.
+# join command
+# This message is shown on successfuly joining a voice channel.
+# { $targetMention } is the mention of the channel the bot joined.
+join-success =
+    Succesvol verbonden met { $voiceTargetMention }, en de transcriptie-uitvoer wordt verzonden naar { $outputChannelMention }.
+    { "" }
+    Opmerking: je huidige premiumniveau is { $tier }. Dit staat { $maxUsers } gebruikers toe om tegelijkertijd getranscribeerd te worden. Daarnaast zal de bot automatisch vertrekken na { $leaveDuration } seconden, ongeacht hoeveel gebruikers er in het kanaal zijn. Dit is om misbruik van onze systemen te voorkomen.
+    Als je meer gebruikers wilt, een langere gebruiksduur en de bot wilt ondersteunen, overweeg dan om je te abonneren op onze Premium: <https://dash.scripty.org/premium>
+    Als je al een Premium-abonnee bent, stuur dan een privébericht naar de bot zodat we je Premium kunnen herstellen.
+    { $freeTrialUpsell }
+# join command
+# This message is shown when the user attempts to make Scripty join a voice channel, but there is no one in the channel.
+join-no-one-in-channel = Er is niemand in { $targetMention }. Ik sluit me niet aan als er niemand is, omdat dat verspilling is van beperkte middelen.
+# Data deletion command
+delete-data-title = Gegevens verwijderen
+# transcription info - verbose mode
+# This is shown when the algorithm encounters an error
+transcription-info-transcription-error =
+    Interne fout: uitvoeren van stt-algoritme mislukt met fout: { $error }
+    SSRC: { $ssrc }
+    Dit is gelogd en zal zo snel mogelijk worden opgelost.
+    Indien mogelijk, neem contact op met de kernontwikkelaars in de ondersteuningsserver: { $supportServerInvite }.
+    Bedankt!
+# Data deletion command
+# This and all attributes show up exclusively in the slash command picker when `delete_all_data` is selected.
+cmds_delete_all_data = delete_all_data
+    .description = Verwijder al je gegevens.
+# Data deletion command
+delete-data-description =
+    Dit zal al je gegevens verwijderen. Deze actie is permanent, onomkeerbaar en kan niet ongedaan worden gemaakt.
+
+    Met "al je gegevens" bedoelen we *alle* gegevens. Dit omvat je stemgegevens en je gebruikersgegevens in de database.
+    Dit omvat echter *niet* eventuele berichten die we van je hebben opgeslagen als je hiervoor hebt gekozen. We kunnen die berichten niet verwijderen, omdat we niet weten welke gebruiker welk bericht heeft verzonden.
+
+    Als je na deze actie ook verbannen wilt worden van het gebruik van de bot, zodat je jezelf niet per ongeluk weer kunt toevoegen, kun je op de juiste knop hieronder klikken.
+    Houd er rekening mee dat dit vereist dat we je gebruikers-ID opslaan om een lijst van verbannen gebruikers bij te houden.
+    Als je op enig moment na deze actie wilt worden vrijgegeven, kun je contact opnemen met de ondersteuningsserver en vragen om een handmatige opheffing van de ban.
+
+    Weet je zeker dat je al je gegevens wilt verwijderen?
+# Data deletion command
+delete-data-cancel = Nee, annuleren
+# Data deletion command
+delete-data-confirm = Ja, verwijder alle gegevens
+# Data deletion command
+delete-data-confirm-banned = Ja, verwijder alle gegevens en verbied mezelf
+# generic strings
+# Message shown if a guild has not claimed their free trial of premium. Always appears on its own standalone line in the surrounding message.
+free-trial-upsell = We bieden 3-daagse proefperiodes van Scripty Premium aan als je het wilt uitproberen en wilt zien of het iets voor jou is. Stuur de bot een privébericht om te beginnen met een gratis proefperiode.
+# ToS command
+# This is sent when the user has not yet agreed to the ToS and must do so.
+agreeing-to-tos = Je kunt de Algemene Voorwaarden en het Privacybeleid van Scripty bekijken op respectievelijk https://scripty.org/terms en https://scripty.org/privacy. Je kunt op de onderstaande knop klikken om akkoord te gaan met beide documenten en Scripty te gebruiken.
+# ToS command
+# This is sent when the user has already agreed to the ToS and does not need to do so again.
+already-agreed-to-tos = Je hebt al ingestemd met de Algemene Voorwaarden en het Privacybeleid van Scripty. Als je ze opnieuw wilt bekijken, kun je dat doen op respectievelijk https://scripty.org/terms en https://scripty.org/privacy.
+# join command
+# This message is shown when Discord tosses a Dropped or TimedOut error when trying to join a voice channel.
+join-failed-dropped = Discord lijkt problemen te hebben, hier kunnen we niets aan doen. Probeer het later opnieuw.
+# join command
+# This message is shown when the bot does not have permissions for the voice channel it is trying to join.
+join-no-permission = Ik heb geen toestemming om { $targetMention } binnen te gaan. Geef me alstublieft de toestemmingen om het kanaal te bekijken en toe te treden, of ga naar een andere spraakchat waar ik wel toestemming heb.
+# join command
+# This message is shown when the user has told the bot to create a thread while in a thread.
+join-create-thread-in-thread = Ik kan geen thread maken terwijl ik me in een thread bevind. Voer deze opdracht uit in een normaal kanaal, waarschijnlijk { $parentChannelMention }.
+# join command
+# If the user specifies they would like to create a thread, this is set as the thread name. { $timestamp } is the current timestamp, in ISO format.
+join-thread-title = Transcriptie vanaf { $timestamp }
+# join command
+# If the user specifies they would like to create a forum post, this is the contents of the initial message. { $timestamp } is the current timestamp, in ISO format, and { $authorMention } is the mention of the user who ran the command.
+join-forum-thread-content = { $authorMention } is begonnen met een transcriptie om { $timestamp }.
