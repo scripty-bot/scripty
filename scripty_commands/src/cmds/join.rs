@@ -16,13 +16,10 @@ use crate::{Context, Error};
 
 /// Join a voice chat.
 /// Transcripts will be logged to the channel you run this command in.
-///
-/// Argument 1 is a voice chat to join.
-/// If you do not specify a voice channel to join, the bot will default to the same one you are in.
 #[poise::command(prefix_command, slash_command, guild_cooldown = 15, check = "is_guild")]
 pub async fn join(
 	ctx: Context<'_>,
-	#[description = "Voice chat to bind to"]
+	#[description = "Voice chat to bind to. Defaults to the one you're in."]
 	#[channel_types("Voice", "Stage")]
 	voice_channel: Option<GuildChannel>,
 
@@ -261,14 +258,6 @@ pub async fn join(
 					Cow::Owned(format_message!(resolved_language, "free-trial-upsell"))
 				}
 			))
-			.await?;
-		}
-		Err(scripty_audio_handler::Error::Serenity(SerenityError::Http(e)))
-			if e.status_code() == Some(StatusCode::NOT_FOUND) =>
-		{
-			ctx.say(
-				format_message!(resolved_language, "webhook-deleted", contextPrefix: ctx.prefix()),
-			)
 			.await?;
 		}
 		Err(scripty_audio_handler::Error::Join(JoinError::Dropped | JoinError::TimedOut)) => {
