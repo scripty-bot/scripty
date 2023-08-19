@@ -41,3 +41,8 @@ tracing = { version = "0.1", features = ["release_max_level_info"] }
 [patch.crates-io]
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next" }
 songbird = { git = "https://github.com/serenity-rs/songbird", branch = "next" }
+
+# done due to serde-derive now downloading and executing a binary on x86 Linux without
+# any user notification or warning: massive security risk
+# https://github.com/serde-rs/serde/issues/2538
+serde_derive = { git = "https://github.com/serde-rs/serde.git", tag = "v1.0.183" }
