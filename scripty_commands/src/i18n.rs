@@ -22,8 +22,8 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 
 		for language in languages.iter() {
 			// we filter to only discord supported locales
-			let language = language.to_string();
-			if !DISCORD_SUPPORTED_LOCALES.contains(&language.as_str()) {
+			let language_fmt = language.to_string();
+			if !DISCORD_SUPPORTED_LOCALES.contains(&language_fmt.as_str()) {
 				continue;
 			}
 
@@ -32,7 +32,7 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 				continue;
 			};
 			cmd.name_localizations
-				.insert(language.to_string(), formatted_command_name);
+				.insert(language_fmt.clone(), formatted_command_name);
 
 			let Some(formatted_command_description) =
 				get_fmt_msg(language, &key, Some("description"), command_name)
@@ -40,7 +40,7 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 				continue;
 			};
 			cmd.description_localizations
-				.insert(language.to_string(), formatted_command_description);
+				.insert(language_fmt.clone(), formatted_command_description);
 
 			for parameter in cmd.parameters.iter_mut() {
 				let Some(formatted_parameter_name) =
@@ -50,7 +50,7 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 				};
 				parameter
 					.name_localizations
-					.insert(language.to_string(), formatted_parameter_name);
+					.insert(language_fmt.clone(), formatted_parameter_name);
 
 				let Some(formatted_parameter_description) = get_fmt_msg(
 					language,
@@ -62,7 +62,7 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 				};
 				parameter
 					.description_localizations
-					.insert(language.to_string(), formatted_parameter_description);
+					.insert(language_fmt.clone(), formatted_parameter_description);
 
 				for choice in parameter.choices.iter_mut() {
 					let Some(formatted_choice_name) = get_fmt_msg(
@@ -75,7 +75,7 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 					};
 					choice
 						.localizations
-						.insert(language.to_string(), formatted_choice_name);
+						.insert(language_fmt.clone(), formatted_choice_name);
 				}
 			}
 		}
