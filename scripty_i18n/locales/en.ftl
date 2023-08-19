@@ -359,8 +359,6 @@ transcription-info-transcription-error =
 # This and all attributes show up exclusively in the slash command picker when `delete_all_data` is selected.
 cmds_delete_all_data = delete_all_data
     .description = Delete all your data.
-    
-    This command will irreversibly, permanently, delete all your data. There is no undoing this action.
 
 delete-data-title = Delete data
 delete-data-description =
