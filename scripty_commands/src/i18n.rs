@@ -2,6 +2,12 @@ use poise::Command;
 use scripty_bot_utils::{Data, Error};
 use scripty_i18n::LanguageIdentifier;
 
+const DISCORD_SUPPORTED_LOCALES: [&str; 31] = [
+	"id", "da", "de", "en-GB", "en-US", "es-ES", "fr", "hr", "it", "lt", "hu", "nl", "no", "pl",
+	"pt-BR", "ro", "fi", "sv-SE", "vi", "tr", "cs", "el", "bg", "ru", "uk", "hi", "th", "zh-CN",
+	"ja", "zh-TW", "ko",
+];
+
 pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 	let languages = scripty_i18n::get_all_bundle_languages();
 	for cmd in cmds {
@@ -15,6 +21,12 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 		let command_name = cmd.name.as_str();
 
 		for language in languages.iter() {
+			// we filter to only discord supported locales
+			let language = language.to_string();
+			if !DISCORD_SUPPORTED_LOCALES.contains(&language.as_str()) {
+				continue;
+			}
+
 			let Some(formatted_command_name) = get_fmt_msg(language, &key, None, command_name)
 			else {
 				continue;
