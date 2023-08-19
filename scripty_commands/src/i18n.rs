@@ -27,7 +27,8 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 				continue;
 			}
 
-			let Some(formatted_command_name) = get_fmt_msg(language, &key, None, command_name)
+			let Some(formatted_command_name) =
+				get_fmt_msg(language, &key, None, command_name, true)
 			else {
 				continue;
 			};
@@ -35,7 +36,7 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 				.insert(language_fmt.clone(), formatted_command_name);
 
 			let Some(formatted_command_description) =
-				get_fmt_msg(language, &key, Some("description"), command_name)
+				get_fmt_msg(language, &key, Some("description"), command_name, false)
 			else {
 				continue;
 			};
@@ -44,7 +45,7 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 
 			for parameter in cmd.parameters.iter_mut() {
 				let Some(formatted_parameter_name) =
-					get_fmt_msg(language, &key, Some(&parameter.name), command_name)
+					get_fmt_msg(language, &key, Some(&parameter.name), command_name, true)
 				else {
 					continue;
 				};
@@ -57,6 +58,7 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 					&key,
 					Some(&format!("{}-description", parameter.name)),
 					command_name,
+					false,
 				) else {
 					continue;
 				};
@@ -70,6 +72,7 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 						&key,
 						Some(&format!("{}-choice-{}", parameter.name, choice.name)),
 						command_name,
+						false,
 					) else {
 						continue;
 					};
@@ -87,6 +90,7 @@ fn get_fmt_msg(
 	message_id: &str,
 	attribute_id: Option<&str>,
 	command_name: &str,
+	lowercase: bool,
 ) -> Option<String> {
 	let Some((fmt_message, errors)) =
 		scripty_i18n::get_formatted_message(language, message_id, attribute_id, None, true)
@@ -101,5 +105,10 @@ fn get_fmt_msg(
 		);
 	}
 
-	Some(fmt_message.trim().to_lowercase())
+	let m = fmt_message.trim();
+	if lowercase {
+		Some(m.to_lowercase())
+	} else {
+		Some(m.to_string())
+	}
 }
