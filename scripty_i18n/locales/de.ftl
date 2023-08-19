@@ -200,7 +200,7 @@ premium-removed = Wenn du der Benutzer bist, der Premium in Anspruch genommen ha
 # automod setup command
 automod-setup-embed-complete-title = Automod-Setup abgeschlossen!
 # automod setup command
-automod-setup-embed-not-setup-title = Der Bot wurde noch nicht eingerichtet!
+automod-setup-embed-not-setup-title = Du hast den Nutzungsbedingungen und der Datenschutzrichtlinie von Scripty noch nicht zugestimmt.
 # automod remove rule command
 automod-remove-rule-embed-failure-title = Regel wurde nicht entfernt!
 # automod list rules command
@@ -216,7 +216,7 @@ premium-too-many-guilds = Du hast { $totalServers } Premium-Keys beansprucht. Du
 automod-remove-rule-embed-success-description = { $rulesLeft } Regeln, die außerhalb von { $maxRules } liegen.
 # premium command
 # This is shown when the guild the user is running this command in has not finished setup.
-premium-server-not-set-up = Dieser Server ist noch nicht eingerichtet worden. Das musst du zuerst mit dem Befehl `{ $commandPrefix }setup` erledigen.
+premium-server-not-set-up = Dieser Server hat den ToS und Datenschutzrichtlinien von Scripty noch nicht zugestimmt. Erledige das zuerst mit dem Befehl `{ $commandPrefix }terms_of_service`.
 # premium command
 # This is shown when the user successfully claims one of their premium subscriptions.
 premium-claimed = Du hast erfolgreich Premium auf diesem Server aktiviert. Wenn du upgraden oder mehr Slots kaufen möchtest, gehe zu <https://dash.scripty.org/premium>. Wenn du dein premium von diesem Server entfernen möchtest, führe `{ $commandPrefix }premium remove` aus.
@@ -322,7 +322,7 @@ automod-setup-embed-complete-description = Du kannst jetzt `{ $contextPrefix }au
 # automod setup command
 automod-setup-embed-complete-free-limit = Beachte, dass die kostenlosen Server auf 25 Regeln beschränkt sind. Wenn du diese Begrenzung aufheben möchtest, schau dir unseren Premium-Server auf https://scripty.org/premium an.
 # automod setup command
-automod-setup-embed-not-setup-description = Richte ihn zuerst ein, indem du `{ $contextPrefix } setup` ausführst.
+automod-setup-embed-not-setup-description = Dazu musst du zuerst `{ $contextPrefix } terms_of_service` ausführen.
 # automod add rule command
 automod-add-rule-embed-failure-description-premium-limit-hard-cap = Du hast die absolute Höchstzahl an Regeln erreicht ({ $hardCap }). Dieses Limit soll sicherstellen, dass wir nicht zu viel Latenz in einer einzigen Nachricht hinzufügen.
 # automod add rule command
@@ -372,6 +372,7 @@ cmds_terms_of_service = Allgemeine_Geschäftsbedingungen
 # Language configuration strings
 # This and all attributes show up exclusively in the slash command picker when `language` is selected.
 cmds_language = Sprache
+    .description = Ändere deine Spracheinstellungen.
 # data_storage command
 # This and all attributes show up exclusively in the slash command picker when `data_storage` is selected.
 cmds_data_storage = daten_speicher
@@ -390,20 +391,32 @@ cmds_automod = automod
     .description = Automod-Einstellungen konfigurieren
 # automod list rules command
 # This and all attributes show up exclusively in the slash command picker when `automod list rules` is selected.
-cmds_list_rules = regel_liste
-    .description = Liste alle Automod-Regeln auf.
-    .filter_by-description = Filtere Regeln nach ihrem Inhalt. Leer lassen, um alle Regeln anzuzeigen.
+cmds_list_rules = regeln_auflisten
+    .description = Alle Automod-Regeln auflisten.
+    .filter_by = filter_by
+    .filter_by-description = Regeln nach ihrem Inhalt filtern. Leer lassen, um alle Regeln anzuzeigen.
 # join command
 # This and all attributes show up exclusively in the slash command picker when `join` is selected.
 cmds_join = beitreten
-    .description = Tritt einem Voice-Chat bei.
-    .voice_channel-description = Zu bindender Sprachchat.
+    .description = Tritt einem Voice-Chat bei. Die Mitschriften werden in dem Kanal protokolliert, in dem du diesen Befehl ausführst.
+    .voice_channel = voice_channel
+    .voice_channel-description = Voice-Chat, dem du beitreten willst.
+    .record_transcriptions = record_transcriptions
+    .record_transcriptions-description = Alle Transkripte aufzeichnen? Benutzer werden mitgeschrieben, wenn Scripty den Kanal verlässt. Der Standardwert ist false.
+    .target_channel = target_channel
+    .target_channel-description = Sende die Transkripte hierher, anstatt in den aktuellen Kanal. Zielt auf ein Forum, um einen neuen Beitrag zu erstellen.
+    .create_thread = create_thread
+    .create_thread-description = Einen neuen Thread für diese Abschrift erstellen? Der Standardwert ist false.
 # automod setup command
 # This and all attributes show up exclusively in the slash command picker when `automod setup` is selected.
-cmds_setup = setup
-    .description = Starte mit dem Automod von Scripty.
-    .target_channel-description = Der Kanal, an den Automod-Protokolle gesendet werden sollen.
-    .log_recording-description = Soll eine Aufnahme der beleidigend Rede an den Zielkanal gesendet werden? Die Voreinstellung ist false.
+cmds_setup = einrichten
+    .description = Beginne mit dem Automod von Scripty.
+    .target_channel = target_channel
+    .target_channel-description = Der Kanal, an den Automod-Logs gesendet werden sollen.
+    .log_recording = log_recording
+    .log_recording-description = Soll eine Aufnahme der beanstandeten Sprache an den Zielkanal gesendet werden? Der Standardwert ist false.
+    .auto_join = auto_join
+    .auto_join-description = Soll der Bot automatisch der Stimme beitreten, wenn ein Benutzer beitritt? Der Standardwert ist true.
 # Data deletion command
 # This and all attributes show up exclusively in the slash command picker when `delete_all_data` is selected.
 cmds_delete_all_data = alle_daten_löschen
@@ -411,16 +424,51 @@ cmds_delete_all_data = alle_daten_löschen
 # automod add rule command
 # This and all attributes show up exclusively in the slash command picker when `automod add rule` is selected.
 cmds_add_rule = regel_hinzufügen
-    .description = Füge eine Automod-Regel hinzu.
-    .rule_type-description = Die Art der Regel, die hinzugefügt werden soll. Siehe `/automod rule_help` für weitere Informationen.
-    .rule_type-choice-Regular = Regulär
-    .content-description = Den Regelinhalt hinzufügen.
+    .description = Eine Automod-Regel hinzufügen.
+    .rule_type = rule_type
+    .rule_type-description = Der Typ der Regel, die hinzugefügt werden soll. Siehe `/automod rule_help` für weitere Informationen.
+    .rule_type-choice-Regular = Regelmäßig
+    .content = Inhalt
+    .content-description = Der Regelinhalt, der hinzugefügt werden soll.
+    .action = Aktion
     .action-description = Die Aktion, die ausgeführt werden soll, wenn die Regel ausgelöst wird.
-    .action-choice-SilentDelete = Stilles Löschen
-    .action-choice-DeleteAndLog = Löschen und Loggen
-    .action-choice-DeleteLogAndKick = Löschen, Loggen, und Benutzer aus der Stimme entfernen
+    .action-choice-SilentDelete = Stummes Löschen
+    .action-choice-DeleteAndLog = Löschen und protokollieren
+    .action-choice-DeleteLogAndKick = Löschen, protokollieren und den Benutzer aus der Stimme entfernen
+    .action-choice-DeleteLogAndSilence = Benutzer löschen, protokollieren und stummschalten
 # automod remove rule command
 # This and all attributes show up exclusively in the slash command picker when `automod remove rule` is selected.
 cmds_remove_rule = regel_entfernen
     .description = Entferne eine Automod-Regel.
+    .rule_id = rule_id
     .rule_id-description = Die ID der zu entfernenden Regel.
+# Help command
+# This and all attributes show up exclusively in the slash command picker when `help` is selected.
+cmds_help = Hilfe
+    .description = Dieses Hilfemenü anzeigen
+    .command = Befehl
+    .command-description = Spezifischer Befehl, zu dem Hilfe angezeigt werden soll
+# premium command
+# This and all attributes show up exclusively in the slash command picker when `premium` is selected.
+cmds_premium = premium
+    .description = Premium-Befehle
+# premium command
+# This and all attributes show up exclusively in the slash command picker when `premium claim` is selected.
+cmds_premium_claim = einfordern
+    .description = Fordere deine Prämie auf dem Server ein, auf dem dies ausgeführt wird.
+# premium command
+# This and all attributes show up exclusively in the slash command picker when `premium remove` is selected.
+cmds_premium_remove = entfernen
+    .description = Entferne deine Prämie von dem Server, auf dem sie ausgeführt wird.
+# Language configuration strings
+# This and all attributes show up exclusively in the slash command picker when `language user_language` is selected.
+cmds_user_language = Nutzer
+    .description = Setze deine Benutzersprache auf eine der verfügbaren Sprachen.
+    .language = Sprache
+    .language-description = Die Sprache, auf die du deine Benutzersprache einstellen willst.
+# Language configuration strings
+# This and all attributes show up exclusively in the slash command picker when `language guild_language` is selected.
+cmds_guild_language = Server
+    .description = Setze die Sprache des Servers auf eine der verfügbaren Sprachen.
+    .language = Sprache
+    .language-description = Die Sprache, auf die du deine Gildensprache setzen willst.
