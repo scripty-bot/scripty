@@ -71,3 +71,22 @@ premium-not-premium = you awe nyot a pwemium subscwibew. (U ᵕ U❁) s-subscwib
 more-info-on-command =
     fow mowe infowmation on a specific c-command, (ꈍᴗꈍ) type `{ $contextPrefix }help <name>`
     ```
+# ToS command
+# This and all attributes show up exclusively in the slash command picker when `terms_of_service` is selected.
+cmds_terms_of_service = tewms_of_sewvice
+    .description = view awnd agwee tuwu scwipty's tewms of sewvice awnd pwivacy powicy.
+# ToS command
+# This replaces the original content of the message (key agreeing-to-tos) when the user fails to select a button in time.
+tos-agree-timed-out = Timed out. Wewun thiws command if uwu stiww wawnt tuwu agwee tuwu the tos.
+# Leave command
+# This is shown when the bot successfully leaves a voice call
+leave-success = Weft vc successfuwwy.
+# ToS command
+# This replaces the original content of the message (key agreeing-to-tos) when the user agrees to the ToS.
+tos-agree-success = Uwu have successfuwwy agweed tuwu scwipty's tewms of sewvice awnd pwivacy powicy. Uwu may now use scwipty.
+# ToS command
+# This replaces the original content of the message (key agreeing-to-tos) when the user fails to agree to the ToS, usually by explicitly clicking the "No" button.
+disagreed-to-tos = Uwu have disagweed tuwu scwipty's tewms of sewvice awnd pwivacy powicy. If uwu wouwd wike tuwu use scwipty, uwu must agwee tuwu these documents. Uwu may duwu so by wunning thiws command again.
+# join command
+# This message is shown when the user has told a bot to join a forum channel, but the forum requires tags. This is not possible for the bot to work around as it has no way of knowing what tags to use.
+join-forum-requires-tags = The fowum channew uwu twied tuwu make me use wequiwes tags. I have no way of knowing whawt tags tuwu use, so i cannot join thawt channew. Pwease use a diffewent channew, ow awsk an admin tuwu wemove the tag wequiwement.
