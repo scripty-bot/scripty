@@ -492,3 +492,19 @@ general-error-command-process-description =
 # join command
 # This message is shown when the bot does not have permissions for the voice channel it is trying to join.
 join-no-permission = Ich habe nicht die Berechtigung, { $targetMention } beizutreten. Bitte gib mir die Berechtigung, den Kanal zu sehen und beizutreten, oder tritt einem anderen Voice-Chat bei, für den ich die Berechtigung habe.
+# data_storage command
+data-storage-embed-description =
+    { "**" } HINWEIS**: Alles, was jetzt folgt, ist **ausschließlich optional**. Wenn du dich dagegen entscheidest, wird das deine Erfahrung mit Scripty in keiner Weise beeinflussen.
+    Aber jetzt geht's los.
+
+    Scripty benötigt eine Menge Audio- und Textdaten, um ein geeignetes Sprache-zu-Text-Modell zu trainieren. Nicht jeder hat die Möglichkeit, uns zu helfen, indem er spendet oder eine Prämie kauft. Deshalb kannst du uns helfen, indem du uns erlaubst, deine Daten wie Audios und Nachrichten für das Training eines Modells zu speichern.
+    Da wir wissen, dass diese Daten sehr persönlich sein können, ist dies eine freiwillige Angelegenheit, die dein Erlebnis in keiner Weise beeinträchtigt.
+
+    So würden wir damit verfahren:
+    { "*" } Die gespeicherten Nachrichten würden wir in einen Scorer einspeisen, der auf deine Sprache zugeschnitten ist. Dieser Scorer würde es dem Algorithmus ermöglichen, die wahrscheinlichsten Wörter für einen bestimmten Satz von Lauten auszuwählen. Obwohl dies sehr hilfreich ist, ist es nicht so wichtig wie Audio. Beachte, dass diese Nachrichtendaten mit einer AES 256-Bit-Verschlüsselung verschlüsselt sind.
+    { "*" } Bei gespeicherten Audiodaten würden wir sie und die Abschrift davon in ein Modell einspeisen, um die Genauigkeit des Sprache-zu-Text-Modells zu erhöhen. Das ist wahnsinnig hilfreich, selbst wenn du ein schlechtes Mikrofon und viele Hintergrundgeräusche hast: Je mehr Geräusche, desto besser, solange ein Mensch noch verstehen kann, was du sagst.
+
+    Wenn du dich angemeldet hast und dich später dafür entscheidest, dich abzumelden, werden deine Daten weiterhin gespeichert, aber du kannst die Löschung deiner Sprachdaten verlangen, indem du `{ $contextPrefix }delete_all_data` ausführst. Es ist jedoch nicht möglich, deine Nachrichtendaten zu löschen. Das liegt daran, dass wir nicht speichern, welcher Nutzer welche Nachricht gesendet hat.
+    Deine Daten werden auf Servern gespeichert, die streng abgeschottet sind. Es wäre für jeden, der versucht, sich Zugang zu verschaffen, äußerst schwierig, dies erfolgreich zu tun.
+
+    Mit den Schaltflächen unten kannst du zwischen den verschiedenen Optionen wechseln.
