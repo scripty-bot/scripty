@@ -1,6 +1,5 @@
 mod admin;
 pub mod automod;
-mod credits;
 mod data_storage;
 pub mod dm_support;
 mod entity_block;
@@ -15,7 +14,6 @@ mod terms_of_service;
 mod throw_error;
 
 pub use admin::*;
-pub use credits::credits;
 pub use data_storage::*;
 pub use dm_support::*;
 pub use entity_block::*;
