@@ -3,7 +3,6 @@ use std::sync::{
 	Arc,
 };
 
-use parking_lot::RwLock;
 use serenity::{
 	all::{Context, Webhook},
 	builder::ExecuteWebhook,
@@ -23,15 +22,14 @@ pub async fn client_disconnect(
 	let user_id = client_disconnect_data.user_id;
 
 	debug!(?user_id, "got ClientDisconnect event");
-	// i hate this so much but i don't see a better way of doing it
 	let ssrc = {
-		let mut ssrc = None;
-		for val in ssrc_state.ssrc_user_id_map.iter() {
+		let ssrc = ssrc_state.ssrc_user_id_map.iter().find_map(|val| {
 			if val.value().get() == user_id.0 {
-				ssrc = Some(*val.key());
-				break;
+				Some(*val.key())
+			} else {
+				None
 			}
-		}
+		});
 		match ssrc {
 			Some(s) => s,
 			None => return,
