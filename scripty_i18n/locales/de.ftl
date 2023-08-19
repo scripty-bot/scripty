@@ -116,7 +116,7 @@ no-channel-specified = Du bist weder in einem Sprachkanal, noch hast du mich ein
 # { $targetMention } is the mention of the channel the bot joined.
 join-success =
     Erfolgreich { $voiceTargetMention } beigetreten und Transkriptionsausgabe an { $outputChannelMention } gesendet.
-
+    { "" }
     Hinweis: Deine aktuelle Premiumstufe ist { $tier }. Damit können { $maxUsers } Benutzer auf einmal transkribiert werden. Außerdem verlässt der Bot den Kanal automatisch nach { $leaveDuration } Sekunden, unabhängig davon, wie viele Nutzer sich in dem Kanal befinden. Damit soll ein Missbrauch unseres Systems verhindert werden.
     Wenn du mehr Nutzer und eine längere Nutzungsdauer möchtest und den Bot unterstützen willst, solltest du ein Premium-Abonnement abschließen: <https://dash.scripty.org/premium>
     Wenn du weißt, dass du bereits ein Premium-Abonnent bist, schreibe dem Bot bitte eine DM, damit wir dein Premium-Abonnement wieder aktivieren können.
@@ -365,3 +365,65 @@ data-storage-embed-description =
     Deine Daten werden auf Servern gespeichert, die streng abgeschottet sind. Es wäre für jeden, der versucht, sich Zugang zu verschaffen, äußerst schwierig, dies erfolgreich zu tun.
 
     Mit den Schaltflächen unten kannst du zwischen den verschiedenen Optionen wechseln.
+# ToS command
+# This and all attributes show up exclusively in the slash command picker when `terms_of_service` is selected.
+cmds_terms_of_service = Allgemeine_Geschäftsbedingungen
+    .description = Sieh dir die Nutzungsbedingungen und Datenschutzrichtlinien von Scripty an und stimme ihnen zu.
+# Language configuration strings
+# This and all attributes show up exclusively in the slash command picker when `language` is selected.
+cmds_language = Sprache
+# data_storage command
+# This and all attributes show up exclusively in the slash command picker when `data_storage` is selected.
+cmds_data_storage = daten_speicher
+    .description = Konfiguriere deine Datenspeichereinstellungen
+# Leave command
+# This and all attributes show up exclusively in the slash command picker when `leave` is selected.
+cmds_leave = verlassen
+    .description = Beende einen laufenden Sprachanruf.
+# ping command
+# This and all attributes show up exclusively in the slash command picker when `ping` is selected.
+cmds_ping = ping
+    .description = Zeigt die Latenz des Bots an.
+# automod root command
+# This and all attributes show up exclusively in the slash command picker when `automod` is selected.
+cmds_automod = automod
+    .description = Automod-Einstellungen konfigurieren
+# automod list rules command
+# This and all attributes show up exclusively in the slash command picker when `automod list rules` is selected.
+cmds_list_rules = regel_liste
+    .description = Liste alle Automod-Regeln auf.
+    .filter_by-description = Filtere Regeln nach ihrem Inhalt. Leer lassen, um alle Regeln anzuzeigen.
+# join command
+# This and all attributes show up exclusively in the slash command picker when `join` is selected.
+cmds_join = beitreten
+    .description = Tritt einem Voice-Chat bei.
+    .voice_channel-description = Zu bindender Sprachchat.
+# automod setup command
+# This and all attributes show up exclusively in the slash command picker when `automod setup` is selected.
+cmds_setup = setup
+    .description = Starte mit dem Automod von Scripty.
+    .target_channel-description = Der Kanal, an den Automod-Protokolle gesendet werden sollen.
+    .log_recording-description = Soll eine Aufnahme der beleidigend Rede an den Zielkanal gesendet werden? Die Voreinstellung ist false.
+# Data deletion command
+# This and all attributes show up exclusively in the slash command picker when `delete_all_data` is selected.
+cmds_delete_all_data = alle_daten_löschen
+    .description =
+        Alle deine Daten löschen.
+
+        Mit diesem Befehl werden alle deine Daten unwiderruflich und dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.
+# automod add rule command
+# This and all attributes show up exclusively in the slash command picker when `automod add rule` is selected.
+cmds_add_rule = regel_hinzufügen
+    .description = Füge eine Automod-Regel hinzu.
+    .rule_type-description = Die Art der Regel, die hinzugefügt werden soll. Siehe `/automod rule_help` für weitere Informationen.
+    .rule_type-choice-Regular = Regulär
+    .content-description = Den Regelinhalt hinzufügen.
+    .action-description = Die Aktion, die ausgeführt werden soll, wenn die Regel ausgelöst wird.
+    .action-choice-SilentDelete = Stilles Löschen
+    .action-choice-DeleteAndLog = Löschen und Loggen
+    .action-choice-DeleteLogAndKick = Löschen, Loggen, und Benutzer aus der Stimme entfernen
+# automod remove rule command
+# This and all attributes show up exclusively in the slash command picker when `automod remove rule` is selected.
+cmds_remove_rule = regel_entfernen
+    .description = Entferne eine Automod-Regel.
+    .rule_id-description = Die ID der zu entfernenden Regel.
