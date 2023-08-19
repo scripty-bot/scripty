@@ -33,8 +33,6 @@ root-command-invoked-description = 請僅使用此指令的子指令。請參閱
 root-command-invoked-title = 這是一個頂層指令！
 # This message is shown when the user is not in a voice channel, nor was a voice channel specified.
 no-channel-specified = 你不在語音頻道中，也沒有指定要加入的頻道。用`{ $contextPrefix }join <channel>` 指定語音頻道，或自己進入語音頻道後重新使用此指令。
-# This message is shown when the user tries to invite the bot to a voice channel, but the bot has not been set up.
-bot-not-set-up = 看來你還沒有設置 Scripty。 發送 `{ $contextPrefix }setup` 然後發送此指令。
 # This message is shown on successfuly joining a voice channel.
 # {$targetMention} is the mention of the channel the bot joined.
 join-success = 成功加入 { $targetMention }。
@@ -44,9 +42,6 @@ language-set-failure-description-db = 數據庫在嘗試設置你的語言時遇
 language-set-failure-description-invalid = 你所指定的語言是無效的語言標識。原因: { $error }
 # This message is shown as the embed title when the database returns an error when setting the language for an entity.
 language-set-failure-title-db = 數據庫錯誤。
-# This message is shown when the user tries to invite the bot to a voice channel,
-# but the webhook used by the bot has been deleted.
-webhook-deleted = 看起來你刪除了我使用的 webhook！ *打* 重新運行 `{ $contextPrefix }setup` 以解決這個問題。
 # This message is shown when the user requests latency information.
 # Note: the numbers here will be formatted according to the language set for the context.
 latency-description =
