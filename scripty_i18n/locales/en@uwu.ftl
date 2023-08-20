@@ -74,19 +74,63 @@ more-info-on-command =
 # ToS command
 # This and all attributes show up exclusively in the slash command picker when `terms_of_service` is selected.
 cmds_terms_of_service = tewms_of_sewvice
-    .description = view awnd agwee tuwu scwipty's tewms of sewvice awnd pwivacy powicy.
+    .description = view and agwee to scwipty's tewms o-of sewvice and p-pwivacy powicy. ^•ﻌ•^
 # ToS command
 # This replaces the original content of the message (key agreeing-to-tos) when the user fails to select a button in time.
-tos-agree-timed-out = Timed out. Wewun thiws command if uwu stiww wawnt tuwu agwee tuwu the tos.
+tos-agree-timed-out = timed out. ^•ﻌ•^ wewun this command if y-you stiww want to a-agwee to the tos. OwO
 # Leave command
 # This is shown when the bot successfully leaves a voice call
 leave-success = Weft vc successfuwwy.
 # ToS command
 # This replaces the original content of the message (key agreeing-to-tos) when the user agrees to the ToS.
-tos-agree-success = Uwu have successfuwwy agweed tuwu scwipty's tewms of sewvice awnd pwivacy powicy. Uwu may now use scwipty.
+tos-agree-success = you have successfuwwy agweed to scwipty's t-tewms of s-sewvice and pwivacy p-powicy. 🥺 you m-may nyow use scwipty.
 # ToS command
 # This replaces the original content of the message (key agreeing-to-tos) when the user fails to agree to the ToS, usually by explicitly clicking the "No" button.
 disagreed-to-tos = Uwu have disagweed tuwu scwipty's tewms of sewvice awnd pwivacy powicy. If uwu wouwd wike tuwu use scwipty, uwu must agwee tuwu these documents. Uwu may duwu so by wunning thiws command again.
 # join command
 # This message is shown when the user has told a bot to join a forum channel, but the forum requires tags. This is not possible for the bot to work around as it has no way of knowing what tags to use.
 join-forum-requires-tags = The fowum channew uwu twied tuwu make me use wequiwes tags. I have no way of knowing whawt tags tuwu use, so i cannot join thawt channew. Pwease use a diffewent channew, ow awsk an admin tuwu wemove the tag wequiwement.
+# join command
+# This and all attributes show up exclusively in the slash command picker when `join` is selected.
+cmds_join = join
+    .description = join a voice chat. 🥺 twanscwipts wiww b-be wogged to t-the channew you w-wun this command i-in. òωó
+    .voice_channel = voice_channew
+    .voice_channel-description = voice chat to bind to
+    .record_transcriptions = wecowd_twanscwiptions
+    .record_transcriptions-description = wog aww twanscwipts? usews wiww be d-dmed when scwipty w-weaves the channew. 🥺 d-defauwts t-to fawse. òωó
+    .target_channel = tawget_channew
+    .target_channel-description = send twanscwipts hewe, 🥺 instead of t-the cuwwent channew. òωó t-tawget a fowum t-to cweate a n-nyew post. o.O
+    .create_thread = cweate_thwead
+    .create_thread-description = cweate a nyew thwead fow this twanscwiption? d-defauwts t-to fawse. ^•ﻌ•^
+# Leave command
+# This and all attributes show up exclusively in the slash command picker when `leave` is selected.
+cmds_leave = weave
+    .description = weave any cuwwent voice caww. >_<
+# Help command
+# This and all attributes show up exclusively in the slash command picker when `help` is selected.
+cmds_help = hewp
+    .description = show this hewp menu
+    .command = command
+    .command-description = specific command to show hewp about
+# premium command
+# This and all attributes show up exclusively in the slash command picker when `premium` is selected.
+cmds_premium = pwemium
+    .description = pwemium commands
+# Language configuration strings
+# This and all attributes show up exclusively in the slash command picker when `language` is selected.
+cmds_language = wanguage
+    .description = modify youw wanguage pwefewences. >_<
+# premium command
+# This and all attributes show up exclusively in the slash command picker when `premium claim` is selected.
+cmds_premium_claim = cwaim
+    .description = cwaim youw pwemium within the sewvew w-whewe this command i-is exekawaii~d. ^•ﻌ•^
+# premium command
+# This and all attributes show up exclusively in the slash command picker when `premium remove` is selected.
+cmds_premium_remove = wemove
+    .description = wemove youw pwemium fwom the sewvew w-whewe this command i-is exekawaii~d. ^•ﻌ•^
+# Language configuration strings
+# This and all attributes show up exclusively in the slash command picker when `language user_language` is selected.
+cmds_user_language = usew
+    .description = set youw usew wanguage to one of t-the avaiwabwe wanguages. (ꈍᴗꈍ)
+    .language = language
+    .language-description = the wanguage you want to set youw u-usew wanguage to. (ꈍᴗꈍ)
