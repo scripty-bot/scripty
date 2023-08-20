@@ -445,3 +445,94 @@ transcription-info-transcription-ssrc = SSRC { $ssrc }
 # join command
 # This message is shown when the bot does not have permissions for the voice channel it is trying to join.
 join-no-permission = Je n'ai pas la permission de rejoindre { $targetMention }. Merci de me donner la permission de Voir le salon ainsi que la permission de me Connecter, ou rejoignez un autre salon vocal ou j'ai la permission.
+# premium command
+# This is shown to the user when they have too many used servers to add more.
+premium-too-many-guilds = Vous avez réclamé { $totalServers } clés premium. Vous ne pouvez plus en ajouter, sauf si vous mettez à niveau votre abonnement premium sur <https://dash.scripty.org/premium>, ou en supprimez certaines avec la commande `{ $commandPrefix }premium remove`.
+# Help menu translation strings
+no-help-found = Aucune aide trouvée pour la commande `{ $commandName }`.
+# ToS command
+# This replaces the original content of the message (key agreeing-to-tos) when the user fails to select a button in time.
+tos-agree-timed-out = Temps écoulé. Réexécutez cette commande si vous voulez toujours accepter les CGU.
+# ToS command
+# This replaces the original content of the message (key agreeing-to-tos) when the user agrees to the ToS.
+tos-agree-success = Vous avez accepté avec succès les conditions d'utilisation et la politique de confidentialité de Scripty. Vous pouvez maintenant utiliser Scripty.
+# Leave command
+# This is shown when the bot successfully leaves a voice call
+leave-success = A quitté le salon vocal avec succès.
+# Leave command
+# This and all attributes show up exclusively in the slash command picker when `leave` is selected.
+cmds_leave = partir
+    .description = Quitter tout appel en cours.
+# premium command
+# This and all attributes show up exclusively in the slash command picker when `premium` is selected.
+cmds_premium = premium
+    .description = Commandes Premium
+# join command
+# This message is shown when the user has told a bot to join a forum channel, but the forum requires tags. This is not possible for the bot to work around as it has no way of knowing what tags to use.
+join-forum-requires-tags = Le forum que vous avez essayé de me faire utiliser demande des balises obligatoires. Je n'ai aucun moyen de savoir quelles balises utiliser, je ne peux donc pas rejoindre ce canal. Veuillez utiliser un autre canal ou demander à un administrateur de supprimer l'exigence de balise.
+# ToS command
+# This and all attributes show up exclusively in the slash command picker when `terms_of_service` is selected.
+cmds_terms_of_service = conditions_d_utilisation
+    .description = Voir et accepter les CGU et la politique de confidentialité de Scripty.
+# Help command
+# This and all attributes show up exclusively in the slash command picker when `help` is selected.
+cmds_help = aide
+    .description = Afficher ce menu d'aide
+    .command = commande
+    .command-description = Commande spécifique pour laquelle afficher l'aide
+# premium command
+# This and all attributes show up exclusively in the slash command picker when `premium claim` is selected.
+cmds_premium_claim = claim
+    .description = Réclamez votre Premium sur le serveur où cette commande est exécutée.
+# join command
+# This and all attributes show up exclusively in the slash command picker when `join` is selected.
+cmds_join = rejoindre
+    .description = Rejoindre un chat vocal. Les transcriptions seront enregistrées sur le canal dans lequel vous exécutez cette commande.
+    .voice_channel = chat_vocal
+    .voice_channel-description = Chat vocal auquel se lier.
+    .record_transcriptions = enregistrer_transcriptions
+    .record_transcriptions-description = Enregistrer toutes les transcriptions ? Les utilisateurs seront MP lorsque Scripty quittera le canal. La valeur par défaut est false.
+    .target_channel = canal_cible
+    .target_channel-description = Envoyez les transcriptions ici, au lieu du canal actuel. Ciblez un forum pour créer un nouveau message.
+    .create_thread = créer_thread
+    .create_thread-description = Créer un nouveau fil pour cette transcription ? La valeur par défaut est false.
+# ToS command
+# This replaces the original content of the message (key agreeing-to-tos) when the user fails to agree to the ToS, usually by explicitly clicking the "No" button.
+disagreed-to-tos = Vous avez refusé les conditions d'utilisation et la politique de confidentialité de Scripty. Si vous souhaitez utiliser Scripty, vous devez accepter ces documents. Vous pouvez le faire en exécutant à nouveau cette commande.
+# premium command
+# This and all attributes show up exclusively in the slash command picker when `premium remove` is selected.
+cmds_premium_remove = Supprimer
+    .description = Retirer votre Premium du serveur où cette commande est exécutée.
+# premium command
+# This is shown when the user successfully claims one of their premium subscriptions.
+premium-claimed = Vous avez réclamé avec succès le premium sur ce serveur. Si vous souhaitez mettre à niveau ou acheter plus d'emplacements, rendez-vous sur <https://dash.scripty.org/premium>. Si vous souhaitez supprimer votre premium de ce serveur, exécutez `{ $commandPrefix }premium remove`.
+# premium command
+# This is shown when the user successfully removes their premium from this guild.
+premium-removed = Si vous êtes l'utilisateur qui l'avait réclamé, vous avez maintenant supprimé avec succès votre premium de ce serveur. Si vous souhaitez mettre à niveau ou acheter plus d'emplacements, rendez-vous sur <https://dash.scripty.org/premium>.
+# Context menu command translation strings
+context-menu-command-user =
+    { "" }
+    { $commandName } (sur un utilisateur)
+    { "" }
+# premium command
+# This is shown when the guild the user is running this command in has not yet agreed to the ToS.
+premium-server-not-set-up = Ce serveur n'a pas encore accepté les conditions d'utilisation et la politique de confidentialité de Scripty. Faites-le d'abord avec la commande `{ $commandPrefix }terms_of_service`.
+# premium command
+# This is shown to the user when they are not subscribed to premium.
+premium-not-premium = Vous n'êtes pas un abonné premium. Abonnez-vous sur https://scripty.org/premium. Si vous savez que vous en êtes un, veuillez envoyer un DM au bot afin que nous puissions rétablir votre premium.
+# Help menu translation strings
+command-not-found = Aucune commande avec le nom `{ $commandName }` trouvée.
+# Help menu translation strings
+command-not-found-suggestions = Vouliez-vous dire `{ $suggestion }` ?
+# Help menu translation strings
+default-category-name = Commandes
+# Context menu command translation strings
+context-menu-command-title =
+    { "" }
+    Commandes du menu contextuel :
+    { "" }
+# Context menu command translation strings
+context-menu-command-message =
+    { "" }
+    { $commandName } (sur un message)
+    { "" }
