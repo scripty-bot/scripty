@@ -452,10 +452,10 @@ premium-too-many-guilds = Vous avez réclamé { $totalServers } clés premium. V
 no-help-found = Aucune aide trouvée pour la commande `{ $commandName }`.
 # ToS command
 # This replaces the original content of the message (key agreeing-to-tos) when the user fails to select a button in time.
-tos-agree-timed-out = Temps écoulé. Réexécutez cette commande si vous voulez toujours accepter les CGU.
+tos-agree-timed-out = Temps écoulé. Réexécutez cette commande si vous souhaitez toujours accepter les CGU.
 # ToS command
 # This replaces the original content of the message (key agreeing-to-tos) when the user agrees to the ToS.
-tos-agree-success = Vous avez accepté avec succès les conditions d'utilisation et la politique de confidentialité de Scripty. Vous pouvez maintenant utiliser Scripty.
+tos-agree-success = Vous avez accepté avec succès les Conditions d'Utilisation et la Politique de Confidentialité de Scripty. Vous pouvez maintenant utiliser Scripty.
 # Leave command
 # This is shown when the bot successfully leaves a voice call
 leave-success = A quitté le salon vocal avec succès.
@@ -473,7 +473,7 @@ join-forum-requires-tags = Le forum que vous avez essayé de me faire utiliser d
 # ToS command
 # This and all attributes show up exclusively in the slash command picker when `terms_of_service` is selected.
 cmds_terms_of_service = conditions_d_utilisation
-    .description = Voir et accepter les CGU et la politique de confidentialité de Scripty.
+    .description = Voir et accepter les Conditions d'Utilisation et la Politique de Confidentialité de Scripty.
 # Help command
 # This and all attributes show up exclusively in the slash command picker when `help` is selected.
 cmds_help = aide
@@ -498,7 +498,7 @@ cmds_join = rejoindre
     .create_thread-description = Créer un nouveau fil pour cette transcription ? La valeur par défaut est false.
 # ToS command
 # This replaces the original content of the message (key agreeing-to-tos) when the user fails to agree to the ToS, usually by explicitly clicking the "No" button.
-disagreed-to-tos = Vous avez refusé les conditions d'utilisation et la politique de confidentialité de Scripty. Si vous souhaitez utiliser Scripty, vous devez accepter ces documents. Vous pouvez le faire en exécutant à nouveau cette commande.
+disagreed-to-tos = Vous avez refusé les Conditions d'Utilisation et la Politique de Confidentialité de Scripty. Si vous souhaitez utiliser Scripty, vous devez accepter ces documents. Vous pouvez le faire en exécutant à nouveau cette commande.
 # premium command
 # This and all attributes show up exclusively in the slash command picker when `premium remove` is selected.
 cmds_premium_remove = Supprimer
