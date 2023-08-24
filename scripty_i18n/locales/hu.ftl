@@ -23,13 +23,13 @@ disagreed-to-tos = Elutasítottad a Scripty szolgáltatási feltételeit és ada
 # join command
 # This and all attributes show up exclusively in the slash command picker when `join` is selected.
 cmds_join = csatlakozás
-    .description = Csatlakozás egy hangcsatornához. Az átiratok abban a csatornában lesznek naplózva, ahol ez a parancsot futtatod.
+    .description = Csatlakozás hangcsatornához. Az átiratok a jelenlegi csatornába lesznek naplózva.
     .voice_channel = hangcsatorna
     .voice_channel-description = Voice chat to bind to.
     .record_transcriptions = record_transcriptions
-    .record_transcriptions-description = Naplózva legyen az összes átirat? A résztvevők privát üzenetet fognak kapni, amikor Scripty elhagyja a hangcsatornát. Alapértelmezetten hamis.
+    .record_transcriptions-description = Összes átirat naplózása. A résztvevők üzenetet fognak kapni Scripty kilépésekor. Alapért.: hamis.
     .target_channel = célcsatorna
-    .target_channel-description = Az átiratok ide lesznek küldve a jelenlegi csatorna helyett. Ha fórumcsatornát jelölsz ki, akkor poszt lesz létrehozva.
+    .target_channel-description = Átiratok máshova küldése. Ha fórumcsatornát jelölsz ki, akkor poszt lesz létrehozva.
     .create_thread = gondolatmenet_létrehozása
     .create_thread-description = Létre legyen hozva egy új gondolatmenet az átirathoz? Alapértelmezetten hamis.
 # Leave command
@@ -83,3 +83,5 @@ context-menu-command-message =
     { "" }
 # Help menu translation strings
 default-category-name = Parancsok
+# Help menu translation strings
+command-not-found = Nem található `{ $commandName }` nevű parancs.
