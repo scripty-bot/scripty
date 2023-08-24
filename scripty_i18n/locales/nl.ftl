@@ -38,7 +38,7 @@ cmds_join = join
     .record_transcriptions = record_transcriptions
     .record_transcriptions-description = Sla alle Scripty transcripties op, dit staat standaard uit.
     .target_channel = target_channel
-    .target_channel-description = Stuur transcripties hier, in plaats van het huidige kanaal. Doel naar een forum om een nieuwe post te creëren.
+    .target_channel-description = Stuur transcripts hier, in plaats van huidig kanaal. Doel naar een forum en maak een post.
     .create_thread = create_thread
     .create_thread-description = Een nieuwe thread aanmaken voor deze transcriptie? Dit staat standaard uit.
 # Leave command
