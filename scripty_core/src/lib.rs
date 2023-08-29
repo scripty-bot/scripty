@@ -8,6 +8,7 @@ use fern::{
 	colors::{Color, ColoredLevelConfig},
 	Dispatch,
 };
+use rlimit::Resource;
 use url::Url;
 
 pub fn start() {
@@ -16,6 +17,8 @@ pub fn start() {
 	let rt = get_tokio_rt();
 
 	rt.block_on(init_logging());
+
+	increase_open_file_limit();
 
 	scripty_i18n::init_i18n();
 
@@ -163,4 +166,9 @@ fn load_config() {
 	println!("reading cfg at {}", cfg_path);
 
 	scripty_config::load_config(&cfg_path);
+}
+
+fn increase_open_file_limit() {
+	rlimit::setrlimit(Resource::NOFILE, 8192, 8192)
+		.expect("failed to increase open file limit: will likely cause issues with STT service");
 }
