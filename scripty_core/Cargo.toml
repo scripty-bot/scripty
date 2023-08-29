@@ -8,6 +8,7 @@ license = "EUPL-1.2"
 
 [dependencies]
 url = "2"
+rlimit = "0.10"
 num_cpus = "1"
 humantime = "2"
 scripty_db = { path = "../scripty_db" }
