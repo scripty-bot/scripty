@@ -22,32 +22,37 @@ pub fn get_all_bundle_languages() -> Vec<LanguageIdentifier> {
 pub fn get_bundle_for_language(
 	language: &LanguageIdentifier,
 ) -> Ref<'static, LanguageIdentifier, FluentBundle<FluentResource, IntlLangMemoizer>> {
-	let i18n_store = get_i18n_store();
-	i18n_store
-		.get(language)
+	get_bundle_for_language_no_fallback(language)
 		.or_else(|| {
-			i18n_store.get(
+			get_i18n_store().get(
 				&LanguageIdentifier::from_str("en")
 					.expect("somehow english is not a valid language?"),
 			)
 		})
 		.or_else(|| {
-			i18n_store.get(
+			get_i18n_store().get(
 				&LanguageIdentifier::from_str("en-US")
 					.expect("somehow english-us is not a valid language?"),
 			)
 		})
 		.or_else(|| {
-			i18n_store.get(
+			get_i18n_store().get(
 				&LanguageIdentifier::from_str("en-GB")
 					.expect("somehow english-gb is not a valid language?"),
 			)
 		})
 		.or_else(|| {
-			i18n_store.get(
+			get_i18n_store().get(
 				&LanguageIdentifier::from_str("en-CA")
 					.expect("somehow english-ca is not a valid language?"),
 			)
 		})
 		.expect("both selected language and some variant of english aren't available")
+}
+
+pub fn get_bundle_for_language_no_fallback(
+	language: &LanguageIdentifier,
+) -> Option<Ref<'static, LanguageIdentifier, FluentBundle<FluentResource, IntlLangMemoizer>>> {
+	let i18n_store = get_i18n_store();
+	i18n_store.get(language)
 }

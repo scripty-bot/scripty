@@ -1,3 +1,5 @@
+use std::fmt;
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct StripeWebhookEvent {
 	/// Discord user ID of the user who owns the subscription.
@@ -20,7 +22,7 @@ pub enum StripeWebhookEventEnum {
 	CustomerSubscriptionTrialWillEnd(CustomerSubscriptionTrialWillEnd),
 
 	/// Fired when a customer creates a new subscription to a plan.
-	/// Does not mean a charge has occurred yet, so should not be used to provision access.
+	/// Does not mean a charge has already occurred, so should not be used to provision access.
 	#[serde(rename = "customer.subscription.created")]
 	CustomerSubscriptionCreated(CustomerSubscriptionCreated),
 
@@ -68,6 +70,9 @@ pub struct CustomerSubscriptionUpdated {
 	/// Whether to cancel the subscription at the end of the current period.
 	pub cancel_at_period_end: bool,
 
+	/// Start of the current period, as a Unix timestamp.
+	pub current_period_start: u64,
+
 	/// End of the current period, as a Unix timestamp.
 	/// If the subscription is canceled, this is the time the subscription will end.
 	pub current_period_end: u64,
@@ -75,6 +80,21 @@ pub struct CustomerSubscriptionUpdated {
 	/// End of the trial period, as a Unix timestamp.
 	/// Only present if status is [SubscriptionStatus::Trialing].
 	pub trial_end: Option<u64>,
+
+	/// Was the subscription renewed?
+	pub is_renewal: bool,
+
+	/// Has the subscription length changed?
+	pub is_length_change: bool,
+
+	/// Is this a new subscription?
+	/// In other words,
+	/// this event changed the subscription status from something other than [SubscriptionStatus::Active],
+	/// to [SubscriptionStatus::Active].
+	pub is_new: bool,
+
+	/// Has this subscription changed tiers?
+	pub is_tier_change: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Copy, Clone)]
@@ -107,4 +127,19 @@ pub enum SubscriptionStatus {
 	Paused,
 	Trialing,
 	Unpaid,
+}
+
+impl fmt::Display for SubscriptionStatus {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		match *self {
+			SubscriptionStatus::Active => write!(f, "Active"),
+			SubscriptionStatus::Canceled => write!(f, "Canceled"),
+			SubscriptionStatus::Incomplete => write!(f, "Incomplete"),
+			SubscriptionStatus::IncompleteExpired => write!(f, "IncompleteExpired"),
+			SubscriptionStatus::PastDue => write!(f, "PastDue"),
+			SubscriptionStatus::Paused => write!(f, "Paused"),
+			SubscriptionStatus::Trialing => write!(f, "Trialing"),
+			SubscriptionStatus::Unpaid => write!(f, "Unpaid"),
+		}
+	}
 }

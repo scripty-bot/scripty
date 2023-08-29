@@ -6,17 +6,24 @@ use std::{
 	time::Instant,
 };
 
+use ahash::RandomState;
+use dashmap::DashSet;
 use parking_lot::RwLock;
 use scripty_audio::{ModelError, Stream};
 use scripty_automod::types::{AutomodRuleAction, AutomodServerConfig};
+use scripty_metrics::Metrics;
 use serenity::{
-	all::{ChannelId as SerenityChannelId, GuildId, Webhook},
+	all::{ChannelId as SerenityChannelId, ChannelId, GuildId, Webhook},
 	builder::{CreateEmbed, CreateMessage, EditMember, ExecuteWebhook},
 	client::Context,
 };
 use songbird::events::context_data::VoiceTick;
 
-use crate::{audio_handler::SsrcMaps, consts::SIZE_OF_I16, types::SsrcUserDataMap};
+use crate::{
+	audio_handler::SsrcMaps,
+	consts::SIZE_OF_I16,
+	types::{SsrcUserDataMap, TranscriptResults},
+};
 
 // cannot use this inspection because the duplicated code uses `continue`
 // noinspection DuplicatedCode
@@ -28,6 +35,7 @@ pub async fn voice_tick(
 	verbose: Arc<AtomicBool>,
 	ctx: Context,
 	webhook: Arc<Webhook>,
+	thread_id: Option<ChannelId>,
 	transcript_results: Option<Arc<RwLock<Vec<String>>>>,
 	automod_server_cfg: Arc<AutomodServerConfig>,
 ) {
@@ -38,113 +46,72 @@ pub async fn voice_tick(
 	let last_tick_speakers = ssrc_state.ssrc_speaking_set.clone();
 	ssrc_state.ssrc_speaking_set.clear();
 
-	// handle those speaking this tick
-	for (ssrc, data) in voice_data.speaking {
-		let st = Instant::now();
-
-		// always get RTCP data for debugging purposes
-		if let Some(pkt) = data.packet {
-			let rtp = pkt.rtp();
-			let version = rtp.get_version();
-			let sequence = rtp.get_sequence();
-			let timestamp = rtp.get_timestamp();
-			trace!(
-				%ssrc,
-				"pkt version: {}, sequence: {:?}, timestamp: {:?}",
-				version,
-				sequence,
-				timestamp
-			);
-		} else {
-			warn!(%ssrc, "no packet data: likely no audio too?");
-		}
-
-		if ssrc_state
-			.ssrc_ignored_map
-			.get(&ssrc)
-			.map_or(false, |x| *x.value())
-		{
-			continue;
-		}
-
-		// add to those speaking this tick
-		ssrc_state.ssrc_speaking_set.insert(ssrc);
-
-		if let Some(audio) = data.decoded_voice {
-			trace!(%ssrc, "got {} bytes of audio", audio.len() * SIZE_OF_I16);
-			metrics.ms_transcribed.inc_by(20);
-			metrics
-				.audio_bytes_processed
-				.inc_by((audio.len() * SIZE_OF_I16) as _);
-
-			let audio = scripty_audio::process_audio(audio, 48_000.0, 16_000.0);
-
-			// check voice ingest state
-			match ssrc_state.ssrc_voice_ingest_map.get(&ssrc) {
-				Some(x) => {
-					// we've already checked if the user is opted in or not
-					if let Some(ingest) = x.value() {
-						trace!(?ssrc, "user has opted in, feeding audio");
-						ingest.ingest(&audio);
-					} else {
-						trace!(?ssrc, "user has opted out, not feeding");
-					}
-				}
-				None => {
-					// user has not opted in or out yet, check if they have allowed voice ingest
-
-					// fetch user ID
-					let Some(user_id) = ssrc_state.ssrc_user_id_map.get(&ssrc).map(|x| *x.value())
-					else {
-						continue;
-					};
-
-					let ingest = if let Some(ingest) =
-						scripty_data_storage::VoiceIngest::new(user_id, "en".to_string()).await
-					{
-						trace!(?ssrc, "user has opted in, creating ingest");
-						ingest.ingest(audio.as_ref());
-						Some(ingest)
-					} else {
-						trace!(?ssrc, "user has opted out, not creating ingest");
-						None
-					};
-					ssrc_state.ssrc_voice_ingest_map.insert(ssrc, ingest);
-				}
-			}
-
-			// feed audio to transcription stream
-			if let Some(stream) = ssrc_state.ssrc_stream_map.get(&ssrc) {
-				if let Err(e) = stream.feed_audio(audio) {
-					warn!("failed to feed audio packet: {}", e)
-				};
-				trace!(?ssrc, "done processing pkt");
-			} else {
-				warn!(?ssrc, "no stream found for ssrc");
-				// cold path so we can afford to do this
-				let lang = language.read().to_owned();
-				let new_stream =
-					match scripty_audio::get_stream(&lang, verbose.load(Ordering::Relaxed)).await {
-						Ok(s) => s,
-						Err(e) => {
-							error!(?ssrc, "failed to create new stream: {}", e);
-							continue;
-						}
-					};
-				ssrc_state.ssrc_stream_map.insert(ssrc, new_stream);
-			}
-		} else {
-			error!(?ssrc, "no audio found in packet");
-		}
-
-		let et = Instant::now();
-		let tt = et.duration_since(st).as_secs_f64();
-		metrics.audio_process_time.observe(tt);
-	}
-
 	// handle those who were speaking last tick but are now silent
 	last_tick_speakers.retain(|s| voice_data.silent.contains(s));
 
+	// handle those speaking this tick
+	handle_speakers(
+		Arc::clone(&ssrc_state),
+		Arc::clone(&metrics),
+		voice_data,
+		Arc::clone(&language),
+		verbose.clone(),
+	)
+	.await;
+
+	let hooks = handle_silent_speakers(SilentSpeakersContext {
+		ssrc_state: Arc::clone(&ssrc_state),
+		last_tick_speakers,
+		language: Arc::clone(&language),
+		verbose: Arc::clone(&verbose),
+		guild_id,
+		thread_id,
+		automod_server_cfg: Arc::clone(&automod_server_cfg),
+		transcript_results: transcript_results.clone(),
+		ctx: &ctx,
+	})
+	.await;
+
+	// spawn background tasks to fire off hooks
+	for (hook, ssrc) in hooks {
+		let webhook1 = webhook.clone();
+		let ctx1 = ctx.clone();
+		tokio::spawn(async move {
+			if let Err(e) = webhook1.execute(ctx1, true, hook).await {
+				warn!(%ssrc, "failed to send transcription final webhook: {}", e);
+			};
+		});
+	}
+
+	let tick_end_time = Instant::now();
+	let total_tick_time = tick_end_time.duration_since(tick_start_time).as_secs_f64();
+	metrics.audio_tick_time.observe(total_tick_time);
+}
+
+struct SilentSpeakersContext<'a> {
+	ssrc_state:         Arc<SsrcMaps>,
+	last_tick_speakers: DashSet<u32, RandomState>,
+	language:           Arc<RwLock<String>>,
+	verbose:            Arc<AtomicBool>,
+	guild_id:           GuildId,
+	thread_id:          Option<ChannelId>,
+	automod_server_cfg: Arc<AutomodServerConfig>,
+	transcript_results: TranscriptResults,
+	ctx:                &'a Context,
+}
+async fn handle_silent_speakers(
+	SilentSpeakersContext {
+		ssrc_state,
+		last_tick_speakers,
+		language,
+		verbose,
+		guild_id,
+		thread_id,
+		automod_server_cfg,
+		transcript_results,
+		ctx,
+	}: SilentSpeakersContext<'_>,
+) -> Vec<(ExecuteWebhook, u32)> {
 	// batch up webhooks to send
 	let mut hooks = Vec::with_capacity(last_tick_speakers.len());
 
@@ -167,6 +134,7 @@ pub async fn voice_tick(
 		let (final_result, hook) = finalize_stream(
 			old_stream,
 			ssrc_state.ssrc_user_data_map.clone(),
+			thread_id,
 			ssrc,
 			verbose.load(Ordering::Relaxed),
 		)
@@ -274,31 +242,130 @@ pub async fn voice_tick(
 		}
 	}
 
-	// spawn background tasks to fire off hooks
-	for (hook, ssrc) in hooks {
-		let webhook1 = webhook.clone();
-		let ctx1 = ctx.clone();
-		tokio::spawn(async move {
-			if let Err(e) = webhook1.execute(ctx1, true, hook).await {
-				warn!(%ssrc, "failed to send transcription final webhook: {}", e);
-			};
-		});
-	}
+	hooks
+}
 
-	let tick_end_time = Instant::now();
-	let total_tick_time = tick_end_time.duration_since(tick_start_time).as_secs_f64();
-	metrics.audio_tick_time.observe(total_tick_time);
+async fn handle_speakers(
+	ssrc_state: Arc<SsrcMaps>,
+	metrics: Arc<Metrics>,
+	voice_data: VoiceTick,
+	language: Arc<RwLock<String>>,
+	verbose: Arc<AtomicBool>,
+) {
+	for (ssrc, data) in voice_data.speaking {
+		let st = Instant::now();
+
+		// always get RTCP data for debugging purposes
+		if let Some(pkt) = data.packet {
+			let rtp = pkt.rtp();
+			let version = rtp.get_version();
+			let sequence = rtp.get_sequence();
+			let timestamp = rtp.get_timestamp();
+			trace!(
+				%ssrc,
+				"pkt version: {}, sequence: {:?}, timestamp: {:?}",
+				version,
+				sequence,
+				timestamp
+			);
+		} else {
+			warn!(%ssrc, "no packet data: likely no audio too?");
+		}
+
+		if ssrc_state
+			.ssrc_ignored_map
+			.get(&ssrc)
+			.map_or(false, |x| *x.value())
+		{
+			continue;
+		}
+
+		// add to those speaking this tick
+		ssrc_state.ssrc_speaking_set.insert(ssrc);
+
+		if let Some(audio) = data.decoded_voice {
+			trace!(%ssrc, "got {} bytes of audio", audio.len() * SIZE_OF_I16);
+			metrics.ms_transcribed.inc_by(20);
+			metrics
+				.audio_bytes_processed
+				.inc_by((audio.len() * SIZE_OF_I16) as _);
+
+			let audio = scripty_audio::process_audio(audio, 48_000.0, 16_000.0);
+
+			// check voice ingest state
+			match ssrc_state.ssrc_voice_ingest_map.get(&ssrc) {
+				Some(x) => {
+					// we've already checked if the user is opted in or not
+					if let Some(ingest) = x.value() {
+						trace!(?ssrc, "user has opted in, feeding audio");
+						ingest.ingest(&audio);
+					} else {
+						trace!(?ssrc, "user has opted out, not feeding");
+					}
+				}
+				None => {
+					// user has not opted in or out yet, check if they have allowed voice ingest
+
+					// fetch user ID
+					let Some(user_id) = ssrc_state.ssrc_user_id_map.get(&ssrc).map(|x| *x.value())
+					else {
+						continue;
+					};
+
+					let ingest = if let Some(ingest) =
+						scripty_data_storage::VoiceIngest::new(user_id, "en".to_string()).await
+					{
+						trace!(?ssrc, "user has opted in, creating ingest");
+						ingest.ingest(audio.as_ref());
+						Some(ingest)
+					} else {
+						trace!(?ssrc, "user has opted out, not creating ingest");
+						None
+					};
+					ssrc_state.ssrc_voice_ingest_map.insert(ssrc, ingest);
+				}
+			}
+
+			// feed audio to transcription stream
+			if let Some(stream) = ssrc_state.ssrc_stream_map.get(&ssrc) {
+				if let Err(e) = stream.feed_audio(audio) {
+					warn!("failed to feed audio packet: {}", e)
+				};
+				trace!(?ssrc, "done processing pkt");
+			} else {
+				warn!(?ssrc, "no stream found for ssrc");
+				// cold path so we can afford to do this
+				let lang = language.read().to_owned();
+				let new_stream =
+					match scripty_audio::get_stream(&lang, verbose.load(Ordering::Relaxed)).await {
+						Ok(s) => s,
+						Err(e) => {
+							error!(?ssrc, "failed to create new stream: {}", e);
+							continue;
+						}
+					};
+				ssrc_state.ssrc_stream_map.insert(ssrc, new_stream);
+			}
+		} else {
+			error!(?ssrc, "no audio found in packet");
+		}
+
+		let et = Instant::now();
+		let tt = et.duration_since(st).as_secs_f64();
+		metrics.audio_process_time.observe(tt);
+	}
 }
 
 async fn finalize_stream(
 	stream: Stream,
 	user_data_map: SsrcUserDataMap,
+	thread_id: Option<ChannelId>,
 	ssrc: u32,
 	verbose: bool,
 ) -> (Option<String>, Option<ExecuteWebhook>) {
 	let mut final_transcript = None;
 
-	let webhook_executor = if verbose {
+	let mut webhook_executor = if verbose {
 		let res = stream.get_result_verbose().await;
 		match res {
 			Ok(res) => {
@@ -343,6 +410,10 @@ async fn finalize_stream(
 		warn!("no user details for ssrc {}", ssrc);
 		return (None, None);
 	};
+
+	if let Some(thread_id) = thread_id {
+		webhook_executor = webhook_executor.in_thread(thread_id);
+	}
 
 	(
 		final_transcript,

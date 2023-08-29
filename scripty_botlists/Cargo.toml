@@ -7,6 +7,9 @@ edition = "2021"
 
 [dependencies]
 serde = "1"
+reqwest = { version = "0.11", default-features = false, features = ["json", "rustls"] }
+serde-aux = "4"
 serde_json = "1"
+async-trait = "0.1"
 serde_derive = "1"
 scripty_config = { path = "../scripty_config" }

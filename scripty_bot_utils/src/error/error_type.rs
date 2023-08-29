@@ -143,10 +143,10 @@ impl Error {
 		match &self.err {
 			ErrorEnum::Serenity(SerenityError::Http(
 				serenity::http::HttpError::UnsuccessfulRequest(serenity::http::ErrorResponse {
-					error: serenity::http::DiscordJsonError { code, .. },
+					error: serenity::http::DiscordJsonError { code: 10062, .. },
 					..
 				}),
-			)) if code == &10062 => {
+			)) => {
 				// ignore unknown interaction errors
 				false
 			}

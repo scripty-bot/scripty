@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE users SET store_audio = NOT store_audio WHERE user_id = $1 RETURNING store_audio",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "store_audio",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "7fa4c774189522476a72220b95c4001f89547189eb2aed97067b2688049e8dbf"
+}

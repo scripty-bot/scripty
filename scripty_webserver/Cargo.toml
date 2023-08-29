@@ -18,4 +18,4 @@ serde = { version = "1", features = ["derive"] }
 scripty_metrics = { path = "../scripty_metrics" }
 tokio = { version = "1", features = ["parking_lot"] }
 scripty_bot_utils = { path = "../scripty_bot_utils" }
-sqlx = { version = "0.6", features = ["postgres", "macros", "migrate", "offline", "runtime-tokio-rustls"] }
+sqlx = { version = "0.7", features = ["postgres", "macros", "migrate", "runtime-tokio-rustls"] }

@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO automod_config \n            (guild_id, enabled, log_channel_id, log_recording, auto_join_voice)\n        VALUES \n            ($1, true, $2, $3, $4)\n\t\tON CONFLICT (guild_id) DO UPDATE SET\n\t\t\tlog_channel_id = $2,\n\t\t\tlog_recording = $3,\n\t\t\tauto_join_voice = $4\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int8",
+        "Bool",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a9dcbbad2a02e8967566386e09c48b2e2a158a6c7c50c0e7281479b5210650cc"
+}

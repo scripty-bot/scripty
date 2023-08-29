@@ -1,5 +1,8 @@
 use crate::{Context, Error};
 
+/// Manage Scripty's automod.
+///
+/// Does nothing, instead check out the sub-commands of this command.
 #[poise::command(prefix_command, slash_command, guild_only, rename = "automod")]
 pub async fn automod_root(ctx: Context<'_>) -> Result<(), Error> {
 	let resolved_language =

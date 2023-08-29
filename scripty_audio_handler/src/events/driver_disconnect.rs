@@ -21,6 +21,7 @@ pub async fn driver_disconnect(
 	webhook: Arc<Webhook>,
 	channel_id: ChannelId,
 	voice_channel_id: ChannelId,
+	thread_id: Option<ChannelId>,
 	transcript_results: TranscriptResults,
 	seen_users: SeenUsers,
 ) {
@@ -87,6 +88,7 @@ pub async fn driver_disconnect(
 				serenity::model::id::GuildId(guild_id.0),
 				channel_id,
 				voice_channel_id,
+				thread_id,
 				false,
 				record_transcriptions,
 			)

@@ -1,14 +1,34 @@
 # By default, whisper supports a serious number of languages
+# Change if you want, but these are the only ones that are
+# supported by whisper: likely fine to leave as-is
 languages = [
 	"es", "it", "en", "pt", "de", "ja", "pl", "ru", "nl", "id", "ca", "fr", "tr", "sv", "uk", "ms", "no", "fi", "vi", "th",
   "sk", "el", "cs", "hr", "tl", "da", "ko", "ro", "bg", "zh", "gl", "ar", "mk", "hu", "ta", "hi", "et", "ur", "sl", "lv",
   "he", "lt", "fa", "cy", "sr", "af", "kn", "kk", "is", "mr", "mi", "sw", "hy", "be", "ne"
 ]
+
+# Find in the Discord developer portal
 token = "a.b.c"
+
+# You should change this to your own server,
+# as we're not going to be providing support
+# for self-hosted instances beyond bugfixes
+# Maintenance is up to you
 support_invite = "https://discord.gg/xSpNJSjNhq"
+
+# Change this to the scripty_i18n/locales directory:
+# must be an absolute path
 i18n_dir = "/home/user/scripty/scripty_i18n/locales"
+
+# Not required unless you're setting up Premium
+# which you shouldn't be doing without clearing it
+# with us first
 api_tokens = []
+
+# Change to your user ID
 owners = [661660243033456652, 788222689126776832]
+
+# Probably fine like this
 bind_address = "0.0.0.0:42069"
 
 ### !!!! YOU MUST CHANGE THIS SECRET KEY !!!! ###
@@ -17,10 +37,17 @@ bind_address = "0.0.0.0:42069"
 secret_key = "LcOnTm2274zt7Hh5YboqihqFxUWPksV9"
 
 # don't bother trying to use this, it's invalid
+# but should be changed to your own error webhook
 error_webhook = "https://discord.com/api/webhooks/998799910017192016/0jLX-WgNhYUBjhqGTO_PESB7jJHRp6SZl9vJoyWKcQPzMtByip19uD5eo6SIiiC8KFw8"
 
 # Redis URL
 redis_url = "redis://localhost:6379"
+
+# Target services: you usually only have one, and
+# it's usually on localhost port 7269
+stt_services = [
+  ["127.0.0.1", 7269]
+]
 
 [database]
 host = "/var/run/postgresql/"
@@ -30,10 +57,14 @@ password = "password"
 database = "database"
 
 [dm_support]
+# Make a category in your server, and put the ID here
 forwarding_category = 949810605328584709
+# Copy the server ID that contains the category
 guild_id = 942298454804271144
 
 [loki]
+# If Loki is not set up, warnings will be logged
+# but they can be ignored
 url = "http://server.local:3100/"
 labels = { job = "scripty_node1", env = "dev" }
 extra_fields = {}

@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT premium_level FROM users INNER JOIN guilds g on users.user_id = g.premium_owner_id WHERE guild_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "premium_level",
+        "type_info": "Int2"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "e1758cf7ba1424941e3c07f12c0b28f338781ab348743979c57d8a8e8336a9b7"
+}

@@ -9,6 +9,7 @@ edition = "2021"
 tracing = "0.1"
 scripty_config = { path = "../scripty_config" }
 scripty_commands = { path = "../scripty_commands" }
+scripty_botlists = { path = "../scripty_botlists" }
 scripty_bot_utils = { path = "../scripty_bot_utils" }
 scripty_audio_handler = { path = "../scripty_audio_handler" }
 tokio = { version = "1", features = ["parking_lot", "signal"] }
@@ -25,5 +26,5 @@ serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", f
 	"collector",
 	"utils",
 ] }
-sqlx = { version = "0.6", features = ["postgres", "macros", "migrate", "offline", "runtime-tokio-rustls", "time"] }
+sqlx = { version = "0.7", features = ["postgres", "macros", "migrate", "runtime-tokio-rustls", "time"] }
 poise = { git = "https://github.com/serenity-rs/poise", branch = "serenity-next", features = ["cache", "collector"] }

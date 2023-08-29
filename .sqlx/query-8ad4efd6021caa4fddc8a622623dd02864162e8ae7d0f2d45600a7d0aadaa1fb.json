@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO automod_rules (source_id, rule_type, rule_data, rule_action) VALUES ($1, $2, $3, $4) RETURNING item_id",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "item_id",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int2",
+        "Text",
+        "Int2"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "8ad4efd6021caa4fddc8a622623dd02864162e8ae7d0f2d45600a7d0aadaa1fb"
+}

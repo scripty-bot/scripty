@@ -1,0 +1,148 @@
+### Discords.com API
+POST https://discords.com/bots/api/bot/{{bot_id}}
+Authorization: {{discords-com_api_token}}
+Content-Type: application/json
+
+{
+  "server_count": {{server_count}}
+}
+
+### DiscordServices.net API
+POST https://api.discordservices.net/bot/{{bot_id}}/stats
+Authorization: {{discordservices-net_api_token}}
+Content-Type: application/json
+
+{
+  "servers": {{server_count}},
+  "shards": {{shard_count}}
+}
+
+### Disforge.com API
+POST https://disforge.com/api/botstats/{{bot_id}}
+Authorization: {{disforge-com_api_token}}
+Content-Type: application/json
+
+{
+  "servers": {{server_count}}
+}
+
+### InfinityBots.gg API
+POST https://spider.infinitybots.gg/bots/stats
+Authorization: {{infinitybots-gg_api_token}}
+Content-Type: application/json
+
+{
+  "servers": {{server_count}},
+  "shards": {{shard_count}}
+}
+
+### MotionDevelopment.top API
+POST https://motiondevelopment.top/api/v1.2/bots/{{bot_id}}/stats
+Key: {{motiondevelopment-top_api_token}}
+Content-Type: application/json
+
+{
+  "guilds": {{server_count}}
+}
+
+### Top.gg API
+POST https://top.gg/api/bots/{{bot_id}}/stats
+Authorization: {{top-gg_api_token}}
+Content-Type: application/json
+
+{
+  "server_count": {{server_count}},
+  "shard_count": {{shard_count}}
+}
+
+### TopCord.xyz API
+POST https://api.topcord.xyz/bot/{{bot_id}}/stats
+Authorization: {{topcord-xyz_api_token}}
+Content-Type: application/json
+
+{
+  "guilds": {{server_count}},
+  "shards": {{shard_count}}
+}
+
+### VoidBots.net API
+POST https://api.voidbots.net/bot/stats/{{bot_id}}
+Authorization: {{voidbots-net_api_token}}
+Content-Type: application/json
+
+{
+  "server_count": {{server_count}},
+  "shard_count": {{shard_count}}
+}
+
+### BotList.me API
+POST https://api.botlist.me/api/v1/bots/{{bot_id}}/stats
+Authorization: {{botlist-me_api_token}}
+Content-Type: application/json
+
+{
+  "server_count": {{server_count}},
+  "shard_count": {{shard_count}}
+}
+
+### discord-botlist.eu API
+PATCH https://api.discord-botlist.eu/v1/update
+Authorization: Bearer {{discord-botlist-eu_api_token}}
+Content-Type: application/json
+
+{
+  "serverCount": {{server_count}}
+}
+
+### discord.bots.gg API
+POST https://discord.bots.gg/api/v1/bots/{{bot_id}}/stats
+Authorization: {{discord-bots-gg_api_token}}
+Content-Type: application/json
+
+{
+  "guildCount": {{server_count}},
+  "shardCount": {{shard_count}}
+}
+
+### discordbotlist.com API
+POST https://discordbotlist.com/api/v1/bots/{{bot_id}}/stats
+Authorization: {{discordbotlist-com_api_token}}
+Content-Type: application/json
+
+{
+  "guilds": {{server_count}}
+}
+
+### discordextremelist.xyz API
+POST https://api.discordextremelist.xyz/v2/bot/{{bot_id}}/stats
+Authorization: {{discordextremelist-xyz_api_token}}
+Content-Type: application/json
+
+{
+  "guildCount": {{server_count}},
+  "shardCount": {{shard_count}}
+}
+
+### discordlist.gg API
+PUT https://api.discordlist.gg/v0/bots/{{bot_id}}/guilds?count={{server_count}}
+Authorization: Bearer {{discordlist-gg_api_token}}
+
+### blist.xyz API
+PATCH https://blist.xyz/api/v2/bot/{{bot_id}}/stats
+Authorization: {{blist-xyz_api_token}}
+Content-Type: application/json
+
+{
+  "server_count": {{server_count}},
+  "shard_count": {{shard_count}}
+}
+
+### radarcord.net API
+POST https://radarcord.net/api/bot/{{bot_id}}/stats
+Authorization: {{radarcord-net_api_token}}
+Content-Type: application/json
+
+{
+  "guilds": {{server_count}},
+  "shards": {{shard_count}}
+}

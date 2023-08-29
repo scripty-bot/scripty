@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO users\n    (user_id, premium_level, premium_expiry, is_trialing)\nVALUES\n    ($1, 0, NULL, false)\nON CONFLICT\n    ON CONSTRAINT users_pkey\n    DO UPDATE\n    SET\n        premium_level = 0,\n        premium_expiry = NULL,\n        is_trialing = false",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bytea"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "fa9bd7bdaa7ecd515b79993101eacfb3c3b0394fc7e6a75c5bec43c239a9ef90"
+}

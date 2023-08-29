@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT premium_level, premium_expiry, is_trialing FROM users WHERE user_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "premium_level",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 1,
+        "name": "premium_expiry",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "is_trialing",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "85c6d9a2308e670def0903647e7b2f1f41ab934e742b828e839698aea8dfa891"
+}

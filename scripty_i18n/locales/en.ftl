@@ -1,35 +1,89 @@
-## generic strings
-# Message shown if a guild has not claimed their free trial of premium. Always appears on its own standalone line in the surrounding message.
-free-trial-upsell = We offer 3-day trials of Scripty Premium if you would like to try it out and see if it is right for you. Send the bot a DM to get started with a free trial.
+## ToS command
+# This and all attributes show up exclusively in the slash command picker when `terms_of_service` is selected.
+cmds_terms_of_service = terms_of_service
+    .description = View and agree to Scripty's Terms of Service and Privacy Policy.
+# This is sent when the user has not yet agreed to the ToS and must do so.
+agreeing-to-tos = You can view Scripty's Terms of Service and Privacy Policy at https://scripty.org/terms and https://scripty.org/privacy respectively. You may click the button below to agree to both of these documents, and use Scripty.
+# This is sent when the user has already agreed to the ToS and does not need to do so again.
+already-agreed-to-tos = You have already agreed to Scripty's Terms of Service and Privacy Policy. If you would like to view them again, you can do so at https://scripty.org/terms and https://scripty.org/privacy respectively.
+# This replaces the original content of the message (key agreeing-to-tos) when the user fails to select a button in time.
+tos-agree-timed-out = Timed out. Rerun this command if you still want to agree to the ToS.
+# This replaces the original content of the message (key agreeing-to-tos) when the user agrees to the ToS.
+tos-agree-success = You have successfully agreed to Scripty's Terms of Service and Privacy Policy. You may now use Scripty.
+# This replaces the original content of the message (key agreeing-to-tos) when the user fails to agree to the ToS, usually by explicitly clicking the "No" button.
+disagreed-to-tos = You have disagreed to Scripty's Terms of Service and Privacy Policy. If you would like to use Scripty, you must agree to these documents. You may do so by running this command again.
 
-## donate command
-# This is shown as the title of the donate command (eg what shows up in the slash command picker)
-donations-command-name = donate
-# This is shown as the description of the donate command (eg what shows up in the slash command picker)
-donations-command-description = Get information on donating to support Scripty.
-donation-title = Donations
-donation-description =
-    Scripty is not cheap to run. It is currently running on a $1,500 USD server with an AMD Ryzen 9 3900 CPU and 128GB RAM. Even with that hardware, we estimate it can only handle 100 concurrent transcriptions. Donations would allow us to scale our hardware capacity and handle many more concurrent transcriptions, perhaps tens of thousands someday with enough donations.
-    
-    Training a model is not easy either, as that needs relatively recent (CUDA 10.1 support) Nvidia GPUs. We hate asking for donations, but we absolutely can't support the bot out of our own pockets, since it's just too expensive. So we're asking for help, and giving rewards in the form of premium subscriptions.
-    
-    You can view more info at https://scripty.org/premium, but the gist of it is that there are 6 tiers ranging in price from $5 USD to $100 USD per month. The $100 tier comes with its own managed instance of Scripty for your own server, with a custom name, and profile picture.
-    
-    We also support one-time donations directly through GitHub Sponsors:
-    {"[https://github.com/sponsors/tazz4843](https://github.com/sponsors/tazz4843?frequency=one-time&sponsor=tazz4843)"}
-    
-    You can view these tiers at https://scripty.org/premium.
-    
-    <3
-    ~ 0/0 and valkyrie_pilot
+
+## join command
+# This and all attributes show up exclusively in the slash command picker when `join` is selected.
+cmds_join = join
+    .description = Join a voice chat. Transcripts will be logged to the channel you run this command in.
+    .voice_channel = voice_channel
+    .voice_channel-description = Voice chat to bind to.
+    .record_transcriptions = record_transcriptions
+    .record_transcriptions-description = Log all transcripts? Users will be DMed when Scripty leaves the channel. Defaults to false.
+    .target_channel = target_channel
+    .target_channel-description = Send transcripts here, instead of the current channel. Target a forum to create a new post.
+    .create_thread = create_thread
+    .create_thread-description = Create a new thread for this transcription? Defaults to false.
+
+# This message is shown when the user is not in a voice channel, nor was a voice channel specified.
+no-channel-specified = You're not in a voice chat, nor did you tell me a channel to join. Try `{ $contextPrefix }join <channel>` to specify a voice chat, or join a voice chat yourself and re-run this command.
+# This message is shown on successfuly joining a voice channel.
+# { $targetMention } is the mention of the channel the bot joined.
+join-success = Successfully joined { $voiceTargetMention }, and sending transcription output to { $outputChannelMention }.
+    {""}
+    Note: your current premium tier is { $tier }. This allows for { $maxUsers } users to be transcripted at once. Along with this, the bot will automatically leave after { $leaveDuration } seconds, regardless of how many users are in the channel. This is to prevent abuse of our systems.
+    If you would like more users, a longer duration of usage, and would like to also support the bot, consider subscribing to our Premium: <https://dash.scripty.org/premium>
+    If you know you are a Premium subscriber already, please DM the bot that way we can reinstate your Premium.
+    { $freeTrialUpsell }
+# This message is shown when the user attempts to make Scripty join a voice channel, but there is no one in the channel.
+join-no-one-in-channel = There's no one in { $targetMention }. I'm not joining if there's no one there, as that's a waste of limited resources.
+# This message is shown when Discord tosses a Dropped or TimedOut error when trying to join a voice channel.
+join-failed-dropped = Discord appears to be having issues, we cannot do anything about this. Please try again later.
+# This message is shown when the bot does not have permissions for the voice channel it is trying to join.
+join-no-permission = I don't have permission to join { $targetMention }. Please give me the View Channel and Join permissions, or join a different voice chat where I do have permissions.
+# This message is shown when the user tries to tell the bot to join, but they have not agreed to the ToS.
+must-agree-to-tos = You must agree to the Terms of Service and Privacy Policy to use Scripty. See `{ $contextPrefix }terms_of_service` for more info.
+# This message is shown when the user has told the bot to create a thread while in a thread.
+join-create-thread-in-thread = I can't create a thread while in a thread. Please run this command in a normal channel, likely { $parentChannelMention }.
+# If the user specifies they would like to create a thread, this is set as the thread name. { $timestamp } is the current timestamp, in ISO format.
+join-thread-title = Transcription from { $timestamp }
+# If the user specifies they would like to create a forum post, this is the contents of the initial message. { $timestamp } is the current timestamp, in ISO format, and { $authorMention } is the mention of the user who ran the command.
+join-forum-thread-content = { $authorMention } started a transcription at { $timestamp }.
+# This message is shown when the user has told a bot to join a forum channel, but the forum requires tags. This is not possible for the bot to work around as it has no way of knowing what tags to use.
+join-forum-requires-tags = The forum channel you tried to make me use requires tags. I have no way of knowing what tags to use, so I cannot join that channel. Please use a different channel, or ask an admin to remove the tag requirement.
+
+## Leave command
+# This and all attributes show up exclusively in the slash command picker when `leave` is selected.
+cmds_leave = leave
+    .description = Leave any current voice call.
+# This is shown when the bot successfully leaves a voice call
+leave-success = Left VC successfully.
+
+## Help command
+# This and all attributes show up exclusively in the slash command picker when `help` is selected.
+cmds_help = help
+    .description = Show this help menu
+    .command = command
+    .command-description = Specific command to show help about
 
 ## premium command
+# This and all attributes show up exclusively in the slash command picker when `premium` is selected.
+cmds_premium = premium
+    .description = Premium commands
+# This and all attributes show up exclusively in the slash command picker when `premium claim` is selected.
+cmds_premium_claim = claim
+    .description = Claim your premium within the server where this command is executed.
+# This and all attributes show up exclusively in the slash command picker when `premium remove` is selected.
+cmds_premium_remove = remove
+    .description = Remove your premium from the server where this command is executed.
 # This is shown to the user when they are not subscribed to premium.
 premium-not-premium = You are not a premium subscriber. Subscribe at https://scripty.org/premium. If you know you are one, please DM the bot that way we can reinstate your premium.
 # This is shown to the user when they have too many used servers to add more.
 premium-too-many-guilds = You have claimed { $totalServers } premium keys. You cannot add any more, unless you upgrade your premium subscription at <https://dash.scripty.org/premium>, or remove some with the `{ $commandPrefix }premium remove` command.
-# This is shown when the guild the user is running this command in has not finished setup.
-premium-server-not-set-up = This server has not been set up yet. Do that first with the `{ $commandPrefix }setup` command.
+# This is shown when the guild the user is running this command in has not yet agreed to the ToS.
+premium-server-not-set-up = This server has not yet agreed to Scripty's ToS and Privacy Policy. Do that first with the `{ $commandPrefix }terms_of_service` command.
 # This is shown when the user successfully claims one of their premium subscriptions.
 premium-claimed = You have successfully claimed premium on this server. If you would like to upgrade, or purchase more slots, head to <https://dash.scripty.org/premium>. If you would like to remove your premium from this guild, run `{ $commandPrefix }premium remove`.
 # This is shown when the user successfully removes their premium from this guild.
@@ -62,30 +116,20 @@ more-info-on-command =
     ```
 
 ## Language configuration strings
-# This is shown as the title of the root language command (eg what shows up in the slash command picker)
-language-root-command-name = language
-# This is shown as the description of the root language command (eg what shows up in the slash command picker)
-language-root-command-description = Modify your language preferences.
-    
-    Base command of this group. See subcommands for more information.
+# This and all attributes show up exclusively in the slash command picker when `language` is selected.
+cmds_language = language
+    .description = Modify your language preferences.
+# This and all attributes show up exclusively in the slash command picker when `language user_language` is selected.
+cmds_user_language = user
+    .description = Set your user language to one of the available languages.
+    .language = language
+    .language-description = The language you want to set your user language to.
 
-# This is shown as the title of the user language command (eg what shows up in the slash command picker)
-language-user-command-name = user
-# This is shown as the description of the user language command (eg what shows up in the slash command picker)
-language-user-command-description = Set your user language to one of the available languages.
-    
-    Note: this only modifies your user language, not your guild language. See `guild_language` for that.
-# This is shown as the description of the first argument to the user language command
-language-user-argument1-description = The language you want to set your user language to.
-
-# This is shown as the title of the guild language command (eg what shows up in the slash command picker)
-language-guild-command-name = guild
-# This is shown as the description of the guild language command (eg what shows up in the slash command picker)
-language-guild-command-description = Set your guild language to one of the available languages.
-    
-    Note: this only modifies your guild language, not your user language. See `user_language` for that.
-# This is shown as the description of the first argument to the guild language command
-language-guild-argument1-description = The language you want to set your guild language to.
+# This and all attributes show up exclusively in the slash command picker when `language guild_language` is selected.
+cmds_guild_language = guild
+    .description = Set this server's language to one of the available languages.
+    .language = language
+    .language-description = The language you want to set your guild language to.
 
 # This message is shown as the embed title when the user sets their language successfully.
 user-language-set-success = User language set to `{ $language }`.
@@ -115,44 +159,10 @@ root-command-invoked-title = This is a root command!
 # This message is shown as the embed description when a user tries to invoke the root command of a group.
 root-command-invoked-description = Please invoke only this command's subcommands to use it. See `{ $contextPrefix }help { $commandName }` for more info.
 
-## join command
-# This is shown as the title of the join command (eg what shows up in the slash command picker)
-join-command-name = join
-# This is shown as the description of the join command (eg what shows up in the slash command picker)
-join-command-description = Join a voice chat.
-    
-    Argument 1 is a voice chat to join.
-    If you do not specify a voice channel to join, the bot will default to the same one you are in.
-# This is shown as the description of the first argument to the join command
-join-command-argument1-description = Voice chat to bind to.
-
-# This message is shown when the user is not in a voice channel, nor was a voice channel specified.
-no-channel-specified = You're not in a voice chat, nor did you tell me a channel to join. Try `{ $contextPrefix }join <channel>` to specify a voice chat, or join a voice chat yourself and re-run this command.
-# This message is shown when the user tries to invite the bot to a voice channel, but the bot has not been set up.
-bot-not-set-up = Looks like you haven't set up the bot yet. Do that first with `{ $contextPrefix }setup`.
-# This message is shown on successfuly joining a voice channel.
-# { $targetMention } is the mention of the channel the bot joined.
-join-success = Successfully joined { $targetMention }.
-    
-    {"**"}Keep in mind that the bot is not perfect, and works best when you speak slowly (roughly 40-60 words per minute) and clearly.**
-    
-    Note: your current premium tier is { $tier }. This allows for { $maxUsers } users to be transcripted at once. Along with this, the bot will automatically leave after { $leaveDuration } seconds, regardless of how many users are in the channel. This is to prevent abuse of our systems.
-    If you would like more users, a longer duration of usage, and would like to also support the bot, consider subscribing to our Premium: <https://dash.scripty.org/premium>
-    If you know you are a Premium subscriber already, please DM the bot that way we can reinstate your Premium.
-    { $freeTrialUpsell }
-# This message is shown when the user tries to invite the bot to a voice channel,
-# but the webhook used by the bot has been deleted.
-webhook-deleted = Looks like you deleted the webhook I use! *bonk* Re-run `{ $contextPrefix }setup` to fix this.
-# This message is shown when the user attempts to make Scripty join a voice channel, but there is no one in the channel.
-join-no-one-in-channel = There's no one in { $targetMention }. I'm not joining if there's no one there, as that's a waste of limited resources.
-# This message is shown when Discord tosses a Dropped error when trying to join a voice channel.
-join-failed-dropped = Discord appears to be having issues, we cannot do anything about this. Please try again later.
-
 ## ping command
-# This is shown as the title of the ping command (eg what shows up in the slash command picker)
-ping-command-name = ping
-# This is shown as the description of the ping command (eg what shows up in the slash command picker)
-ping-command-description = Get the bot latency.
+# This and all attributes show up exclusively in the slash command picker when `ping` is selected.
+cmds_ping = ping
+    .description = Get the bot latency.
 
 # This message is shown when the user requests latency information.
 # Note: the numbers here will be formatted according to the language set for the context.
@@ -164,39 +174,10 @@ latency-description =
     Note: if any latency is equal to 0ms, it means that specific latency could not be calculated right now.
     Try again later.
 
-## setup command
-# This is shown as the title of the setup command (eg what shows up in the slash command picker)
-setup-command-name = setup
-# This is shown as the description of the setup command (eg what shows up in the slash command picker)
-setup-command-description =
-    Set the bot up.
-    
-    This will initialize the bare framework of the bot,
-    allowing you to use `~join` to bind the bot to a voice chat.
-setup-command-argument1-description = Channel to send transcriptions to. (Required)
-setup-command-argument2-description = Target language to run the STT algorithm in. (Optional, defaults to English)
-setup-command-argument3-description = During transcriptions, be verbose? This adds no extra overhead. (Optional, defaults to false)
-setup-tos-agree =
-    By setting up Scripty, you agree to both its Privacy Policy and Terms of Service.
-    Privacy Policy: https://scripty.org/privacy
-    Terms of Service: https://scripty.org/terms
-setup-tos-agree-failure = You must agree to both the Terms of Service and the Privacy Policy to use Scripty. Cancelling setup.
-setup-success-title = Set up successfully!
-setup-success-description =
-    A couple notes:
-    
-    1) The bot is extremely expensive to run, and requires a serious amount of processing power, so it'd be amazing if you could donate a bit. We offer premium tiers that come with many more features than the free version. You can find a comparison and a list of premium tiers at <https://scripty.org/premium>. The core features will stay free forever, though.
-
-    2) If you chose a language other than English (the default) note that transcriptions for it will be much, much lower quality. You can see each language's accuracy at https://scripty.org/languages.
-    
-    Thanks for checking out Scripty! <3
-    ~ 0/0 + valkyrie_pilot
-
 ## data_storage command
-# This is shown as the title of the data_storage command (eg what shows up in the slash command picker).
-data-storage-command-name = data_storage
-# This is shown as the description of the data_storage command. (eg what shows up in the slash command picker).
-data-storage-command-description = Configure storage settings for your data
+# This and all attributes show up exclusively in the slash command picker when `data_storage` is selected.
+cmds_data_storage = data_storage
+    .description = Configure storage settings for your data
 data-storage-embed-title = Data Storage
 data-storage-embed-description =
     {"**"}NOTE**: everything that follows is **entirely optional**, and opting out **will not**, in any way, affect your experience with Scripty.
@@ -222,39 +203,43 @@ data-storage-opted-out-msgs = You are now opted out of storing your messages for
 data-storage-command-timed-out = Timed out. Rerun this command if you still want to manage settings.
 
 ## automod root command
-# This is shown as the title of the automod root command (eg what shows up in the slash command picker)
-automod-root-command-name = automod
-# This is shown as the description of the automod root command (eg what shows up in the slash command picker)
-automod-root-command-description = Configure automod settings
+# This and all attributes show up exclusively in the slash command picker when `automod` is selected.
+cmds_automod = automod
+    .description = Manage Scripty's automod
 automod-root-response = This is the root command, due to Discord limitations it does nothing. See `{ $contextPrefix }help automod` for more info.
 
 ## automod setup command
-# This is shown as the title of the automod setup command (eg what shows up in the slash command picker)
-automod-setup-command-name = setup
-# This is shown as the description of the automod setup command (eg what shows up in the slash command picker)
-automod-setup-command-description = Get started with Scripty's automod.
-automod-setup-argument1-description = The channel to send automod logs to.
-automod-setup-argument2-description = Should a recording of offending speech be sent to the target channel? Defaults to false.
-automod-setup-argument3-description = Should the bot automatically join voice if a user joins? Defaults to true.
+# This and all attributes show up exclusively in the slash command picker when `automod setup` is selected.
+cmds_setup = setup
+    .description = Get started with Scripty's automod.
+    .target_channel = target_channel
+    .target_channel-description = The channel to send automod logs to.
+    .log_recording = log_recording
+    .log_recording-description = Should a recording of offending speech be sent to the target channel? Defaults to false.
+    .auto_join = auto_join
+    .auto_join-description = Should the bot automatically join voice if a user joins? Defaults to true.
 automod-setup-embed-complete-title = Automod setup complete!
 automod-setup-embed-complete-description = You can now use `{ $contextPrefix }automod rule add` to add an automod rule. { $extraDetails }
 automod-setup-embed-complete-free-limit = Note that free servers are limited to 25 rules. If you'd like to remove this limit, check out our Premium over at https://scripty.org/premium.
-automod-setup-embed-not-setup-title = The bot has not been set up!
-automod-setup-embed-not-setup-description = Set it up first by running `{ $contextPrefix } setup`.
+automod-setup-embed-not-setup-title = You haven't agreed to Scripty's Terms of Service and Privacy Policy yet.
+automod-setup-embed-not-setup-description = Do so first by running `{ $contextPrefix } terms_of_service`.
 automod-setup-auto-join-premium-only = Auto-join is a premium feature. Check out our Premium over at https://scripty.org/premium.
 
 ## automod add rule command
-# This is shown as the title of the automod add rule command (eg what shows up in the slash command picker)
-automod-add-rule-command-name = add_rule
-# This is shown as the description of the automod add rule command (eg what shows up in the slash command picker)
-automod-add-rule-command-description = Add an automod rule.
-automod-add-rule-argument1-description = The type of rule to add. See `/automod rule_help` for more info.
-automod-add-rule-argument1-enum-regular-type = Regular
-automod-add-rule-argument2-description = The rule content to add.
-automod-add-rule-argument3-description = The action to take when the rule is triggered.
-automod-add-rule-argument3-enum-silent-delete = Silent delete
-automod-add-rule-argument3-enum-delete-and-log = Delete and log
-automod-add-rule-argument3-enum-delete-log-and-kick = Delete, log, and remove user from voice
+# This and all attributes show up exclusively in the slash command picker when `automod add rule` is selected.
+cmds_add_rule = add_rule
+    .description = Add an automod rule.
+    .rule_type = rule_type
+    .rule_type-description = The type of rule to add. See `/automod rule_help` for more info.
+    .rule_type-choice-Regular = Regular
+    .content = content
+    .content-description = The rule content to add.
+    .action = action
+    .action-description = The action to take when the rule is triggered.
+    .action-choice-SilentDelete = Silent delete
+    .action-choice-DeleteAndLog = Delete and log
+    .action-choice-DeleteLogAndKick = Delete, log, and remove user from voice
+    .action-choice-DeleteLogAndSilence = Delete, log, and mute user
 automod-add-rule-embed-success-title = Rule { $ruleId } added!
 automod-add-rule-embed-success-description = { $rulesLeft } rules left out of { $maxRules }. { $extraDetails }
 automod-add-rule-embed-extra-details-free-limit = Free servers are limited to 25 regular rules. If you'd like to increase this limit, check out our Premium over at https://scripty.org/premium.
@@ -267,11 +252,11 @@ automod-add-rule-embed-failure-description-free-locked-type = Free servers can o
 automod-add-rule-embed-failure-description-not-setup = You must run `{ $contextPrefix }automod setup` before adding rules.
 
 ## automod remove rule command
-# This is shown as the title of the automod remove rule command (eg what shows up in the slash command picker)
-automod-remove-rule-command-name = remove_rule
-# This is shown as the description of the automod remove rule command (eg what shows up in the slash command picker)
-automod-remove-rule-command-description = Remove an automod rule.
-automod-remove-rule-argument1-description = The rule ID to remove.
+# This and all attributes show up exclusively in the slash command picker when `automod remove rule` is selected.
+cmds_remove_rule = remove_rule
+    .description = Remove an automod rule.
+    .rule_id = rule_id
+    .rule_id-description = The rule ID to remove.
 automod-remove-rule-embed-success-title = Rule removed!
 automod-remove-rule-embed-success-description = { $rulesLeft } rules left out of { $maxRules }.
 automod-remove-rule-embed-failure-title = Failed to remove rule!
@@ -279,11 +264,11 @@ automod-remove-rule-embed-failure-description-invalid-id = Invalid rule ID. See 
 automod-remove-rule-embed-failure-description-not-setup = You must run `{ $contextPrefix }automod setup` before removing rules.
 
 ## automod list rules command
-# This is shown as the title of the automod list rules command (eg what shows up in the slash command picker)
-automod-list-rules-command-name = list_rules
-# This is shown as the description of the automod list rules command (eg what shows up in the slash command picker)
-automod-list-rules-command-description = List all automod rules.
-automod-list-rules-argument1-description = Filter rules by their content. Leave empty to show all rules.
+# This and all attributes show up exclusively in the slash command picker when `automod list rules` is selected.
+cmds_list_rules = list_rules
+    .description = List all automod rules.
+    .filter_by = filter_by
+    .filter_by-description = Filter rules by their content. Leave empty to show all rules.
 automod-list-rules-embed-title = Automod rules
 automod-list-rules-embed-description = { $rulesLeft } rules left out of { $maxRules }.
 automod-list-rules-embed-field-name = Rule { $ruleId }
@@ -371,12 +356,9 @@ transcription-info-transcription-error =
     Thanks!
 
 ## Data deletion command
-# This is shown as the title of the delete_all_data command (eg what shows up in the slash command picker)
-delete-data-command-name = delete_all_data
-# This is shown as the description of the data_storage command (eg what shows up in the slash command picker)
-delete-data-command-description = Delete all your data.
-    
-    This command will irreversibly, permanently, delete all your data. There is no undoing this action.
+# This and all attributes show up exclusively in the slash command picker when `delete_all_data` is selected.
+cmds_delete_all_data = delete_all_data
+    .description = Delete all your data.
 
 delete-data-title = Delete data
 delete-data-description =
@@ -394,27 +376,6 @@ delete-data-confirm = Yes, delete all data
 delete-data-confirm-banned = Yes, delete all data and ban myself
 delete-data-cancel = No, cancel
 
-## Credits command
-# This is shown as the title of the credits command (eg what shows up in the slash command picker)
-credits-command-name = credits
-# This is shown as the description of the credits command (eg what shows up in the slash command picker)
-credits-command-description = A list of all the things that made Scripty possible.
-# Embed title for the credits command
-credits-title = Credits
-credits-description =
-    This is a list of people who have contributed to Scripty.
-    A huge thanks goes out to everyone here <3
-credits-field1-title = Core Developers
-credits-field1-description = 0/0 and valkyrie_pilot
-credits-field2-title = Translators
-credits-field2-description = Many, many people have helped translate the bot. See the `{ $contextPrefix }translators` command for a list of translators.
-credits-field4-title = All Our Users
-credits-field4-description = Yes, this includes you! We appreciate you using Scripty, and we hope you enjoy using it.
-
-## Leave command
-# This is shown as the title of the leave command (eg what shows up in the slash command picker)
-leave-command-name = leave
-# This is shown as the description of the leave command (eg what shows up in the slash command picker)
-leave-command-description = Leave any current voice call.
-# This is shown when the bot successfully leaves a voice call
-leave-success = Left VC successfully.
+## generic strings
+# Message shown if a guild has not claimed their free trial of premium. Always appears on its own standalone line in the surrounding message.
+free-trial-upsell = We offer 3-day trials of Scripty Premium if you would like to try it out and see if it is right for you. Send the bot a DM to get started with a free trial.

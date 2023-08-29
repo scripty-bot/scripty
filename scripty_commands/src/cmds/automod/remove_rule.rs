@@ -3,6 +3,7 @@ use serenity::builder::CreateEmbed;
 
 use crate::{Context, Error};
 
+/// Remove an automod rule.
 #[poise::command(
 	prefix_command,
 	slash_command,

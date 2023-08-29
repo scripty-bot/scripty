@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT user_id, store_audio FROM users",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 1,
+        "name": "store_audio",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "c136281960af2ceb41d6742e7e3589352898f29423e4391544625f57a8f6a988"
+}

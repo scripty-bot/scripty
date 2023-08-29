@@ -53,6 +53,7 @@ pub struct AudioHandler {
 	guild_id:           GuildId,
 	channel_id:         ChannelId,
 	voice_channel_id:   ChannelId,
+	thread_id:          Option<ChannelId>,
 	webhook:            Arc<Webhook>,
 	context:            Context,
 	premium_level:      Arc<AtomicU8>,
@@ -70,6 +71,7 @@ impl AudioHandler {
 		context: Context,
 		channel_id: ChannelId,
 		voice_channel_id: ChannelId,
+		thread_id: Option<ChannelId>,
 		record_transcriptions: bool,
 		automod_server_cfg: AutomodServerConfig,
 	) -> Result<Self, sqlx::Error> {
@@ -83,26 +85,21 @@ impl AudioHandler {
 			active_user_set:       DashSet::with_hasher(RandomState::new()),
 			next_user_list:        RwLock::new(VecDeque::with_capacity(10)),
 		};
+
 		let this = Self {
 			ssrc_state: Arc::new(maps),
 			guild_id,
 			channel_id,
 			voice_channel_id,
+			thread_id,
 			webhook: Arc::new(webhook),
 			context,
 			premium_level: Arc::new(AtomicU8::new(0)),
 			verbose: Arc::new(AtomicBool::new(false)),
 			language: Arc::new(Default::default()),
-			transcript_results: if record_transcriptions {
-				Some(Arc::new(RwLock::new(Vec::new())))
-			} else {
-				None
-			},
-			seen_users: if record_transcriptions {
-				Some(Arc::new(DashSet::with_hasher(RandomState::new())))
-			} else {
-				None
-			},
+			transcript_results: record_transcriptions.then(|| Arc::new(RwLock::new(Vec::new()))),
+			seen_users: record_transcriptions
+				.then(|| Arc::new(DashSet::with_hasher(RandomState::new()))),
 			automod_server_cfg: Arc::new(automod_server_cfg),
 		};
 		this.reload_config().await?;
@@ -173,6 +170,7 @@ impl EventHandler for AudioHandler {
 				self.verbose.clone(),
 				self.context.clone(),
 				Arc::clone(&self.webhook),
+				self.thread_id,
 				self.transcript_results.clone(),
 				Arc::clone(&self.automod_server_cfg),
 			)),
@@ -181,6 +179,9 @@ impl EventHandler for AudioHandler {
 					*client_disconnect_data,
 					Arc::clone(&self.ssrc_state),
 					Arc::clone(&self.premium_level),
+					self.context.clone(),
+					Arc::clone(&self.webhook),
+					self.transcript_results.clone(),
 				))
 			}
 			EventContext::DriverConnect(connect_data)
@@ -197,6 +198,7 @@ impl EventHandler for AudioHandler {
 				Arc::clone(&self.webhook),
 				self.channel_id,
 				self.voice_channel_id,
+				self.thread_id,
 				self.transcript_results.clone(),
 				self.seen_users.clone(),
 			)),

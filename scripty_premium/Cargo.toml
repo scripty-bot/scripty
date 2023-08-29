@@ -12,4 +12,4 @@ tracing = "0.1"
 bitflags = "2"
 once_cell = "1"
 scripty_db = { path = "../scripty_db" }
-sqlx = { version = "0.6", features = ["postgres", "macros", "migrate", "offline", "runtime-tokio-rustls"] }
+sqlx = { version = "0.7", features = ["postgres", "macros", "migrate", "runtime-tokio-rustls"] }

@@ -8,4 +8,4 @@ edition = "2021"
 [dependencies]
 toml = "=0.5.11"
 once_cell = "1"
-serde = { version = "1", features = ["derive"] }
+serde = { version = "=1.0.171", features = ["derive"] }

@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT item_id, rule_type, rule_action, rule_data FROM automod_rules WHERE source_id = (SELECT item_id FROM automod_config WHERE guild_id = $1) ORDER BY item_id ASC",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "item_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "rule_type",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 2,
+        "name": "rule_action",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 3,
+        "name": "rule_data",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "bfca9396251c01fbf9510069699b07a287ac149e0598f5056d25b8582481a44d"
+}
