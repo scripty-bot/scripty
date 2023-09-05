@@ -51,7 +51,7 @@ pub async fn entrypoint() {
 					tokio::signal::ctrl_c()
 						.await
 						.expect("failed to listen for ctrl+c");
-					sm.lock().await.shutdown_all().await;
+					sm.shutdown_all().await;
 				});
 
 				Ok(Data {

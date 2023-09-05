@@ -12,7 +12,7 @@ use crate::{background_tasks::core::BackgroundTask, globals::CLIENT_DATA, Error}
 /// Updates the bot status every minute.
 pub struct StatusUpdater {
 	ctx:           SerenityContext,
-	shard_manager: Arc<Mutex<ShardManager>>,
+	shard_manager: Arc<ShardManager>,
 }
 
 #[async_trait]
@@ -35,8 +35,7 @@ impl BackgroundTask for StatusUpdater {
 	async fn run(&mut self) {
 		let guild_count = self.ctx.cache.guild_count();
 
-		let shard_manager = self.shard_manager.lock().await;
-		let runners = shard_manager.runners.lock().await;
+		let runners = self.shard_manager.runners.lock().await;
 		for (shard_id, shard_info) in runners.iter() {
 			let shard_latency = shard_info
 				.latency

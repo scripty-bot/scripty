@@ -40,16 +40,12 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
 	// fields of the tuple are, respectively, the guild name, the guild id, and the ratio (bot count / user count)
 	let mut guild_warnings: Vec<(String, u64, f64)> = Vec::new();
 
-	let shard_mgr = CLIENT_DATA
+	let shard_manager = CLIENT_DATA
 		.get()
 		.expect("client data not initialized")
 		.shard_manager
 		.clone();
-	let shard_count = {
-		let mgr_guard = shard_mgr.lock().await;
-		let runner_lock = mgr_guard.runners.lock().await;
-		runner_lock.len() as _
-	};
+	let shard_count = shard_manager.runners.lock().await.len() as u32;
 
 	for guild in dctx.cache.guilds() {
 		let g = match guild.to_guild_cached(dctx) {
@@ -70,14 +66,13 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
 				// calculate the shard this guild is on
 				let shard_id = serenity::utils::shard_id(guild_id, shard_count);
 
-				let shard_mgr = CLIENT_DATA
+				let shard_manager = CLIENT_DATA
 					.get()
 					.expect("client data not initialized")
 					.shard_manager
 					.clone();
 
-				let mgr_guard = shard_mgr.lock().await;
-				let runner_guard = mgr_guard.runners.lock().await;
+				let runner_guard = shard_manager.runners.lock().await;
 				runner_guard
 					.get(&ShardId(shard_id))
 					.expect("shard should exist")

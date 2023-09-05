@@ -75,10 +75,6 @@ nano config.toml # edit to your liking
 ./target/release/scripty_v2
 ```
 
-note that serenity currently has a bug where ctrl+c does not work:
-to shutdown, send it a ctrl+c to terminate all open connections, wait for a
-warning about timeout elapsed, then run `pkill scripty` to kill the process
-
 ## advanced
 ### MUSL build
 same as above, but build with `--target x86_64-unknown-linux-musl`
