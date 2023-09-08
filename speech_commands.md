@@ -34,7 +34,7 @@ with `Content-Type: application/json`.
 ### Response
 You have a few options for how to respond to the webhook.
 
-Note all responses must be sent within 3 seconds of receiving it, or Scripty will assume
+Note all responses must be sent within 5 seconds of receiving it, or Scripty will assume
 an error occurred and will respond with a message saying so.
 Defer any long-running tasks to a background thread, and respond immediately.
 We don't offer something like Discord where you can defer for up to 15 minutes, as users expect
@@ -65,8 +65,8 @@ If you don't set `high_priority`, the message will be played after all active us
 If the user didn't have permissions or something of the sort to do the action they requested,
 you can respond with a 400 Bad Request and a JSON body with the following structure:
 
-| Key    | Type   | Description                                                                                       |
-|--------|--------|---------------------------------------------------------------------------------------------------|
+| Key    | Type   | Description                                                                                             |
+|--------|--------|---------------------------------------------------------------------------------------------------------|
 | `text` | String | The text to respond with. Will be spoken by the bot via the TTS model you pick when you request access. |
 
 Note this response will always be low priority, as it's an error message. If it takes longer than
