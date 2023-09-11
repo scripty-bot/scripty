@@ -28,10 +28,24 @@ pub async fn voice_state_update(ctx: Context, _: Option<VoiceState>, new: VoiceS
 			// iterate through voice states in the guild
 			// if there are any more than 1 in this channel, return
 			// if there are 0, leave the channel
+			let mut user_count = 0;
 			for (_, vs) in guild.voice_states.iter() {
-				if vs.channel_id == Some(cid) && vs.user_id != own_user_id {
-					return;
+				// is the voice state in the channel we're in, and is it not us?
+				if !(vs.channel_id == Some(cid) || vs.user_id != own_user_id) {
+					continue;
 				}
+				// is the user a bot? if so, they don't count
+				if vs.user_id.to_user_cached(&ctx).map_or(false, |u| u.bot) {
+					continue;
+				}
+				user_count += 1;
+			}
+			if user_count > 0 {
+				debug!(
+					"not leaving voice channel {} in guild {} ({} users)",
+					cid, guild_id, user_count
+				);
+				return;
 			}
 		}
 
