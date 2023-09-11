@@ -40,8 +40,10 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 			else {
 				continue;
 			};
-			cmd.description_localizations
-				.insert(language_fmt.clone(), formatted_command_description);
+			if formatted_command_description.len() <= 100 {
+				cmd.description_localizations
+					.insert(language_fmt.clone(), formatted_command_description);
+			}
 
 			for parameter in cmd.parameters.iter_mut() {
 				let Some(formatted_parameter_name) =
@@ -62,9 +64,11 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 				) else {
 					continue;
 				};
-				parameter
-					.description_localizations
-					.insert(language_fmt.clone(), formatted_parameter_description);
+				if formatted_parameter_description.len() <= 100 {
+					parameter
+						.description_localizations
+						.insert(language_fmt.clone(), formatted_parameter_description);
+				}
 
 				for choice in parameter.choices.iter_mut() {
 					let Some(formatted_choice_name) = get_fmt_msg(
