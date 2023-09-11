@@ -1,6 +1,9 @@
 use poise::CreateReply;
 use scripty_premium::PremiumTierList;
-use serenity::{builder::CreateEmbed, model::channel::GuildChannel};
+use serenity::{
+	builder::CreateEmbed,
+	model::{channel::GuildChannel, mention::Mentionable, permissions::Permissions},
+};
 
 use crate::{Context, Error};
 
@@ -32,6 +35,23 @@ pub async fn automod_setup(
 
 	let resolved_language =
 		scripty_i18n::get_resolved_language(ctx.author().id.0, Some(guild_id)).await;
+
+	// filter and see if we have permissions to send messages, embed links, and attach files
+	let target_permissions =
+		target_channel.permissions_for_user(ctx.discord(), ctx.framework().bot_id)?;
+	let required_permissions =
+		Permissions::SEND_MESSAGES | Permissions::EMBED_LINKS | Permissions::ATTACH_FILES;
+	if !target_permissions.contains(required_permissions) {
+		let missing_permissions = (!target_permissions) & required_permissions;
+		ctx.say(format_message!(
+			resolved_language,
+			"automod-setup-invalid-channel-permissions",
+			channelMention: target_channel.mention().to_string(),
+			missingPermissions: missing_permissions.to_string()
+		))
+		.await?;
+		return Ok(());
+	}
 
 	let db = scripty_db::get_db();
 
