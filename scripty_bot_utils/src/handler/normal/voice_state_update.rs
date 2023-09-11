@@ -1,14 +1,15 @@
+use scripty_audio_handler::{get_songbird, get_voice_channel_id};
 use serenity::{all::VoiceState, client::Context};
 
 pub async fn voice_state_update(ctx: Context, _: Option<VoiceState>, new: VoiceState) {
-	let Some(cid) = new.channel_id else {
-        warn!("no voice channel id in voice_state_update");
-        return;
-    };
 	let Some(gid) = new.guild_id else {
-        warn!("no guild id in voice_state_update");
-        return;
-    };
+		warn!("no guild id in voice_state_update");
+		return;
+	};
+	let Some(cid) = get_voice_channel_id(&ctx, gid).await else {
+		debug!("not in a voice channel in guild {}", gid);
+		return;
+	};
 
 	let own_user_id = ctx.cache.current_user().id;
 
