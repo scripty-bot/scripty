@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use scripty_audio_handler::get_voice_channel_id;
 use serenity::{
 	all::{ChannelId, VoiceState},
@@ -5,20 +7,20 @@ use serenity::{
 };
 
 pub async fn voice_state_update(ctx: Context, _: Option<VoiceState>, new: VoiceState) {
-	let Some(gid) = new.guild_id else {
+	let Some(guild_id) = new.guild_id else {
 		warn!("no guild id in voice_state_update");
 		return;
 	};
 
-	if let Some(cid) = get_voice_channel_id(&ctx, gid).await {
+	if let Some(cid) = get_voice_channel_id(&ctx, guild_id).await {
 		let own_user_id = ctx.cache.current_user().id;
 
 		// GuildRef forces a block here to prevent hold over await
 		{
-			let guild = match gid.to_guild_cached(&ctx) {
+			let guild = match guild_id.to_guild_cached(&ctx) {
 				Some(g) => g,
 				None => {
-					warn!("guild id {} not found in cache", gid);
+					warn!("guild id {} not found in cache", guild_id);
 					return;
 				}
 			};
@@ -37,16 +39,16 @@ pub async fn voice_state_update(ctx: Context, _: Option<VoiceState>, new: VoiceS
 		// so we should leave
 		debug!(
 			"leaving voice channel {} in guild {} (we're last user)",
-			cid, gid
+			cid, guild_id
 		);
-		if let Err(e) = scripty_audio_handler::disconnect_from_vc(&ctx, gid).await {
+		if let Err(e) = scripty_audio_handler::disconnect_from_vc(&ctx, guild_id).await {
 			error!("error disconnecting from voice channel: {:?}", e);
 		};
 	} else {
-		debug!("not in a voice channel in guild {}", gid);
+		debug!("not in a voice channel in guild {}", guild_id);
 
 		// check if the guild has active premium
-		let Some(_) = scripty_premium::get_guild(gid.0).await else {
+		let Some(_) = scripty_premium::get_guild(guild_id.0).await else {
 			// it does not, so we don't need to do anything
 			return;
 		};
@@ -55,7 +57,7 @@ pub async fn voice_state_update(ctx: Context, _: Option<VoiceState>, new: VoiceS
 		let db = scripty_db::get_db();
 		let Some(resp) = (match sqlx::query!(
 			"SELECT enabled, auto_join_voice, log_channel_id FROM automod_config WHERE guild_id = $1",
-			gid.0.get() as i64
+			guild_id.0.get() as i64
 		)
 		.fetch_optional(db)
 		.await
@@ -69,7 +71,7 @@ pub async fn voice_state_update(ctx: Context, _: Option<VoiceState>, new: VoiceS
 			// automod is not set up, so we don't need to do anything
 			debug!(
 				"automod not set up in guild {}, not continuing with join",
-				gid
+				guild_id
 			);
 			return;
 		};
@@ -77,7 +79,7 @@ pub async fn voice_state_update(ctx: Context, _: Option<VoiceState>, new: VoiceS
 			// automod is not enabled, so we don't need to do anything
 			debug!(
 				"automod not enabled in guild {}, not continuing with join",
-				gid
+				guild_id
 			);
 			return;
 		};
@@ -87,10 +89,10 @@ pub async fn voice_state_update(ctx: Context, _: Option<VoiceState>, new: VoiceS
 		// now we need to check the voice channel the user is joining
 		// discord doesn't give us the channel id, so we need to get it from the guild's voice states
 		let vs = {
-			let guild = match gid.to_guild_cached(&ctx) {
+			let guild = match guild_id.to_guild_cached(&ctx) {
 				Some(g) => g,
 				None => {
-					warn!("guild id {} not found in cache", gid);
+					warn!("guild id {} not found in cache", guild_id);
 					return;
 				}
 			};
@@ -104,21 +106,23 @@ pub async fn voice_state_update(ctx: Context, _: Option<VoiceState>, new: VoiceS
 				}
 			}
 		};
-		let Some(cid) = vs.channel_id else {
+		let Some(voice_channel_id) = vs.channel_id else {
 			warn!("user id {} not in a voice channel", new.user_id);
 			return;
 		};
 
+		tokio::time::sleep(Duration::from_millis(500)).await;
+
 		// join the channel
 		debug!(
 			"joining voice channel {} in guild {} as guild has auto join enabled",
-			cid, gid
+			voice_channel_id, guild_id
 		);
 		if let Err(e) = scripty_audio_handler::connect_to_vc(
 			ctx.clone(),
-			gid,
-			cid,
+			guild_id,
 			log_channel_id,
+			voice_channel_id,
 			None,
 			false,
 			false,
