@@ -74,10 +74,11 @@ pub async fn voice_tick(
 
 	// spawn background tasks to fire off hooks
 	for (hook, ssrc) in hooks {
+		debug!(%ssrc, "firing webhook");
 		let webhook1 = webhook.clone();
 		let ctx1 = ctx.clone();
 		tokio::spawn(async move {
-			if let Err(e) = webhook1.execute(ctx1, true, hook).await {
+			if let Err(e) = webhook1.execute(ctx1, false, hook).await {
 				warn!(%ssrc, "failed to send transcription final webhook: {}", e);
 			};
 		});
@@ -365,6 +366,7 @@ async fn finalize_stream(
 ) -> (Option<String>, Option<ExecuteWebhook>) {
 	let mut final_transcript = None;
 
+	debug!(%ssrc, "finalizing stream");
 	let mut webhook_executor = if verbose {
 		let res = stream.get_result_verbose().await;
 		match res {
@@ -405,11 +407,13 @@ async fn finalize_stream(
 			Err(error) => handle_error(error, ssrc),
 		}
 	};
+	debug!(%ssrc, "got stream results");
 
 	let Some(user_details) = user_data_map.get(&ssrc) else {
 		warn!("no user details for ssrc {}", ssrc);
 		return (None, None);
 	};
+	debug!(%ssrc, "got user details for ssrc");
 
 	if let Some(thread_id) = thread_id {
 		webhook_executor = webhook_executor.in_thread(thread_id);
@@ -438,6 +442,10 @@ fn handle_error(error: ModelError, ssrc: u32) -> ExecuteWebhook {
 		ModelError::NoAvailableServers => {
 			error!(%ssrc, "STTS error: no available servers");
 			format!("no available STT servers (SSRC {})", ssrc)
+		}
+		ModelError::TimedOut => {
+			error!(%ssrc, "STTS error: timed out");
+			format!("STT service timed out (SSRC {})", ssrc)
 		}
 	};
 	ExecuteWebhook::new().content(user_error)

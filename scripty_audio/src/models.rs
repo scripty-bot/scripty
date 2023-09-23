@@ -97,12 +97,14 @@ impl Stream {
 	}
 
 	pub fn feed_audio(&self, data: Vec<i16>) -> Result<(), ModelError> {
+		debug!("feeding audio to stts");
 		if self.comm.send(data).is_err() {
 			Err(self
 				.err_comm
 				.recv_timeout(Duration::from_micros(10))
 				.expect("error was not sent in time after erroring"))
 		} else {
+			debug!("audio sent to stts");
 			Ok(())
 		}
 	}
@@ -143,24 +145,34 @@ impl Stream {
 	}
 
 	async fn get_result_wrapper(socket: &mut TcpStream) -> Result<Transcript, ModelError> {
+		debug!("got result request");
+
 		// 0x02: Get Result
 		socket.write_u8(0x02).await?;
 		socket.flush().await?;
 
 		// wait for response
-		match socket.read_u8().await? {
-			0x02 => {
+		debug!("waiting for response");
+		let resp = match tokio::time::timeout(Duration::from_secs(16), socket.read_u8()).await {
+			Ok(Ok(0x02)) => {
 				// read transcript
 				Ok(Transcript {
 					result: read_string(socket).await?,
 				})
 			}
-			0x04 => {
+			Ok(Ok(0x04)) => {
 				// read error code
-				Err(ModelError::SttsServer(socket.read_i64().await?))
+				Err(match socket.read_i64().await? {
+					i64::MIN => ModelError::TimedOut,
+					e => ModelError::SttsServer(e),
+				})
 			}
+			Ok(Err(e)) => Err(e.into()),
+			Err(_) => Err(ModelError::TimedOut),
 			_ => Err(ModelError::SttsServer(2147483653)),
-		}
+		};
+		debug!("got response");
+		resp
 	}
 
 	pub async fn get_result_verbose(self) -> Result<VerboseTranscript, ModelError> {
@@ -177,13 +189,16 @@ impl Stream {
 	async fn get_result_verbose_wrapper(
 		socket: &mut TcpStream,
 	) -> Result<VerboseTranscript, ModelError> {
+		debug!("got verbose result request");
+
 		// 0x02: Get Result
 		socket.write_u8(0x02).await?;
 		socket.flush().await?;
 
 		// wait for response
-		match socket.read_u8().await? {
-			0x03 => {
+		debug!("waiting for response");
+		let resp = match tokio::time::timeout(Duration::from_secs(17), socket.read_u8()).await {
+			Ok(Ok(0x03)) => {
 				// read verbose transcript
 				let num_transcripts = socket.read_u32().await?;
 				let mut main_transcript = None;
@@ -199,12 +214,19 @@ impl Stream {
 					main_confidence,
 				})
 			}
-			0x04 => {
+			Ok(Ok(0x04)) => {
 				// read error code
-				Err(ModelError::SttsServer(socket.read_i64().await?))
+				Err(match socket.read_i64().await? {
+					i64::MIN => ModelError::TimedOut,
+					e => ModelError::SttsServer(e),
+				})
 			}
+			Ok(Err(e)) => Err(e.into()),
+			Err(_) => Err(ModelError::TimedOut),
 			_ => Err(ModelError::SttsServer(2147483653)),
-		}
+		};
+		debug!("got response");
+		resp
 	}
 }
 
@@ -213,6 +235,7 @@ pub enum ModelError {
 	Io(io::Error),
 	SttsServer(i64),
 	NoAvailableServers,
+	TimedOut,
 }
 
 impl std::error::Error for ModelError {}
@@ -237,6 +260,9 @@ impl std::fmt::Display for ModelError {
 			ModelError::NoAvailableServers => {
 				write!(f, "No available STTS servers after 1024 tries")
 			}
+			ModelError::TimedOut => {
+				write!(f, "Timed out waiting for STTS server to respond")
+			}
 		}
 	}
 }
@@ -245,6 +271,7 @@ pub struct Transcript {
 	pub result: String,
 }
 
+pub struct VerboseTranscript {
 pub struct VerboseTranscript {
 	pub num_transcripts: u32,
 	pub main_transcript: Option<String>,
