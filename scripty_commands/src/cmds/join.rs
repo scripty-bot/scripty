@@ -27,6 +27,7 @@ pub async fn join(
 	record_transcriptions: Option<bool>,
 
 	#[description = "Send transcripts here, instead of the current channel. Target a forum to create a new post."]
+	#[channel_types("Text", "Forum", "Voice", "Stage", "News")]
 	target_channel: Option<GuildChannel>,
 
 	#[description = "Create a new thread for this transcription? Defaults to false."]
@@ -72,7 +73,13 @@ pub async fn join(
 		ctx.say(
 			format_message!(resolved_language, "join-forum-requires-tags", targetMention: target_channel.mention().to_string()),
 		)
-		.await?;
+			.await?;
+		return Ok(());
+	} else if target_channel.kind != ChannelType::Forum && !target_channel.is_text_based() {
+		// forums are the sole exception to the text-based rule
+		ctx.say(
+			format_message!(resolved_language, "join-target-not-text-based", targetMention: target_channel.mention().to_string()),
+		).await?;
 		return Ok(());
 	}
 
