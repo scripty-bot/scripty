@@ -272,7 +272,6 @@ pub struct Transcript {
 }
 
 pub struct VerboseTranscript {
-pub struct VerboseTranscript {
 	pub num_transcripts: u32,
 	pub main_transcript: Option<String>,
 	pub main_confidence: Option<f64>,
