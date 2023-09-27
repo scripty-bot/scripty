@@ -7,7 +7,7 @@ pub async fn init_db() {
 	let mut conn_opts = PgConnectOptions::new()
 		.database(&cfg.database.database)
 		.password(&cfg.database.password)
-		.username(&cfg.database.password)
+		.username(&cfg.database.user)
 		.application_name("scripty");
 
 	conn_opts = match &cfg.database.host {
