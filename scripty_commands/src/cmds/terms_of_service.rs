@@ -63,7 +63,7 @@ pub async fn terms_of_service(ctx: Context<'_>) -> Result<(), Error> {
 			)
 			.await?;
 
-		let maybe_interaction = ComponentInteractionCollector::new(&ctx.discord().shard)
+		let maybe_interaction = ComponentInteractionCollector::new(&ctx.serenity_context().shard)
 			.timeout(std::time::Duration::from_secs(60))
 			.author_id(ctx.author().id)
 			.message_id(m.message().await?.id)
@@ -75,7 +75,7 @@ pub async fn terms_of_service(ctx: Context<'_>) -> Result<(), Error> {
 
 			interaction
 				.create_response(
-					ctx.discord(),
+					&ctx,
 					CreateInteractionResponse::UpdateMessage(
 						CreateInteractionResponseMessage::new()
 							.content(if did_agree {

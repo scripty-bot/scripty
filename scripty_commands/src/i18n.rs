@@ -50,7 +50,7 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 					continue;
 				};
 				let Some(formatted_parameter_name) =
-					get_fmt_msg(language, &key, Some(&parameter_name), command_name, true)
+					get_fmt_msg(language, &key, Some(parameter_name), command_name, true)
 				else {
 					continue;
 				};

@@ -21,7 +21,7 @@ pub async fn send_err_msg(
 		warn!("failed to send message while handling error: {}", e);
 		let response = ctx
 			.author()
-			.direct_message(ctx.discord(), CreateMessage::default().embed(embed))
+			.direct_message(&ctx, CreateMessage::default().embed(embed))
 			.await;
 		if let Err(e) = response {
 			error!("failed to DM user while handling error: {}", e)
@@ -60,7 +60,7 @@ pub async fn log_error_message(
 	e = e.field("Error (display)", err.to_string(), false);
 
 	// cache the cache
-	let cache = ctx.discord().cache.clone();
+	let cache = ctx.serenity_context().cache.clone();
 
 	let (guild_id, guild_name) = if let Some(guild_id) = ctx.guild_id() {
 		let guild_name = cache
@@ -92,15 +92,14 @@ pub async fn log_error_message(
 	m = m.embed(e);
 
 	let cfg = scripty_config::get_config();
-	let dctx = ctx.discord();
-	let hook = match Webhook::from_url(dctx, &cfg.error_webhook).await {
+	let hook = match Webhook::from_url(&ctx, &cfg.error_webhook).await {
 		Ok(hook) => hook,
 		Err(e) => {
 			error!("failed to fetch error webhook: {}", e);
 			return;
 		}
 	};
-	if let Err(e) = hook.execute(dctx, false, m).await {
+	if let Err(e) = hook.execute(&ctx, false, m).await {
 		error!("failed to log error to discord: {}", e);
 	}
 

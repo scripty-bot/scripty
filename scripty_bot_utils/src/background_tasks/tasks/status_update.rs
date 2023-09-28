@@ -5,7 +5,6 @@ use serenity::{
 	client::Context as SerenityContext,
 	gateway::{ActivityData, ShardManager},
 };
-use tokio::sync::Mutex;
 
 use crate::{background_tasks::core::BackgroundTask, globals::CLIENT_DATA, Error};
 

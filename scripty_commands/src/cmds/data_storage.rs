@@ -36,7 +36,6 @@ pub async fn data_storage(ctx: Context<'_>) -> Result<(), Error> {
 
 	let author_id = ctx.author().id;
 	let hashed_author_id = scripty_utils::hash_user_id(author_id.0);
-	let discord_ctx = ctx.discord();
 	let db = scripty_db::get_db();
 
 	sqlx::query!(
@@ -53,7 +52,7 @@ VALUES ($1)
 	.execute(db)
 	.await?;
 
-	let mut collector = ComponentInteractionCollector::new(&discord_ctx.shard)
+	let mut collector = ComponentInteractionCollector::new(&ctx.serenity_context().shard)
 		.message_id(msg.message().await?.id)
 		.author_id(author_id)
 		.timeout(Duration::from_secs(120))
@@ -99,7 +98,7 @@ VALUES ($1)
 		if let Some(message_id) = message_id {
 			interaction
 				.create_response(
-					discord_ctx,
+					ctx,
 					CreateInteractionResponse::Message(
 						CreateInteractionResponseMessage::new()
 							.content(format_message!(resolved_language, message_id))
@@ -167,10 +166,9 @@ pub async fn delete_all_data(ctx: Context<'_>) -> Result<(), Error> {
 
 	let author_id = ctx.author().id;
 	let hashed_author_id = scripty_utils::hash_user_id(author_id.0);
-	let discord_ctx = ctx.discord();
 	let db = scripty_db::get_db();
 
-	let one = ComponentInteractionCollector::new(&discord_ctx.shard)
+	let one = ComponentInteractionCollector::new(&ctx.serenity_context().shard)
 		.author_id(author_id)
 		.message_id(msg.id)
 		.timeout(Duration::from_secs(120))
@@ -238,8 +236,7 @@ pub async fn delete_all_data(ctx: Context<'_>) -> Result<(), Error> {
 					"delete-data-cancelled-description"
 				)),
 		};
-		msg.edit(&discord_ctx, EditMessage::default().embed(embed))
-			.await?;
+		msg.edit(&ctx, EditMessage::default().embed(embed)).await?;
 	}
 
 	Ok(())

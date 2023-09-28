@@ -46,7 +46,7 @@ pub async fn automod_list_rules(ctx: Context<'_>) -> Result<(), Error> {
 		.collect::<Vec<_>>();
 
 	do_paginate(
-		ctx.discord(),
+		ctx.serenity_context(),
 		ctx.channel_id(),
 		formatted_rules,
 		format_message!(resolved_language, "automod-list-rules-embed-title"),

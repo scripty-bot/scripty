@@ -14,7 +14,7 @@ pub async fn leave(ctx: Context<'_>) -> Result<(), Error> {
 		guild.id
 	};
 
-	scripty_audio_handler::disconnect_from_vc(ctx.discord(), guild_id).await?;
+	scripty_audio_handler::disconnect_from_vc(ctx.serenity_context(), guild_id).await?;
 
 	ctx.say(format_message!(resolved_language, "leave-success"))
 		.await?;

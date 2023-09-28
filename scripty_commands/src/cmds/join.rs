@@ -6,10 +6,8 @@ use scripty_bot_utils::checks::is_guild;
 use serenity::{
 	all::{AutoArchiveDuration, ChannelFlags},
 	builder::{CreateForumPost, CreateMessage, CreateThread},
-	http::StatusCode,
 	model::channel::{ChannelType, GuildChannel},
 	prelude::Mentionable,
-	Error as SerenityError,
 };
 
 use crate::{Context, Error};
@@ -36,7 +34,6 @@ pub async fn join(
 	let resolved_language =
 		scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
 	let _typing = ctx.defer_or_broadcast().await;
-	let discord_ctx = ctx.discord();
 	let db = scripty_db::get_db();
 
 	// validate arguments
@@ -46,7 +43,7 @@ pub async fn join(
 		Some(c) => c,
 		None => ctx
 			.channel_id()
-			.to_channel(&discord_ctx)
+			.to_channel(&ctx)
 			.await?
 			.guild()
 			.ok_or_else(Error::expected_guild)?,
@@ -117,7 +114,7 @@ pub async fn join(
 	let voice_channel = match voice_channel {
 		Ok(vc) => vc,
 		Err(Some(state)) => state
-			.to_channel(discord_ctx)
+			.to_channel(&ctx)
 			.await?
 			.guild()
 			.expect("asserted we are already in guild"),
@@ -141,7 +138,7 @@ pub async fn join(
 	}
 
 	// resolve our permissions in the channel
-	let permissions = voice_channel.permissions_for_user(discord_ctx, ctx.framework().bot_id)?;
+	let permissions = voice_channel.permissions_for_user(ctx, ctx.framework().bot_id)?;
 	// do we have permission to view and connect to the channel?
 	if !permissions.connect() || !permissions.view_channel() {
 		ctx.say(
@@ -154,7 +151,7 @@ pub async fn join(
 	// check if there are any users in the channel
 	// prevents Join(Dropped) errors being thrown, as this would be confusing to the user
 	if voice_channel
-		.guild(discord_ctx)
+		.guild(&ctx)
 		.ok_or(Error::custom(
 			"the current server was not found in the cache (Discord didn't send data)".to_string(),
 		))?
@@ -182,7 +179,7 @@ pub async fn join(
 			Some(
 				target_channel
 					.create_thread(
-						&discord_ctx,
+						&ctx,
 						CreateThread::new(
 							format_message!(resolved_language, "join-thread-title", timestamp: timestamp),
 						)
@@ -198,7 +195,7 @@ pub async fn join(
 		let timestamp = format_rfc3339_seconds(SystemTime::now()).to_string();
 		(
 			Some(target_channel.create_forum_post(
-				&discord_ctx,
+				&ctx,
 				CreateForumPost::new(
 					format_message!(resolved_language, "join-thread-title", timestamp: &*timestamp),
 					CreateMessage::new().content(
@@ -223,7 +220,7 @@ pub async fn join(
 		target_channel.mention().to_string()
 	};
 	let res = scripty_audio_handler::connect_to_vc(
-		discord_ctx.clone(),
+		ctx.serenity_context().clone(),
 		guild_id,
 		target_channel,
 		voice_channel.id,

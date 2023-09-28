@@ -33,7 +33,7 @@ pub async fn entrypoint() {
 				.raw_event_handler(handler::RawEventHandler)
 				.register_songbird_from_config(scripty_audio_handler::get_songbird())
 		})
-		.user_data_setup(move |ctx, _, c| {
+		.setup(move |ctx, _, c| {
 			Box::pin(async move {
 				set_cache_http(ctx.http.clone(), ctx.cache.clone());
 

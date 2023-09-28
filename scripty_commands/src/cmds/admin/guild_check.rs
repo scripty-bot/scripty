@@ -12,8 +12,6 @@ use crate::{Context, Error};
 pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), Error> {
 	let m = ctx.say("this could take a bit").await?;
 
-	let dctx = ctx.discord();
-
 	let mut error_count: u32 = 0;
 
 	// guilds should be categorized by the number of members in them
@@ -47,8 +45,8 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
 		.clone();
 	let shard_count = shard_manager.runners.lock().await.len() as u32;
 
-	for guild in dctx.cache.guilds() {
-		let g = match guild.to_guild_cached(dctx) {
+	for guild in ctx.serenity_context().cache.guilds() {
+		let g = match guild.to_guild_cached(&ctx) {
 			Some(g) => g,
 			None => {
 				error_count += 1;
