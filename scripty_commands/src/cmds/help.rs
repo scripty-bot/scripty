@@ -35,7 +35,7 @@ async fn help_single_command(
 		if command.name.eq_ignore_ascii_case(command_name) {
 			return true;
 		}
-		if let Some(context_menu_name) = command.context_menu_name {
+		if let Some(context_menu_name) = &command.context_menu_name {
 			if context_menu_name.eq_ignore_ascii_case(command_name) {
 				return true;
 			}
@@ -45,8 +45,8 @@ async fn help_single_command(
 	});
 
 	let reply = if let Some(command) = command {
-		match command.help_text {
-			Some(f) => Cow::from(f()),
+		match &command.help_text {
+			Some(f) => Cow::from(f),
 			None => Cow::from(
 				format_message!(resolved_language, "no-help-found", commandName: command.name.clone()),
 			),
@@ -68,16 +68,20 @@ async fn help_global(ctx: Context<'_>, resolved_language: LanguageIdentifier) ->
 	let mut categories: IndexMap<_, _> = IndexMap::new();
 	for cmd in &ctx.framework().options().commands {
 		categories
-			.entry(cmd.category)
+			.entry(&cmd.category)
 			.or_insert_with(Vec::new)
 			.push(cmd);
 	}
 
 	let mut menu = String::from("```\n");
 	for (category_name, commands) in categories {
-		menu += &category_name.map(Cow::Borrowed).unwrap_or_else(|| {
-			Cow::Owned(format_message!(resolved_language, "default-category-name"))
-		});
+		menu += category_name
+			.as_ref()
+			.map_or_else(
+				|| Cow::Owned(format_message!(resolved_language, "default-category-name")),
+				Cow::from,
+			)
+			.as_ref();
 		menu += ":\n";
 		for command in commands {
 			if command.hide_in_help {
@@ -117,7 +121,8 @@ async fn help_global(ctx: Context<'_>, resolved_language: LanguageIdentifier) ->
 				" ".repeat(padding),
 				command
 					.help_text
-					.and_then(|x| x().split('\n').next().map(|x| Cow::Owned(x.to_string())))
+					.as_ref()
+					.and_then(|x| x.split('\n').next().map(|x| Cow::Owned(x.to_string())))
 					.unwrap_or(Cow::Borrowed(""))
 			)
 			.expect("failed to format string: this is a bug");
@@ -127,7 +132,11 @@ async fn help_global(ctx: Context<'_>, resolved_language: LanguageIdentifier) ->
 	menu += format_message!(resolved_language, "context-menu-command-title").as_str();
 
 	for command in &ctx.framework().options().commands {
-		let name = command.context_menu_name.unwrap_or(&command.name);
+		let name = command
+			.context_menu_name
+			.as_ref()
+			.unwrap_or(&command.name)
+			.as_str();
 		menu += match command.context_menu_action {
 			Some(poise::ContextMenuCommandAction::User(_)) => format_message!(
 				resolved_language,
@@ -137,6 +146,11 @@ async fn help_global(ctx: Context<'_>, resolved_language: LanguageIdentifier) ->
 			Some(poise::ContextMenuCommandAction::Message(_)) => format_message!(
 				resolved_language,
 				"context-menu-command-message",
+				commandName: name
+			),
+			Some(_) => format_message!(
+				resolved_language,
+				"context-menu-command-unknown",
 				commandName: name
 			),
 			None => continue,

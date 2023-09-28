@@ -18,14 +18,7 @@ pub async fn on_error(error: FrameworkError<'_, Data, Error>) {
 	#[allow(unreachable_patterns)]
 	match error {
 		FrameworkError::Setup { error, .. } => panic!("error during bot init: {}", error),
-		FrameworkError::Listener { error, event, .. } => {
-			error!(
-				"error in listener for event {}: {}",
-				event.snake_case_name(),
-				error
-			)
-		}
-		FrameworkError::Command { error, ctx } => {
+		FrameworkError::Command { error, ctx, .. } => {
 			if !error.should_handle() {
 				return;
 			}
@@ -84,7 +77,9 @@ pub async fn on_error(error: FrameworkError<'_, Data, Error>) {
 				}
 			}
 		}
-		FrameworkError::ArgumentParse { error, input, ctx } => {
+		FrameworkError::ArgumentParse {
+			error, input, ctx, ..
+		} => {
 			send_err_msg(
                 ctx,
                 format!(
@@ -106,15 +101,25 @@ pub async fn on_error(error: FrameworkError<'_, Data, Error>) {
             )
                 .await;
 		}
-		FrameworkError::CommandStructureMismatch { description, ctx } => {
+		FrameworkError::CommandStructureMismatch {
+			description, ctx, ..
+		} => {
 			let mut args = String::new();
 			for param in &ctx.command.parameters {
 				if param.required {
-					write!(&mut args, "<{}> ", param.name)
-						.expect("failed to format string: this is a bug");
+					write!(
+						&mut args,
+						"<{}> ",
+						param.name.as_ref().map_or("arg", |s| s.as_str())
+					)
+					.expect("failed to format string: this is a bug");
 				} else {
-					write!(&mut args, "[{}] ", param.name)
-						.expect("failed to format string: this is a bug");
+					write!(
+						&mut args,
+						"[{}] ",
+						param.name.as_ref().map_or("arg", |s| s.as_str())
+					)
+					.expect("failed to format string: this is a bug");
 				}
 			}
 
@@ -139,14 +144,14 @@ pub async fn on_error(error: FrameworkError<'_, Data, Error>) {
 			let response = ctx
 				.interaction
 				.channel_id()
-				.send_message(&ctx.discord, msg.clone())
+				.send_message(&ctx.serenity_context(), msg.clone())
 				.await;
 			if let Err(e) = response {
 				warn!("failed to send message while handling error: {}", e);
 				let response = ctx
 					.interaction
 					.user()
-					.direct_message(ctx.discord, msg)
+					.direct_message(ctx.serenity_context(), msg)
 					.await;
 				if let Err(e) = response {
 					error!("failed to DM user while handling error: {}", e)
@@ -156,6 +161,7 @@ pub async fn on_error(error: FrameworkError<'_, Data, Error>) {
 		FrameworkError::CooldownHit {
 			remaining_cooldown,
 			ctx,
+			..
 		} => {
 			send_err_msg(
 				ctx,
@@ -170,6 +176,7 @@ pub async fn on_error(error: FrameworkError<'_, Data, Error>) {
 		FrameworkError::MissingBotPermissions {
 			missing_permissions,
 			ctx,
+			..
 		} => {
 			send_err_msg(
 				ctx,
@@ -181,6 +188,7 @@ pub async fn on_error(error: FrameworkError<'_, Data, Error>) {
 		FrameworkError::MissingUserPermissions {
 			missing_permissions,
 			ctx,
+			..
 		} => {
 			send_err_msg(
 				ctx,
@@ -195,7 +203,7 @@ pub async fn on_error(error: FrameworkError<'_, Data, Error>) {
 			)
 			.await;
 		}
-		FrameworkError::NotAnOwner { ctx } => {
+		FrameworkError::NotAnOwner { ctx, .. } => {
 			send_err_msg(
 				ctx,
 				format!(
@@ -206,7 +214,7 @@ pub async fn on_error(error: FrameworkError<'_, Data, Error>) {
 			)
 			.await;
 		}
-		FrameworkError::CommandCheckFailed { error, ctx } => {
+		FrameworkError::CommandCheckFailed { error, ctx, .. } => {
 			send_err_msg(
 				ctx,
 				format!("A precondition for {} failed", ctx.command().qualified_name),

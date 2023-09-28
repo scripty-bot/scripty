@@ -112,6 +112,10 @@ context-menu-command-message =
     {""}
     { $commandName } (on message)
     {""}
+context-menu-command-unknown =
+    {""}
+    { $commandName } (on unknown)
+    {""}
 more-info-on-command =
     
     For more information on a specific command, type `{ $contextPrefix }help <name>`
