@@ -9,8 +9,11 @@ mod error;
 mod events;
 mod types;
 
+use std::sync::OnceLock as OnceCell;
+
 pub use audio_handler::AudioHandler;
 pub use connect::connect_to_vc;
+use dashmap::DashMap;
 pub use disconnect::disconnect_from_vc;
 pub use error::Error;
 pub use scripty_audio::{check_model_language, get_model_languages};
@@ -20,6 +23,7 @@ use serenity::{
 };
 use songbird::{driver::DecodeMode, Config};
 pub use songbird::{error::JoinError, serenity::SerenityInit};
+use tokio::sync::oneshot::Sender;
 
 pub fn get_songbird() -> Config {
 	Config::default().decode_mode(DecodeMode::Decode)
@@ -38,3 +42,6 @@ pub async fn get_voice_channel_id(ctx: &Context, guild_id: GuildId) -> Option<Ch
 	let current_channel = call.lock().await.current_channel();
 	current_channel.map(|c| ChannelId(c.0))
 }
+
+static AUTO_LEAVE_TASKS: OnceCell<DashMap<GuildId, Sender<()>, ahash::RandomState>> =
+	OnceCell::new();

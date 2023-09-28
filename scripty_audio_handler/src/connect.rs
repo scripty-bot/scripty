@@ -1,6 +1,8 @@
+use ahash::RandomState;
+use dashmap::DashMap;
 use scripty_premium::PremiumTierList;
 use serenity::{
-	builder::CreateWebhook,
+	builder::{CreateWebhook, ExecuteWebhook},
 	model::id::{ChannelId, GuildId},
 	prelude::Context,
 };
@@ -86,7 +88,7 @@ pub async fn connect_to_vc(
 	debug!(%guild_id, "initializing audio handler");
 	let handler = crate::AudioHandler::new(
 		guild_id,
-		webhook,
+		webhook.clone(),
 		ctx.clone(),
 		channel_id,
 		voice_channel_id,
@@ -105,11 +107,33 @@ pub async fn connect_to_vc(
 	call.add_global_event(Event::Core(CoreEvent::DriverReconnect), handler);
 
 	// spawn background tasks to automatically leave the call after the specified time period
+	let (tx, rx) = tokio::sync::oneshot::channel::<()>();
+	let existing = super::AUTO_LEAVE_TASKS
+		.get_or_init(|| DashMap::with_hasher(RandomState::default()))
+		.insert(guild_id, tx);
+	if let Some(existing) = existing {
+		// cancel the existing task
+		let _ = existing.send(()); // ignore errors as the task may have already been cancelled
+	}
+
 	let sb2 = songbird::get(&ctx).await.expect("songbird not initialized");
 	let ctx2 = ctx.clone();
+	let mut webhook_executor = ExecuteWebhook::new().content("I left the voice channel to prevent abuse of our systems. \
+	Just run `/join` again to have me join. \
+	Check out Premium <https://scripty.org/premium> if you'd like to increase how long I stay for before leaving."
+	);
+	if let Some(thread_id) = thread_id {
+		webhook_executor = webhook_executor.in_thread(thread_id);
+	}
 
 	tokio::spawn(async move {
-		tokio::time::sleep(std::time::Duration::from_secs(leave_delta)).await;
+		tokio::select! {
+			_ = tokio::time::sleep(std::time::Duration::from_secs(leave_delta)) => {},
+			_ = rx => {
+				debug!(%guild_id, "cancelling leave task");
+				return;
+			}
+		}
 		debug!(%guild_id, "leaving call after {} seconds", leave_delta);
 
 		if let Err(e) = sb2.remove(guild_id).await {
@@ -118,14 +142,9 @@ pub async fn connect_to_vc(
 		}
 
 		// send a message to the channel
-		let m = channel_id.say(
-            &ctx2,
-            "I left the voice channel to prevent abuse of our systems. \
-             Just run `/join` again to have me join. \
-              Check out Premium <https://scripty.org/premium> if you'd like to increase how long I stay for before leaving."
-        ).await;
+		let m = webhook.execute(ctx2, false, webhook_executor).await;
 		if let Err(e) = m {
-			error!("failed to send message: {}", e);
+			error!(%guild_id, "failed to send message: {}", e);
 		}
 	});
 
