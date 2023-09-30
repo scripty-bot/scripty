@@ -55,7 +55,9 @@ pub struct CustomerSubscriptionTrialWillEnd {
 pub struct CustomerSubscriptionCreated {
 	/// The tier of the subscription.
 	/// 1 = tier 1, 2 = tier 2, 3 = tier 3, etc...
-	pub tier: u8,
+	pub tier:      u8,
+	pub is_trial:  bool,
+	pub trial_end: Option<u64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Copy, Clone)]
@@ -63,6 +65,11 @@ pub struct CustomerSubscriptionUpdated {
 	/// The tier of the subscription.
 	/// 1 = tier 1, 2 = tier 2, 3 = tier 3, etc...
 	pub tier: u8,
+
+	/// This subscription is charged every n X (day, week, month, year).
+	///
+	/// n: [CustomerSubscriptionUpdated::interval_count]
+	pub interval: PlanInterval,
 
 	/// The status of the subscription.
 	pub status: SubscriptionStatus,
@@ -95,6 +102,12 @@ pub struct CustomerSubscriptionUpdated {
 
 	/// Has this subscription changed tiers?
 	pub is_tier_change: bool,
+
+	/// Did this subscription change from a trial to a paid subscription?
+	/// In other words,
+	/// this event changed the subscription status from [SubscriptionStatus::Trialing],
+	/// to [SubscriptionStatus::Active].
+	pub trial_finished: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Copy, Clone)]
@@ -140,6 +153,26 @@ impl fmt::Display for SubscriptionStatus {
 			SubscriptionStatus::Paused => write!(f, "Paused"),
 			SubscriptionStatus::Trialing => write!(f, "Trialing"),
 			SubscriptionStatus::Unpaid => write!(f, "Unpaid"),
+		}
+	}
+}
+
+#[derive(Copy, Clone, Debug, Deserialize, Serialize, Eq, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum PlanInterval {
+	Day,
+	Week,
+	Month,
+	Year,
+}
+
+impl fmt::Display for PlanInterval {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		match *self {
+			PlanInterval::Day => write!(f, "day"),
+			PlanInterval::Week => write!(f, "week"),
+			PlanInterval::Month => write!(f, "month"),
+			PlanInterval::Year => write!(f, "year"),
 		}
 	}
 }

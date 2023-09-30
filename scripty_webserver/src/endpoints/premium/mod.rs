@@ -7,7 +7,12 @@ use sqlx::types::time::OffsetDateTime;
 use crate::{
 	auth::Authentication,
 	errors::WebServerError,
-	models::{StripeWebhookEvent, StripeWebhookEventEnum, SubscriptionStatus},
+	models::{
+		CustomerSubscriptionCreated,
+		StripeWebhookEvent,
+		StripeWebhookEventEnum,
+		SubscriptionStatus,
+	},
 };
 
 pub async fn stripe_webhook(
@@ -46,9 +51,52 @@ pub async fn stripe_webhook(
 
 			true
 		}
-		StripeWebhookEventEnum::CustomerSubscriptionCreated(_) => {
-			// really we don't need to do anything here
-			false
+		StripeWebhookEventEnum::CustomerSubscriptionCreated(CustomerSubscriptionCreated {
+			tier,
+			is_trial,
+			trial_end,
+		}) => {
+			if is_trial {
+				// prepare embed
+				embed = embed.title("Trial Started").description(format!(
+					"Your trial for Tier {0} Scripty Premium has begun. It will end <t:{1}:F> (<t:{1}:R>), at \
+                        which point you will be charged for the next billing period.\n\
+                         Note we do not offer refunds under any circumstances, so if you do not want to pay for \
+                         this, please cancel your subscription before the end date at https://dash.scripty.org/.\n
+                         If you have any questions, you may respond to this message.\n\n\
+                         Thanks!\n\
+                         ~ the Scripty team",
+					tier,
+					trial_end.unwrap_or(0)
+				));
+
+				// update user in DB
+				let hashed_user_id = scripty_utils::hash_user_id(
+					NonZeroU64::new(user_id).expect("expected non-zero discord ID"),
+				);
+				let db = scripty_db::get_db();
+				sqlx::query!(
+					r#"
+INSERT INTO users
+    (user_id, premium_level, premium_expiry)
+VALUES
+    ($1, 1, to_timestamp($2))
+ON CONFLICT
+    ON CONSTRAINT users_pkey
+    DO UPDATE
+    SET
+        premium_level = 1,
+        premium_expiry = to_timestamp($2)
+"#,
+					hashed_user_id,
+					trial_end.unwrap_or(0) as f64
+				)
+				.execute(db)
+				.await?;
+				true
+			} else {
+				false
+			}
 		}
 		StripeWebhookEventEnum::CustomerSubscriptionDeleted(_) => {
 			embed = embed.title("Subscription Cancelled").description(
@@ -86,7 +134,7 @@ ON CONFLICT
 		StripeWebhookEventEnum::CustomerSubscriptionTrialWillEnd(evt) => {
 			embed = embed.title("Trial Ending").description(format!(
                 "Please note that your free trial to Scripty Premium will end <t:{0}:F> (<t:{0}:R>).\n\
-                At the timestamp marked above, you will be charged for a full month of Scripty Premium.\
+                At the timestamp marked above, you will be charged for the next period of Scripty Premium.\
                 We do not offer refunds under any circumstances, so if you do not want to pay for this,\
                 please cancel your subscription before the end date at https://dash.scripty.org/.\n\n\
                 Thanks for using Scripty! ~ the Scripty team",
@@ -157,6 +205,15 @@ ON CONFLICT
                             evt.current_period_end,
                             tier
                         ));
+					} else if evt.trial_finished {
+						embed = embed.title("Trial Upgraded").description(format!(
+							"Your subscription of Scripty Premium has been upgraded from a trial to a paid subscription, and \
+							we have attempted to charge you for a full {1} of Tier {0}.\n\
+							If you have any questions, you may respond to this message for support.\n\
+							Thanks for supporting Scripty!\n\n\
+							~ the Scripty team",
+							tier,evt.interval
+						));
 					} else {
 						embed = embed.title("Subscription Update").description(format!(
 							"I am unable to determine what has changed about your subscription. You may want to review the following \
@@ -293,14 +350,15 @@ ON CONFLICT
 					// prepare embed
 					embed = embed.title("Trial Started").description(format!(
                         "Your trial for Tier {0} Scripty Premium has begun. It will end <t:{1}:F> (<t:{1}:R>), at \
-                        which point you will be charged for a full month of the next tier.\n\
+                        which point you will be charged for a {2} of the next tier.\n\
                          Note we do not offer refunds under any circumstances, so if you do not want to pay for \
                          this, please cancel your subscription before the end date at https://dash.scripty.org/.\n
                          If you have any questions, you may respond to this message.\n\n\
                          Thanks!\n\
                          ~ the Scripty team",
                         tier,
-                        evt.trial_end.unwrap_or(0)
+                        evt.trial_end.unwrap_or(0),
+						evt.interval
                     ));
 
 					// update user in DB
