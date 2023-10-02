@@ -35,6 +35,7 @@ pub async fn join(
 		scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
 	let _typing = ctx.defer_or_broadcast().await;
 	let db = scripty_db::get_db();
+	let cfg = scripty_config::get_config();
 
 	// validate arguments
 	let record_transcriptions = record_transcriptions.unwrap_or(false);
@@ -260,7 +261,8 @@ pub async fn join(
 					Cow::Borrowed("")
 				} else {
 					Cow::Owned(format_message!(resolved_language, "free-trial-upsell"))
-				}
+				},
+				supportServerInvite: &*cfg.support_invite,
 			))
 			.await?;
 		}
