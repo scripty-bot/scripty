@@ -100,6 +100,19 @@ pub async fn voice_state_update(ctx: Context, _: Option<VoiceState>, new: VoiceS
 
 		let log_channel_id = ChannelId::new(resp.log_channel_id as u64);
 
+		// is the target user a bot?
+		let target_user = match new.user_id.to_user(&ctx).await {
+			Ok(u) => u,
+			Err(e) => {
+				error!("error fetching user: {:?}", e);
+				return;
+			}
+		};
+		if target_user.bot {
+			debug!("user {} is a bot, not continuing with join", target_user.id);
+			return;
+		};
+
 		// now we need to check the voice channel the user is joining
 		// discord doesn't give us the channel id, so we need to get it from the guild's voice states
 		let vs = {
@@ -124,8 +137,6 @@ pub async fn voice_state_update(ctx: Context, _: Option<VoiceState>, new: VoiceS
 			warn!("user id {} not in a voice channel", new.user_id);
 			return;
 		};
-
-		tokio::time::sleep(Duration::from_millis(500)).await;
 
 		// join the channel
 		debug!(
@@ -156,5 +167,8 @@ pub async fn voice_state_update(ctx: Context, _: Option<VoiceState>, new: VoiceS
 				)
 				.await;
 		}
+		// wait 1500ms as an additional buffer
+		const FIFTEEN_HUNDRED_MS: Duration = Duration::from_millis(1500);
+		tokio::time::sleep(FIFTEEN_HUNDRED_MS).await;
 	};
 }
