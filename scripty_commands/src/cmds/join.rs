@@ -74,6 +74,18 @@ pub async fn join(
 		return Ok(());
 	}
 
+	let is_text_based = match (target_channel.is_text_based(), target_channel.kind) {
+		(true, _) => true,
+		(
+			_,
+			ChannelType::Forum
+			| ChannelType::PublicThread
+			| ChannelType::PrivateThread
+			| ChannelType::NewsThread,
+		) => true,
+		_ => false,
+	};
+
 	if target_channel.kind == ChannelType::Forum
 		&& target_channel.flags.contains(ChannelFlags::REQUIRE_TAG)
 	{
@@ -82,8 +94,7 @@ pub async fn join(
 		)
 			.await?;
 		return Ok(());
-	} else if target_channel.kind != ChannelType::Forum && !target_channel.is_text_based() {
-		// forums are the sole exception to the text-based rule
+	} else if !is_text_based {
 		ctx.say(
 			format_message!(resolved_language, "join-target-not-text-based", targetMention: target_channel.mention().to_string()),
 		).await?;

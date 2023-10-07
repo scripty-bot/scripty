@@ -4,7 +4,7 @@ use std::sync::{
 };
 
 use serenity::{
-	all::{Context, Webhook},
+	all::{ChannelId, Context, Webhook},
 	builder::ExecuteWebhook,
 };
 use songbird::model::payload::ClientDisconnect;
@@ -17,6 +17,7 @@ pub async fn client_disconnect(
 	premium_level: Arc<AtomicU8>,
 	ctx: Context,
 	webhook: Arc<Webhook>,
+	thread_id: Option<ChannelId>,
 	transcript_results: TranscriptResults,
 ) {
 	let user_id = client_disconnect_data.user_id;
@@ -67,17 +68,14 @@ pub async fn client_disconnect(
 		}
 	}
 
-	if let Err(e) = webhook
-		.execute(
-			&ctx,
-			false,
-			ExecuteWebhook::new()
-				.content(format!("{} disconnected", &username))
-				.avatar_url(avatar_url)
-				.username(&username),
-		)
-		.await
-	{
+	let mut webhook_builder = ExecuteWebhook::new()
+		.content(format!("{} disconnected", &username))
+		.avatar_url(avatar_url)
+		.username(&username);
+	if let Some(thread_id) = thread_id {
+		webhook_builder = webhook_builder.in_thread(thread_id);
+	}
+	if let Err(e) = webhook.execute(&ctx, false, webhook_builder).await {
 		warn!(%ssrc, "failed to send the user leave webhook: {}", e);
 	}
 
