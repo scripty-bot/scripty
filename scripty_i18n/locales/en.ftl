@@ -38,7 +38,7 @@ join-success = Successfully joined { $voiceTargetMention }, and sending transcri
     If you know you are a Premium subscriber already, please DM the bot that way we can reinstate your Premium.
     { $freeTrialUpsell }
     {""}
-    If you need any help or have any questions, feel free to either join the support server at <{ $supportServerInvite }>, or DM the bot. Someone will be happy to help.
+    If you need any help or have any questions, feel free to either join the support server at { $supportServerInvite }, or DM the bot. Someone will be happy to help.
 # This message is shown when the user attempts to make Scripty join a voice channel, but there is no one in the channel.
 join-no-one-in-channel = There's no one in { $targetMention }. I'm not joining if there's no one there, as that's a waste of limited resources.
 # This message is shown when Discord tosses a Dropped or TimedOut error when trying to join a voice channel.
