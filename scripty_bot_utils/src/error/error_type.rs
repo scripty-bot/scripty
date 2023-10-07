@@ -239,11 +239,13 @@ impl From<sqlx::Error> for Error {
 impl From<scripty_audio_handler::Error> for Error {
 	#[inline]
 	fn from(e: scripty_audio_handler::Error) -> Self {
-		match e {
-			scripty_audio_handler::Error::Join(e) => Self::join(e),
-			scripty_audio_handler::Error::Database(e) => Self::db(e),
-			scripty_audio_handler::Error::Serenity(e) => Self::serenity(e),
-		}
+		let mut err = match e.kind {
+			scripty_audio_handler::ErrorKind::Join(e) => Self::join(e),
+			scripty_audio_handler::ErrorKind::Database(e) => Self::db(e),
+			scripty_audio_handler::ErrorKind::Serenity(e) => Self::serenity(e),
+		};
+		err.bt = e.backtrace;
+		err
 	}
 }
 

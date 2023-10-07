@@ -10,6 +10,7 @@ license = "EUPL-1.2"
 ahash = "0.8"
 dashmap = "5"
 tracing = "0.1"
+backtrace = "0.3"
 async-trait = "0.1"
 parking_lot = "0.12"
 scripty_db = { path = "../scripty_db" }

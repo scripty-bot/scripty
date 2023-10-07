@@ -44,4 +44,4 @@ serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next" }
 songbird = { git = "https://github.com/serenity-rs/songbird", branch = "next" }
 
 [patch."https://github.com/serenity-rs/serenity"]
-serenity = { git = "https://github.com/tazz4843/serenity", branch = "owner-id-optional" }
+serenity = { git = "https://github.com/tazz4843/serenity", branch = "webhook-guild-and-channel" }

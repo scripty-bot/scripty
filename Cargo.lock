@@ -388,7 +388,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.4.2"
-source = "git+https://github.com/tazz4843/serenity?branch=owner-id-optional#33537b1b322afe8f0eaabe2b60aeb0dc5a2df065"
+source = "git+https://github.com/tazz4843/serenity?branch=webhook-guild-and-channel#53fbff338d45bb4e3de7f89696d0783206fd90e9"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2554,6 +2554,7 @@ version = "1.0.0"
 dependencies = [
  "ahash",
  "async-trait",
+ "backtrace",
  "dashmap",
  "parking_lot",
  "scripty_audio",
@@ -2967,7 +2968,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.11.6"
-source = "git+https://github.com/tazz4843/serenity?branch=owner-id-optional#33537b1b322afe8f0eaabe2b60aeb0dc5a2df065"
+source = "git+https://github.com/tazz4843/serenity?branch=webhook-guild-and-channel#53fbff338d45bb4e3de7f89696d0783206fd90e9"
 dependencies = [
  "arrayvec",
  "async-trait",
@@ -3001,7 +3002,7 @@ dependencies = [
 [[package]]
 name = "serenity-voice-model"
 version = "0.1.1"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#012b0512e86a9f2429391ff6270555aba7895c5e"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#c7d6918d66846be08bda9db2e445100dbe17f32c"
 dependencies = [
  "bitflags 2.4.0",
  "enum_primitive",
@@ -4441,4 +4442,4 @@ checksum = "2a0956f1ba7c7909bfb66c2e9e4124ab6f6482560f6628b5aaeba39207c9aad9"
 [[patch.unused]]
 name = "serenity"
 version = "0.11.6"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#012b0512e86a9f2429391ff6270555aba7895c5e"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#c7d6918d66846be08bda9db2e445100dbe17f32c"
