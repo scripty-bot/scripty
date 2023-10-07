@@ -1,7 +1,6 @@
 use std::{borrow::Cow, time::SystemTime};
 
 use humantime::format_rfc3339_seconds;
-use scripty_audio_handler::JoinError;
 use scripty_bot_utils::checks::is_guild;
 use serenity::{
 	all::{AutoArchiveDuration, ChannelFlags},
@@ -286,12 +285,9 @@ pub async fn join(
 			))
 			.await?;
 		}
-		Err(
-			ref err @ scripty_audio_handler::Error {
-				ref kind,
-				ref backtrace,
-			},
-		) if err.is_dropped() || err.is_timed_out() => {
+		Err(ref err @ scripty_audio_handler::Error { .. })
+			if err.is_dropped() || err.is_timed_out() =>
+		{
 			ctx.say(
 				format_message!(resolved_language, "join-failed-dropped", contextPrefix: ctx.prefix()),
 			)

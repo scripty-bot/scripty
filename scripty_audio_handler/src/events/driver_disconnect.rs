@@ -12,7 +12,6 @@ use crate::{
 	connect_to_vc,
 	error::ErrorKind,
 	types::{SeenUsers, TranscriptResults},
-	Error,
 };
 
 pub async fn driver_disconnect(
