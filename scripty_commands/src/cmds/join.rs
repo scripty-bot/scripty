@@ -25,7 +25,16 @@ pub async fn join(
 	record_transcriptions: Option<bool>,
 
 	#[description = "Send transcripts here, instead of the current channel. Target a forum to create a new post."]
-	#[channel_types("Text", "Forum", "Voice", "Stage", "News")]
+	#[channel_types(
+		"Text",
+		"Forum",
+		"Voice",
+		"Stage",
+		"News",
+		"PublicThread",
+		"PrivateThread",
+		"NewsThread"
+	)]
 	target_channel: Option<GuildChannel>,
 
 	#[description = "Create a new thread for this transcription? Defaults to false."]
