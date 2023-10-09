@@ -32,7 +32,8 @@ members = [
 	"scripty_bot",
 	"scripty_bot_utils",
 	"scripty_automod",
-	"scripty_botlists"
+	"scripty_botlists",
+	"scripty_error",
 ]
 
 [dependencies]

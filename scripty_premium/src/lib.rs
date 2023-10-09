@@ -111,12 +111,12 @@ pub async fn get_user(user_id: NonZeroU64) -> Option<PremiumUserInfo> {
 	}
 }
 
-pub async fn get_guild(guild_id: NonZeroU64) -> Option<PremiumTierList> {
+pub async fn get_guild(guild_id: u64) -> Option<PremiumTierList> {
 	// from here, fetch the user that corresponds to the guild table's premium_owner_id column
 	let db = scripty_db::get_db();
 	let r = sqlx::query!(
         "SELECT premium_level FROM users INNER JOIN guilds g on users.user_id = g.premium_owner_id WHERE guild_id = $1",
-        guild_id.get() as i64
+        guild_id as i64
     ).fetch_optional(db).await;
 
 	match r {

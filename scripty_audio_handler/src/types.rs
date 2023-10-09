@@ -1,4 +1,4 @@
-use std::{collections::VecDeque, num::NonZeroU64, sync::Arc};
+use std::{collections::VecDeque, sync::Arc};
 
 use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
@@ -7,7 +7,7 @@ use scripty_audio::Stream;
 use scripty_data_storage::VoiceIngest;
 
 /// Type alias for a `DashMap` containing SSRCs mapped to `UserId`s.
-pub type SsrcUserIdMap = DashMap<u32, NonZeroU64, RandomState>;
+pub type SsrcUserIdMap = DashMap<u32, u64, RandomState>;
 
 /// Type alias for a `DashMap` containing SSRCs mapped to `Stream`s
 pub type SsrcStreamMap = DashMap<u32, Stream, RandomState>;

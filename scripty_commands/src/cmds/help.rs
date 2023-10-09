@@ -15,7 +15,8 @@ pub async fn help(
 	command: Option<String>,
 ) -> Result<(), Error> {
 	let resolved_language =
-		scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
+		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|g| g.get()))
+			.await;
 
 	match command {
 		Some(command_name) => {

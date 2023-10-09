@@ -1,5 +1,3 @@
-use std::num::NonZeroU64;
-
 use axum::{routing::post, Json};
 use scripty_bot_utils::extern_utils::{CreateEmbed, CreateEmbedFooter, CreateMessage, UserId};
 use sqlx::types::time::OffsetDateTime;
@@ -71,9 +69,7 @@ pub async fn stripe_webhook(
 				));
 
 				// update user in DB
-				let hashed_user_id = scripty_utils::hash_user_id(
-					NonZeroU64::new(user_id).expect("expected non-zero discord ID"),
-				);
+				let hashed_user_id = scripty_utils::hash_user_id(user_id);
 				let db = scripty_db::get_db();
 				sqlx::query!(
 					r#"
@@ -107,9 +103,7 @@ ON CONFLICT
 			);
 
 			// update the user's status in the database
-			let hashed_user_id = scripty_utils::hash_user_id(
-				NonZeroU64::new(user_id).expect("expected non-zero discord ID"),
-			);
+			let hashed_user_id = scripty_utils::hash_user_id(user_id);
 			let db = scripty_db::get_db();
 			sqlx::query!(
 				r#"
@@ -242,9 +236,7 @@ ON CONFLICT
 					}
 
 					// update the tier in the database
-					let hashed_user_id = scripty_utils::hash_user_id(
-						NonZeroU64::new(user_id).expect("expected non-zero discord ID"),
-					);
+					let hashed_user_id = scripty_utils::hash_user_id(user_id);
 					let db = scripty_db::get_db();
 					sqlx::query!(
 						r#"
@@ -281,9 +273,7 @@ ON CONFLICT
                     ).footer(CreateEmbedFooter::new("https://xkcd.com/2257/"));
 
 					// remove the user's premium from the db
-					let hashed_user_id = scripty_utils::hash_user_id(
-						NonZeroU64::new(user_id).expect("expected non-zero discord ID"),
-					);
+					let hashed_user_id = scripty_utils::hash_user_id(user_id);
 					let db = scripty_db::get_db();
 
 					sqlx::query!(
@@ -320,9 +310,7 @@ ON CONFLICT
                     );
 
 					// remove the user's premium
-					let hashed_user_id = scripty_utils::hash_user_id(
-						NonZeroU64::new(user_id).expect("expected non-zero discord ID"),
-					);
+					let hashed_user_id = scripty_utils::hash_user_id(user_id);
 					let db = scripty_db::get_db();
 
 					sqlx::query!(
@@ -362,9 +350,7 @@ ON CONFLICT
                     ));
 
 					// update user in DB
-					let hashed_user_id = scripty_utils::hash_user_id(
-						NonZeroU64::new(user_id).expect("expected non-zero discord ID"),
-					);
+					let hashed_user_id = scripty_utils::hash_user_id(user_id);
 					let db = scripty_db::get_db();
 					sqlx::query!(
 						r#"
@@ -398,9 +384,7 @@ ON CONFLICT
                     ).footer(CreateEmbedFooter::new("this state should never be shown to a real user"));
 
 					// cancel the subscription
-					let hashed_user_id = scripty_utils::hash_user_id(
-						NonZeroU64::new(user_id).expect("expected non-zero discord ID"),
-					);
+					let hashed_user_id = scripty_utils::hash_user_id(user_id);
 					let db = scripty_db::get_db();
 					sqlx::query!(
 						r#"
@@ -461,9 +445,7 @@ ON CONFLICT
 			);
 
 			// ban the user
-			let hashed_user_id = scripty_utils::hash_user_id(
-				NonZeroU64::new(user_id).expect("expected non-zero discord ID"),
-			);
+			let hashed_user_id = scripty_utils::hash_user_id(user_id);
 			let db = scripty_db::get_db();
 			sqlx::query!(
 				r#"

@@ -1,5 +1,3 @@
-use std::num::NonZeroU64;
-
 /// Pre-populate the cache with voice state data.
 pub async fn init_voice_cache_async() -> Result<(), scripty_redis::redis::RedisError> {
 	let mut pipe = scripty_redis::redis::pipe();
@@ -33,7 +31,7 @@ pub async fn init_voice_cache_async() -> Result<(), scripty_redis::redis::RedisE
 ///
 /// # Returns
 /// Returns Ok(()) if changing state was successful, Err(sqlx::Error) if not
-pub async fn change_voice_state(user_id: NonZeroU64, state: bool) -> Result<(), sqlx::Error> {
+pub async fn change_voice_state(user_id: u64, state: bool) -> Result<(), sqlx::Error> {
 	let user_id = scripty_utils::hash_user_id(user_id);
 
 	// do db query to change state
@@ -66,7 +64,7 @@ pub async fn change_voice_state(user_id: NonZeroU64, state: bool) -> Result<(), 
 /// # Errors
 /// If any error is encountered, it is logged and `false` is returned.
 /// Errors will prevent the user from being cached.
-pub async fn get_voice_state(raw_user_id: NonZeroU64) -> bool {
+pub async fn get_voice_state(raw_user_id: u64) -> bool {
 	let user_id = scripty_utils::hash_user_id(raw_user_id);
 
 	// check cache

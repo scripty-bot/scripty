@@ -23,7 +23,8 @@ use crate::{Context, Error};
 #[poise::command(prefix_command, slash_command)]
 pub async fn data_storage(ctx: Context<'_>) -> Result<(), Error> {
 	let resolved_language =
-		scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
+		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|g| g.get()))
+			.await;
 
 	let msg = ctx
 		.send(
@@ -35,7 +36,7 @@ pub async fn data_storage(ctx: Context<'_>) -> Result<(), Error> {
 		.await?;
 
 	let author_id = ctx.author().id;
-	let hashed_author_id = scripty_utils::hash_user_id(author_id.0);
+	let hashed_author_id = scripty_utils::hash_user_id(author_id.get());
 	let db = scripty_db::get_db();
 
 	sqlx::query!(
@@ -130,7 +131,8 @@ VALUES ($1)
 #[poise::command(prefix_command, slash_command)]
 pub async fn delete_all_data(ctx: Context<'_>) -> Result<(), Error> {
 	let resolved_language =
-		scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
+		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|g| g.get()))
+			.await;
 
 	let mut msg = ctx
 		.send(
@@ -165,7 +167,7 @@ pub async fn delete_all_data(ctx: Context<'_>) -> Result<(), Error> {
 		.await?;
 
 	let author_id = ctx.author().id;
-	let hashed_author_id = scripty_utils::hash_user_id(author_id.0);
+	let hashed_author_id = scripty_utils::hash_user_id(author_id.get());
 	let db = scripty_db::get_db();
 
 	let one = ComponentInteractionCollector::new(&ctx.serenity_context().shard)

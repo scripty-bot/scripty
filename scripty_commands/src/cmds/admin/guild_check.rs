@@ -109,7 +109,7 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
 		}
 		let ratio = bot_count as f64 / user_count as f64;
 		if ratio > specified_ratio {
-			guild_warnings.push((g.name.clone(), g.id.0.get(), ratio));
+			guild_warnings.push((g.name.clone(), g.id.get(), ratio));
 		}
 	}
 

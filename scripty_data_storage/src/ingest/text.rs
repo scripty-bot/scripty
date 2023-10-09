@@ -1,7 +1,7 @@
 use serenity::model::prelude::Message;
 
 pub async fn ingest_message(msg: Message) {
-	let opted_in = crate::cache::get_text_state(msg.author.id.0).await;
+	let opted_in = crate::cache::get_text_state(msg.author.id.get()).await;
 
 	if !opted_in {
 		return;

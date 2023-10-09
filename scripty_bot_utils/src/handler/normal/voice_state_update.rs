@@ -62,7 +62,7 @@ pub async fn voice_state_update(ctx: Context, _: Option<VoiceState>, new: VoiceS
 		debug!("not in a voice channel in guild {}", guild_id);
 
 		// check if the guild has active premium
-		let Some(_) = scripty_premium::get_guild(guild_id.0).await else {
+		let Some(_) = scripty_premium::get_guild(guild_id.get()).await else {
 			// it does not, so we don't need to do anything
 			return;
 		};
@@ -71,7 +71,7 @@ pub async fn voice_state_update(ctx: Context, _: Option<VoiceState>, new: VoiceS
 		let db = scripty_db::get_db();
 		let Some(resp) = (match sqlx::query!(
 			"SELECT enabled, auto_join_voice, log_channel_id FROM automod_config WHERE guild_id = $1",
-			guild_id.0.get() as i64
+			guild_id.get() as i64
 		)
 		.fetch_optional(db)
 		.await

@@ -1,4 +1,4 @@
-use std::{io::Cursor, num::NonZeroU64};
+use std::io::Cursor;
 
 use hound::{SampleFormat, WavSpec, WavWriter};
 use ouroboros::self_referencing;
@@ -22,7 +22,7 @@ pub struct VoiceIngest {
 }
 
 impl VoiceIngest {
-	pub async fn new(user_id: NonZeroU64, language: String) -> Option<Self> {
+	pub async fn new(user_id: u64, language: String) -> Option<Self> {
 		// always check if the user is opted in
 		let opted_in = crate::cache::get_voice_state(user_id).await;
 

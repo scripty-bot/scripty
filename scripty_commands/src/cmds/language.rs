@@ -11,7 +11,8 @@ use crate::{Context, Error};
 #[poise::command(prefix_command, slash_command)]
 pub async fn language(ctx: Context<'_>) -> Result<(), Error> {
 	let resolved_language =
-		scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
+		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|g| g.get()))
+			.await;
 
 	ctx.send(        CreateReply::default().ephemeral(true)
         .embed(            CreateEmbed::default()
@@ -34,11 +35,11 @@ pub async fn user_language(
 	#[autocomplete = "available_language_autocomplete"]
 	language: String,
 ) -> Result<(), Error> {
-	let resolved_language = scripty_i18n::get_user_language(ctx.author().id.0)
+	let resolved_language = scripty_i18n::get_user_language(ctx.author().id.get())
 		.await
 		.unwrap_or_else(|| "en".parse().expect("en invalid language?"));
 
-	match scripty_i18n::set_user_language(ctx.author().id.0, language.as_str()).await {
+	match scripty_i18n::set_user_language(ctx.author().id.get(), language.as_str()).await {
 		Ok(_) => {
 			ctx.send(
 				CreateReply::default().ephemeral(true).embed(
@@ -121,7 +122,7 @@ pub async fn guild_language(
 ) -> Result<(), Error> {
 	let guild_id = ctx
 		.guild_id()
-		.map(|g| g.0)
+		.map(|g| g.get())
 		.ok_or_else(Error::expected_guild)?;
 	let resolved_language = scripty_i18n::get_guild_language(guild_id).await;
 

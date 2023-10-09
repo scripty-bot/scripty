@@ -75,7 +75,7 @@ pub async fn connect_to_vc(
 	};
 
 	// automatically leave after the specified time period
-	let premium_tier = scripty_premium::get_guild(guild_id.0).await;
+	let premium_tier = scripty_premium::get_guild(guild_id.get()).await;
 	let leave_delta = match premium_tier {
 		Some(PremiumTierList::None) => 1800, // leave after 1800 seconds (30 minutes) on free tier
 		Some(PremiumTierList::Tier1) => 3600, // leave after 3600 seconds (1 hour) on tier 1
@@ -90,7 +90,7 @@ pub async fn connect_to_vc(
 
 	// fetch automod
 	debug!(%guild_id, "fetching automod");
-	let automod_server_cfg = scripty_automod::db::get_guild_config(guild_id.0.get())
+	let automod_server_cfg = scripty_automod::db::get_guild_config(guild_id.get())
 		.await?
 		.unwrap_or_default();
 

@@ -40,7 +40,8 @@ pub async fn join(
 	create_thread: Option<bool>,
 ) -> Result<(), Error> {
 	let resolved_language =
-		scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
+		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|g| g.get()))
+			.await;
 	let _typing = ctx.defer_or_broadcast().await;
 	let db = scripty_db::get_db();
 	let cfg = scripty_config::get_config();
@@ -73,17 +74,17 @@ pub async fn join(
 		return Ok(());
 	}
 
-	let is_text_based = match (target_channel.is_text_based(), target_channel.kind) {
-		(true, _) => true,
-		(
-			_,
-			ChannelType::Forum
-			| ChannelType::PublicThread
-			| ChannelType::PrivateThread
-			| ChannelType::NewsThread,
-		) => true,
-		_ => false,
-	};
+	let is_text_based = matches!(
+		(target_channel.is_text_based(), target_channel.kind),
+		(true, _)
+			| (
+				_,
+				ChannelType::Forum
+					| ChannelType::PublicThread
+					| ChannelType::PrivateThread
+					| ChannelType::NewsThread,
+			)
+	);
 
 	if target_channel.kind == ChannelType::Forum
 		&& target_channel.flags.contains(ChannelFlags::REQUIRE_TAG)
@@ -187,7 +188,7 @@ pub async fn join(
 		return Ok(());
 	}
 
-	let premium_level = scripty_premium::get_guild(guild_id.0)
+	let premium_level = scripty_premium::get_guild(guild_id.get())
 		.await
 		.map_or(0, |l| l as u8);
 

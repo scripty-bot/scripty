@@ -85,7 +85,7 @@ pub async fn driver_disconnect(
 
 			if let Err(ErrorKind::Join(e)) = connect_to_vc(
 				ctx2,
-				serenity::model::id::GuildId(guild_id.0),
+				serenity::all::GuildId::new(guild_id.0.get()),
 				channel_id,
 				voice_channel_id,
 				thread_id,

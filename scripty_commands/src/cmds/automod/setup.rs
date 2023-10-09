@@ -31,10 +31,10 @@ pub async fn automod_setup(
 	let log_recording = log_recording.unwrap_or(false);
 	let auto_join = auto_join.unwrap_or(false);
 
-	let guild_id = ctx.guild_id().expect("asserted in guild").0;
+	let guild_id = ctx.guild_id().expect("asserted in guild").get();
 
 	let resolved_language =
-		scripty_i18n::get_resolved_language(ctx.author().id.0, Some(guild_id)).await;
+		scripty_i18n::get_resolved_language(ctx.author().id.get(), Some(guild_id)).await;
 
 	// filter and see if we have permissions to send messages, embed links, and attach files
 	let target_permissions = target_channel.permissions_for_user(ctx, ctx.framework().bot_id)?;
@@ -54,7 +54,7 @@ pub async fn automod_setup(
 
 	let db = scripty_db::get_db();
 
-	let premium_tier = scripty_premium::get_guild(ctx.guild_id().unwrap().0).await;
+	let premium_tier = scripty_premium::get_guild(ctx.guild_id().unwrap().get()).await;
 	let extra = if let Some(PremiumTierList::None) = premium_tier {
 		if auto_join {
 			ctx.say(format_message!(
@@ -80,7 +80,7 @@ pub async fn automod_setup(
 			log_recording = $3,
 			auto_join_voice = $4
         ",
-		guild_id.get() as i64,
+		guild_id as i64,
 		target_channel.id.get() as i64,
 		log_recording,
 		auto_join

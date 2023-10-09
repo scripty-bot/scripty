@@ -135,7 +135,7 @@ impl AudioHandler {
 
 		self.verbose.store(guild_res.be_verbose, Ordering::Relaxed);
 
-		if let Some(lvl) = scripty_premium::get_guild(self.guild_id.0).await {
+		if let Some(lvl) = scripty_premium::get_guild(self.guild_id.get()).await {
 			self.premium_level.store(lvl as u8, Ordering::Relaxed)
 		}
 

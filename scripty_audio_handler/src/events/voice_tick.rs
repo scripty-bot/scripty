@@ -197,7 +197,7 @@ async fn handle_silent_speakers(
 											"Deleted message and muted user"
 										}
 									},
-									user_id.get(),
+									user_id,
 									final_result
 								)),
 						),

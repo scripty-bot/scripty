@@ -1,5 +1,3 @@
-use std::num::NonZeroU64;
-
 use serenity::prelude::Context;
 use songbird::model::payload::Speaking;
 
@@ -22,7 +20,7 @@ pub async fn speaking_state_update(
 				.get(&state_update.ssrc)
 				.map(|v| *v.value())
 		},
-		|id| NonZeroU64::new(id.0),
+		|id| Some(id.0),
 	) {
 		Some(id) => id,
 		None => {
@@ -33,7 +31,7 @@ pub async fn speaking_state_update(
 
 	// add to seen users
 	if let Some(seen_users) = seen_users {
-		seen_users.insert(user_id.get());
+		seen_users.insert(user_id);
 	}
 
 	debug!("checking if either ssrc_ignored_map or ssrc_user_data_map does not contain key");
@@ -41,7 +39,10 @@ pub async fn speaking_state_update(
 		|| !ssrc_state.ssrc_user_data_map.contains_key(&ssrc)
 	{
 		debug!("either does not contain key, updating data");
-		let user = match serenity::model::id::UserId(user_id).to_user(&ctx).await {
+		let user = match serenity::model::id::UserId::new(user_id)
+			.to_user(&ctx)
+			.await
+		{
 			Ok(u) => u,
 			Err(e) => {
 				error!("failed to fetch user: {}", e);

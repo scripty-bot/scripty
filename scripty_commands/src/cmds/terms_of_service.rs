@@ -22,7 +22,8 @@ use crate::{Context, Error};
 )]
 pub async fn terms_of_service(ctx: Context<'_>) -> Result<(), Error> {
 	let resolved_language =
-		scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
+		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|g| g.get()))
+			.await;
 	let db = scripty_db::get_db();
 
 	let guild_id = ctx.guild_id().ok_or_else(Error::expected_guild)?;

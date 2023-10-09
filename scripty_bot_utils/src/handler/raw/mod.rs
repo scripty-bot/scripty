@@ -12,9 +12,11 @@ impl SerenityRawEventHandler for RawEventHandler {
 		// as poise overwrites serenity and calls it after command processing
 		let st = Instant::now();
 		match &event {
-			Event::MessageCreate(e) => scripty_metrics::measure_start_latency(st, e.message.id.0),
+			Event::MessageCreate(e) => {
+				scripty_metrics::measure_start_latency(st, e.message.id.get())
+			}
 			Event::InteractionCreate(e) => {
-				scripty_metrics::measure_start_latency(st, e.interaction.id().0)
+				scripty_metrics::measure_start_latency(st, e.interaction.id().get())
 			}
 			_ => {}
 		}

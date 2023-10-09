@@ -17,12 +17,13 @@ pub async fn automod_remove_rule(
 ) -> Result<(), Error> {
 	// fetch the current guild's rule count
 	let db = scripty_db::get_db();
-	let gid = ctx.guild_id().expect("asserted in guild").0;
-	let resolved_language = scripty_i18n::get_resolved_language(ctx.author().id.0, Some(gid)).await;
+	let gid = ctx.guild_id().expect("asserted in guild").get();
+	let resolved_language =
+		scripty_i18n::get_resolved_language(ctx.author().id.get(), Some(gid)).await;
 
 	let source_id: i32 = match sqlx::query!(
 		"SELECT item_id FROM automod_config WHERE guild_id = $1",
-		gid.get() as i64
+		gid as i64
 	)
 	.fetch_optional(db)
 	.await?

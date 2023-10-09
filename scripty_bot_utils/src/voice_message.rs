@@ -64,7 +64,7 @@ async fn internal_handle_message(
 pub async fn voice_message_enabled_for_guild(guild: GuildId) -> bool {
 	// try to fetch from redis
 	let redis_res = scripty_redis::run_transaction::<Option<bool>>("GET", |cmd| {
-		cmd.arg(format!("msg_transcript_{}", guild.0.get()));
+		cmd.arg(format!("msg_transcript_{}", guild.get()));
 	})
 	.await
 	.map_or_else(
@@ -82,7 +82,7 @@ pub async fn voice_message_enabled_for_guild(guild: GuildId) -> bool {
 	let db = scripty_db::get_db();
 	match sqlx::query!(
 		"SELECT transcribe_voice_messages FROM guilds WHERE guild_id = $1",
-		guild.0.get() as i64
+		guild.get() as i64
 	)
 	.fetch_optional(db)
 	.await
@@ -92,7 +92,7 @@ pub async fn voice_message_enabled_for_guild(guild: GuildId) -> bool {
 
 			// cache in redis
 			if let Err(e) = scripty_redis::run_transaction::<()>("SETEX", |cmd| {
-				cmd.arg(format!("msg_transcript_{}", guild.0.get()))
+				cmd.arg(format!("msg_transcript_{}", guild.get()))
 					.arg(60 * 60 * 3)
 					.arg(ret);
 			})

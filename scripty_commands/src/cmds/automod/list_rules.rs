@@ -12,12 +12,13 @@ use crate::{Context, Error};
 pub async fn automod_list_rules(ctx: Context<'_>) -> Result<(), Error> {
 	// fetch the current guild's rule count
 	let db = scripty_db::get_db();
-	let gid = ctx.guild_id().expect("asserted in guild").0;
-	let resolved_language = scripty_i18n::get_resolved_language(ctx.author().id.0, Some(gid)).await;
+	let gid = ctx.guild_id().expect("asserted in guild").get();
+	let resolved_language =
+		scripty_i18n::get_resolved_language(ctx.author().id.get(), Some(gid)).await;
 
 	let rules: Vec<_> = sqlx::query!(
         "SELECT item_id, rule_type, rule_action, rule_data FROM automod_rules WHERE source_id = (SELECT item_id FROM automod_config WHERE guild_id = $1) ORDER BY item_id ASC",
-        gid.get() as i64
+        gid as i64
     ).fetch_all(db).await?;
 
 	if rules.is_empty() {

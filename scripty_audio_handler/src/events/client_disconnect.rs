@@ -25,7 +25,7 @@ pub async fn client_disconnect(
 	debug!(?user_id, "got ClientDisconnect event");
 	let ssrc = {
 		let ssrc = ssrc_state.ssrc_user_id_map.iter().find_map(|val| {
-			if val.value().get() == user_id.0 {
+			if val.value() == &user_id.0 {
 				Some(*val.key())
 			} else {
 				None

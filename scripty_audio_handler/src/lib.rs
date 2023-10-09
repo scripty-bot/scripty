@@ -40,7 +40,7 @@ pub async fn get_voice_channel_id(ctx: &Context, guild_id: GuildId) -> Option<Ch
 
 	// this allows the compiler to be happy with the lifetime of the call i guess?
 	let current_channel = call.lock().await.current_channel();
-	current_channel.map(|c| ChannelId(c.0))
+	current_channel.map(|c| ChannelId::new(c.0.get()))
 }
 
 static AUTO_LEAVE_TASKS: OnceCell<DashMap<GuildId, Sender<()>, ahash::RandomState>> =

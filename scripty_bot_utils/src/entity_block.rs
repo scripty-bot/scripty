@@ -71,9 +71,11 @@ async fn _check_block(ctx: poise::Context<'_, Data, Error>) -> Result<bool, Erro
 			.await?
 		{
 			trace!(%ctx_id, "guild is blocked");
-			let resolved_language =
-				scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0))
-					.await;
+			let resolved_language = scripty_i18n::get_resolved_language(
+				ctx.author().id.get(),
+				ctx.guild_id().map(|g| g.get()),
+			)
+			.await;
 
 			let reason = if reason.is_empty() {
 				format_message!(resolved_language, "blocked-entity-no-reason-given")
@@ -95,7 +97,7 @@ async fn _check_block(ctx: poise::Context<'_, Data, Error>) -> Result<bool, Erro
 		}
 	}
 
-	let hashed_user_id = scripty_utils::hash_user_id(ctx.author().id.0);
+	let hashed_user_id = scripty_utils::hash_user_id(ctx.author().id.get());
 	if let Some(reason) = redis
 		.get::<_, Option<String>>(format!(
 			"user:{{{}}}:blocked",
@@ -104,9 +106,11 @@ async fn _check_block(ctx: poise::Context<'_, Data, Error>) -> Result<bool, Erro
 		.await?
 	{
 		trace!(%ctx_id, "user is blocked");
-		let resolved_language =
-			scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0))
-				.await;
+		let resolved_language = scripty_i18n::get_resolved_language(
+			ctx.author().id.get(),
+			ctx.guild_id().map(|g| g.get()),
+		)
+		.await;
 
 		let reason = if reason.is_empty() {
 			format_message!(resolved_language, "blocked-entity-no-reason-given")
@@ -135,7 +139,7 @@ pub async fn add_blocked_user(user_id: UserId, reason: Option<String>) -> Result
 	let db = scripty_db::get_db();
 	let mut redis = scripty_redis::get_pool().get().await?;
 
-	let hashed_user_id = scripty_utils::hash_user_id(user_id.0);
+	let hashed_user_id = scripty_utils::hash_user_id(user_id.get());
 	let current_timestamp = OffsetDateTime::now_utc();
 
 	sqlx::query!(

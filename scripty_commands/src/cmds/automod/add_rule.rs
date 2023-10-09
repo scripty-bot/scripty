@@ -25,14 +25,15 @@ pub async fn automod_add_rule(
 	#[description = "The action to take when the rule is triggered."] action: AutomodRuleAction,
 ) -> Result<(), Error> {
 	let resolved_language =
-		scripty_i18n::get_resolved_language(ctx.author().id.0, ctx.guild_id().map(|g| g.0)).await;
+		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|g| g.get()))
+			.await;
 
 	// fetch the current guild's rule count
 	let db = scripty_db::get_db();
-	let gid = ctx.guild_id().expect("asserted in guild").0;
+	let gid = ctx.guild_id().expect("asserted in guild").get();
 	let item_id: i32 = match sqlx::query!(
 		"SELECT item_id FROM automod_config WHERE guild_id = $1",
-		gid.get() as i64
+		gid as i64
 	)
 	.fetch_optional(db)
 	.await?
