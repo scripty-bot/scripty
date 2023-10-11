@@ -1,9 +1,3 @@
-use std::sync::{
-	atomic::{AtomicBool, Ordering},
-	Arc,
-	OnceLock,
-};
-
 use ahash::RandomState;
 use dashmap::DashMap;
 use scripty_premium::PremiumTierList;
@@ -16,15 +10,6 @@ use songbird::{error::JoinError, events::Event, CoreEvent};
 
 use crate::Error;
 
-static VOICE_JOIN_CONCURRENT_LOCK: OnceLock<DashMap<GuildId, Arc<AtomicBool>, RandomState>> =
-	OnceLock::new();
-struct RemoveOnDrop(Arc<AtomicBool>);
-impl Drop for RemoveOnDrop {
-	fn drop(&mut self) {
-		self.0.store(false, Ordering::SeqCst);
-	}
-}
-
 // TODO: implement `force`
 #[allow(clippy::let_unit_value)]
 pub async fn connect_to_vc(
@@ -36,16 +21,6 @@ pub async fn connect_to_vc(
 	_force: bool,
 	record_transcriptions: bool,
 ) -> Result<(), Error> {
-	debug!(%guild_id, "checking for existing call");
-	let voice_join_concurrent_lock =
-		VOICE_JOIN_CONCURRENT_LOCK.get_or_init(|| DashMap::with_hasher(RandomState::default()));
-	let existing = voice_join_concurrent_lock.entry(guild_id).or_default();
-	if existing.load(Ordering::SeqCst) {
-		debug!(%guild_id, "call join already in progress");
-		return Ok(());
-	}
-	let _remove_on_drop = RemoveOnDrop(existing.clone());
-
 	debug!(%guild_id, "fetching webhook");
 	// thanks to Discord undocumented breaking changes, we have to do this
 	// <3 shitcord
