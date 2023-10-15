@@ -72,6 +72,12 @@ pub async fn join(
 		))
 		.await?;
 		return Ok(());
+	} else if create_thread && [ChannelType::Voice, ChannelType::Stage].contains(&target_channel.kind) {
+		ctx.say(
+			format_message!(resolved_language, "join-create-thread-in-unsupported", targetMention: target_channel.mention().to_string()),
+		)
+		.await?;
+		return Ok(());
 	}
 
 	let is_text_based = matches!(
