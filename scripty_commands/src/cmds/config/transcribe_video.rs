@@ -8,7 +8,7 @@ use scripty_bot_utils::{checks::is_guild, Context, Error};
 	required_permissions = "MANAGE_GUILD",
 	rename = "transcribe_video"
 )]
-pub async fn config_transcribe_audio(
+pub async fn config_transcribe_video(
 	ctx: Context<'_>,
 	#[description = "Defaults to false"] transcribe_video: bool,
 ) -> Result<(), Error> {

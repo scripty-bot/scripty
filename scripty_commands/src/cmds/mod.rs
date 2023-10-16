@@ -1,6 +1,6 @@
 mod admin;
 pub mod automod;
-mod config;
+pub mod config;
 mod data_storage;
 pub mod dm_support;
 mod entity_block;

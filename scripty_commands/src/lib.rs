@@ -47,6 +47,17 @@ pub fn build_commands() -> Vec<poise::Command<Data, Error>> {
 			],
 			..cmds::automod::automod_root()
 		},
+		poise::Command {
+			subcommands: vec![
+				cmds::config::config_server_language(),
+				cmds::config::config_transcribe_audio(),
+				cmds::config::config_transcribe_video(),
+				cmds::config::config_transcribe_voice_messages(),
+				cmds::config::config_verbose(),
+			],
+			subcommand_required: true,
+			..cmds::config::config_root()
+		},
 	];
 	i18n::localize_commands(&mut cmds);
 	cmds
