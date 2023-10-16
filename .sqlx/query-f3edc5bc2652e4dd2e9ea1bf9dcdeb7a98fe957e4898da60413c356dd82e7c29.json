@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO users\n    (user_id, premium_level, premium_expiry)\nVALUES\n    ($1, 1, to_timestamp($2))\nON CONFLICT\n    ON CONSTRAINT users_pkey\n    DO UPDATE\n    SET\n        premium_level = 1,\n        premium_expiry = to_timestamp($2)\n",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bytea",
+        "Float8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f3edc5bc2652e4dd2e9ea1bf9dcdeb7a98fe957e4898da60413c356dd82e7c29"
+}

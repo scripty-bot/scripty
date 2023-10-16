@@ -18,10 +18,7 @@ pub fn build_commands() -> Vec<poise::Command<Data, Error>> {
 		cmds::delete_all_data(),
 		cmds::throw_error(),
 		cmds::terms_of_service(),
-		poise::Command {
-			subcommands: vec![cmds::user_language(), cmds::guild_language()],
-			..cmds::language()
-		},
+		cmds::user_language(),
 		poise::Command {
 			subcommands: vec![cmds::block_user(), cmds::block_guild()],
 			..cmds::block()

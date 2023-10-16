@@ -16,8 +16,8 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 			continue;
 		}
 
-		// translation key is "cmds_{command_name}"
-		let key = format!("cmds_{}", cmd.name);
+		// translation key is "cmds_{function_name}"
+		let key = format!("cmds_{}", cmd.identifying_name);
 		let command_name = cmd.name.as_str();
 
 		for language in languages.iter() {

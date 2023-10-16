@@ -36,6 +36,7 @@ pub enum ErrorEnum {
 	RedisPool(scripty_redis::PoolError),
 	VoiceMessageDecode(OpusSourceError),
 	Transcription(ModelError),
+	ExpectedPremiumValue,
 	Custom(String),
 }
 
@@ -122,6 +123,14 @@ impl Error {
 	}
 
 	#[inline]
+	pub fn expected_premium_value() -> Self {
+		Error {
+			bt:  Backtrace::new(),
+			err: ErrorEnum::ExpectedPremiumValue,
+		}
+	}
+
+	#[inline]
 	pub fn custom(err: String) -> Self {
 		Error {
 			bt:  Backtrace::new(),
@@ -191,6 +200,9 @@ impl Display for Error {
 			)
 			.into(),
 			Transcription(e) => format!("STT model returned an error: {}", e).into(),
+			ExpectedPremiumValue => {
+				"Expected a response from Premium service, got none. Try again later.".into()
+			}
 			Custom(e) => format!("Custom error: {}", e).into(),
 		};
 		f.write_str(res.as_ref())
@@ -211,6 +223,7 @@ impl StdError for Error {
 			RedisPool(e) => Some(e),
 			VoiceMessageDecode(e) => Some(e),
 			Transcription(e) => Some(e),
+			ExpectedPremiumValue => None,
 			Custom(_) => None,
 		}
 	}

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO guilds (guild_id, transcribe_audio_files) VALUES ($1, $2) ON CONFLICT (guild_id) DO UPDATE SET transcribe_audio_files = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "1c612dbf7d2c8b0c54bd74178eedaf27161231fd39c77e1166247cfe20f47694"
+}

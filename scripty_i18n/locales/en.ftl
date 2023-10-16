@@ -96,6 +96,42 @@ premium-claimed = You have successfully claimed premium on this server. If you w
 premium-removed = If you are the user who had claimed Premium, you have now successfully removed your premium from this server. If you would like to upgrade, or purchase more slots, head to <https://dash.scripty.org/premium>.
 
 
+## config - verbose command
+cmds_config_verbose = verbose
+    .description = Toggle whether Scripty is verbose during transcriptions.
+    .verbose = verbose
+    .verbose-description = Defaults to false
+config-verbose-enabled = Scripty will now be verbose during transcriptions.
+config-verbose-disabled = Scripty will no longer be verbose during transcriptions.
+
+## config - transcribe voice messages command
+config_transcribe_voice_messages = transcribe_voice_messages
+    .description = Toggle whether Scripty transcribes voice messages.
+    .transcribe_voice_messages = transcribe_voice_messages
+    .transcribe_voice_messages-description = Defaults to true
+config-transcribe-voice-messages-enabled = Scripty will now transcribe voice messages.
+config-transcribe-voice-messages-disabled = Scripty will no longer transcribe voice messages.
+
+## config - transcribe audio command
+config_transcribe_audio = transcribe_audio
+    .description = Toggle whether Scripty transcribes arbitrary audio files. Requires premium.
+    .transcribe_audio = transcribe_audio
+    .transcribe_audio-description = Defaults to false
+config-transcribe-audio-enabled = Scripty will now transcribe audio files.
+config-transcribe-audio-disabled = Scripty will no longer transcribe audio files.
+config-transcribe-audio-requires-premium = Transcribing audio files is a Premium feature, as it is computationally expensive to transcode audio files.
+  If you would like to upgrade to Premium, head to https://dash.scripty.org/premium. You can also request a free trial of Premium by DMing the bot.
+
+## config - transcribe video command
+config_transcribe_video = transcribe_video
+    .description = Toggle whether Scripty transcribes arbitrary video files. Requires T2 premium.
+    .transcribe_video = transcribe_video
+    .transcribe_video-description = Defaults to false
+config-transcribe-audio-enabled = Scripty will now transcribe video files.
+config-transcribe-audio-disabled = Scripty will no longer transcribe video files.
+config-transcribe-audio-requires-premium = Transcribing audio files is a Premium Tier 2 feature, as it is very computationally expensive to transcode audio files.
+  If you would like to upgrade to Premium Tier 2, head to https://dash.scripty.org/premium.
+
 ## Help menu translation strings
 
 command-not-found = No command with name `{ $commandName }` found.
@@ -126,17 +162,14 @@ more-info-on-command =
     ```
 
 ## Language configuration strings
-# This and all attributes show up exclusively in the slash command picker when `language` is selected.
-cmds_language = language
-    .description = Modify your language preferences.
-# This and all attributes show up exclusively in the slash command picker when `language user_language` is selected.
+# This and all attributes show up exclusively in the slash command picker when `user_language` is selected.
 cmds_user_language = user
     .description = Set your user language to one of the available languages.
     .language = language
     .language-description = The language you want to set your user language to.
 
-# This and all attributes show up exclusively in the slash command picker when `language guild_language` is selected.
-cmds_guild_language = guild
+# This and all attributes show up exclusively in the slash command picker when `guild_language` is selected.
+cmds_config_server_language = guild
     .description = Set this server's language to one of the available languages.
     .language = language
     .language-description = The language you want to set your guild language to.
