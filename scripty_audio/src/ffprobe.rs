@@ -1,10 +1,7 @@
-use std::{ffi::OsStr, os::unix::process::ExitStatusExt, path::PathBuf, process::Stdio};
+use std::{ffi::OsStr, os::unix::process::ExitStatusExt, path::Path, process::Stdio};
 
 use serde::{Deserialize, Serialize};
-use tokio::{
-	io,
-	io::{AsyncReadExt, AsyncWriteExt},
-};
+use tokio::{self, io, io::AsyncReadExt};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FfprobeOutput {
@@ -76,7 +73,7 @@ impl From<io::Error> for FfprobeParsingError {
 	}
 }
 
-pub async fn file_info(path: &PathBuf) -> Result<FfprobeOutput, FfprobeParsingError> {
+pub async fn file_info(path: &Path) -> Result<FfprobeOutput, FfprobeParsingError> {
 	let mut command = tokio::process::Command::new("/usr/bin/ffprobe")
 		.args([
 			OsStr::new("-print_format"),

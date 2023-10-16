@@ -1,4 +1,11 @@
-use std::{ffi::OsStr, io, path::PathBuf, process::Stdio, str::FromStr};
+use std::{
+	ffi::OsStr,
+	fmt::Write,
+	io,
+	path::{Path, PathBuf},
+	process::Stdio,
+	str::FromStr,
+};
 
 use scripty_audio::FfprobeParsingError;
 use scripty_premium::PremiumTierList;
@@ -21,7 +28,7 @@ pub enum GenericMessageError {
 	Serenity(serenity::Error),
 	Model(scripty_audio::ModelError),
 	Io(io::Error),
-	NoStdin,
+
 	NoStdout,
 	FfmpegExited(i32),
 	Ffprobe(FfprobeParsingError),
@@ -101,7 +108,8 @@ pub async fn handle_message(ctx: Context, msg: Message) -> Result<(), GenericMes
 
 	// does the guild even have it enabled?
 	let (language, audio_enabled, video_enabled) = sqlx::query!(
-		"SELECT language, transcribe_audio_files, transcribe_video_files FROM guilds WHERE guild_id = $1",
+		"SELECT language, transcribe_audio_files, transcribe_video_files FROM guilds WHERE \
+		 guild_id = $1",
 		guild_id.get() as i64
 	)
 	.fetch_optional(scripty_db::get_db())
@@ -132,7 +140,8 @@ pub async fn handle_message(ctx: Context, msg: Message) -> Result<(), GenericMes
 		.unwrap_or(PremiumTierList::None);
 	if premium_tier == PremiumTierList::None {
 		return Ok(());
-	} else if video_files_found && premium_tier < PremiumTierList::Tier2 {
+	}
+	if video_files_found && premium_tier < PremiumTierList::Tier2 {
 		return Ok(());
 	}
 
@@ -169,7 +178,13 @@ pub async fn handle_message(ctx: Context, msg: Message) -> Result<(), GenericMes
 	// so just quietly edit and ignore
 	if transcripts.is_empty() {
 		new_msg
-			.edit(ctx, EditMessage::new().content("No transcripts found. This is likely because the file(s) is/are malformed. Re-encode it and try again"))
+			.edit(
+				ctx,
+				EditMessage::new().content(
+					"No transcripts found. This is likely because the file(s) is/are malformed. \
+					 Re-encode it and try again",
+				),
+			)
 			.await?;
 		return Ok(());
 	}
@@ -177,31 +192,126 @@ pub async fn handle_message(ctx: Context, msg: Message) -> Result<(), GenericMes
 	// massage the transcripts into a message
 	let mut msg_builder = EditMessage::new();
 	if transcripts.len() == 1 && let Some(transcript) = transcripts.first() {
-		let transcript =  transcript.trim();
-		match transcript.len() {
-			0 => {
-				msg_builder = msg_builder.content("No transcript detected by STT library.");
-			}
-			1..=1950 => {
-				// send as a quote
-				let mut quote = String::from("Transcript:\n");
-				for line in transcript.split_inclusive('\n') {
-					quote.push_str("> ");
-					quote.push_str(line);
+		match transcript {
+			TranscriptResult::Success { file_name, transcript } => {
+				match transcript.len() {
+					0 => {
+						msg_builder = msg_builder.content("No transcript detected by STT library.");
+					}
+					1..=1950 => {
+						// send as a quote
+						let mut quote = String::from("Transcript:\n");
+						for line in transcript.split_inclusive('\n') {
+							quote.push_str("> ");
+							quote.push_str(line);
+						}
+						msg_builder = msg_builder.content(quote);
+					}
+					_ => {
+						// too long to send in a single message, so send it as a file
+						msg_builder = msg_builder.attachment(CreateAttachment::bytes(transcript.as_bytes(), format!("transcript_{}.txt", file_name)));
+					}
 				}
-				msg_builder = msg_builder.content(quote);
+
 			}
-			_ => {
-				// too long to send in a single message, so send it as a file
-				msg_builder = msg_builder.attachment(CreateAttachment::bytes(transcript.as_bytes(), "transcript.txt"));
+			TranscriptResult::EmptyTranscript { .. } => {
+				msg_builder = msg_builder.content(
+					"No transcript detected by STT library. \
+					This is likely because there's too much noise in the file."
+				)
+			}
+			TranscriptResult::VideoNeedsPremium => {
+				msg_builder = msg_builder.content(
+					"Transcribing video files requires at least Tier 2 Premium. \
+					 You shouldn't be seeing this message if you only have one file in your message."
+				)
+			}
+			TranscriptResult::AudioTooLong { audio_length, max_audio_length, .. } => {
+				msg_builder = msg_builder.content(format!(
+					"With Tier {} Premium, you can transcribe audio files at most {} seconds long. \
+					 This file is {} seconds long.",
+					premium_tier,
+					max_audio_length,
+					audio_length
+				))
+			}
+			TranscriptResult::VideoTooLong { video_length, max_video_length, .. } => {
+				msg_builder = msg_builder.content(format!(
+					"With Tier {} Premium, you can transcribe video files at most {} seconds long. \
+					This file is {} seconds long.",
+					premium_tier,
+					max_video_length,
+					video_length
+				))
+			}
+			TranscriptResult::NoExtension => {
+				msg_builder = msg_builder.content(
+					"No file extension detected. \
+					 You shouldn't be seeing this message.")
+			}
+			TranscriptResult::DurationParseFailure => {
+				msg_builder = msg_builder.content(
+					"Failed to parse duration. Your file is likely malformed. \
+					 Re-encode it and try again.")
 			}
 		}
 	} else {
+		let mut total_content = String::from("More than one file, sending as attachments instead of quotes.\n");
+
 		// send all as their own files
 		for transcript in transcripts {
-			msg_builder = msg_builder.attachment(CreateAttachment::bytes(transcript.as_bytes(), "transcript.txt"));
+			match transcript {
+				TranscriptResult::Success { file_name, transcript } => {
+					msg_builder = msg_builder.attachment(CreateAttachment::bytes(transcript.as_bytes(), format!("transcript_{}.txt", file_name)))
+				}
+				TranscriptResult::EmptyTranscript { file_name } => {
+					msg_builder = msg_builder.attachment(CreateAttachment::bytes(
+						"No transcript detected by STT library. \
+						This is likely because there's too much noise in the file.".as_bytes(), 
+						format!("transcript_{}.txt",
+								file_name
+						)))
+				}
+				TranscriptResult::VideoNeedsPremium => {
+					total_content.push_str("Transcribing video files requires at least Tier 2 Premium.\n")
+				}
+				TranscriptResult::AudioTooLong { audio_length, max_audio_length, file_name } => {
+					writeln!(
+						total_content,
+						"With Tier {0} Premium, you can transcribe audio files at most {1} \
+						seconds.`{3}` is {2} seconds.",
+						premium_tier,
+						max_audio_length,
+						audio_length,
+						file_name
+					).expect("writing to string should be infallible")
+				}
+				TranscriptResult::VideoTooLong { video_length, max_video_length, file_name } => {
+					writeln!(
+						total_content,
+						"With Tier {0} Premium, you can transcribe video files at most {1} \
+						seconds. `{3}` is {2} seconds.",
+						premium_tier,
+						max_video_length,
+						video_length,
+						file_name
+					).expect("writing to string should be infallible")
+				}
+				TranscriptResult::NoExtension => {
+					total_content.push_str(
+						"No file extension detected. You shouldn't be seeing this message.\n"
+					)
+				}
+				TranscriptResult::DurationParseFailure => {
+					total_content.push_str(
+						"Failed to parse duration. Your file is likely malformed. \
+						Re-encode it and try again.\n"
+					)
+				}
+			}
 		}
-		msg_builder = msg_builder.content("Sending as files instead of a quote");
+
+		msg_builder = msg_builder.content(total_content);
 	}
 
 	// send the message
@@ -218,23 +328,29 @@ enum TranscriptResult {
 		transcript: String,
 		file_name:  String,
 	},
+	EmptyTranscript {
+		file_name: String,
+	},
 	VideoNeedsPremium,
 	AudioTooLong {
 		audio_length:     f64,
 		max_audio_length: f64,
+		file_name:        String,
 	},
 	VideoTooLong {
 		video_length:     f64,
 		max_video_length: f64,
+		file_name:        String,
 	},
 	NoExtension,
+	DurationParseFailure,
 }
 
 async fn handle_transcripts(
 	files: Vec<&Attachment>,
 	language: &str,
 	premium_tier: PremiumTierList,
-) -> Result<Vec<String>, GenericMessageError> {
+) -> Result<Vec<TranscriptResult>, GenericMessageError> {
 	let mut output = Vec::with_capacity(files.len());
 	for file in files {
 		debug!(%file.id, "processing file");
@@ -243,15 +359,13 @@ async fn handle_transcripts(
 			if VIDEO_EXTENSIONS.contains(&ext) {
 				// need at least tier 2 for video
 				if premium_tier < PremiumTierList::Tier2 {
-					output.push(format!(
-						"Video file detected, but you need at least tier 2 for video files"
-					));
+					output.push(TranscriptResult::VideoNeedsPremium);
 					continue;
 				}
 			}
 		} else {
 			// no extension, skip
-			output.push("File has no extension. This is a bug, please report.".to_owned());
+			output.push(TranscriptResult::NoExtension);
 			continue;
 		};
 
@@ -273,7 +387,7 @@ async fn handle_transcripts(
 			Ok(length) => length,
 			Err(e) => {
 				error!(%file.id, "failed to parse duration: {}", e);
-				output.push(format!("Failed to parse duration: {}", e));
+				output.push(TranscriptResult::DurationParseFailure);
 				continue;
 			}
 		};
@@ -282,26 +396,26 @@ async fn handle_transcripts(
 		if is_video {
 			// need at least tier 2 for video
 			if premium_tier < PremiumTierList::Tier2 {
-				output.push(
-					"Video file detected, but you need at least tier 2 for video files".to_string(),
-				);
+				output.push(TranscriptResult::VideoNeedsPremium);
 				continue;
 			}
 			let max_video_length = get_max_video_length(premium_tier);
 			if file_length > get_max_video_length(premium_tier) {
-				output.push(format!(
-					"Video file too long ({}s), maximum is {}s",
-					file_length, max_video_length
-				));
+				output.push(TranscriptResult::VideoTooLong {
+					max_video_length,
+					video_length: file_length,
+					file_name: file.filename.clone(),
+				});
 				continue;
 			}
 		} else {
 			let max_audio_length = get_max_audio_length(premium_tier);
 			if file_length > max_audio_length {
-				output.push(format!(
-					"Audio file too long ({}s), maximum is {}s",
-					file_length, max_audio_length
-				));
+				output.push(TranscriptResult::AudioTooLong {
+					max_audio_length,
+					audio_length: file_length,
+					file_name: file.filename.clone(),
+				});
 				continue;
 			}
 		}
@@ -314,13 +428,25 @@ async fn handle_transcripts(
 		let stream = scripty_audio::get_stream(language, false).await?;
 
 		stream.feed_audio(i16_audio)?;
-		output.push(stream.get_result().await?.result);
+		let transcript = stream.get_result().await?.result;
+		let transcript = transcript.trim();
+		if transcript.is_empty() {
+			output.push(TranscriptResult::EmptyTranscript {
+				file_name: file.filename.clone(),
+			});
+			continue;
+		} else {
+			output.push(TranscriptResult::Success {
+				transcript: transcript.to_owned(),
+				file_name:  file.filename.clone(),
+			});
+		}
 	}
 
 	Ok(output)
 }
 
-async fn convert_to_pcm(path: &PathBuf) -> Result<Vec<i16>, GenericMessageError> {
+async fn convert_to_pcm(path: &Path) -> Result<Vec<i16>, GenericMessageError> {
 	// feed to ffmpeg
 	// we want raw 16-bit signed little-endian PCM at 48kHz and 1 channel as output
 	let mut command = tokio::process::Command::new("/usr/bin/ffmpeg")
@@ -368,12 +494,6 @@ async fn convert_to_pcm(path: &PathBuf) -> Result<Vec<i16>, GenericMessageError>
 	i16_audio.shrink_to_fit();
 
 	Ok(i16_audio)
-}
-
-/// Given a raw PCM audio sample, such that each sample is a 16-bit signed little-endian integer,
-/// with one channel and a sample rate of 16KHz, return the length of the audio in seconds.
-pub fn get_audio_length(i16_audio: &[i16]) -> f64 {
-	i16_audio.len() as f64 / 16000.0
 }
 
 fn get_max_video_length(premium_level: PremiumTierList) -> f64 {
