@@ -25,7 +25,7 @@ pub async fn config_transcribe_video(
 	if premium_tier < scripty_premium::PremiumTierList::Tier2 {
 		ctx.say(format_message!(
 			resolved_language,
-			"config-transcribe-video-premium-required"
+			"config-transcribe-video-requires-premium"
 		))
 		.await?;
 		return Ok(());

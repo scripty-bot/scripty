@@ -25,7 +25,7 @@ pub async fn config_transcribe_audio(
 	if premium_tier == scripty_premium::PremiumTierList::None {
 		ctx.say(format_message!(
 			resolved_language,
-			"config-transcribe-audio-premium-required"
+			"config-transcribe-audio-requires-premium"
 		))
 		.await?;
 		return Ok(());
