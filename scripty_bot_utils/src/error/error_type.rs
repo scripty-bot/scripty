@@ -184,9 +184,9 @@ impl Display for Error {
 			Redis(e) => format!("Redis returned an error: {}", e).into(),
 			RedisPool(e) => format!("Redis pool returned an error: {}", e).into(),
 			VoiceMessageDecode(e) => format!(
-				"Failed to decode voice message: {}\n\
-			Note: this error can be caused by uploading custom voice message files. \
-			Scripty will only attempt to decode those uploaded with the same format as the official client.",
+				"Failed to decode voice message: {}\nNote: this error can be caused by uploading \
+				 custom voice message files. Scripty will only attempt to decode those uploaded \
+				 with the same format as the official client.",
 				e
 			)
 			.into(),

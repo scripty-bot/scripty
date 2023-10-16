@@ -30,7 +30,8 @@ pub async fn terms_of_service(ctx: Context<'_>) -> Result<(), Error> {
 
 	// as far as i can tell, there's not a nice way of doing this without two queries
 	sqlx::query!(
-		"INSERT INTO guilds (guild_id) VALUES ($1) ON CONFLICT ON CONSTRAINT guilds_pkey DO NOTHING",
+		"INSERT INTO guilds (guild_id) VALUES ($1) ON CONFLICT ON CONSTRAINT guilds_pkey DO \
+		 NOTHING",
 		guild_id.get() as i64
 	)
 	.execute(db)

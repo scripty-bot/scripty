@@ -38,9 +38,9 @@ pub async fn on_error(error: FrameworkError<'_, Data, Error>) {
 						ctx,
 						format!("Missing permissions for {}!", cmd_name),
 						format!(
-							"I tried doing something (not sure what) but was not allowed to.\
-                             Please check my permissions and try again.\n\
-                             Discord error code {}, message: `{}`",
+							"I tried doing something (not sure what) but was not allowed \
+							 to.Please check my permissions and try again.\nDiscord error code \
+							 {}, message: `{}`",
 							code, message
 						),
 					)
@@ -61,8 +61,8 @@ pub async fn on_error(error: FrameworkError<'_, Data, Error>) {
 						ctx,
 						format!("An error happened while processing {}", cmd_name),
 						format!(
-							"```\n{:?}\n```\nThis has been automatically reported. \
-                        Please do not attempt to repeatedly use this command.",
+							"```\n{:?}\n```\nThis has been automatically reported. Please do not \
+							 attempt to repeatedly use this command.",
 							e
 						),
 					)
@@ -81,25 +81,24 @@ pub async fn on_error(error: FrameworkError<'_, Data, Error>) {
 			error, input, ctx, ..
 		} => {
 			send_err_msg(
-                ctx,
-                format!(
-                    "Invalid arguments while parsing {}",
-                    ctx.command().qualified_name
-                ),
-                match input {
-                    Some(input) => {
-                        format!(
-                            "Failed to parse `{}` because `{}`\n\
-                            **Hint:** if you're trying to mention a channel with prefix commands, use its ID, \
-                            as they are the most reliable way of doing so.",
-                            input,
-                            error
-                        )
-                    },
-                    None => format!("{}", error),
-                },
-            )
-                .await;
+				ctx,
+				format!(
+					"Invalid arguments while parsing {}",
+					ctx.command().qualified_name
+				),
+				match input {
+					Some(input) => {
+						format!(
+							"Failed to parse `{}` because `{}`\n**Hint:** if you're trying to \
+							 mention a channel with prefix commands, use its ID, as they are the \
+							 most reliable way of doing so.",
+							input, error
+						)
+					}
+					None => format!("{}", error),
+				},
+			)
+			.await;
 		}
 		FrameworkError::CommandStructureMismatch {
 			description, ctx, ..
@@ -131,12 +130,10 @@ pub async fn on_error(error: FrameworkError<'_, Data, Error>) {
 					))
 					.color((255, 0, 0))
 					.description(format!(
-						"{}\n\n\
-                    **Note**: this is a Discord error\n\
-                    The only fix for this is to wait for Discord to propagate slash commands, \
-                    which can take up to one hour.\n\
-                    If you do not want to wait this hour, you should use the prefix commands: \
-                    run this command with `~{} {}`.",
+						"{}\n\n**Note**: this is a Discord error\nThe only fix for this is to \
+						 wait for Discord to propagate slash commands, which can take up to one \
+						 hour.\nIf you do not want to wait this hour, you should use the prefix \
+						 commands: run this command with `~{} {}`.",
 						description, ctx.command.qualified_name, args
 					)),
 			);

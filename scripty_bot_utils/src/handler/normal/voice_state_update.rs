@@ -70,7 +70,8 @@ pub async fn voice_state_update(ctx: Context, _: Option<VoiceState>, new: VoiceS
 		// does the guild have automod enabled?
 		let db = scripty_db::get_db();
 		let Some(resp) = (match sqlx::query!(
-			"SELECT enabled, auto_join_voice, log_channel_id FROM automod_config WHERE guild_id = $1",
+			"SELECT enabled, auto_join_voice, log_channel_id FROM automod_config WHERE guild_id = \
+			 $1",
 			guild_id.get() as i64
 		)
 		.fetch_optional(db)
@@ -160,8 +161,8 @@ pub async fn voice_state_update(ctx: Context, _: Option<VoiceState>, new: VoiceS
 				.say(
 					&ctx.http,
 					format!(
-						"Failed to join voice channel due to auto-join error: {}\n\
-						You may want to report this in our support server.",
+						"Failed to join voice channel due to auto-join error: {}\nYou may want to \
+						 report this in our support server.",
 						e
 					),
 				)

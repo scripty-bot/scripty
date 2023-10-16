@@ -17,9 +17,12 @@ pub async fn automod_list_rules(ctx: Context<'_>) -> Result<(), Error> {
 		scripty_i18n::get_resolved_language(ctx.author().id.get(), Some(gid)).await;
 
 	let rules: Vec<_> = sqlx::query!(
-        "SELECT item_id, rule_type, rule_action, rule_data FROM automod_rules WHERE source_id = (SELECT item_id FROM automod_config WHERE guild_id = $1) ORDER BY item_id ASC",
-        gid as i64
-    ).fetch_all(db).await?;
+		"SELECT item_id, rule_type, rule_action, rule_data FROM automod_rules WHERE source_id = \
+		 (SELECT item_id FROM automod_config WHERE guild_id = $1) ORDER BY item_id ASC",
+		gid as i64
+	)
+	.fetch_all(db)
+	.await?;
 
 	if rules.is_empty() {
 		ctx.say(format_message!(

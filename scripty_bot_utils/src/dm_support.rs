@@ -228,19 +228,18 @@ impl DmSupportStatus {
 
 	async fn handle_opening(&self, ctx: &Context, user: &User) -> serenity::Result<()> {
 		user.direct_message(
-            ctx,
-            CreateMessage::default()
-                .embed(
-                    CreateEmbed::default()
-                        .title("DM Ticket Opened")
-                        .description(
-                            "You have opened a ticket. \
-                            If you did this by accident, please type `close`, and **WAIT FOR A STAFF MEMBER TO CLOSE IT**."
-                        )
-                )
-        )
-            .await
-            .map(|_| ())
+			ctx,
+			CreateMessage::default().embed(
+				CreateEmbed::default()
+					.title("DM Ticket Opened")
+					.description(
+						"You have opened a ticket. If you did this by accident, please type \
+						 `close`, and **WAIT FOR A STAFF MEMBER TO CLOSE IT**.",
+					),
+			),
+		)
+		.await
+		.map(|_| ())
 	}
 
 	async fn get_webhook(&self, ctx: &Context, channel: &ChannelId) -> Webhook {
@@ -292,10 +291,9 @@ impl DmSupportStatus {
 						CreateEmbed::default()
 							.title("Closed Support Ticket")
 							.description(
-								"This support ticket has now been closed.\
-                                Thank you for using Scripty's support system. \
-                                If you require more assistance,\
-                                simply send another message here to reopen a new ticket.",
+								"This support ticket has now been closed.Thank you for using \
+								 Scripty's support system. If you require more assistance,simply \
+								 send another message here to reopen a new ticket.",
 							),
 					),
 				)

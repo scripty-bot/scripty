@@ -166,12 +166,16 @@ pub async fn automod_add_rule(
 
 	// all checks passed, add the rule
 	let rule_id = sqlx::query!(
-        "INSERT INTO automod_rules (source_id, rule_type, rule_data, rule_action) VALUES ($1, $2, $3, $4) RETURNING item_id",
-        item_id,
-        rule_type as i16,
-        content,
-        action as i16
-    ).fetch_one(db).await?.item_id;
+		"INSERT INTO automod_rules (source_id, rule_type, rule_data, rule_action) VALUES ($1, $2, \
+		 $3, $4) RETURNING item_id",
+		item_id,
+		rule_type as i16,
+		content,
+		action as i16
+	)
+	.fetch_one(db)
+	.await?
+	.item_id;
 
 	let extra_details = if !is_not_none {
 		format_message!(

@@ -20,10 +20,12 @@ pub async fn join(
 	#[channel_types("Voice", "Stage")]
 	voice_channel: Option<GuildChannel>,
 
-	#[description = "Log all transcripts? Users will be DMed when Scripty leaves the channel. Defaults to false."]
+	#[description = "Log all transcripts? Users will be DMed when Scripty leaves the channel. \
+	                 Defaults to false."]
 	record_transcriptions: Option<bool>,
 
-	#[description = "Send transcripts here, instead of the current channel. Target a forum to create a new post."]
+	#[description = "Send transcripts here, instead of the current channel. Target a forum to \
+	                 create a new post."]
 	#[channel_types(
 		"Text",
 		"Forum",

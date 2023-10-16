@@ -22,10 +22,12 @@ pub async fn automod_setup(
 	#[channel_types("Text")]
 	target_channel: GuildChannel,
 
-	#[description = "Should a recording of offending speech be sent to the target channel? Defaults to false."]
+	#[description = "Should a recording of offending speech be sent to the target channel? \
+	                 Defaults to false."]
 	log_recording: Option<bool>,
 
-	#[description = "Should the bot automatically join voice if a user joins? Defaults to false. Requires premium."]
+	#[description = "Should the bot automatically join voice if a user joins? Defaults to false. \
+	                 Requires premium."]
 	auto_join: Option<bool>,
 ) -> Result<(), Error> {
 	let log_recording = log_recording.unwrap_or(false);

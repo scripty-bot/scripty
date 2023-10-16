@@ -145,30 +145,32 @@ ON CONFLICT
 				SubscriptionStatus::Active => {
 					if evt.is_length_change && evt.is_tier_change {
 						embed = embed.title("Subscription Updated").description(format!(
-							"Your subscription to Scripty Premium has been updated to Tier {0}, and will take effect \
-							<t:{1}:F> (<t:{1}:R>).\n\
-							If you have any questions, you may respond to this message for support.\n\
-							Thanks for supporting Scripty!\n\n\
-							~ the Scripty team",
-							tier,
-							evt.current_period_start
+							"Your subscription to Scripty Premium has been updated to Tier {0}, \
+							 and will take effect <t:{1}:F> (<t:{1}:R>).\nIf you have any \
+							 questions, you may respond to this message for support.\nThanks for \
+							 supporting Scripty!\n\n~ the Scripty team",
+							tier, evt.current_period_start
 						));
 					} else if evt.cancel_at_period_end {
-						embed = embed.title("Subscription Cancelled").description(format!(
-                            "Your subscription to Scripty Premium has been cancelled. You, and any servers you have \
-                            activated Premium on, will lose their benefits <t:{0}:F> (<t:{0}:R>)\n\
-                            We're sorry to see you go.\n\
-                            If you have a moment, it'd be great if you could respond to this message telling us why you \
-                            cancelled. In any case, thank you a lot for supporting Scripty.\n\n\
-                            <:meow_heart:1003570104866443274> ~ the Scripty team",
-                            evt.current_period_end
-                        )).footer(CreateEmbedFooter::new("https://xkcd.com/2257/"));
+						embed = embed
+							.title("Subscription Cancelled")
+							.description(format!(
+								"Your subscription to Scripty Premium has been cancelled. You, \
+								 and any servers you have activated Premium on, will lose their \
+								 benefits <t:{0}:F> (<t:{0}:R>)\nWe're sorry to see you go.\nIf \
+								 you have a moment, it'd be great if you could respond to this \
+								 message telling us why you cancelled. In any case, thank you a \
+								 lot for supporting Scripty.\n\n<:meow_heart:1003570104866443274> \
+								 ~ the Scripty team",
+								evt.current_period_end
+							))
+							.footer(CreateEmbedFooter::new("https://xkcd.com/2257/"));
 					} else if evt.is_new {
 						embed = embed.title("Subscription Started").description(format!(
-							"Your subscription to Scripty Premium has started, and takes effect <t:{0}:F> (<t:{0}:R>).\n\
-							If you have any questions, you may respond to this message for support.\n\
-							Thanks for supporting Scripty!\n\n\
-							~ the Scripty team",
+							"Your subscription to Scripty Premium has started, and takes effect \
+							 <t:{0}:F> (<t:{0}:R>).\nIf you have any questions, you may respond \
+							 to this message for support.\nThanks for supporting Scripty!\n\n~ \
+							 the Scripty team",
 							evt.current_period_start
 						));
 					} else if evt.is_renewal {
@@ -180,54 +182,55 @@ ON CONFLICT
 							~ the Scripty team"
 						);
 					} else if evt.is_length_change {
-						embed = embed.title("Subscription Length Changed").description(format!(
-							"The length of your subscription has successfully been changed! It now ends on <t:{0}:F> (<t:{0}:R>).\n\
-							If you have any questions, you may respond to this message for support.\n\
-							Thanks for supporting Scripty!\n\n\
-							~ the Scripty team",
-							evt.current_period_end
-						));
+						embed = embed
+							.title("Subscription Length Changed")
+							.description(format!(
+								"The length of your subscription has successfully been changed! \
+								 It now ends on <t:{0}:F> (<t:{0}:R>).\nIf you have any \
+								 questions, you may respond to this message for support.\nThanks \
+								 for supporting Scripty!\n\n~ the Scripty team",
+								evt.current_period_end
+							));
 					} else if evt.is_tier_change {
 						embed = embed.title("Tier Changed").description(format!(
-                            "Your subscription has been updated to Tier {1}, and takes effect <t:{0}:F> (<t:{0}:R>).\n\
-                            If you had more servers than you were supposed to with this new Premium tier due to a downgrade, \
-                            all the servers you have added to Premium have been removed. You will need to re-add the \
-                            servers you would like to keep Premium on.\n\
-                            If you had fewer servers than you now have access to, you can use `/premium claim` to add more servers. \
-                            If you have any questions, you may respond to this message for support.\n\n\
-                            ~ the Scripty team",
-                            evt.current_period_end,
-                            tier
-                        ));
+							"Your subscription has been updated to Tier {1}, and takes effect \
+							 <t:{0}:F> (<t:{0}:R>).\nIf you had more servers than you were \
+							 supposed to with this new Premium tier due to a downgrade, all the \
+							 servers you have added to Premium have been removed. You will need \
+							 to re-add the servers you would like to keep Premium on.\nIf you had \
+							 fewer servers than you now have access to, you can use `/premium \
+							 claim` to add more servers. If you have any questions, you may \
+							 respond to this message for support.\n\n~ the Scripty team",
+							evt.current_period_end, tier
+						));
 					} else if evt.trial_finished {
 						embed = embed.title("Trial Upgraded").description(format!(
-							"Your subscription of Scripty Premium has been upgraded from a trial to a paid subscription, and \
-							we have attempted to charge you for a full {1} of Tier {0}.\n\
-							If you have any questions, you may respond to this message for support.\n\
-							Thanks for supporting Scripty!\n\n\
-							~ the Scripty team",
-							tier,evt.interval
+							"Your subscription of Scripty Premium has been upgraded from a trial \
+							 to a paid subscription, and we have attempted to charge you for a \
+							 full {1} of Tier {0}.\nIf you have any questions, you may respond to \
+							 this message for support.\nThanks for supporting Scripty!\n\n~ the \
+							 Scripty team",
+							tier, evt.interval
 						));
 					} else {
 						embed = embed.title("Subscription Update").description(format!(
-							"I am unable to determine what has changed about your subscription. You may want to review the following \
-							information and contact support if you believe this is an error.\n\n\
-							**Current Subscription End Date**: <t:{0}:F> (<t:{0}:R>)\n\
-							**Current Subscription Tier**: {1}\n\
-							**Current Subscription Status**: {2}\n\
-							**Cancelling at Period End**: {3}\n\
-							**Current Trial End**: {4}\n\
-							**Is New**: {5}\n\
-							**Is Renewal**: {6}\n\
-							**Is Length Change**: {7}\n\
-							**Is Tier Change**: {8}\n\
-							If you're unsure what this means, you may respond to this message for support, \
-							and we will dig into it for you.",
+							"I am unable to determine what has changed about your subscription. \
+							 You may want to review the following information and contact support \
+							 if you believe this is an error.\n\n**Current Subscription End \
+							 Date**: <t:{0}:F> (<t:{0}:R>)\n**Current Subscription Tier**: \
+							 {1}\n**Current Subscription Status**: {2}\n**Cancelling at Period \
+							 End**: {3}\n**Current Trial End**: {4}\n**Is New**: {5}\n**Is \
+							 Renewal**: {6}\n**Is Length Change**: {7}\n**Is Tier Change**: \
+							 {8}\nIf you're unsure what this means, you may respond to this \
+							 message for support, and we will dig into it for you.",
 							evt.current_period_end,
 							tier,
 							evt.status,
 							evt.cancel_at_period_end,
-							evt.trial_end.map_or_else(|| "None".to_string(), |t| format!("<t:{0}:F> (<t:{0}:R>)", t)),
+							evt.trial_end.map_or_else(
+								|| "None".to_string(),
+								|t| format!("<t:{0}:F> (<t:{0}:R>)", t)
+							),
 							evt.is_new,
 							evt.is_renewal,
 							evt.is_length_change,
@@ -263,14 +266,18 @@ ON CONFLICT
 				}
 				SubscriptionStatus::Canceled => {
 					// prepare the user's message
-					embed = embed.title("Subscription Cancelled").description(
-                        "Your subscription to Scripty Premium has been finally cancelled. You, and any servers you have \
-                        activated Premium on, have lost their benefits.\n\
-                        We're sorry to see you go.\n\
-                        If you have a moment, it'd be great if you could respond to this message telling us why you \
-                        cancelled. In any case, thank you a lot for supporting Scripty.\n\n\
-                        <:meow_heart:1003570104866443274> ~ the Scripty team".to_string()
-                    ).footer(CreateEmbedFooter::new("https://xkcd.com/2257/"));
+					embed = embed
+						.title("Subscription Cancelled")
+						.description(
+							"Your subscription to Scripty Premium has been finally cancelled. \
+							 You, and any servers you have activated Premium on, have lost their \
+							 benefits.\nWe're sorry to see you go.\nIf you have a moment, it'd be \
+							 great if you could respond to this message telling us why you \
+							 cancelled. In any case, thank you a lot for supporting \
+							 Scripty.\n\n<:meow_heart:1003570104866443274> ~ the Scripty team"
+								.to_string(),
+						)
+						.footer(CreateEmbedFooter::new("https://xkcd.com/2257/"));
 
 					// remove the user's premium from the db
 					let hashed_user_id = scripty_utils::hash_user_id(user_id);
@@ -436,12 +443,11 @@ ON CONFLICT
 		StripeWebhookEventEnum::ChargeDisputeCreated(_) => {
 			// prepare embed
 			embed = embed.title("Dispute Created").description(
-				"Your payment for Scripty Premium has been disputed. \n\
-				This means that your Premium has been revoked, and you have been banned from the bot. \
-				You can appeal this ban by responding to this message. If you appeal successfully, \
-				there will still be a $30 fee to cover the cost of the dispute that must be paid before \
-				you can use Scripty again.\n\n\
-				~ the Scripty team",
+				"Your payment for Scripty Premium has been disputed. \nThis means that your \
+				 Premium has been revoked, and you have been banned from the bot. You can appeal \
+				 this ban by responding to this message. If you appeal successfully, there will \
+				 still be a $30 fee to cover the cost of the dispute that must be paid before you \
+				 can use Scripty again.\n\n~ the Scripty team",
 			);
 
 			// ban the user

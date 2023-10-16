@@ -113,11 +113,13 @@ pub async fn set_user_language(user_id: u64, language: &str) -> Result<(), Inval
 
 	let db = scripty_db::get_db();
 	sqlx::query!(
-        "INSERT INTO users (user_id, language) VALUES ($1, $2) ON CONFLICT (user_id) DO UPDATE SET language = $2",
-        hashed_user_id,
-        language
-    )
-    .execute(db).await?;
+		"INSERT INTO users (user_id, language) VALUES ($1, $2) ON CONFLICT (user_id) DO UPDATE \
+		 SET language = $2",
+		hashed_user_id,
+		language
+	)
+	.execute(db)
+	.await?;
 
 	get_cache().insert(user_id, lang);
 	Ok(())
@@ -174,11 +176,13 @@ pub async fn set_guild_language(guild_id: u64, language: &str) -> Result<(), Inv
 
 	let db = scripty_db::get_db();
 	sqlx::query!(
-        "INSERT INTO guilds (guild_id, language) VALUES ($1, $2) ON CONFLICT (guild_id) DO UPDATE SET language = $2",
-        guild_id as i64,
-        language
-    )
-    .execute(db).await?;
+		"INSERT INTO guilds (guild_id, language) VALUES ($1, $2) ON CONFLICT (guild_id) DO UPDATE \
+		 SET language = $2",
+		guild_id as i64,
+		language
+	)
+	.execute(db)
+	.await?;
 
 	get_cache().insert(guild_id, lang_id);
 	Ok(())

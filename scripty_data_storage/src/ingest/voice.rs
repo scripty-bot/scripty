@@ -89,12 +89,15 @@ impl VoiceIngest {
 		// this was processed on-demand to a WAV file, so we can just write it to the DB
 
 		let res = sqlx::query!(
-            "INSERT INTO audio_store (source_id, audio_data, transcript, transcript_language) VALUES ($1, $2, $3, $4)",
-            user_id,
-            audio_buffer,
-            transcription,
-            language
-        ).execute(scripty_db::get_db()).await;
+			"INSERT INTO audio_store (source_id, audio_data, transcript, transcript_language) \
+			 VALUES ($1, $2, $3, $4)",
+			user_id,
+			audio_buffer,
+			transcription,
+			language
+		)
+		.execute(scripty_db::get_db())
+		.await;
 
 		match res {
 			Ok(_) => {

@@ -160,7 +160,19 @@ pub async fn driver_disconnect(
 		}
 
 		// send the transcript to the channel
-		if let Err(e) = webhook.execute(&ctx, false, ExecuteWebhook::new().content("This transcript was automatically sent to all users who spoke in the voice chat.").add_file(attachment)).await {
+		if let Err(e) = webhook
+			.execute(
+				&ctx,
+				false,
+				ExecuteWebhook::new()
+					.content(
+						"This transcript was automatically sent to all users who spoke in the \
+						 voice chat.",
+					)
+					.add_file(attachment),
+			)
+			.await
+		{
 			debug!(?guild_id, "failed to send transcript to channel: {}", e);
 		}
 	}

@@ -162,9 +162,7 @@ impl Stream {
 			}
 			Ok(0x04) => {
 				// read error code
-				Err(match socket.read_i64().await? {
-					e => ModelError::SttsServer(e),
-				})
+				Err(ModelError::SttsServer(socket.read_i64().await?))
 			}
 			Err(e) => Err(e.into()),
 			_ => Err(ModelError::SttsServer(2147483653)),
@@ -214,9 +212,7 @@ impl Stream {
 			}
 			Ok(0x04) => {
 				// read error code
-				Err(match socket.read_i64().await? {
-					e => ModelError::SttsServer(e),
-				})
+				Err(ModelError::SttsServer(socket.read_i64().await?))
 			}
 			Err(e) => Err(e.into()),
 			_ => Err(ModelError::SttsServer(2147483653)),

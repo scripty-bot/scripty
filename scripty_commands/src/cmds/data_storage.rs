@@ -64,12 +64,13 @@ VALUES ($1)
 			"toggle_audio_storage" => {
 				// toggle column store_audio on users table where user_id = hashed_author_id and return the new value
 				let store_audio: bool = !sqlx::query!(
-                    "UPDATE users SET store_audio = NOT store_audio WHERE user_id = $1 RETURNING store_audio",
-                    hashed_author_id
-                )
-                .fetch_one(db)
-                .await?
-                .store_audio;
+					"UPDATE users SET store_audio = NOT store_audio WHERE user_id = $1 RETURNING \
+					 store_audio",
+					hashed_author_id
+				)
+				.fetch_one(db)
+				.await?
+				.store_audio;
 
 				Some(if store_audio {
 					"data-storage-opted-in-audio"
@@ -80,12 +81,13 @@ VALUES ($1)
 			"toggle_msg_storage" => {
 				// toggle column store_msgs on users table where user_id = hashed_author_id and return the new value
 				let store_msgs: bool = sqlx::query!(
-                    "UPDATE users SET store_msgs = NOT store_msgs WHERE user_id = $1 RETURNING store_msgs",
-                    hashed_author_id
-                )
-                .fetch_one(db)
-                .await?
-                .store_msgs;
+					"UPDATE users SET store_msgs = NOT store_msgs WHERE user_id = $1 RETURNING \
+					 store_msgs",
+					hashed_author_id
+				)
+				.fetch_one(db)
+				.await?
+				.store_msgs;
 
 				Some(if store_msgs {
 					"data-storage-opted-in-msgs"
@@ -194,12 +196,13 @@ pub async fn delete_all_data(ctx: Context<'_>) -> Result<(), Error> {
 				// reason is also obvious, user requested the ban
 				// blocked_since is the current time in UTC
 				sqlx::query!(
-                    "INSERT INTO blocked_users (user_id, reason, blocked_since) VALUES ($1, $2, localtimestamp)",
-                    hashed_author_id,
-                    "requested ban",
-                )
-                    .execute(db)
-                    .await?;
+					"INSERT INTO blocked_users (user_id, reason, blocked_since) VALUES ($1, $2, \
+					 localtimestamp)",
+					hashed_author_id,
+					"requested ban",
+				)
+				.execute(db)
+				.await?;
 				Some(true)
 			}
 			"delete_data_cancel" => None,
