@@ -116,10 +116,6 @@ cmds_help = hewp
 # This and all attributes show up exclusively in the slash command picker when `premium` is selected.
 cmds_premium = pwemium
     .description = pwemium commands
-# Language configuration strings
-# This and all attributes show up exclusively in the slash command picker when `language` is selected.
-cmds_language = wanguage
-    .description = modify youw wanguage pwefewences. >_<
 # premium command
 # This and all attributes show up exclusively in the slash command picker when `premium claim` is selected.
 cmds_premium_claim = cwaim

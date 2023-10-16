@@ -238,21 +238,11 @@ more-info-on-command =
     Pour plus d'informations à propos d'une commande, tapez `{ $contextPrefix }help <nom>`
     ```
 # Language configuration strings
-# This and all attributes show up exclusively in the slash command picker when `language` is selected.
-cmds_language = language
-    .description = Modifiez vos préférences de langue.
-# Language configuration strings
 # This and all attributes show up exclusively in the slash command picker when `language user_language` is selected.
 cmds_user_language = user
     .description = Sélectionnez votre langue parmi les langues disponibles
     .language = langue
     .language-description = La langue que vous souhaitez séléctionner.
-# Language configuration strings
-# This and all attributes show up exclusively in the slash command picker when `language guild_language` is selected.
-cmds_guild_language = guild
-    .description = Sélectionnez la langue du serveur permis les langues disponibles.
-    .language = langue
-    .language-description = La langue que vous souhaitez définir comme langue de serveur.
 # Language configuration strings
 # This message is shown as the embed description when the user sets their language successfully.
 user-language-set-success-description = Pour revenir en Anglais, tapez `{ $contextPrefix }language user_language en`.
