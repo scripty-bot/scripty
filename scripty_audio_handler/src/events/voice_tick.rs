@@ -291,7 +291,7 @@ async fn handle_speakers(
 				.audio_bytes_processed
 				.inc_by((audio.len() * SIZE_OF_I16) as _);
 
-			let audio = scripty_audio::process_audio(audio, 48_000.0, 16_000.0);
+			let audio = scripty_audio::process_audio(audio, 48_000.0, 16_000.0, 2);
 
 			// check voice ingest state
 			match ssrc_state.ssrc_voice_ingest_map.get(&ssrc) {
@@ -442,10 +442,6 @@ fn handle_error(error: ModelError, ssrc: u32) -> ExecuteWebhook {
 		ModelError::NoAvailableServers => {
 			error!(%ssrc, "STTS error: no available servers");
 			format!("no available STT servers (SSRC {})", ssrc)
-		}
-		ModelError::TimedOut => {
-			error!(%ssrc, "STTS error: timed out");
-			format!("STT service timed out (SSRC {})", ssrc)
 		}
 	};
 	ExecuteWebhook::new().content(user_error)

@@ -1,33 +1,35 @@
-use serenity::all::{Context, GuildId, Message, MessageFlags};
+use serenity::{
+	all::{Context, GuildId, Message, MessageFlags},
+	builder::{CreateAttachment, EditMessage},
+};
 
 pub async fn handle_message(ctx: Context, msg: Message) {
 	if let Some(flags) = msg.flags && flags.contains(MessageFlags::IS_VOICE_MESSAGE) {
-			if let Some(attachment) = msg.attachments.first() {
-				if let Some(duration_secs) = attachment.duration_secs {
-					debug!(%msg.id, %duration_secs, "got voice message");
-
-					if !voice_message_enabled_for_guild(msg.guild_id.unwrap()).await {
-						debug!(%msg.id, "voice message not enabled for guild");
-						return;
-					}
-
-					let res = match attachment.download().await {
-						Ok(waveform) => internal_handle_message(&ctx, msg.clone(), waveform).await,
-						Err(e) => {
-							error!(%msg.id, "failed to download voice message: {}", e);
-							return
-						}
-					};
-
-					if let Err(e) = res {
-						error!(%msg.id, "failed to handle voice message: {}", e);
-						if let Err(e) = msg.reply(ctx, format!("failed to handle this voice message: {}", e)).await { error!(%msg.id, "failed to send error message: {}", e)}
-					}
+		if let Some(attachment) = msg.attachments.first() {
+			if let Some(duration_secs) = attachment.duration_secs {
+				debug!(%msg.id, %duration_secs, "got voice message");
+				if !voice_message_enabled_for_guild(msg.guild_id.unwrap()).await {
+					debug!(%msg.id, "voice message not enabled for guild");
+					return;
 				}
-			} else {
-				warn!(%msg.id, "voice message did not contain attachment");
+
+				let res = match attachment.download().await {
+					Ok(waveform) => internal_handle_message(&ctx, msg.clone(), waveform).await,
+					Err(e) => {
+						error!(%msg.id, "failed to download voice message: {}", e);
+						return
+					}
+				};
+
+				if let Err(e) = res {
+					error!(%msg.id, "failed to handle voice message: {}", e);
+					if let Err(e) = msg.reply(ctx, format!("failed to handle this voice message: {}", e)).await { error!(%msg.id, "failed to send error message: {}", e)}
+				}
 			}
+		} else {
+			warn!(%msg.id, "voice message did not contain attachment");
 		}
+	}
 }
 
 async fn internal_handle_message(
@@ -35,6 +37,8 @@ async fn internal_handle_message(
 	msg: Message,
 	waveform: Vec<u8>,
 ) -> Result<(), crate::Error> {
+	let mut new_msg = msg.reply(&ctx, "Transcribing voice message...").await?;
+
 	debug!(%msg.id, "decoding voice message");
 	// start by trying to decode the waveform: it should be 1 channel, 48000Hz,32Kbps Opus in an OGG container
 	let output = scripty_audio::decode_ogg_opus_file(waveform)?;
@@ -52,10 +56,29 @@ async fn internal_handle_message(
 
 	let stream = scripty_audio::get_stream(&lang, false).await?;
 	stream.feed_audio(output)?;
-	let res = stream.get_result().await?.result;
+	let transcript = stream.get_result().await?.result;
+	let transcript = transcript.trim();
+	let mut msg_builder = EditMessage::new();
+
+	if transcript.is_empty() {
+		msg_builder = msg_builder.content("No transcription found");
+	} else if transcript.len() > 1950 {
+		msg_builder = msg_builder.attachment(CreateAttachment::bytes(
+			transcript.as_bytes(),
+			"transcript.txt",
+		));
+	} else {
+		// send as a quote
+		let mut quote = String::from("Transcript:\n");
+		for line in transcript.split_inclusive('\n') {
+			quote.push_str("> ");
+			quote.push_str(line);
+		}
+		msg_builder = msg_builder.content(quote);
+	}
 
 	debug!(%msg.id, "got result from speech-to-text, sending to channel");
-	msg.reply(ctx, res).await?;
+	new_msg.edit(&ctx, msg_builder).await?;
 
 	debug!(%msg.id, "done handling voice message");
 	Ok(())

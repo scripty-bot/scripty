@@ -153,22 +153,20 @@ impl Stream {
 
 		// wait for response
 		debug!("waiting for response");
-		let resp = match tokio::time::timeout(Duration::from_secs(16), socket.read_u8()).await {
-			Ok(Ok(0x02)) => {
+		let resp = match socket.read_u8().await {
+			Ok(0x02) => {
 				// read transcript
 				Ok(Transcript {
 					result: read_string(socket).await?,
 				})
 			}
-			Ok(Ok(0x04)) => {
+			Ok(0x04) => {
 				// read error code
 				Err(match socket.read_i64().await? {
-					i64::MIN => ModelError::TimedOut,
 					e => ModelError::SttsServer(e),
 				})
 			}
-			Ok(Err(e)) => Err(e.into()),
-			Err(_) => Err(ModelError::TimedOut),
+			Err(e) => Err(e.into()),
 			_ => Err(ModelError::SttsServer(2147483653)),
 		};
 		debug!("got response");
@@ -197,8 +195,8 @@ impl Stream {
 
 		// wait for response
 		debug!("waiting for response");
-		let resp = match tokio::time::timeout(Duration::from_secs(17), socket.read_u8()).await {
-			Ok(Ok(0x03)) => {
+		let resp = match socket.read_u8().await {
+			Ok(0x03) => {
 				// read verbose transcript
 				let num_transcripts = socket.read_u32().await?;
 				let mut main_transcript = None;
@@ -214,15 +212,13 @@ impl Stream {
 					main_confidence,
 				})
 			}
-			Ok(Ok(0x04)) => {
+			Ok(0x04) => {
 				// read error code
 				Err(match socket.read_i64().await? {
-					i64::MIN => ModelError::TimedOut,
 					e => ModelError::SttsServer(e),
 				})
 			}
-			Ok(Err(e)) => Err(e.into()),
-			Err(_) => Err(ModelError::TimedOut),
+			Err(e) => Err(e.into()),
 			_ => Err(ModelError::SttsServer(2147483653)),
 		};
 		debug!("got response");
@@ -235,7 +231,6 @@ pub enum ModelError {
 	Io(io::Error),
 	SttsServer(i64),
 	NoAvailableServers,
-	TimedOut,
 }
 
 impl std::error::Error for ModelError {}
@@ -259,9 +254,6 @@ impl std::fmt::Display for ModelError {
 			ModelError::SttsServer(err) => write!(f, "STTS server error: {}", err),
 			ModelError::NoAvailableServers => {
 				write!(f, "No available STTS servers after 1024 tries")
-			}
-			ModelError::TimedOut => {
-				write!(f, "Timed out waiting for STTS server to respond")
 			}
 		}
 	}

@@ -2,7 +2,12 @@ use dasp_interpolate::linear::Linear;
 use dasp_signal::{from_iter, interpolate::Converter, Signal};
 
 #[inline]
-pub fn process_audio(src: Vec<i16>, src_sample_rate: f64, dst_sample_rate: f64) -> Vec<i16> {
+pub fn process_audio(
+	src: Vec<i16>,
+	src_sample_rate: f64,
+	dst_sample_rate: f64,
+	channel_count: u8,
+) -> Vec<i16> {
 	let src = if src_sample_rate != dst_sample_rate {
 		// convert src into an iterator
 		let mut source = from_iter(src.into_iter().map(|v| [v]));
@@ -24,7 +29,13 @@ pub fn process_audio(src: Vec<i16>, src_sample_rate: f64, dst_sample_rate: f64) 
 		src
 	};
 
-	stereo_to_mono(&src)
+	if channel_count == 2 {
+		stereo_to_mono(&src)
+	} else if channel_count != 1 {
+		panic!("Invalid channel count: {}", channel_count)
+	} else {
+		src
+	}
 }
 
 // this is useless, and only remains here for someone to stumble upon for their own use

@@ -1,54 +1,23 @@
-use std::{
-	error::Error as StdError,
-	fmt::{Display, Formatter},
-	io::Cursor,
-};
+use std::io::Cursor;
 
-use audiopus::{coder::Decoder as OpusDecoder, Channels, SampleRate};
-use ogg::{OggReadError, PacketReader};
+use magnum::{container::ogg::OpusSourceOgg, error::OpusSourceError};
 
-#[derive(Debug)]
-pub enum OggOpusDecodeError {
-	OpusError(audiopus::Error),
-	OggError(OggReadError),
-}
+pub fn decode_ogg_opus_file(file: Vec<u8>) -> Result<Vec<i16>, OpusSourceError> {
+	let audio_source = OpusSourceOgg::new(Cursor::new(file))?;
+	let channel_count = audio_source.metadata.channel_count;
+	let sample_rate = audio_source.metadata.sample_rate;
+	let f32_audio = audio_source.collect::<Vec<f32>>();
 
-impl From<audiopus::Error> for OggOpusDecodeError {
-	fn from(e: audiopus::Error) -> Self {
-		OggOpusDecodeError::OpusError(e)
-	}
-}
-
-impl From<OggReadError> for OggOpusDecodeError {
-	fn from(e: OggReadError) -> Self {
-		OggOpusDecodeError::OggError(e)
-	}
-}
-
-impl StdError for OggOpusDecodeError {}
-
-impl Display for OggOpusDecodeError {
-	fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-		match self {
-			Self::OggError(e) => write!(f, "ogg decode error: {}", e),
-			Self::OpusError(e) => write!(f, "opus decode error: {}", e),
-		}
-	}
-}
-
-pub fn decode_ogg_opus_file(file: Vec<u8>) -> Result<Vec<i16>, OggOpusDecodeError> {
-	let buf = Cursor::new(file);
-
-	let mut reader = PacketReader::new(buf);
-	let mut opus_decoder = OpusDecoder::new(SampleRate::Hz48000, Channels::Mono)?;
-	let mut output = Vec::new();
-	loop {
-		match reader.read_packet() {
-			Ok(Some(pkt)) => opus_decoder.decode(Some(&pkt.data), &mut output, false)?,
-			Ok(None) => break,
-			Err(e) => return Err(e.into()),
-		};
+	// convert the audio to i16
+	let mut i16_audio = Vec::with_capacity(f32_audio.len());
+	for sample in f32_audio {
+		// clamp the sample to [-1.0, 1.0]
+		let sample = sample.max(-1.0).min(1.0);
+		i16_audio.push((sample * i16::MAX as f32) as i16);
 	}
 
-	Ok(output)
+	// down-sample to 16KHz for whisper
+	i16_audio = crate::process_audio(i16_audio, sample_rate as f64, 16000.0, channel_count);
+
+	Ok(i16_audio)
 }

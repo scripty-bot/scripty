@@ -5,7 +5,7 @@ use std::{
 };
 
 use backtrace::Backtrace;
-use scripty_audio::{ModelError, OggOpusDecodeError};
+use scripty_audio::{ModelError, OpusSourceError};
 use scripty_audio_handler::JoinError;
 use serenity::{model::channel::ChannelType, prelude::SerenityError};
 
@@ -34,7 +34,7 @@ pub enum ErrorEnum {
 	ManualError,
 	Redis(scripty_redis::redis::RedisError),
 	RedisPool(scripty_redis::PoolError),
-	VoiceMessageDecode(OggOpusDecodeError),
+	VoiceMessageDecode(OpusSourceError),
 	Transcription(ModelError),
 	Custom(String),
 }
@@ -106,7 +106,7 @@ impl Error {
 	}
 
 	#[inline]
-	pub fn voice_message_decode(err: OggOpusDecodeError) -> Self {
+	pub fn voice_message_decode(err: OpusSourceError) -> Self {
 		Error {
 			bt:  Backtrace::new(),
 			err: ErrorEnum::VoiceMessageDecode(err),
@@ -279,9 +279,9 @@ impl From<String> for Error {
 	}
 }
 
-impl From<OggOpusDecodeError> for Error {
+impl From<OpusSourceError> for Error {
 	#[inline]
-	fn from(e: OggOpusDecodeError) -> Self {
+	fn from(e: OpusSourceError) -> Self {
 		Self {
 			err: ErrorEnum::VoiceMessageDecode(e),
 			bt:  Backtrace::new(),

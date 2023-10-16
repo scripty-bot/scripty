@@ -116,6 +116,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-tempfile"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b37d4bb113c47e4f263d4b0221912ff5aa840a51bc9b7b47b024e1cf1926fd9b"
+dependencies = [
+ "tokio",
+ "uuid",
+]
+
+[[package]]
 name = "async-trait"
 version = "0.1.73"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -278,6 +288,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "bitreader"
+version = "0.3.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bdd859c9d97f7c468252795b35aeccc412bdbb1e90ee6969c4fa6328272eaeff"
+dependencies = [
+ "cfg-if",
+]
+
+[[package]]
 name = "block-buffer"
 version = "0.10.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -315,6 +334,15 @@ name = "bytesize"
 version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a3e368af43e418a04d52505cf3dbc23dda4e3407ae2fa99fd0e4f308ce546acc"
+
+[[package]]
+name = "caf"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8fb1715abe8ffd1caeca4e30b9d803ecb75698bef0e59d207d4b0f16757744e7"
+dependencies = [
+ "byteorder",
+]
 
 [[package]]
 name = "cc"
@@ -1551,6 +1579,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "magnum"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6d94d2153e4d3147a196e140706f6223e4b3b196696c87d37c418eeaa6e1b26a"
+dependencies = [
+ "audiopus 0.2.0",
+ "bitreader",
+ "byteorder",
+ "caf",
+ "ogg",
+ "thiserror",
+]
+
+[[package]]
 name = "matchers"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1788,9 +1830,9 @@ dependencies = [
 
 [[package]]
 name = "ogg"
-version = "0.9.0"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "960d0efc0531a452c442c777288f704b300a5f743c04a14eba71f9aabc4897ac"
+checksum = "6951b4e8bf21c8193da321bcce9c9dd2e13c858fe078bf9054a288b419ae5d6e"
 dependencies = [
  "byteorder",
 ]
@@ -2562,16 +2604,17 @@ checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
 name = "scripty_audio"
 version = "1.0.0"
 dependencies = [
- "audiopus 0.2.0",
  "byteorder",
  "dashmap",
  "dasp_interpolate",
  "dasp_signal",
  "flume 0.10.14",
- "ogg",
+ "magnum",
  "once_cell",
  "scripty_config",
  "scripty_metrics",
+ "serde",
+ "serde_json",
  "tokio",
  "tracing",
 ]
@@ -2631,6 +2674,7 @@ dependencies = [
 name = "scripty_bot_utils"
 version = "0.1.0"
 dependencies = [
+ "async-tempfile",
  "async-trait",
  "backtrace",
  "dashmap",
@@ -2651,6 +2695,7 @@ dependencies = [
  "sqlx",
  "tokio",
  "tracing",
+ "uuid",
 ]
 
 [[package]]
@@ -4146,6 +4191,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "79daa5ed5740825c40b389c5e50312b9c86df53fccd33f281df655642b43869d"
 dependencies = [
  "getrandom",
+ "rand",
 ]
 
 [[package]]

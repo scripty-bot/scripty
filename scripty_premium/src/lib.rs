@@ -12,7 +12,7 @@ pub struct PremiumUserInfo {
 }
 
 #[repr(i16)]
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, PartialOrd)]
 pub enum PremiumTierList {
 	None  = 0,
 	Tier1 = 1,

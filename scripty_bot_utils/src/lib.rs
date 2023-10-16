@@ -1,4 +1,5 @@
 #![feature(let_chains)]
+#![feature(slice_as_chunks)]
 #[macro_use]
 extern crate tracing;
 #[macro_use]
@@ -12,6 +13,7 @@ pub mod dm_support;
 pub mod entity_block;
 pub mod error;
 pub mod extern_utils;
+mod generic_audio_message;
 pub mod globals;
 pub mod handler;
 pub mod types;

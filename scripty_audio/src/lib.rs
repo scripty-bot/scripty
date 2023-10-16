@@ -4,13 +4,16 @@
 extern crate tracing;
 
 mod decode_ogg_opus;
+mod ffprobe;
 mod init;
 mod load_balancer;
 mod models;
 mod process_audio;
 
-pub use decode_ogg_opus::{decode_ogg_opus_file, OggOpusDecodeError};
+pub use decode_ogg_opus::decode_ogg_opus_file;
+pub use ffprobe::*;
 pub use init::init_stt;
+pub use magnum::error::OpusSourceError;
 pub use models::*;
 pub use process_audio::process_audio;
 
