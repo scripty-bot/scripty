@@ -127,9 +127,9 @@ config_transcribe_video = transcribe_video
     .description = Toggle whether Scripty transcribes arbitrary video files. Requires T2 premium.
     .transcribe_video = transcribe_video
     .transcribe_video-description = Defaults to false
-config-transcribe-audio-enabled = Scripty will now transcribe video files.
-config-transcribe-audio-disabled = Scripty will no longer transcribe video files.
-config-transcribe-audio-requires-premium = Transcribing audio files is a Premium Tier 2 feature, as it is very computationally expensive to transcode audio files.
+config-transcribe-video-enabled = Scripty will now transcribe video files.
+config-transcribe-video-disabled = Scripty will no longer transcribe video files.
+config-transcribe-video-requires-premium = Transcribing audio files is a Premium Tier 2 feature, as it is very computationally expensive to transcode audio files.
   If you would like to upgrade to Premium Tier 2, head to https://dash.scripty.org/premium.
 
 ## Help menu translation strings
