@@ -3,7 +3,13 @@ use scripty_bot_utils::checks::is_guild;
 use crate::{Context, Error};
 
 /// Remove your premium from this guild.
-#[poise::command(prefix_command, slash_command, guild_cooldown = 15, check = "is_guild")]
+#[poise::command(
+	prefix_command,
+	slash_command,
+	guild_cooldown = 15,
+	check = "is_guild",
+	rename = "claim"
+)]
 pub async fn premium_remove(ctx: Context<'_>) -> Result<(), Error> {
 	let resolved_language =
 		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|g| g.get()))

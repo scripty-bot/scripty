@@ -9,7 +9,7 @@ pub async fn ps(ctx: Context<'_>) -> Result<(), Error> {
 	Ok(())
 }
 
-#[poise::command(prefix_command, hide_in_help, check = "is_guild")]
+#[poise::command(prefix_command, hide_in_help, check = "is_guild", rename = "close")]
 pub async fn ps_close(ctx: Context<'_>) -> Result<(), Error> {
 	if let Some(st) = DM_SUPPORT_GLOBAL.get() {
 		st.close_ticket(
