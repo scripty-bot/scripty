@@ -19,6 +19,7 @@ pub async fn config_transcribe_audio(
 	let resolved_language =
 		scripty_i18n::get_resolved_language(ctx.author().id.get(), Some(guild_id)).await;
 
+	let mut forcibly_disable = false;
 	let premium_tier = scripty_premium::get_guild(guild_id)
 		.await
 		.ok_or_else(Error::expected_premium_value)?;
@@ -28,17 +29,24 @@ pub async fn config_transcribe_audio(
 			"config-transcribe-audio-requires-premium"
 		))
 		.await?;
-		return Ok(());
+		forcibly_disable = true;
 	}
 
 	sqlx::query!(
 		"INSERT INTO guilds (guild_id, transcribe_audio_files) VALUES ($1, $2) ON CONFLICT \
 		 (guild_id) DO UPDATE SET transcribe_audio_files = $2",
 		guild_id as i64,
-		transcribe_audio
+		if forcibly_disable {
+			false
+		} else {
+			transcribe_audio
+		}
 	)
 	.execute(scripty_db::get_db())
 	.await?;
+	if forcibly_disable {
+		return Ok(());
+	}
 
 	ctx.say(format_message!(
 		resolved_language,
