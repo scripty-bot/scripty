@@ -14,8 +14,10 @@ pub async fn block(ctx: Context<'_>) -> Result<(), Error> {
 		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|g| g.get()))
 			.await;
 
-	ctx.send(        CreateReply::default().ephemeral(true)
-        .embed(                CreateEmbed::default()
+	ctx.send(
+		CreateReply::default().ephemeral(true)
+        .embed(
+			CreateEmbed::default()
             .title(format_message!(resolved_language, "root-command-invoked-title"))
             .description(format_message!(resolved_language, "root-command-invoked-description", contextPrefix: ctx.prefix(), commandName: "block"))
         )
