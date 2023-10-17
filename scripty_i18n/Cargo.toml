@@ -6,10 +6,6 @@ license = "EUPL-1.2"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[[bin]]
-name = "check_translations"
-path = "src/main.rs"
-
 [dependencies]
 fluent = "0.16"
 dashmap = "5"
