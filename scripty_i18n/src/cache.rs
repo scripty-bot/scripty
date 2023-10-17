@@ -2,6 +2,7 @@ use std::str::FromStr;
 
 use dashmap::DashMap;
 use once_cell::sync::OnceCell;
+use scripty_utils::hash_user_id;
 use unic_langid::{LanguageIdentifier, LanguageIdentifierError};
 
 /// A cache of user + guild IDs to their chosen language.
@@ -72,10 +73,11 @@ pub async fn get_user_language(user_id: u64) -> Option<LanguageIdentifier> {
 		return Some(lang.value().clone());
 	}
 
+	let hashed_user_id = hash_user_id(user_id);
 	let db = scripty_db::get_db();
 	let user_language = sqlx::query!(
 		"SELECT language FROM users WHERE user_id = $1",
-		user_id as i64
+		hashed_user_id
 	)
 	.fetch_optional(db)
 	.await
