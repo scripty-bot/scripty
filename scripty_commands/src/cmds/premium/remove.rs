@@ -8,7 +8,7 @@ use crate::{Context, Error};
 	slash_command,
 	guild_cooldown = 15,
 	check = "is_guild",
-	rename = "claim"
+	rename = "remove"
 )]
 pub async fn premium_remove(ctx: Context<'_>) -> Result<(), Error> {
 	let resolved_language =
