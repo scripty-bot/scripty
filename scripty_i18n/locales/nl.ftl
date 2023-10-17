@@ -104,21 +104,11 @@ more-info-on-command =
     Voor meer informatie over een specifieke commando, type `{ $contextPrefix }help <name>`
     ```
 # Language configuration strings
-# This and all attributes show up exclusively in the slash command picker when `language` is selected.
-cmds_language = language
-    .description = Verander jouw taal voorkeur.
-# Language configuration strings
 # This and all attributes show up exclusively in the slash command picker when `language user_language` is selected.
 cmds_user_language = user
     .description = Zet jouw gebruikers taal naar een van de beschikbare talen.
     .language = taal
     .language-description = De taal waar jij je gebruikers taal heen wilt veranderen.
-# Language configuration strings
-# This and all attributes show up exclusively in the slash command picker when `language guild_language` is selected.
-cmds_guild_language = guild
-    .description = Zet deze server taal naar een van de beschikbare talen.
-    .language = taal
-    .language-description = De taal waar je de server heen wilt veranderen.
 # Language configuration strings
 # This message is shown as the embed title when the user sets their language successfully.
 user-language-set-success = Gebruikers taal is veranderd naar `{ $language }`.

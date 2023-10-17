@@ -68,10 +68,6 @@ context-menu-command-user =
     { $commandName } (felhasználón)
     { "" }
 # Language configuration strings
-# This and all attributes show up exclusively in the slash command picker when `language` is selected.
-cmds_language = nyelvezet
-    .description = Módosítsd nyelvi beállításaid.
-# Language configuration strings
 # This message is shown as the embed title when the database returns an error when setting the language for an entity.
 language-set-failure-title-db = Adatbázis hiba.
 # Help menu translation strings

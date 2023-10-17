@@ -35,10 +35,6 @@ premium-server-not-set-up = Ten serwer nie zaakceptował jeszcze Regulaminu i Po
 # premium command
 # This is shown to the user when they have too many used servers to add more.
 premium-too-many-guilds = Zgłosiłeś { $totalServers } kluczy premium. Nie możesz dodać więcej, chyba że zaktualizujesz subskrypcję premium na stronie <https://dash.scripty.org/premium> lub usuniesz niektóre za pomocą komendy `{ $commandPrefix }premium remove`.
-# Language configuration strings
-# This and all attributes show up exclusively in the slash command picker when `language` is selected.
-cmds_language = język
-    .description = Zmienia twoje preferencje językowe.
 # premium command
 # This is shown when the user successfully claims one of their premium subscriptions.
 premium-claimed = Pomyślnie zgłoszono premium na tym serwerze. Jeśli chcesz dokonać aktualizacji lub zakupić więcej slotów, udaj się pod adres <https://dash.scripty.org/premium>. Jeśli chcesz usunąć swoje premium z tego serwera, uruchom komendę `{ $commandPrefix }premium remove`.
@@ -53,12 +49,6 @@ cmds_user_language = użytkownik
 premium-removed = Jeśli jesteś użytkownikiem, który zgłosił roszczenie do Premium, pomyślnie usunąłeś swoje premium z tego serwera. Jeśli chcesz dokonać aktualizacji lub zakupić więcej slotów, udaj się pod adres <https://dash.scripty.org/premium>.
 # Help menu translation strings
 command-not-found = Nie znaleziono komendy o nazwie `{ $commandName }`.
-# Language configuration strings
-# This and all attributes show up exclusively in the slash command picker when `language guild_language` is selected.
-cmds_guild_language = serwer
-    .description = Ustaw język tego serwera na jeden z dostępnych języków.
-    .language = język
-    .language-description = Język, na który chcesz ustawić język tego serwera.
 # Help menu translation strings
 command-not-found-suggestions = Czy chodziło Ci o `{ $suggestion }`?
 # Help menu translation strings

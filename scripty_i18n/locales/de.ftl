@@ -369,10 +369,6 @@ data-storage-embed-description =
 # This and all attributes show up exclusively in the slash command picker when `terms_of_service` is selected.
 cmds_terms_of_service = Allgemeine_Geschäftsbedingungen
     .description = Sieh dir die Nutzungsbedingungen und Datenschutzrichtlinien von Scripty an und stimme ihnen zu.
-# Language configuration strings
-# This and all attributes show up exclusively in the slash command picker when `language` is selected.
-cmds_language = Sprache
-    .description = Ändere deine Spracheinstellungen.
 # data_storage command
 # This and all attributes show up exclusively in the slash command picker when `data_storage` is selected.
 cmds_data_storage = daten_speicher
@@ -466,9 +462,3 @@ cmds_user_language = Nutzer
     .description = Setze deine Benutzersprache auf eine der verfügbaren Sprachen.
     .language = Sprache
     .language-description = Die Sprache, auf die du deine Benutzersprache einstellen willst.
-# Language configuration strings
-# This and all attributes show up exclusively in the slash command picker when `language guild_language` is selected.
-cmds_guild_language = Server
-    .description = Setze die Sprache des Servers auf eine der verfügbaren Sprachen.
-    .language = Sprache
-    .language-description = Die Sprache, auf die du deine Gildensprache setzen willst.
