@@ -30,7 +30,9 @@ impl StatPoster for DisforgeCom {
 			.json(&super::models::PostStats {
 				servers: stats.server_count,
 			});
-		let response = request.send().await?.error_for_status()?;
+		let response = request.send().await?;
+		debug!("disforge.com response: {:?}", response);
+		response.error_for_status_ref()?;
 		if response.status() != reqwest::StatusCode::OK {
 			return Ok(false);
 		}

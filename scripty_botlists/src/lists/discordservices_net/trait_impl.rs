@@ -37,9 +37,10 @@ impl StatPoster for DiscordServicesNet {
 				servers: stats.server_count,
 				shards:  stats.shard_count,
 			});
-		let response = request.send().await?.error_for_status()?;
-		let is_ok = response.status() == reqwest::StatusCode::OK;
-		if !is_ok {
+		let response = request.send().await?;
+		debug!("discordservices.net response: {:?}", response);
+		response.error_for_status_ref()?;
+		if response.status() != reqwest::StatusCode::OK {
 			return Ok(false);
 		}
 		let body: PostStatsResponse = response.json().await?;

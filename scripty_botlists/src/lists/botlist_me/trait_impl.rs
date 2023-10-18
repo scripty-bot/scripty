@@ -38,7 +38,9 @@ impl StatPoster for BotListMe {
 				server_count: stats.server_count,
 				shard_count:  stats.shard_count,
 			});
-		let response = request.send().await?.error_for_status()?;
+		let response = request.send().await?;
+		debug!("botlist.me response: {:?}", response);
+		response.error_for_status_ref()?;
 		if response.status() != StatusCode::OK {
 			return Ok(false);
 		}

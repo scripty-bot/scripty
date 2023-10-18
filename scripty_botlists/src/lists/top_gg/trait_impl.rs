@@ -31,7 +31,9 @@ impl StatPoster for TopGG {
 				server_count: stats.server_count,
 				shard_count:  stats.shard_count,
 			});
-		let response = request.send().await?.error_for_status()?;
+		let response = request.send().await?;
+		debug!("top.gg response: {:?}", response);
+		response.error_for_status_ref()?;
 		Ok(response.status() == StatusCode::OK)
 	}
 }

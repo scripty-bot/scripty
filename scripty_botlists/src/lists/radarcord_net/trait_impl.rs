@@ -34,7 +34,9 @@ impl StatPoster for RadarCordNet {
 				servers: stats.server_count,
 				shards:  stats.shard_count,
 			});
-		let response = request.send().await?.error_for_status()?;
+		let response = request.send().await?;
+		debug!("radarcord.net response: {:?}", response);
+		response.error_for_status_ref()?;
 		Ok(response.status() == reqwest::StatusCode::OK)
 	}
 }

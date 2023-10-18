@@ -30,7 +30,9 @@ impl StatPoster for DiscordsCom {
 			.json(&super::models::PostStats {
 				server_count: stats.server_count,
 			});
-		let response = request.send().await?.error_for_status()?;
+		let response = request.send().await?;
+		debug!("discords.com response: {:?}", response);
+		response.error_for_status_ref()?;
 		Ok(response.status() == reqwest::StatusCode::OK)
 	}
 }

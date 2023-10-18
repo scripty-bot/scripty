@@ -31,7 +31,9 @@ impl StatPoster for TopCordXyz {
 				servers: stats.server_count,
 				shards:  stats.shard_count,
 			});
-		let response = request.send().await?.error_for_status()?;
+		let response = request.send().await?;
+		debug!("topcord.xyz response: {:?}", response);
+		response.error_for_status_ref()?;
 		Ok(response.status() == reqwest::StatusCode::OK)
 	}
 }

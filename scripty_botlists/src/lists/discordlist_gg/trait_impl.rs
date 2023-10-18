@@ -31,7 +31,9 @@ impl StatPoster for DiscordListGG {
 			))
 			.header("Authorization", format!("Bearer {}", &self.token))
 			.query(&[("count", stats.server_count)]);
-		let response = request.send().await?.error_for_status()?;
+		let response = request.send().await?;
+		debug!("discordlist.gg response: {:?}", response);
+		response.error_for_status_ref()?;
 		Ok(response.status() != reqwest::StatusCode::OK)
 	}
 }

@@ -31,7 +31,9 @@ impl StatPoster for InfinityBotsGG {
 				servers: stats.server_count,
 				shards:  stats.shard_count,
 			});
-		let response = request.send().await?.error_for_status()?;
+		let response = request.send().await?;
+		debug!("infinitybots.gg response: {:?}", response);
+		response.error_for_status_ref()?;
 		Ok(response.status() == StatusCode::NO_CONTENT)
 	}
 }
