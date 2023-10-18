@@ -23,7 +23,7 @@ impl DisforgeCom {
 
 #[async_trait]
 impl StatPoster for DisforgeCom {
-	async fn post_stats(&self, client: Client, stats: PostStats) -> Result<bool, ReqwestError> {
+	async fn post_stats(&self, client: &Client, stats: PostStats) -> Result<bool, ReqwestError> {
 		let request: RequestBuilder = client
 			.post(format!("https://disforge.com/api/botstats/{}", self.bot_id))
 			.header("Authorization", &self.token)

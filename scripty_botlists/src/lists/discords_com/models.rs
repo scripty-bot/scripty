@@ -2,7 +2,7 @@ use crate::common::UserId;
 
 #[derive(Debug, Serialize)]
 pub struct PostStats {
-	pub server_count: u64,
+	pub server_count: usize,
 }
 
 #[derive(Debug, Deserialize, Clone)]

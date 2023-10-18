@@ -1,6 +1,6 @@
 #[derive(Serialize, Debug, Copy, Clone)]
 pub struct PostStats {
-	pub servers: u64,
+	pub servers: usize,
 }
 
 #[derive(Deserialize, Debug, Clone)]

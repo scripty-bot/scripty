@@ -23,7 +23,7 @@ impl RadarCordNet {
 
 #[async_trait]
 impl StatPoster for RadarCordNet {
-	async fn post_stats(&self, client: Client, stats: PostStats) -> Result<bool, ReqwestError> {
+	async fn post_stats(&self, client: &Client, stats: PostStats) -> Result<bool, ReqwestError> {
 		let request: RequestBuilder = client
 			.post(format!(
 				"https://radarcord.net/api/bot/{}/stats",

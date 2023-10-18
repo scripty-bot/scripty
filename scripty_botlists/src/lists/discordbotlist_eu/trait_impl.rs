@@ -23,7 +23,7 @@ impl DiscordBotListEu {
 
 #[async_trait]
 impl StatPoster for DiscordBotListEu {
-	async fn post_stats(&self, client: Client, stats: PostStats) -> Result<bool, ReqwestError> {
+	async fn post_stats(&self, client: &Client, stats: PostStats) -> Result<bool, ReqwestError> {
 		let request: RequestBuilder = client
 			.patch("https://api.discord-botlist.eu/v1/update")
 			.header("Authorization", &self.token)

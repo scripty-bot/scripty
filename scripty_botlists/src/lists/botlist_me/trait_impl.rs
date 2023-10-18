@@ -19,11 +19,15 @@ impl BotListMe {
 	pub fn bot_id(&self) -> u64 {
 		self.bot_id
 	}
+
+	pub fn botlist_name() -> &'static str {
+		"botlist_me"
+	}
 }
 
 #[async_trait]
 impl StatPoster for BotListMe {
-	async fn post_stats(&self, client: Client, stats: PostStats) -> Result<bool, ReqwestError> {
+	async fn post_stats(&self, client: &Client, stats: PostStats) -> Result<bool, ReqwestError> {
 		let request: RequestBuilder = client
 			.post(format!(
 				"https://api.botlist.me/api/v1/bots/{}/stats",

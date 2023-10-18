@@ -23,7 +23,7 @@ impl TopGG {
 
 #[async_trait]
 impl StatPoster for TopGG {
-	async fn post_stats(&self, client: Client, stats: PostStats) -> Result<bool, ReqwestError> {
+	async fn post_stats(&self, client: &Client, stats: PostStats) -> Result<bool, ReqwestError> {
 		let request: RequestBuilder = client
 			.post(format!("https://top.gg/api/bots/{}/stats", self.bot_id))
 			.header("Authorization", &self.token)

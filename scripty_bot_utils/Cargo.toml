@@ -23,9 +23,11 @@ scripty_redis = { path = "../scripty_redis" }
 scripty_config = { path = "../scripty_config" }
 scripty_metrics = { path = "../scripty_metrics" }
 scripty_premium = { path = "../scripty_premium" }
+scripty_botlists = { path = "../scripty_botlists" }
 scripty_data_storage = { path = "../scripty_data_storage" }
 scripty_audio_handler = { path = "../scripty_audio_handler" }
 tokio = { version = "1", features = ["parking_lot", "signal"] }
+reqwest = { version = "0.11", default-features = false, features = ["json", "rustls"] }
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [
 	"voice",
 	"dashmap",

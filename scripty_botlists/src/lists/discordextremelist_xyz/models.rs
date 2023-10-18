@@ -1,8 +1,8 @@
 #[derive(Serialize, Debug, Copy, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct PostStats {
-	pub server_count: u64,
-	pub shard_count:  u64,
+	pub server_count: usize,
+	pub shard_count:  u32,
 }
 
 #[derive(Deserialize, Debug, Clone)]

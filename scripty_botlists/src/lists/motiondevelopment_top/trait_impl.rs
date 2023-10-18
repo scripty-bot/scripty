@@ -23,7 +23,7 @@ impl MotionDevelopmentTop {
 
 #[async_trait]
 impl StatPoster for MotionDevelopmentTop {
-	async fn post_stats(&self, client: Client, stats: PostStats) -> Result<bool, ReqwestError> {
+	async fn post_stats(&self, client: &Client, stats: PostStats) -> Result<bool, ReqwestError> {
 		let request: RequestBuilder = client
 			.post(format!(
 				"https://motiondevelopment.top/api/v1.2/bots/{}/stats",

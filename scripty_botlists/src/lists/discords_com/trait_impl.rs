@@ -23,7 +23,7 @@ impl DiscordsCom {
 
 #[async_trait]
 impl StatPoster for DiscordsCom {
-	async fn post_stats(&self, client: Client, stats: PostStats) -> Result<bool, ReqwestError> {
+	async fn post_stats(&self, client: &Client, stats: PostStats) -> Result<bool, ReqwestError> {
 		let request: RequestBuilder = client
 			.post(format!("https://discords.com/bots/api/bot/{}", self.bot_id))
 			.header("Authorization", &self.token)

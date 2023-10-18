@@ -23,7 +23,7 @@ impl DiscordExtremeListXyz {
 
 #[async_trait]
 impl StatPoster for DiscordExtremeListXyz {
-	async fn post_stats(&self, client: Client, stats: PostStats) -> Result<bool, ReqwestError> {
+	async fn post_stats(&self, client: &Client, stats: PostStats) -> Result<bool, ReqwestError> {
 		let request: RequestBuilder = client
 			.post(format!(
 				" https://api.discordextremelist.xyz/v2/bot/{}/stats ",

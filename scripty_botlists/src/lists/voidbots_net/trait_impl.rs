@@ -23,7 +23,7 @@ impl VoidBotsNet {
 
 #[async_trait]
 impl StatPoster for VoidBotsNet {
-	async fn post_stats(&self, client: Client, stats: PostStats) -> Result<bool, ReqwestError> {
+	async fn post_stats(&self, client: &Client, stats: PostStats) -> Result<bool, ReqwestError> {
 		let request: RequestBuilder = client
 			.post(format!(
 				"https://api.voidbots.net/bot/stats/{}",

@@ -67,4 +67,5 @@ pub fn init_background_tasks(ctx: Context) {
 	init_task!(crate::background_tasks::tasks::BasicStatsUpdater, ctx);
 	init_task!(crate::background_tasks::tasks::StatusUpdater, ctx);
 	init_task!(crate::background_tasks::tasks::CommandLatencyClearer, ctx);
+	init_task!(crate::background_tasks::tasks::BotListUpdater, ctx);
 }

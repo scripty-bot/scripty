@@ -26,7 +26,7 @@ impl DiscordServicesNet {
 
 #[async_trait]
 impl StatPoster for DiscordServicesNet {
-	async fn post_stats(&self, client: Client, stats: PostStats) -> Result<bool, ReqwestError> {
+	async fn post_stats(&self, client: &Client, stats: PostStats) -> Result<bool, ReqwestError> {
 		let request: RequestBuilder = client
 			.post(format!(
 				"https://api.discordservices.net/bot/{}/stats",

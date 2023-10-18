@@ -23,7 +23,7 @@ impl DiscordListGG {
 
 #[async_trait]
 impl StatPoster for DiscordListGG {
-	async fn post_stats(&self, client: Client, stats: PostStats) -> Result<bool, ReqwestError> {
+	async fn post_stats(&self, client: &Client, stats: PostStats) -> Result<bool, ReqwestError> {
 		let request: RequestBuilder = client
 			.put(format!(
 				"https://api.discordlist.gg/v0/bots/{}/guilds",

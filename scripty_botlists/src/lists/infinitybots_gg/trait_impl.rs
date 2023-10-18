@@ -23,7 +23,7 @@ impl InfinityBotsGG {
 
 #[async_trait]
 impl StatPoster for InfinityBotsGG {
-	async fn post_stats(&self, client: Client, stats: PostStats) -> Result<bool, ReqwestError> {
+	async fn post_stats(&self, client: &Client, stats: PostStats) -> Result<bool, ReqwestError> {
 		let request: RequestBuilder = client
 			.post("https://spider.infinitybots.gg/bots/stats")
 			.header("Authorization", &self.token)

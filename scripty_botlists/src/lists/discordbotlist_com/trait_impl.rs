@@ -23,7 +23,7 @@ impl DiscordBotListCom {
 
 #[async_trait]
 impl StatPoster for DiscordBotListCom {
-	async fn post_stats(&self, client: Client, stats: PostStats) -> Result<bool, ReqwestError> {
+	async fn post_stats(&self, client: &Client, stats: PostStats) -> Result<bool, ReqwestError> {
 		let request: RequestBuilder = client
 			.post(format!(
 				"https://discordbotlist.com/api/v1/bots/{}/stats",

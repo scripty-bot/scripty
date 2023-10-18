@@ -44,6 +44,9 @@ pub struct BotConfig {
 
 	/// Bind address for the webserver.
 	pub bind_address: String,
+
+	/// Bot lists config
+	pub bot_lists: HashMap<String, BotListsConfig>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -77,4 +80,11 @@ pub struct LokiConfig {
 
 	/// Maximum size of one message before being dropped. Defaults to infinite.
 	pub max_message_size: Option<usize>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(untagged)]
+pub enum BotListsConfig {
+	TokenOnly(String),
+	FullConfig { token: String, webhook: String },
 }
