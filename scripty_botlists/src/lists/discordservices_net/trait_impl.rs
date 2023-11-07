@@ -1,4 +1,4 @@
-use reqwest::{Client, Error as ReqwestError, RequestBuilder};
+use reqwest::{Client, RequestBuilder};
 
 use crate::common::{PostStats, StatPoster};
 
