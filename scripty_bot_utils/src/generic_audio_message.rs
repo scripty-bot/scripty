@@ -209,7 +209,7 @@ pub async fn handle_message(ctx: Context, msg: Message) -> Result<(), GenericMes
 					}
 					_ => {
 						// too long to send in a single message, so send it as a file
-						msg_builder = msg_builder.attachment(CreateAttachment::bytes(transcript.as_bytes(), format!("transcript_{}.txt", file_name)));
+						msg_builder = msg_builder.new_attachment(CreateAttachment::bytes(transcript.as_bytes(), format!("transcript_{}.txt", file_name)));
 					}
 				}
 
@@ -262,10 +262,10 @@ pub async fn handle_message(ctx: Context, msg: Message) -> Result<(), GenericMes
 		for transcript in transcripts {
 			match transcript {
 				TranscriptResult::Success { file_name, transcript } => {
-					msg_builder = msg_builder.attachment(CreateAttachment::bytes(transcript.as_bytes(), format!("transcript_{}.txt", file_name)))
+					msg_builder = msg_builder.new_attachment(CreateAttachment::bytes(transcript.as_bytes(), format!("transcript_{}.txt", file_name)))
 				}
 				TranscriptResult::EmptyTranscript { file_name } => {
-					msg_builder = msg_builder.attachment(CreateAttachment::bytes(
+					msg_builder = msg_builder.new_attachment(CreateAttachment::bytes(
 						"No transcript detected by STT library. \
 						This is likely because there's too much noise in the file.".as_bytes(), 
 						format!("transcript_{}.txt",

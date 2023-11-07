@@ -23,7 +23,11 @@ impl DiscordListGG {
 
 #[async_trait]
 impl StatPoster for DiscordListGG {
-	async fn post_stats(&self, client: &Client, stats: PostStats) -> Result<bool, ReqwestError> {
+	async fn post_stats(
+		&self,
+		client: &Client,
+		stats: PostStats,
+	) -> Result<bool, crate::common::Error> {
 		let request: RequestBuilder = client
 			.put(format!(
 				"https://api.discordlist.gg/v0/bots/{}/guilds",
@@ -33,7 +37,17 @@ impl StatPoster for DiscordListGG {
 			.query(&[("count", stats.server_count)]);
 		let response = request.send().await?;
 		debug!("discordlist.gg response: {:?}", response);
-		response.error_for_status_ref()?;
-		Ok(response.status() != reqwest::StatusCode::OK)
+		let status = response.status();
+		let maybe_error = if status.is_client_error() || status.is_server_error() {
+			Some(crate::common::Error::StatusCode(status))
+		} else {
+			None
+		};
+		let body = response.text().await?;
+		debug!("discordlist.gg response body: <{}>", body);
+		if let Some(maybe_error) = maybe_error {
+			return Err(maybe_error);
+		}
+		Ok(status != reqwest::StatusCode::OK)
 	}
 }

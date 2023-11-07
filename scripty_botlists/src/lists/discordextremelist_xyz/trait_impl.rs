@@ -23,7 +23,11 @@ impl DiscordExtremeListXyz {
 
 #[async_trait]
 impl StatPoster for DiscordExtremeListXyz {
-	async fn post_stats(&self, client: &Client, stats: PostStats) -> Result<bool, ReqwestError> {
+	async fn post_stats(
+		&self,
+		client: &Client,
+		stats: PostStats,
+	) -> Result<bool, crate::common::Error> {
 		let request: RequestBuilder = client
 			.post(format!(
 				" https://api.discordextremelist.xyz/v2/bot/{}/stats ",
@@ -36,12 +40,21 @@ impl StatPoster for DiscordExtremeListXyz {
 			});
 		let response = request.send().await?;
 		debug!("discordextremelist.xyz response: {:?}", response);
-		response.error_for_status_ref()?;
-		if response.status() != reqwest::StatusCode::OK {
-			Ok(false)
+		let status = response.status();
+		let maybe_error = if status.is_client_error() || status.is_server_error() {
+			Some(crate::common::Error::StatusCode(status))
 		} else {
-			let body = response.json::<super::models::PostStatsResponse>().await?;
-			Ok(!body.error)
+			None
+		};
+		let body = response.text().await?;
+		debug!("discordextremelist.xyz response body: <{}>", body);
+		if let Some(maybe_error) = maybe_error {
+			return Err(maybe_error);
 		}
+		if status != reqwest::StatusCode::OK {
+			return Ok(false);
+		}
+		let body: super::models::PostStatsResponse = serde_json::from_str(&body)?;
+		Ok(!body.error)
 	}
 }

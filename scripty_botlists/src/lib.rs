@@ -8,5 +8,5 @@ extern crate tracing;
 mod common;
 mod lists;
 
-pub use common::{PostStats, StatPoster, UserId};
+pub use common::{Error, PostStats, StatPoster, UserId};
 pub use lists::*;

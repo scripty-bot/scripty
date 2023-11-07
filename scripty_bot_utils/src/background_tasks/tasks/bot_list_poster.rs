@@ -67,7 +67,11 @@ enum BotLists {
 
 #[async_trait]
 impl StatPoster for BotLists {
-	async fn post_stats(&self, client: &Client, stats: PostStats) -> Result<bool, reqwest::Error> {
+	async fn post_stats(
+		&self,
+		client: &Client,
+		stats: PostStats,
+	) -> Result<bool, scripty_botlists::Error> {
 		match self {
 			BotLists::BotListMe(item) => item.post_stats(client, stats).await,
 			BotLists::DiscordBotsGG(item) => item.post_stats(client, stats).await,

@@ -23,7 +23,11 @@ impl DiscordBotsGG {
 
 #[async_trait]
 impl StatPoster for DiscordBotsGG {
-	async fn post_stats(&self, client: &Client, stats: PostStats) -> Result<bool, ReqwestError> {
+	async fn post_stats(
+		&self,
+		client: &Client,
+		stats: PostStats,
+	) -> Result<bool, crate::common::Error> {
 		let request: RequestBuilder = client
 			.post(format!(
 				"https://discord.bots.gg/api/v1/bots/{}/stats",
@@ -36,7 +40,11 @@ impl StatPoster for DiscordBotsGG {
 			});
 		let response = request.send().await?;
 		debug!("discord.bots.gg response: {:?}", response);
-		response.error_for_status_ref()?;
-		Ok(response.status() == reqwest::StatusCode::OK)
+		let status = response.status();
+		debug!(
+			"discord.bots.gg response body: <{}>",
+			response.text().await?
+		);
+		Ok(status == reqwest::StatusCode::OK)
 	}
 }
