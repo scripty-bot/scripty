@@ -2,6 +2,7 @@ use crate::{Context, Error};
 
 mod guild_check;
 mod hash_user_id;
+mod shutdown;
 
 pub use guild_check::*;
 pub use hash_user_id::hash_user_id;

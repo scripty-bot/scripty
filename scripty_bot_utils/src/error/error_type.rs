@@ -262,6 +262,16 @@ impl From<scripty_audio_handler::Error> for Error {
 	}
 }
 
+impl From<scripty_audio_handler::JoinError> for Error {
+	#[inline]
+	fn from(e: scripty_audio_handler::JoinError) -> Self {
+		Self {
+			err: ErrorEnum::Join(e),
+			bt:  Backtrace::new(),
+		}
+	}
+}
+
 impl From<scripty_redis::redis::RedisError> for Error {
 	#[inline]
 	fn from(e: scripty_redis::redis::RedisError) -> Self {

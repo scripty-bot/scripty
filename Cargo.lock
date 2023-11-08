@@ -2633,6 +2633,7 @@ dependencies = [
  "scripty_db",
  "scripty_metrics",
  "scripty_premium",
+ "scripty_redis",
  "scripty_utils",
  "serenity",
  "songbird",

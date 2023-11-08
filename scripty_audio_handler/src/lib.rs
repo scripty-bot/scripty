@@ -9,7 +9,7 @@ mod error;
 mod events;
 mod types;
 
-use std::sync::OnceLock as OnceCell;
+use std::sync::{Arc, OnceLock as OnceCell};
 
 pub use audio_handler::AudioHandler;
 pub use connect::connect_to_vc;
@@ -21,7 +21,7 @@ use serenity::{
 	all::{ChannelId, GuildId},
 	client::Context,
 };
-use songbird::{driver::DecodeMode, Config};
+use songbird::{driver::DecodeMode, Config, Songbird};
 pub use songbird::{error::JoinError, serenity::SerenityInit};
 use tokio::sync::oneshot::Sender;
 
@@ -41,6 +41,10 @@ pub async fn get_voice_channel_id(ctx: &Context, guild_id: GuildId) -> Option<Ch
 	// this allows the compiler to be happy with the lifetime of the call i guess?
 	let current_channel = call.lock().await.current_channel();
 	current_channel.map(|c| ChannelId::new(c.0.get()))
+}
+
+pub async fn get_songbird_from_ctx(ctx: &Context) -> Arc<Songbird> {
+	songbird::get(ctx).await.expect("songbird not registered")
 }
 
 static AUTO_LEAVE_TASKS: OnceCell<DashMap<GuildId, Sender<()>, ahash::RandomState>> =
