@@ -16,7 +16,7 @@ pub use connect::connect_to_vc;
 use dashmap::DashMap;
 pub use disconnect::disconnect_from_vc;
 pub use error::{Error, ErrorKind};
-pub use scripty_audio::{check_model_language, get_model_languages};
+pub use scripty_stt::{check_model_language, get_model_languages};
 use serenity::{
 	all::{ChannelId, GuildId},
 	client::Context,

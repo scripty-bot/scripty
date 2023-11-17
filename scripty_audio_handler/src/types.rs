@@ -3,8 +3,8 @@ use std::{collections::VecDeque, sync::Arc};
 use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
 use parking_lot::RwLock;
-use scripty_audio::Stream;
 use scripty_data_storage::VoiceIngest;
+use scripty_stt::Stream;
 
 /// Type alias for a `DashMap` containing SSRCs mapped to `UserId`s.
 pub type SsrcUserIdMap = DashMap<u32, u64, RandomState>;

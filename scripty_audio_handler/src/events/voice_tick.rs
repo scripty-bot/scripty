@@ -9,9 +9,9 @@ use std::{
 use ahash::RandomState;
 use dashmap::DashSet;
 use parking_lot::RwLock;
-use scripty_audio::{ModelError, Stream};
 use scripty_automod::types::{AutomodRuleAction, AutomodServerConfig};
 use scripty_metrics::Metrics;
+use scripty_stt::{ModelError, Stream};
 use serenity::{
 	all::{ChannelId as SerenityChannelId, ChannelId, GuildId, Webhook},
 	builder::{CreateEmbed, CreateMessage, EditMember, ExecuteWebhook},
@@ -119,14 +119,14 @@ async fn handle_silent_speakers(
 	for ssrc in last_tick_speakers {
 		// make a new stream for the next time they speak and remove their old one
 		let lang = language.read().to_owned();
-		let new_stream =
-			match scripty_audio::get_stream(&lang, verbose.load(Ordering::Relaxed)).await {
-				Ok(s) => s,
-				Err(e) => {
-					error!(?ssrc, "failed to create new stream: {}", e);
-					continue;
-				}
-			};
+		let new_stream = match scripty_stt::get_stream(&lang, verbose.load(Ordering::Relaxed)).await
+		{
+			Ok(s) => s,
+			Err(e) => {
+				error!(?ssrc, "failed to create new stream: {}", e);
+				continue;
+			}
+		};
 		let Some(old_stream) = ssrc_state.ssrc_stream_map.insert(ssrc, new_stream) else {
 			continue;
 		};
@@ -291,7 +291,7 @@ async fn handle_speakers(
 				.audio_bytes_processed
 				.inc_by((audio.len() * SIZE_OF_I16) as _);
 
-			let audio = scripty_audio::process_audio(audio, 48_000.0, 16_000.0, 2);
+			let audio = scripty_stt::process_audio(audio, 48_000.0, 16_000.0, 2);
 
 			// check voice ingest state
 			match ssrc_state.ssrc_voice_ingest_map.get(&ssrc) {
@@ -338,7 +338,7 @@ async fn handle_speakers(
 				// cold path so we can afford to do this
 				let lang = language.read().to_owned();
 				let new_stream =
-					match scripty_audio::get_stream(&lang, verbose.load(Ordering::Relaxed)).await {
+					match scripty_stt::get_stream(&lang, verbose.load(Ordering::Relaxed)).await {
 						Ok(s) => s,
 						Err(e) => {
 							error!(?ssrc, "failed to create new stream: {}", e);

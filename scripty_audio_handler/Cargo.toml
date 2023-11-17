@@ -14,7 +14,7 @@ backtrace = "0.3"
 async-trait = "0.1"
 parking_lot = "0.12"
 scripty_db = { path = "../scripty_db" }
-scripty_audio = { path = "../scripty_audio" }
+scripty_stt = { path = "../scripty_stt" }
 scripty_utils = { path = "../scripty_utils" }
 scripty_redis = { path = "../scripty_redis" }
 scripty_automod = { path = "../scripty_automod" }

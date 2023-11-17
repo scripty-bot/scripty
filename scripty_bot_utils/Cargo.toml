@@ -16,8 +16,8 @@ async-trait = "0.1"
 parking_lot = "0.12"
 async-tempfile = { version = "0.4", features = ["uuid"] }
 scripty_db = { path = "../scripty_db" }
+scripty_stt = { path = "../scripty_stt" }
 scripty_i18n = { path = "../scripty_i18n" }
-scripty_audio = { path = "../scripty_audio" }
 scripty_utils = { path = "../scripty_utils" }
 scripty_redis = { path = "../scripty_redis" }
 scripty_config = { path = "../scripty_config" }

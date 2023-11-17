@@ -1,5 +1,5 @@
 [package]
-name = "scripty_audio"
+name = "scripty_stt"
 version = "1.0.0"
 edition = "2021"
 license = "EUPL-1.2"

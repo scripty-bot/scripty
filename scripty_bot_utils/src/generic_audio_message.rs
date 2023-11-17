@@ -7,8 +7,8 @@ use std::{
 	str::FromStr,
 };
 
-use scripty_audio::FfprobeParsingError;
 use scripty_premium::PremiumTierList;
+use scripty_stt::FfprobeParsingError;
 use serenity::{
 	all::{Attachment, Context, EditMessage, Message},
 	builder::{CreateAttachment, CreateMessage},
@@ -26,7 +26,7 @@ const VIDEO_EXTENSIONS: [&str; 3] = ["mp4", "mov", "webm"];
 pub enum GenericMessageError {
 	Sqlx(sqlx::Error),
 	Serenity(serenity::Error),
-	Model(scripty_audio::ModelError),
+	Model(scripty_stt::ModelError),
 	Io(io::Error),
 
 	NoStdout,
@@ -47,8 +47,8 @@ impl From<serenity::Error> for GenericMessageError {
 	}
 }
 
-impl From<scripty_audio::ModelError> for GenericMessageError {
-	fn from(e: scripty_audio::ModelError) -> Self {
+impl From<scripty_stt::ModelError> for GenericMessageError {
+	fn from(e: scripty_stt::ModelError) -> Self {
 		Self::Model(e)
 	}
 }
@@ -191,9 +191,14 @@ pub async fn handle_message(ctx: Context, msg: Message) -> Result<(), GenericMes
 
 	// massage the transcripts into a message
 	let mut msg_builder = EditMessage::new();
-	if transcripts.len() == 1 && let Some(transcript) = transcripts.first() {
+	if transcripts.len() == 1
+		&& let Some(transcript) = transcripts.first()
+	{
 		match transcript {
-			TranscriptResult::Success { file_name, transcript } => {
+			TranscriptResult::Success {
+				file_name,
+				transcript,
+			} => {
 				match transcript.len() {
 					0 => {
 						msg_builder = msg_builder.content("No transcript detected by STT library.");
@@ -209,105 +214,113 @@ pub async fn handle_message(ctx: Context, msg: Message) -> Result<(), GenericMes
 					}
 					_ => {
 						// too long to send in a single message, so send it as a file
-						msg_builder = msg_builder.new_attachment(CreateAttachment::bytes(transcript.as_bytes(), format!("transcript_{}.txt", file_name)));
+						msg_builder = msg_builder.new_attachment(CreateAttachment::bytes(
+							transcript.as_bytes(),
+							format!("transcript_{}.txt", file_name),
+						));
 					}
 				}
-
 			}
 			TranscriptResult::EmptyTranscript { .. } => {
 				msg_builder = msg_builder.content(
-					"No transcript detected by STT library. \
-					This is likely because there's too much noise in the file."
+					"No transcript detected by STT library. This is likely because there's too \
+					 much noise in the file.",
 				)
 			}
 			TranscriptResult::VideoNeedsPremium => {
 				msg_builder = msg_builder.content(
-					"Transcribing video files requires at least Tier 2 Premium. \
-					 You shouldn't be seeing this message if you only have one file in your message."
+					"Transcribing video files requires at least Tier 2 Premium. You shouldn't be \
+					 seeing this message if you only have one file in your message.",
 				)
 			}
-			TranscriptResult::AudioTooLong { audio_length, max_audio_length, .. } => {
+			TranscriptResult::AudioTooLong {
+				audio_length,
+				max_audio_length,
+				..
+			} => {
 				msg_builder = msg_builder.content(format!(
-					"With Tier {} Premium, you can transcribe audio files at most {} seconds long. \
-					 This file is {} seconds long.",
-					premium_tier,
-					max_audio_length,
-					audio_length
+					"With Tier {} Premium, you can transcribe audio files at most {} seconds \
+					 long. This file is {} seconds long.",
+					premium_tier, max_audio_length, audio_length
 				))
 			}
-			TranscriptResult::VideoTooLong { video_length, max_video_length, .. } => {
+			TranscriptResult::VideoTooLong {
+				video_length,
+				max_video_length,
+				..
+			} => {
 				msg_builder = msg_builder.content(format!(
-					"With Tier {} Premium, you can transcribe video files at most {} seconds long. \
-					This file is {} seconds long.",
-					premium_tier,
-					max_video_length,
-					video_length
+					"With Tier {} Premium, you can transcribe video files at most {} seconds \
+					 long. This file is {} seconds long.",
+					premium_tier, max_video_length, video_length
 				))
 			}
 			TranscriptResult::NoExtension => {
-				msg_builder = msg_builder.content(
-					"No file extension detected. \
-					 You shouldn't be seeing this message.")
+				msg_builder = msg_builder
+					.content("No file extension detected. You shouldn't be seeing this message.")
 			}
 			TranscriptResult::DurationParseFailure => {
 				msg_builder = msg_builder.content(
-					"Failed to parse duration. Your file is likely malformed. \
-					 Re-encode it and try again.")
+					"Failed to parse duration. Your file is likely malformed. Re-encode it and \
+					 try again.",
+				)
 			}
 		}
 	} else {
-		let mut total_content = String::from("More than one file, sending as attachments instead of quotes.\n");
+		let mut total_content =
+			String::from("More than one file, sending as attachments instead of quotes.\n");
 
 		// send all as their own files
 		for transcript in transcripts {
 			match transcript {
-				TranscriptResult::Success { file_name, transcript } => {
-					msg_builder = msg_builder.new_attachment(CreateAttachment::bytes(transcript.as_bytes(), format!("transcript_{}.txt", file_name)))
+				TranscriptResult::Success {
+					file_name,
+					transcript,
+				} => {
+					msg_builder = msg_builder.new_attachment(CreateAttachment::bytes(
+						transcript.as_bytes(),
+						format!("transcript_{}.txt", file_name),
+					))
 				}
 				TranscriptResult::EmptyTranscript { file_name } => {
 					msg_builder = msg_builder.new_attachment(CreateAttachment::bytes(
-						"No transcript detected by STT library. \
-						This is likely because there's too much noise in the file.".as_bytes(), 
-						format!("transcript_{}.txt",
-								file_name
-						)))
+						"No transcript detected by STT library. This is likely because there's \
+						 too much noise in the file."
+							.as_bytes(),
+						format!("transcript_{}.txt", file_name),
+					))
 				}
-				TranscriptResult::VideoNeedsPremium => {
-					total_content.push_str("Transcribing video files requires at least Tier 2 Premium.\n")
-				}
-				TranscriptResult::AudioTooLong { audio_length, max_audio_length, file_name } => {
-					writeln!(
-						total_content,
-						"With Tier {0} Premium, you can transcribe audio files at most {1} \
-						seconds.`{3}` is {2} seconds.",
-						premium_tier,
-						max_audio_length,
-						audio_length,
-						file_name
-					).expect("writing to string should be infallible")
-				}
-				TranscriptResult::VideoTooLong { video_length, max_video_length, file_name } => {
-					writeln!(
-						total_content,
-						"With Tier {0} Premium, you can transcribe video files at most {1} \
-						seconds. `{3}` is {2} seconds.",
-						premium_tier,
-						max_video_length,
-						video_length,
-						file_name
-					).expect("writing to string should be infallible")
-				}
-				TranscriptResult::NoExtension => {
-					total_content.push_str(
-						"No file extension detected. You shouldn't be seeing this message.\n"
-					)
-				}
-				TranscriptResult::DurationParseFailure => {
-					total_content.push_str(
-						"Failed to parse duration. Your file is likely malformed. \
-						Re-encode it and try again.\n"
-					)
-				}
+				TranscriptResult::VideoNeedsPremium => total_content
+					.push_str("Transcribing video files requires at least Tier 2 Premium.\n"),
+				TranscriptResult::AudioTooLong {
+					audio_length,
+					max_audio_length,
+					file_name,
+				} => writeln!(
+					total_content,
+					"With Tier {0} Premium, you can transcribe audio files at most {1} \
+					 seconds.`{3}` is {2} seconds.",
+					premium_tier, max_audio_length, audio_length, file_name
+				)
+				.expect("writing to string should be infallible"),
+				TranscriptResult::VideoTooLong {
+					video_length,
+					max_video_length,
+					file_name,
+				} => writeln!(
+					total_content,
+					"With Tier {0} Premium, you can transcribe video files at most {1} seconds. \
+					 `{3}` is {2} seconds.",
+					premium_tier, max_video_length, video_length, file_name
+				)
+				.expect("writing to string should be infallible"),
+				TranscriptResult::NoExtension => total_content.push_str(
+					"No file extension detected. You shouldn't be seeing this message.\n",
+				),
+				TranscriptResult::DurationParseFailure => total_content.push_str(
+					"Failed to parse duration. Your file is likely malformed. Re-encode it and \
+					 try again.\n",
+				),
 			}
 		}
 
@@ -381,7 +394,7 @@ async fn handle_transcripts(
 
 		// probe the file
 		debug!(%file.id, "probing file");
-		let probe = scripty_audio::file_info(path).await?;
+		let probe = scripty_stt::file_info(path).await?;
 		let is_video = probe.streams.iter().any(|x| x.is_video());
 		let file_length = match probe.format.duration.parse::<f64>() {
 			Ok(length) => length,
@@ -425,7 +438,7 @@ async fn handle_transcripts(
 		let i16_audio = convert_to_pcm(path).await?;
 
 		// fetch a stream, feed the audio, get the result, send it
-		let stream = scripty_audio::get_stream(language, false).await?;
+		let stream = scripty_stt::get_stream(language, false).await?;
 
 		stream.feed_audio(i16_audio)?;
 		let transcript = stream.get_result().await?.result;

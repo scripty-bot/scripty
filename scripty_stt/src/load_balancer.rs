@@ -67,7 +67,7 @@ impl LoadBalancer {
 		let mut do_overload: bool = false;
 		let lbs = loop {
 			if let Some(lbs) = self.workers.get(&idx) {
-				if (do_overload && lbs.can_overload) || !lbs.is_overloaded() {
+				if (do_overload && lbs.can_overload) || !lbs.is_overloaded() && !lbs.is_in_error() {
 					// usually this is going to be the fast path and it will immediately return this worker
 					// if it isn't, this is still decently fast, an O(2n) operation worst case
 					// given there's very likely never going to be more than 255 workers, this is fine
@@ -104,12 +104,18 @@ pub struct LoadBalancedStream {
 	peer_address:  SocketAddr,
 	is_overloaded: Arc<AtomicBool>,
 	can_overload:  bool,
+	is_in_error:   Arc<AtomicBool>,
 }
 
 impl LoadBalancedStream {
 	#[inline]
 	pub fn is_overloaded(&self) -> bool {
 		self.is_overloaded.load(Ordering::Relaxed)
+	}
+
+	#[inline]
+	pub fn is_in_error(&self) -> bool {
+		self.is_in_error.load(Ordering::Relaxed)
 	}
 
 	pub(crate) async fn open_connection(
@@ -155,6 +161,8 @@ impl LoadBalancedStream {
 
 		let is_overloaded = Arc::new(AtomicBool::new(false));
 		let iso2 = Arc::clone(&is_overloaded);
+		let is_in_error = Arc::new(AtomicBool::new(false));
+		let iie2 = Arc::clone(&is_in_error);
 
 		// spawn a background task that will monitor the connection, and if it reports being overloaded, sets the overloaded flag
 		tokio::spawn(async move {
@@ -166,12 +174,13 @@ impl LoadBalancedStream {
 						match data_type {
 							Ok(d) => d,
 							Err(e) => {
-								error!("error reading from peer: {}", e);
+								error!(?peer_address, "error reading from peer: {}", e);
 								// try to reconnect
 								peer_stream = match tokio::net::TcpStream::connect(peer_address).await {
 									Ok(s) => s,
 									Err(e) => {
-										error!("error reconnecting to peer: {}", e);
+										error!(?peer_address, "error reconnecting to peer: {}", e);
+										iie2.store(true, Ordering::Relaxed);
 										metrics.stt_server_fetch_failure.inc_by(1);
 										const ONE_SECOND: Duration = Duration::from_secs(1);
 										tokio::time::sleep(ONE_SECOND).await;
@@ -186,15 +195,20 @@ impl LoadBalancedStream {
 						break
 					}
 				};
+				iie2.store(false, Ordering::Relaxed);
 
-				assert_eq!(data, 0x07);
+				if data != 0x07 {
+					error!(?peer_address, "unexpected data type from peer: {}", data);
+					// toss the error to the handler which will retry
+					continue;
+				}
 				metrics.stt_server_fetch_success.inc_by(1);
 
 				// read payload (utilization: f64)
 				let utilization = match peer_stream.read_f64().await {
 					Ok(u) => u,
 					Err(e) => {
-						error!("error reading from peer: {}", e);
+						error!(?peer_address, "error reading from peer: {}", e);
 						// toss the error to the handler which will try to reconnect or exit
 						continue;
 					}
@@ -205,7 +219,10 @@ impl LoadBalancedStream {
 			}
 			// write 0x03 to the stream to close the connection
 			if let Err(e) = peer_stream.write_u8(0x03).await {
-				error!("error closing connection to {}: {}", peer_address, e);
+				error!(
+					?peer_address,
+					"error closing connection to {}: {}", peer_address, e
+				);
 			}
 		});
 
@@ -213,6 +230,7 @@ impl LoadBalancedStream {
 			peer_address,
 			is_overloaded,
 			can_overload,
+			is_in_error,
 		})
 	}
 }

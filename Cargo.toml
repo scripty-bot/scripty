@@ -20,7 +20,7 @@ members = [
 	"scripty_webserver",
 	"scripty_core",
 	"scripty_premium",
-	"scripty_audio",
+	"scripty_stt",
 	"scripty_audio_handler",
 	"scripty_commands",
 	"scripty_i18n",

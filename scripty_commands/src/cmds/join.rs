@@ -66,7 +66,10 @@ pub async fn join(
 		create_thread = true;
 	}
 
-	if create_thread && target_channel.thread_metadata.is_some() && let Some(parent_id) = target_channel.parent_id {
+	if create_thread
+		&& target_channel.thread_metadata.is_some()
+		&& let Some(parent_id) = target_channel.parent_id
+	{
 		ctx.say(format_message!(
 			resolved_language,
 			"join-create-thread-in-thread",
@@ -74,7 +77,9 @@ pub async fn join(
 		))
 		.await?;
 		return Ok(());
-	} else if create_thread && [ChannelType::Voice, ChannelType::Stage].contains(&target_channel.kind) {
+	} else if create_thread
+		&& [ChannelType::Voice, ChannelType::Stage].contains(&target_channel.kind)
+	{
 		ctx.say(
 			format_message!(resolved_language, "join-create-thread-in-unsupported", targetMention: target_channel.mention().to_string()),
 		)

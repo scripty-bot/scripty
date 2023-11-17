@@ -13,8 +13,8 @@ num_cpus = "1"
 humantime = "2"
 scripty_db = { path = "../scripty_db" }
 scripty_bot = { path = "../scripty_bot" }
+scripty_stt = { path = "../scripty_stt" }
 scripty_i18n = { path = "../scripty_i18n" }
-scripty_audio = { path = "../scripty_audio" }
 scripty_redis = { path = "../scripty_redis" }
 scripty_config = { path = "../scripty_config" }
 tracing = { version = "0.1", features = ["log"] }

@@ -4,7 +4,9 @@ use serenity::{
 };
 
 pub async fn handle_message(ctx: Context, msg: Message) {
-	if let Some(flags) = msg.flags && flags.contains(MessageFlags::IS_VOICE_MESSAGE) {
+	if let Some(flags) = msg.flags
+		&& flags.contains(MessageFlags::IS_VOICE_MESSAGE)
+	{
 		if let Some(attachment) = msg.attachments.first() {
 			if let Some(duration_secs) = attachment.duration_secs {
 				debug!(%msg.id, %duration_secs, "got voice message");
@@ -17,13 +19,18 @@ pub async fn handle_message(ctx: Context, msg: Message) {
 					Ok(waveform) => internal_handle_message(&ctx, msg.clone(), waveform).await,
 					Err(e) => {
 						error!(%msg.id, "failed to download voice message: {}", e);
-						return
+						return;
 					}
 				};
 
 				if let Err(e) = res {
 					error!(%msg.id, "failed to handle voice message: {}", e);
-					if let Err(e) = msg.reply(ctx, format!("failed to handle this voice message: {}", e)).await { error!(%msg.id, "failed to send error message: {}", e)}
+					if let Err(e) = msg
+						.reply(ctx, format!("failed to handle this voice message: {}", e))
+						.await
+					{
+						error!(%msg.id, "failed to send error message: {}", e)
+					}
 				}
 			}
 		} else {
@@ -41,7 +48,7 @@ async fn internal_handle_message(
 
 	debug!(%msg.id, "decoding voice message");
 	// start by trying to decode the waveform: it should be 1 channel, 48000Hz,32Kbps Opus in an OGG container
-	let output = scripty_audio::decode_ogg_opus_file(waveform)?;
+	let output = scripty_stt::decode_ogg_opus_file(waveform)?;
 
 	debug!(%msg.id, "decoded voice message, feeding to speech-to-text");
 	// fetch guild language
@@ -54,7 +61,7 @@ async fn internal_handle_message(
 	.await?
 	.language;
 
-	let stream = scripty_audio::get_stream(&lang, false).await?;
+	let stream = scripty_stt::get_stream(&lang, false).await?;
 	stream.feed_audio(output)?;
 	let transcript = stream.get_result().await?.result;
 	let transcript = transcript.trim();

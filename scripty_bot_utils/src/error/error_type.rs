@@ -5,8 +5,8 @@ use std::{
 };
 
 use backtrace::Backtrace;
-use scripty_audio::{ModelError, OpusSourceError};
 use scripty_audio_handler::JoinError;
+use scripty_stt::{ModelError, OpusSourceError};
 use serenity::{model::channel::ChannelType, prelude::SerenityError};
 
 pub struct Error {

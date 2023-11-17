@@ -134,7 +134,7 @@ async fn init_logging() {
 async fn async_init() {
 	scripty_redis::init_redis().await;
 
-	scripty_audio::init_stt().await;
+	scripty_stt::init_stt().await;
 
 	scripty_db::init_db().await;
 
