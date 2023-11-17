@@ -102,7 +102,7 @@ pub async fn do_paginate(
 						.create_response(ctx, CreateInteractionResponse::Acknowledge)
 						.await?;
 
-					if let Some(Ok(page)) = inputs.get(0).map(|x| usize::from_str(x)) {
+					if let Some(Ok(page)) = inputs.first().map(|x| usize::from_str(x)) {
 						if page > 0 && page <= pages.len() {
 							current_page = page - 1;
 						}

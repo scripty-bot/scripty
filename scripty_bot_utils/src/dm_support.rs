@@ -124,7 +124,7 @@ impl DmSupportStatus {
 			Ordering::Equal => {
 				let attachment = message
 					.attachments
-					.get(0)
+					.first()
 					.expect("asserted one element already exists");
 				if message_channel.is_nsfw() {
 					embed_builder = embed_builder.field("Attached", &attachment.url, true);
