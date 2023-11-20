@@ -3,7 +3,7 @@ use std::time::Duration;
 use poise::CreateReply;
 use scripty_i18n::LanguageIdentifier;
 use serenity::{
-	all::ButtonStyle,
+	all::{ButtonStyle, InteractionResponseFlags},
 	builder::{
 		CreateActionRow,
 		CreateButton,
@@ -14,7 +14,6 @@ use serenity::{
 	},
 	collector::ComponentInteractionCollector,
 	futures::StreamExt,
-	model::channel::MessageFlags,
 };
 
 use crate::{Context, Error};
@@ -105,7 +104,7 @@ VALUES ($1)
 					CreateInteractionResponse::Message(
 						CreateInteractionResponseMessage::new()
 							.content(format_message!(resolved_language, message_id))
-							.flags(MessageFlags::EPHEMERAL),
+							.flags(InteractionResponseFlags::EPHEMERAL),
 					),
 				)
 				.await?;

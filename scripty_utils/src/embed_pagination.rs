@@ -1,7 +1,13 @@
 use std::{str::FromStr, time::Duration};
 
 use serenity::{
-	all::{ButtonStyle, CreateQuickModal, InputTextStyle, MessageFlags, QuickModalResponse},
+	all::{
+		ButtonStyle,
+		CreateQuickModal,
+		InputTextStyle,
+		InteractionResponseFlags,
+		QuickModalResponse,
+	},
 	builder::{
 		CreateActionRow,
 		CreateButton,
@@ -116,7 +122,7 @@ pub async fn do_paginate(
 					CreateInteractionResponse::Message(
 						CreateInteractionResponseMessage::default()
 							.content("internal error")
-							.flags(MessageFlags::EPHEMERAL),
+							.flags(InteractionResponseFlags::EPHEMERAL),
 					),
 				)
 				.await?;

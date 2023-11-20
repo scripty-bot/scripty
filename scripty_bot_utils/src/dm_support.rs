@@ -176,14 +176,22 @@ impl DmSupportStatus {
 
 		let user_id_str = user.id.to_string();
 
-		let channels = ctx
-			.cache
-			.guild_channels(guild_id)
-			.expect("failed to get guild channels");
-		let channel = channels
-			.iter()
-			.find(|c| c.parent_id == Some(category.id) && c.name == user_id_str)
-			.map(|c| c.value().to_owned());
+		let channel = {
+			let channels = ctx
+				.cache
+				.guild_channels(guild_id)
+				.expect("failed to get guild channels");
+			channels
+				.iter()
+				.find_map(|(_, c)| {
+					if c.parent_id == Some(category.id) && c.name == user_id_str {
+						Some(c)
+					} else {
+						None
+					}
+				})
+				.cloned()
+		};
 
 		if let Some(channel) = channel {
 			return channel;
