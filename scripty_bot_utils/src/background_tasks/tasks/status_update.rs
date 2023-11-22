@@ -25,6 +25,7 @@ impl BackgroundTask for StatusUpdater {
 				.expect("client data not initialized")
 				.shard_manager
 				.clone(),
+			run_number: 0,
 		})
 	}
 
