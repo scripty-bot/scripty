@@ -12,6 +12,7 @@ use crate::{background_tasks::core::BackgroundTask, globals::CLIENT_DATA, Error}
 pub struct StatusUpdater {
 	ctx:           SerenityContext,
 	shard_manager: Arc<ShardManager>,
+	run_number:    u32,
 }
 
 #[async_trait]
@@ -32,6 +33,13 @@ impl BackgroundTask for StatusUpdater {
 	}
 
 	async fn run(&mut self) {
+		self.run_number += 1;
+
+		// if it's the first two runs skip updating the status to allow shard latency to be calculated
+		if self.run_number <= 2 {
+			return;
+		}
+
 		let guild_count = self.ctx.cache.guild_count();
 
 		let runners = self.shard_manager.runners.lock().await;
