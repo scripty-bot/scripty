@@ -90,7 +90,7 @@ pub async fn voice_state_update(ctx: Context, _: Option<VoiceState>, new: VoiceS
 			);
 			return;
 		};
-		if !resp.enabled && !resp.auto_join_voice {
+		if !(resp.enabled && resp.auto_join_voice) {
 			// automod is not enabled, so we don't need to do anything
 			debug!(
 				"automod not enabled in guild {}, not continuing with join",
