@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use deadpool::managed::{PoolConfig, Timeouts};
+use deadpool::managed::{PoolConfig, QueueMode, Timeouts};
 use deadpool_redis::{redis::cmd, Config, Runtime};
 
 pub async fn init_redis() {
@@ -13,6 +13,7 @@ pub async fn init_redis() {
 	config.pool = Some(PoolConfig {
 		max_size: 128,
 		timeouts,
+		queue_mode: QueueMode::Fifo,
 	});
 
 	// initialize the pool
