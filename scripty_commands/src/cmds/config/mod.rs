@@ -1,9 +1,11 @@
+mod auto_detect_lang;
 mod language;
 mod transcribe_audio;
 mod transcribe_video;
 mod transcribe_voice_messages;
 mod verbose;
 
+pub use auto_detect_lang::config_auto_detect_lang;
 pub use language::config_server_language;
 use poise::CreateReply;
 use scripty_bot_utils::{checks::is_guild, Context, Error};

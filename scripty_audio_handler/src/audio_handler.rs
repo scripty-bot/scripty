@@ -62,6 +62,7 @@ pub struct AudioHandler {
 	transcript_results: TranscriptResults,
 	seen_users:         SeenUsers,
 	automod_server_cfg: Arc<AutomodServerConfig>,
+	auto_detect_lang:   Arc<AtomicBool>,
 }
 
 impl AudioHandler {
@@ -101,6 +102,7 @@ impl AudioHandler {
 			seen_users: record_transcriptions
 				.then(|| Arc::new(DashSet::with_hasher(RandomState::new()))),
 			automod_server_cfg: Arc::new(automod_server_cfg),
+			auto_detect_lang: Arc::new(AtomicBool::new(false)),
 		};
 		this.reload_config().await?;
 
@@ -126,8 +128,8 @@ impl AudioHandler {
 
 	pub async fn reload_config(&self) -> Result<(), sqlx::Error> {
 		let db = scripty_db::get_db();
-		let guild_res = sqlx::query!(
-			"SELECT be_verbose FROM guilds WHERE guild_id = $1",
+		let mut guild_res = sqlx::query!(
+			"SELECT be_verbose, language, auto_detect_lang FROM guilds WHERE guild_id = $1",
 			self.guild_id.get() as i64
 		)
 		.fetch_one(db)
@@ -136,17 +138,14 @@ impl AudioHandler {
 		self.verbose.store(guild_res.be_verbose, Ordering::Relaxed);
 
 		if let Some(lvl) = scripty_premium::get_guild(self.guild_id.get()).await {
-			self.premium_level.store(lvl as u8, Ordering::Relaxed)
+			self.premium_level.store(lvl as u8, Ordering::Relaxed);
+			self.auto_detect_lang
+				.store(guild_res.auto_detect_lang, Ordering::Relaxed);
+		} else {
+			self.premium_level.store(0, Ordering::Relaxed);
+			self.auto_detect_lang.store(false, Ordering::Relaxed);
 		}
-
-		let mut lang = sqlx::query!(
-			"SELECT language FROM guilds WHERE guild_id = $1",
-			self.guild_id.get() as i64
-		)
-		.fetch_one(db)
-		.await?
-		.language;
-		std::mem::swap(&mut *self.language.write(), &mut lang);
+		std::mem::swap(&mut *self.language.write(), &mut guild_res.language);
 
 		Ok(())
 	}
@@ -173,6 +172,7 @@ impl EventHandler for AudioHandler {
 				self.thread_id,
 				self.transcript_results.clone(),
 				Arc::clone(&self.automod_server_cfg),
+				Arc::clone(&self.auto_detect_lang),
 			)),
 			EventContext::ClientDisconnect(client_disconnect_data) => {
 				tokio::spawn(client_disconnect(

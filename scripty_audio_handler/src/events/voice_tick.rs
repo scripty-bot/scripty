@@ -38,6 +38,7 @@ pub async fn voice_tick(
 	thread_id: Option<ChannelId>,
 	transcript_results: Option<Arc<RwLock<Vec<String>>>>,
 	automod_server_cfg: Arc<AutomodServerConfig>,
+	auto_detect_lang: Arc<AtomicBool>,
 ) {
 	let metrics = scripty_metrics::get_metrics();
 	let tick_start_time = Instant::now();
@@ -69,6 +70,7 @@ pub async fn voice_tick(
 		automod_server_cfg: Arc::clone(&automod_server_cfg),
 		transcript_results: transcript_results.clone(),
 		ctx: &ctx,
+		auto_detect_lang,
 	})
 	.await;
 
@@ -99,6 +101,7 @@ struct SilentSpeakersContext<'a> {
 	automod_server_cfg: Arc<AutomodServerConfig>,
 	transcript_results: TranscriptResults,
 	ctx:                &'a Context,
+	auto_detect_lang:   Arc<AtomicBool>,
 }
 async fn handle_silent_speakers(
 	SilentSpeakersContext {
@@ -111,6 +114,7 @@ async fn handle_silent_speakers(
 		automod_server_cfg,
 		transcript_results,
 		ctx,
+		auto_detect_lang,
 	}: SilentSpeakersContext<'_>,
 ) -> Vec<(ExecuteWebhook, u32)> {
 	// batch up webhooks to send
@@ -119,7 +123,15 @@ async fn handle_silent_speakers(
 	for ssrc in last_tick_speakers {
 		// make a new stream for the next time they speak and remove their old one
 		let lang = language.read().to_owned();
-		let new_stream = match scripty_stt::get_stream(&lang, verbose.load(Ordering::Relaxed)).await
+		let new_stream = match scripty_stt::get_stream(
+			if auto_detect_lang.load(Ordering::Relaxed) {
+				"auto"
+			} else {
+				&lang
+			},
+			verbose.load(Ordering::Relaxed),
+		)
+		.await
 		{
 			Ok(s) => s,
 			Err(e) => {

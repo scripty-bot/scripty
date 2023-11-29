@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO guilds (guild_id, auto_detect_lang) VALUES ($1, $2) ON CONFLICT (guild_id) DO UPDATE SET auto_detect_lang = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "36531a7bbb599e7cb5023020373f126f5d892211e8a28122c24f1f6a5bddfba0"
+}

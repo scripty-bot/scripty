@@ -130,8 +130,20 @@ config_transcribe_video = transcribe_video
     .transcribe_video-description = Defaults to false
 config-transcribe-video-enabled = Scripty will now transcribe video files.
 config-transcribe-video-disabled = Scripty will no longer transcribe video files.
-config-transcribe-video-requires-premium = Transcribing audio files is a Premium Tier 2 feature, as it is very computationally expensive to transcode audio files.
+config-transcribe-video-requires-premium = Transcribing video files is a Premium Tier 2 feature, as it is very computationally expensive to transcode video files.
   If you would like to upgrade to Premium Tier 2, head to https://dash.scripty.org/premium.
+  If this feature was enabled before, it is now disabled.
+
+## config - auto detect language command
+config_auto_detect_lang = auto_detect_lang
+    .description = Try to automatically detect the language being spoken? Very inaccurate vs setting a language.
+    .transcribe_video = auto_detect_lang
+    .transcribe_video-description = Defaults to false
+
+config-auto-detect-lang-enabled = Scripty will now automatically detect the language being spoken.
+config-auto-detect-lang-disabled = Scripty will no longer automatically detect the language being spoken.
+config-auto-detect-lang-requires-premium = Automatically detecting the language is a Premium feature, as it is extremely computationally expensive to re-run the model twice to figure out the language.
+  If you would like to upgrade to Premium, head to https://dash.scripty.org/premium. You can also request a free trial of Premium by DMing the bot.
   If this feature was enabled before, it is now disabled.
 
 ## Help menu translation strings
