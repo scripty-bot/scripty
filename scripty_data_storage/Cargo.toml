@@ -21,7 +21,7 @@ scripty_utils = { path = "../scripty_utils" }
 scripty_redis = { path = "../scripty_redis" }
 scripty_config = { path = "../scripty_config" }
 aes-gcm = { version = "0.10", features = ["std"] }
-tokio = { version = "1", features = ["parking_lot", "signal"] }
+tokio = { version = "1", features = ["parking_lot", "signal", "rt-multi-thread"] }
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [
 	"voice",
 	"dashmap",
