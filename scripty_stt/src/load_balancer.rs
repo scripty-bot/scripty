@@ -130,7 +130,9 @@ impl LoadBalancedStream {
 			)));
 		}
 
-		Stream::new(language, verbose, self.peer_address).await
+		let res = Stream::new(language, verbose, self.peer_address).await;
+		self.is_in_error.store(res.is_err(), Ordering::Relaxed);
+		res
 	}
 
 	pub async fn new(peer_address: SocketAddr) -> io::Result<Self> {
