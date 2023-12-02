@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT be_verbose, language, auto_detect_lang FROM guilds WHERE guild_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "be_verbose",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 1,
+        "name": "language",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "auto_detect_lang",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "11c8a239a12caf99448c5a65ac17360f9d6a1377f8f5777555555b9ddcd637cb"
+}
