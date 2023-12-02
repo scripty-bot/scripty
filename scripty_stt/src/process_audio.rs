@@ -38,8 +38,6 @@ pub fn process_audio(
 	}
 }
 
-// this is useless, and only remains here for someone to stumble upon for their own use
-#[allow(dead_code)]
 pub fn stereo_to_mono(src: &[i16]) -> Vec<i16> {
 	// note: we're not doing this the normal way, because in release mode, there are no arithmetic overflow checks
 	// so we divide the samples by two, and then add them together to get the mono sample

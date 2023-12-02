@@ -25,8 +25,6 @@ use crate::{
 	types::{SsrcUserDataMap, TranscriptResults},
 };
 
-// cannot use this inspection because the duplicated code uses `continue`
-// noinspection DuplicatedCode
 pub async fn voice_tick(
 	voice_data: VoiceTick,
 	ssrc_state: Arc<SsrcMaps>,
