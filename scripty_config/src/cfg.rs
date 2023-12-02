@@ -96,7 +96,6 @@ pub enum BotListsConfig {
 	FullConfig { token: String, webhook: String },
 }
 
-
 #[cfg(test)]
 mod tests {
 	use std::{

@@ -42,9 +42,11 @@ impl LoadBalancer {
 						.await
 						.expect("Could not resolve stt hostname"),
 				),
-				SttServiceDefinition::IPTuple(addr, port) => {
-					peer_addresses.push(SocketAddr::new(addr.parse().expect("Could not parse IP address for stt server"), port))
-				}
+				SttServiceDefinition::IPTuple(addr, port) => peer_addresses.push(SocketAddr::new(
+					addr.parse()
+						.expect("Could not parse IP address for stt server"),
+					port,
+				)),
 			}
 		}
 
