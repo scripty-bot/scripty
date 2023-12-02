@@ -34,7 +34,7 @@ pub struct BotConfig {
 	pub error_webhook: String,
 
 	/// List of \["host", port] for the STT services.
-	pub stt_services: Vec<(String, u16)>,
+	pub stt_services: Vec<SttServiceDefinition>,
 
 	/// Loki config
 	pub loki: LokiConfig,
@@ -70,6 +70,13 @@ pub struct DmSupport {
 	pub guild_id:            u64,
 }
 
+#[derive(Clone, Serialize, Deserialize, Debug)]
+#[serde[untagged]]
+pub enum SttServiceDefinition {
+	IPTuple(String, u16),
+	HostString(String),
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LokiConfig {
 	/// Loki ingest URL
@@ -87,4 +94,44 @@ pub struct LokiConfig {
 pub enum BotListsConfig {
 	TokenOnly(String),
 	FullConfig { token: String, webhook: String },
+}
+
+
+#[cfg(test)]
+mod tests {
+	use std::{
+		matches,
+		net::{IpAddr, Ipv4Addr, SocketAddr},
+	};
+
+	use crate::*;
+
+	#[test]
+	fn test_stt_service_definition() {
+		#[derive(Deserialize)]
+		struct BotConfigTest {
+			svc: Vec<SttServiceDefinition>,
+		}
+
+		let parsed_cfg: BotConfigTest =
+			toml::from_str("svc = [\"localhost:1234\", [\"192.168.0.1\", 1234]]").unwrap();
+		assert!(matches!(
+			parsed_cfg.svc[0],
+			SttServiceDefinition::HostString(_)
+		));
+		assert!(matches!(
+			parsed_cfg.svc[1],
+			SttServiceDefinition::IPTuple(_, 1234)
+		));
+
+		match parsed_cfg.svc[1].clone() {
+			SttServiceDefinition::IPTuple(addr, port) => {
+				assert_eq!(
+					SocketAddr::new(addr.parse().unwrap(), port),
+					SocketAddr::new(IpAddr::V4(Ipv4Addr::new(192, 168, 0, 1)), 1234)
+				)
+			}
+			SttServiceDefinition::HostString(_) => panic!(),
+		};
+	}
 }

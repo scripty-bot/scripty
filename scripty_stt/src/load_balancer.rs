@@ -9,9 +9,11 @@ use std::{
 
 use dashmap::DashMap;
 use once_cell::sync::OnceCell;
+use scripty_config::SttServiceDefinition;
 use tokio::{
 	io,
 	io::{AsyncReadExt, AsyncWriteExt},
+	net::lookup_host,
 };
 
 use crate::{ModelError, Stream};
@@ -31,14 +33,23 @@ pub struct LoadBalancer {
 
 impl LoadBalancer {
 	pub async fn new() -> io::Result<Self> {
-		let peer_addresses = scripty_config::get_config()
-			.stt_services
-			.iter()
-			.map(|(addr, port)| SocketAddr::new(addr.parse().unwrap(), *port))
-			.enumerate();
+		let stt_services = scripty_config::get_config().stt_services.clone();
+		let mut peer_addresses: Vec<SocketAddr> = Vec::new();
+		for service in stt_services {
+			match service {
+				SttServiceDefinition::HostString(host) => peer_addresses.extend(
+					lookup_host(host)
+						.await
+						.expect("Could not resolve stt hostname"),
+				),
+				SttServiceDefinition::IPTuple(addr, port) => {
+					peer_addresses.push(SocketAddr::new(addr.parse().expect("Could not parse IP address for stt server"), port))
+				}
+			}
+		}
 
 		let workers = DashMap::new();
-		for (n, addr) in peer_addresses {
+		for (n, addr) in peer_addresses.into_iter().enumerate() {
 			workers.insert(n, LoadBalancedStream::new(addr).await?);
 		}
 		Ok(Self {

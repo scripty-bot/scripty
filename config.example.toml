@@ -46,6 +46,7 @@ redis_url = "redis://localhost:6379"
 # Target services: you usually only have one, and
 # it's usually on localhost port 7269
 stt_services = [
+  "localhost:7269",    # or:
   ["127.0.0.1", 7269]
 ]
 
