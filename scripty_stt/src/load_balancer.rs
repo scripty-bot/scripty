@@ -16,7 +16,7 @@ use tokio::{
 	net::lookup_host,
 };
 
-use crate::{ModelError, Stream};
+use crate::{ModelError, Stream, NUM_STT_SERVICE_TRIES};
 
 pub static LOAD_BALANCER: OnceCell<LoadBalancer> = OnceCell::new();
 
@@ -60,47 +60,68 @@ impl LoadBalancer {
 		})
 	}
 
-	pub async fn get_stream(&self, language: &str, verbose: bool) -> Result<Stream, ModelError> {
-		let metrics = scripty_metrics::get_metrics();
+	fn get_next_worker_idx(&self) -> usize {
+		self.current_index
+			.fetch_update(Ordering::Release, Ordering::Acquire, |x| {
+				if x == self.workers.len() {
+					Some(0)
+				} else {
+					Some(x + 1)
+				}
+			})
+			.expect("get_next_worker_idx::{closure} should never return None")
+	}
 
-		let get_next = || {
-			self.current_index
-				.fetch_update(Ordering::Release, Ordering::Acquire, |x| {
-					if x == self.workers.len() {
-						Some(0)
-					} else {
-						Some(x + 1)
-					}
-				})
-				.expect("fetch_update::{closure} should never return None")
-		};
-
-		let mut idx = get_next();
+	fn find_worker(&self) -> Result<usize, ModelError> {
+		let mut idx = self.get_next_worker_idx();
 		let mut iter_count: usize = 0;
-		let mut do_overload: bool = false;
-		let lbs = loop {
-			if let Some(lbs) = self.workers.get(&idx) {
-				if (do_overload && lbs.can_overload) || !lbs.is_overloaded() && !lbs.is_in_error() {
+		let mut allow_overload = false;
+
+		loop {
+			if let Some(worker) = self.workers.get(&idx) {
+				// if we're allowing overloading, or this worker isn't overloaded and isn't in error
+				if (allow_overload && worker.can_overload)
+					|| !worker.is_overloaded() && !worker.is_in_error()
+				{
 					// usually this is going to be the fast path and it will immediately return this worker
 					// if it isn't, this is still decently fast, an O(2n) operation worst case
 					// given there's very likely never going to be more than 255 workers, this is fine
-					break lbs;
+					return Ok(idx);
 				}
 			}
 
-			idx = get_next();
-			// the not op here might seem redundant, but it's added to save a few instructions at the assembly level
-			if !do_overload && iter_count > self.workers.len() {
-				do_overload = true;
+			idx = self.get_next_worker_idx();
+
+			// are we back at the start?
+			if !allow_overload && iter_count > self.workers.len() {
+				// we've looped through all workers and none are available:
+				// try again, but this time allow overloading
+				allow_overload = true;
 			}
+
 			iter_count += 1;
-			if iter_count > 1024 {
-				metrics.stt_server_fetch_failure.inc_by(1);
+
+			if iter_count > NUM_STT_SERVICE_TRIES {
+				// failed to find any available workers
+				// give up and return an error
+				scripty_metrics::get_metrics()
+					.stt_server_fetch_failure
+					.inc_by(1);
+				error!(
+					"no available STT servers after {} tries",
+					NUM_STT_SERVICE_TRIES
+				);
 				return Err(ModelError::NoAvailableServers);
 			}
-		};
+		}
+	}
 
-		match lbs.open_connection(language, verbose).await {
+	pub async fn get_stream(&self, language: &str, verbose: bool) -> Result<Stream, ModelError> {
+		let worker_id = self.find_worker()?;
+		let worker = self.workers.get(&worker_id).expect("worker should exist");
+
+		let metrics = scripty_metrics::get_metrics();
+		match worker.open_connection(language, verbose).await {
 			Ok(s) => {
 				metrics.stt_server_fetch_success.inc_by(1);
 				Ok(s)

@@ -8,6 +8,8 @@ use tokio::{
 	net::TcpStream,
 };
 
+use crate::NUM_STT_SERVICE_TRIES;
+
 pub struct Stream {
 	comm:       Sender<Vec<i16>>,
 	final_comm: Sender<FinalizeVariant>,
@@ -249,7 +251,11 @@ impl std::fmt::Display for ModelError {
 			ModelError::Io(err) => write!(f, "IO error: {}", err),
 			ModelError::SttsServer(err) => write!(f, "STTS server error: {}", err),
 			ModelError::NoAvailableServers => {
-				write!(f, "No available STTS servers after 1024 tries")
+				write!(
+					f,
+					"No available STTS servers after {} tries",
+					NUM_STT_SERVICE_TRIES
+				)
 			}
 		}
 	}
