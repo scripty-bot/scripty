@@ -1,6 +1,6 @@
 use poise::CreateReply;
 use scripty_bot_utils::{checks::is_guild, Context, Error};
-use serenity::{all::RoleId, builder::CreateAllowedMentions};
+use serenity::{all::RoleId, builder::CreateAllowedMentions, prelude::Mentionable};
 
 /// Limit Scripty's transcriptions to only users with this role in a voice chat.
 #[poise::command(
@@ -40,7 +40,7 @@ pub async fn config_transcribe_only_role(
 				} else {
 					"config-transcribe-only-role-disabled"
 				},
-				roleId: transcribe_only_role.map_or(0, |x| x.get() as i64)
+				roleId: transcribe_only_role.unwrap_or_else(|| RoleId::new(1)).mention().to_string()
 			)),
 	)
 	.await?;

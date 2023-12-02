@@ -295,7 +295,7 @@ async fn handle_speakers(
 		if ssrc_state
 			.ssrc_user_data_map
 			.get(&ssrc)
-			.map_or(false, |x| x.value().2)
+			.map_or(false, |x| !x.value().2)
 		{
 			continue;
 		}

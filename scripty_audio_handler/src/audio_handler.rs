@@ -171,7 +171,7 @@ impl EventHandler for AudioHandler {
 				Arc::clone(&self.ssrc_state),
 				self.seen_users.clone(),
 				self.guild_id,
-				self.transcribe_only_role.read().clone(),
+				*self.transcribe_only_role.read(),
 			)),
 			EventContext::VoiceTick(voice_data) => tokio::spawn(voice_tick(
 				voice_data.clone(),
