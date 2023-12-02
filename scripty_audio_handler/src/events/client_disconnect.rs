@@ -42,7 +42,7 @@ pub async fn client_disconnect(
 	ssrc_state.ssrc_stream_map.remove(&ssrc);
 	ssrc_state.ssrc_ignored_map.remove(&ssrc);
 	ssrc_state.ssrc_voice_ingest_map.remove(&ssrc);
-	let Some((_, (username, avatar_url))) = ssrc_state.ssrc_user_data_map.remove(&ssrc) else {
+	let Some((_, (username, avatar_url, _))) = ssrc_state.ssrc_user_data_map.remove(&ssrc) else {
 		warn!(%ssrc, "got no user data for ssrc");
 		return;
 	};

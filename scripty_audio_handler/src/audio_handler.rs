@@ -11,6 +11,7 @@ use dashmap::{DashMap, DashSet};
 use parking_lot::RwLock;
 use scripty_automod::types::AutomodServerConfig;
 use serenity::{
+	all::RoleId,
 	client::Context,
 	model::{
 		id::{ChannelId, GuildId},
@@ -49,20 +50,21 @@ pub type ArcSsrcMaps = Arc<SsrcMaps>;
 
 #[derive(Clone)]
 pub struct AudioHandler {
-	ssrc_state:         Arc<SsrcMaps>,
-	guild_id:           GuildId,
-	channel_id:         ChannelId,
-	voice_channel_id:   ChannelId,
-	thread_id:          Option<ChannelId>,
-	webhook:            Arc<Webhook>,
-	context:            Context,
-	premium_level:      Arc<AtomicU8>,
-	verbose:            Arc<AtomicBool>,
-	language:           Arc<RwLock<String>>,
-	transcript_results: TranscriptResults,
-	seen_users:         SeenUsers,
-	automod_server_cfg: Arc<AutomodServerConfig>,
-	auto_detect_lang:   Arc<AtomicBool>,
+	ssrc_state:           ArcSsrcMaps,
+	guild_id:             GuildId,
+	channel_id:           ChannelId,
+	voice_channel_id:     ChannelId,
+	thread_id:            Option<ChannelId>,
+	webhook:              Arc<Webhook>,
+	context:              Context,
+	premium_level:        Arc<AtomicU8>,
+	verbose:              Arc<AtomicBool>,
+	language:             Arc<RwLock<String>>,
+	transcript_results:   TranscriptResults,
+	seen_users:           SeenUsers,
+	automod_server_cfg:   Arc<AutomodServerConfig>,
+	auto_detect_lang:     Arc<AtomicBool>,
+	transcribe_only_role: Arc<RwLock<Option<RoleId>>>,
 }
 
 impl AudioHandler {
@@ -103,6 +105,7 @@ impl AudioHandler {
 				.then(|| Arc::new(DashSet::with_hasher(RandomState::new()))),
 			automod_server_cfg: Arc::new(automod_server_cfg),
 			auto_detect_lang: Arc::new(AtomicBool::new(false)),
+			transcribe_only_role: Arc::new(RwLock::new(None)),
 		};
 		this.reload_config().await?;
 
@@ -129,7 +132,8 @@ impl AudioHandler {
 	pub async fn reload_config(&self) -> Result<(), sqlx::Error> {
 		let db = scripty_db::get_db();
 		let mut guild_res = sqlx::query!(
-			"SELECT be_verbose, language, auto_detect_lang FROM guilds WHERE guild_id = $1",
+			"SELECT be_verbose, language, auto_detect_lang, transcript_only_role FROM guilds \
+			 WHERE guild_id = $1",
 			self.guild_id.get() as i64
 		)
 		.fetch_one(db)
@@ -146,6 +150,12 @@ impl AudioHandler {
 			self.auto_detect_lang.store(false, Ordering::Relaxed);
 		}
 		std::mem::swap(&mut *self.language.write(), &mut guild_res.language);
+		std::mem::swap(
+			&mut *self.transcribe_only_role.write(),
+			&mut guild_res
+				.transcript_only_role
+				.map(|x| RoleId::new(x as u64)),
+		);
 
 		Ok(())
 	}
@@ -160,6 +170,8 @@ impl EventHandler for AudioHandler {
 				self.context.clone(),
 				Arc::clone(&self.ssrc_state),
 				self.seen_users.clone(),
+				self.guild_id,
+				self.transcribe_only_role.read().clone(),
 			)),
 			EventContext::VoiceTick(voice_data) => tokio::spawn(voice_tick(
 				voice_data.clone(),

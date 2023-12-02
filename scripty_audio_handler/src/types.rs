@@ -5,6 +5,7 @@ use dashmap::{DashMap, DashSet};
 use parking_lot::RwLock;
 use scripty_data_storage::VoiceIngest;
 use scripty_stt::Stream;
+use serenity::all::RoleId;
 
 /// Type alias for a `DashMap` containing SSRCs mapped to `UserId`s.
 pub type SsrcUserIdMap = DashMap<u32, u64, RandomState>;
@@ -17,7 +18,9 @@ pub type SsrcStreamMap = DashMap<u32, Stream, RandomState>;
 /// Field 0 of the internal tuple is the formatted username (name#0000)
 ///
 /// Field 1 of the internal tuple is the user's avatar URL
-pub type SsrcUserDataMap = DashMap<u32, (String, String), RandomState>;
+///
+/// Field 2 of the internal tuple is whether the user has the transcribe-only role
+pub type SsrcUserDataMap = DashMap<u32, (String, String, bool), RandomState>;
 
 /// Type alias for a `DashMap` containing SSRCs mapped to whether they should be ignored
 pub type SsrcIgnoredMap = DashMap<u32, bool, RandomState>;

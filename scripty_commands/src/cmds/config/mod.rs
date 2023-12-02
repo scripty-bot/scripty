@@ -1,6 +1,7 @@
 mod auto_detect_lang;
 mod language;
 mod transcribe_audio;
+mod transcribe_only_role;
 mod transcribe_video;
 mod transcribe_voice_messages;
 mod verbose;
@@ -11,6 +12,7 @@ use poise::CreateReply;
 use scripty_bot_utils::{checks::is_guild, Context, Error};
 use serenity::builder::CreateEmbed;
 pub use transcribe_audio::config_transcribe_audio;
+pub use transcribe_only_role::config_transcribe_only_role;
 pub use transcribe_video::config_transcribe_video;
 pub use transcribe_voice_messages::config_transcribe_voice_messages;
 pub use verbose::config_verbose;

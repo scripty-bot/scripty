@@ -55,6 +55,7 @@ pub fn build_commands() -> Vec<poise::Command<Data, Error>> {
 				cmds::config::config_transcribe_voice_messages(),
 				cmds::config::config_verbose(),
 				cmds::config::config_auto_detect_lang(),
+				cmds::config::config_transcribe_only_role(),
 			],
 			subcommand_required: true,
 			..cmds::config::config_root()

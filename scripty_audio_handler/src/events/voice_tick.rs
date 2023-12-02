@@ -291,6 +291,15 @@ async fn handle_speakers(
 			continue;
 		}
 
+		// user does not have the transcribe-only role, so we can skip them
+		if ssrc_state
+			.ssrc_user_data_map
+			.get(&ssrc)
+			.map_or(false, |x| x.value().2)
+		{
+			continue;
+		}
+
 		// add to those speaking this tick
 		ssrc_state.ssrc_speaking_set.insert(ssrc);
 

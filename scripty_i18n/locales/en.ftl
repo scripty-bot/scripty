@@ -137,14 +137,23 @@ config-transcribe-video-requires-premium = Transcribing video files is a Premium
 ## config - auto detect language command
 config_auto_detect_lang = auto_detect_lang
     .description = Try to automatically detect the language being spoken? Very inaccurate vs setting a language.
-    .transcribe_video = auto_detect_lang
-    .transcribe_video-description = Defaults to false
+    .auto_detect_lang = auto_detect_lang
+    .auto_detect_lang-description = Defaults to false
 
 config-auto-detect-lang-enabled = Scripty will now automatically detect the language being spoken.
 config-auto-detect-lang-disabled = Scripty will no longer automatically detect the language being spoken.
 config-auto-detect-lang-requires-premium = Automatically detecting the language is a Premium feature, as it is extremely computationally expensive to re-run the model twice to figure out the language.
   If you would like to upgrade to Premium, head to https://dash.scripty.org/premium. You can also request a free trial of Premium by DMing the bot.
   If this feature was enabled before, it is now disabled.
+
+## config - transcribe only role command
+config_transcribe_only_role = transcribe_only_role
+    .description = Limit Scripty's transcriptions to only users with this role in a voice chat.
+    .transcribe_only_role = transcribe_only_role
+    .transcribe_only_role-description = Role to limit to: set empty to disable.
+
+config-transcribe-only-role-enabled = Scripty will now only transcribe messages from users in { $roleId }.
+config-transcribe-only-role-disabled = Scripty will now transcribe all users, regardless of role.
 
 ## Help menu translation strings
 

@@ -1,4 +1,7 @@
-use serenity::prelude::Context;
+use serenity::{
+	all::{GuildId, RoleId},
+	prelude::Context,
+};
 use songbird::model::payload::Speaking;
 
 use crate::{audio_handler::ArcSsrcMaps, types::SeenUsers};
@@ -8,6 +11,8 @@ pub async fn speaking_state_update(
 	ctx: Context,
 	ssrc_state: ArcSsrcMaps,
 	seen_users: SeenUsers,
+	guild_id: GuildId,
+	transcribe_only_role: Option<RoleId>,
 ) {
 	let ssrc = state_update.ssrc;
 	debug!(?state_update.speaking, ?state_update.ssrc, ?state_update.user_id, "SpeakingStateUpdate event fired");
@@ -50,8 +55,16 @@ pub async fn speaking_state_update(
 			}
 		};
 
+		let has_role = if let Some(transcribe_only_role) = transcribe_only_role {
+			user.has_role(&ctx, guild_id, transcribe_only_role)
+				.await
+				.unwrap_or(true) // shouldn't happen often, but if it does, assume they have the role
+		} else {
+			true
+		};
+
 		let ignored = user.bot;
-		let user_data = (user.tag(), user.face());
+		let user_data = (user.tag(), user.face(), has_role);
 
 		ssrc_state.ssrc_ignored_map.insert(ssrc, ignored);
 		ssrc_state.ssrc_user_data_map.insert(ssrc, user_data);
