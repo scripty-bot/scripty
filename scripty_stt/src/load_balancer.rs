@@ -99,10 +99,10 @@ impl LoadBalancer {
 		let t3 = this.clone();
 		tokio::spawn(async move {
 			loop {
-				if let Ok(_) = purge_rx.recv_async().await {
+				if purge_rx.recv_async().await.is_ok() {
 					t3.queued_workers.lock().clear();
 					// request the queue be refilled
-					if let Err(_) = t3.new_worker_tx.send_async(()).await {
+					if t3.new_worker_tx.send_async(()).await.is_err() {
 						break error!(
 							"error sending new worker request: all client queues dropped"
 						);
@@ -251,6 +251,8 @@ pub struct LoadBalancedStream {
 	msg_rx_transmit_handle: Sender<ServerToClientMessage>,
 	// keep this field that way there's always one receiver
 	_msg_rx:                Receiver<ServerToClientMessage>,
+
+	purge_tx: flume::Sender<()>,
 }
 
 impl LoadBalancedStream {
@@ -273,6 +275,7 @@ impl LoadBalancedStream {
 			self.peer_address,
 			self.msg_tx.clone(),
 			self.msg_rx_transmit_handle.subscribe(),
+			self.purge_tx.clone(),
 		)
 		.await
 	}
@@ -475,6 +478,7 @@ impl LoadBalancedStream {
 
 		let waiting_for_new_stream = Arc::new(AtomicBool::new(false));
 		let wfns2 = Arc::clone(&waiting_for_new_stream);
+		let purge_tx2 = purge_tx.clone();
 		// error handling task
 		tokio::spawn(async move {
 			loop {
@@ -483,7 +487,7 @@ impl LoadBalancedStream {
 				wfns2.store(true, Ordering::Relaxed);
 
 				// immediately purge all queued workers as we have bad state
-				if let Err(_) = purge_tx.send_async(()).await {
+				if purge_tx2.send_async(()).await.is_err() {
 					error!("error sending purge request: all client queues dropped");
 					break;
 				}
@@ -516,6 +520,12 @@ impl LoadBalancedStream {
 				let _ = new_read_stream_tx.send(stream_read).await;
 				let _ = new_write_stream_tx.send(stream_write).await;
 				wfns2.store(false, Ordering::Relaxed);
+
+				// purge again to ensure we clear out any queued workers that were on bad streams
+				if purge_tx2.send_async(()).await.is_err() {
+					error!("error sending purge request: all client queues dropped");
+					break;
+				}
 			}
 		});
 
@@ -546,6 +556,7 @@ impl LoadBalancedStream {
 			msg_tx: client_to_server_tx,
 			msg_rx_transmit_handle: server_to_client_tx,
 			_msg_rx: server_to_client_rx,
+			purge_tx,
 		})
 	}
 }

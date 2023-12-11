@@ -23,6 +23,8 @@ pub struct Stream {
 	rx:           Receiver<ServerToClientMessage>,
 	peer_address: SocketAddr,
 	session_id:   Uuid,
+
+	purge_tx: flume::Sender<()>,
 }
 
 impl Stream {
@@ -30,6 +32,7 @@ impl Stream {
 		peer_address: SocketAddr,
 		tx: Sender<ClientToServerMessage>,
 		mut rx: Receiver<ServerToClientMessage>,
+		purge_tx: flume::Sender<()>,
 	) -> Result<Self, ModelError> {
 		let session_id = Uuid::new_v4();
 		debug!(%session_id, %peer_address, "initializing stts stream to peer");
@@ -61,6 +64,7 @@ impl Stream {
 					rx,
 					peer_address,
 					session_id,
+					purge_tx,
 				})
 			}
 			Ok(false) => {
@@ -75,7 +79,7 @@ impl Stream {
 	}
 
 	pub fn feed_audio(&self, data: Vec<i16>) -> Result<(), ModelError> {
-		debug!(%self.session_id, "feeding audio to stts");
+		debug!(%self.session_id, %self.peer_address, "feeding audio to stts");
 		self.tx
 			.send(ClientToServerMessage::AudioData(AudioData {
 				data,
@@ -90,7 +94,7 @@ impl Stream {
 		verbose: bool,
 		translate: bool,
 	) -> Result<String, ModelError> {
-		debug!(%self.session_id, "getting result from stts");
+		debug!(%self.session_id, %self.peer_address, "getting result from stts");
 		// send the finalize message
 		self.tx
 			.send(ClientToServerMessage::FinalizeStreaming(
@@ -106,12 +110,13 @@ impl Stream {
 			while let Ok(next) = self.rx.recv().await {
 				if let ServerToClientMessage::SttResult(SttSuccess { id, result }) = next {
 					if id == self.session_id {
-						debug!(%self.session_id, "got result from stts");
+						debug!(%self.session_id, %self.peer_address, "got result from stts");
 						return Ok(result);
 					}
 				} else if let ServerToClientMessage::SttError(SttError { id, error }) = next {
 					if id == self.session_id {
-						debug!(%self.session_id, "got error from stts");
+						debug!(%self.session_id, %self.peer_address, "got error from stts");
+						self.purge_tx.send_async(()).await.ok();
 						return Err(ModelError::SttsServer(error));
 					}
 				}
@@ -122,7 +127,8 @@ impl Stream {
 			Ok(Ok(res)) => Ok(res),
 			Ok(Err(e)) => Err(e),
 			Err(_) => {
-				warn!(%self.session_id, "timed out waiting for result");
+				warn!(%self.session_id, %self.peer_address, "timed out waiting for result");
+				self.purge_tx.send_async(()).await.ok();
 				Err(ModelError::TimedOutWaitingForResult)
 			}
 		}
