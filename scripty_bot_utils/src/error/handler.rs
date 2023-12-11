@@ -106,19 +106,11 @@ pub async fn on_error(error: FrameworkError<'_, Data, Error>) {
 			let mut args = String::new();
 			for param in &ctx.command.parameters {
 				if param.required {
-					write!(
-						&mut args,
-						"<{}> ",
-						param.name.as_ref().map_or("arg", |s| s.as_str())
-					)
-					.expect("failed to format string: this is a bug");
+					write!(&mut args, "<{}> ", param.name)
+						.expect("failed to format string: this is a bug");
 				} else {
-					write!(
-						&mut args,
-						"[{}] ",
-						param.name.as_ref().map_or("arg", |s| s.as_str())
-					)
-					.expect("failed to format string: this is a bug");
+					write!(&mut args, "[{}] ", param.name)
+						.expect("failed to format string: this is a bug");
 				}
 			}
 
@@ -140,14 +132,14 @@ pub async fn on_error(error: FrameworkError<'_, Data, Error>) {
 
 			let response = ctx
 				.interaction
-				.channel_id()
+				.channel_id
 				.send_message(&ctx.serenity_context(), msg.clone())
 				.await;
 			if let Err(e) = response {
 				warn!("failed to send message while handling error: {}", e);
 				let response = ctx
 					.interaction
-					.user()
+					.user
 					.direct_message(ctx.serenity_context(), msg)
 					.await;
 				if let Err(e) = response {

@@ -1,9 +1,11 @@
 use crate::{Context, Error};
 
+mod cache_info;
 mod guild_check;
 mod hash_user_id;
 mod shutdown;
 
+pub use cache_info::cache_info;
 pub use guild_check::*;
 pub use hash_user_id::hash_user_id;
 

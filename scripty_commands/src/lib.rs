@@ -24,7 +24,11 @@ pub fn build_commands() -> Vec<poise::Command<Data, Error>> {
 			..cmds::block()
 		},
 		poise::Command {
-			subcommands: vec![cmds::check_guilds(), cmds::hash_user_id()],
+			subcommands: vec![
+				cmds::check_guilds(),
+				cmds::hash_user_id(),
+				cmds::cache_info(),
+			],
 			..cmds::admin()
 		},
 		poise::Command {

@@ -50,7 +50,7 @@ pub async fn terms_of_service(ctx: Context<'_>) -> Result<(), Error> {
 		// send a message with the terms of service and privacy policy
 		let m = ctx
 			.send(
-				CreateReply::new()
+				CreateReply::default()
 					.content(format_message!(resolved_language, "agreeing-to-tos"))
 					.components(vec![CreateActionRow::Buttons(vec![
 						CreateButton::new("tos_agree")
@@ -69,7 +69,13 @@ pub async fn terms_of_service(ctx: Context<'_>) -> Result<(), Error> {
 			.timeout(std::time::Duration::from_secs(60))
 			.author_id(ctx.author().id)
 			.message_id(m.message().await?.id)
-			.custom_ids(vec!["tos_agree".to_string(), "tos_disagree".to_string()])
+			.custom_ids(
+				vec![
+					"tos_agree".to_string().into(),
+					"tos_disagree".to_string().into(),
+				]
+				.into(),
+			)
 			.await;
 
 		if let Some(interaction) = maybe_interaction {
@@ -101,7 +107,7 @@ pub async fn terms_of_service(ctx: Context<'_>) -> Result<(), Error> {
 		} else {
 			m.edit(
 				ctx,
-				CreateReply::new()
+				CreateReply::default()
 					.content(format_message!(resolved_language, "tos-agree-timed-out"))
 					.components(vec![]),
 			)

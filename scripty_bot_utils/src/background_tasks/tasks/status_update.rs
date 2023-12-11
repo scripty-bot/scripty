@@ -65,9 +65,9 @@ impl BackgroundTask for StatusUpdater {
 
 			// create activity
 			let activity = ActivityData {
-				name:  "UwU~".to_string(),
+				name:  "UwU~".to_string().into(),
 				kind:  ActivityType::Custom,
-				state: Some(shard_status),
+				state: Some(shard_status.into()),
 				url:   None,
 			};
 

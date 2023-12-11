@@ -65,6 +65,7 @@ pub struct AudioHandler {
 	automod_server_cfg:   Arc<AutomodServerConfig>,
 	auto_detect_lang:     Arc<AtomicBool>,
 	transcribe_only_role: Arc<RwLock<Option<RoleId>>>,
+	translate:            Arc<AtomicBool>,
 }
 
 impl AudioHandler {
@@ -106,6 +107,7 @@ impl AudioHandler {
 			automod_server_cfg: Arc::new(automod_server_cfg),
 			auto_detect_lang: Arc::new(AtomicBool::new(false)),
 			transcribe_only_role: Arc::new(RwLock::new(None)),
+			translate: Arc::new(AtomicBool::new(false)),
 		};
 		this.reload_config().await?;
 
@@ -132,8 +134,8 @@ impl AudioHandler {
 	pub async fn reload_config(&self) -> Result<(), sqlx::Error> {
 		let db = scripty_db::get_db();
 		let mut guild_res = sqlx::query!(
-			"SELECT be_verbose, language, auto_detect_lang, transcript_only_role FROM guilds \
-			 WHERE guild_id = $1",
+			"SELECT be_verbose, language, auto_detect_lang, transcript_only_role, translate FROM \
+			 guilds WHERE guild_id = $1",
 			self.guild_id.get() as i64
 		)
 		.fetch_one(db)
@@ -149,6 +151,7 @@ impl AudioHandler {
 			self.premium_level.store(0, Ordering::Relaxed);
 			self.auto_detect_lang.store(false, Ordering::Relaxed);
 		}
+		self.translate.store(guild_res.translate, Ordering::Relaxed);
 		std::mem::swap(&mut *self.language.write(), &mut guild_res.language);
 		std::mem::swap(
 			&mut *self.transcribe_only_role.write(),
@@ -185,6 +188,7 @@ impl EventHandler for AudioHandler {
 				self.transcript_results.clone(),
 				Arc::clone(&self.automod_server_cfg),
 				Arc::clone(&self.auto_detect_lang),
+				Arc::clone(&self.translate),
 			)),
 			EventContext::ClientDisconnect(client_disconnect_data) => {
 				tokio::spawn(client_disconnect(

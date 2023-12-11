@@ -53,17 +53,18 @@ async fn internal_handle_message(
 	debug!(%msg.id, "decoded voice message, feeding to speech-to-text");
 	// fetch guild language
 	let db = scripty_db::get_db();
-	let lang = sqlx::query!(
-		"SELECT language FROM guilds WHERE guild_id = $1",
+	let res = sqlx::query!(
+		"SELECT language, translate FROM guilds WHERE guild_id = $1",
 		msg.guild_id.ok_or_else(crate::Error::expected_guild)?.get() as i64
 	)
 	.fetch_one(db)
-	.await?
-	.language;
+	.await?;
+	let lang = res.language;
+	let translate = res.translate;
 
-	let stream = scripty_stt::get_stream(&lang, false).await?;
+	let stream = scripty_stt::get_stream().await?;
 	stream.feed_audio(output)?;
-	let transcript = stream.get_result().await?.result;
+	let transcript = stream.get_result(lang, false, translate).await?;
 	let transcript = transcript.trim();
 	let mut msg_builder = EditMessage::new();
 

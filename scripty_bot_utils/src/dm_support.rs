@@ -127,14 +127,15 @@ impl DmSupportStatus {
 					.first()
 					.expect("asserted one element already exists");
 				if message_channel.is_nsfw() {
-					embed_builder = embed_builder.field("Attached", &attachment.url, true);
+					embed_builder = embed_builder.field("Attached", attachment.url.as_str(), true);
 				} else {
-					embed_builder = embed_builder.image(&attachment.url);
+					embed_builder = embed_builder.image(attachment.url.as_str());
 				}
 			}
 			Ordering::Greater => {
 				for attached_file in message.attachments.iter() {
-					embed_builder = embed_builder.field("Attached", &attached_file.url, true);
+					embed_builder =
+						embed_builder.field("Attached", attached_file.url.as_str(), true);
 				}
 			}
 		}

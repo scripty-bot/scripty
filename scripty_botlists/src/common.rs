@@ -10,7 +10,7 @@ pub trait StatPoster {
 #[derive(Debug, Copy, Clone)]
 pub struct PostStats {
 	pub server_count: usize,
-	pub shard_count:  u32,
+	pub shard_count:  u16,
 }
 
 #[derive(Deserialize, Serialize, Debug, Copy, Clone)]

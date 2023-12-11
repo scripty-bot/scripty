@@ -82,6 +82,7 @@ pub async fn handle_message(ctx: Context, msg: Message) -> Result<(), GenericMes
 	if msg.flags.map_or(false, |flags| {
 		flags.contains(MessageFlags::IS_VOICE_MESSAGE)
 	}) {
+		debug!(%msg.id, "message is a voice message, ignoring");
 		return Ok(());
 	}
 
@@ -91,11 +92,11 @@ pub async fn handle_message(ctx: Context, msg: Message) -> Result<(), GenericMes
 	for attachment in msg.attachments.iter() {
 		if let Some(ext) = attachment.filename.split('.').last() {
 			if AUDIO_EXTENSIONS.contains(&ext) {
-				debug!("found audio file");
+				debug!(%msg.id, "found audio file");
 				attached_files.push(attachment);
 				audio_files_found = true;
 			} else if VIDEO_EXTENSIONS.contains(&ext) {
-				debug!("found video file");
+				debug!(%msg.id, "found video file");
 				attached_files.push(attachment);
 				video_files_found = true;
 			}
@@ -107,30 +108,34 @@ pub async fn handle_message(ctx: Context, msg: Message) -> Result<(), GenericMes
 	}
 
 	// does the guild even have it enabled?
-	let (language, audio_enabled, video_enabled) = sqlx::query!(
-		"SELECT language, transcribe_audio_files, transcribe_video_files FROM guilds WHERE \
-		 guild_id = $1",
+	let (language, audio_enabled, video_enabled, translate) = sqlx::query!(
+		"SELECT language, transcribe_audio_files, transcribe_video_files, translate FROM guilds \
+		 WHERE guild_id = $1",
 		guild_id.get() as i64
 	)
 	.fetch_optional(scripty_db::get_db())
 	.await?
 	.map_or_else(
-		|| (String::new(), false, false),
+		|| (String::new(), false, false, false),
 		|row| {
 			(
 				row.language,
 				row.transcribe_audio_files,
 				row.transcribe_video_files,
+				row.translate,
 			)
 		},
 	);
 	if !(audio_enabled || video_enabled) {
+		debug!(%msg.id, "neither audio nor video enabled");
 		return Ok(());
 	}
 	if audio_files_found && !audio_enabled {
+		debug!(%msg.id, "audio files found but audio not enabled");
 		return Ok(());
 	}
 	if video_files_found && !video_enabled {
+		debug!(%msg.id, "video files found but video not enabled");
 		return Ok(());
 	}
 
@@ -139,9 +144,11 @@ pub async fn handle_message(ctx: Context, msg: Message) -> Result<(), GenericMes
 		.await
 		.unwrap_or(PremiumTierList::None);
 	if premium_tier == PremiumTierList::None {
+		debug!(%msg.id, "no premium tier, ignoring");
 		return Ok(());
 	}
 	if video_files_found && premium_tier < PremiumTierList::Tier2 {
+		debug!(%msg.id, "video files found but not enough premium");
 		return Ok(());
 	}
 
@@ -160,18 +167,19 @@ pub async fn handle_message(ctx: Context, msg: Message) -> Result<(), GenericMes
 	};
 
 	// and then transcribe it
-	let transcripts = match handle_transcripts(attached_files, &language, premium_tier).await {
-		Ok(transcripts) => transcripts,
-		Err(e) => {
-			new_msg
-				.edit(
-					ctx,
-					EditMessage::new().content(format!("Failed to transcribe files: {:?}", e)),
-				)
-				.await?;
-			return Err(e);
-		}
-	};
+	let transcripts =
+		match handle_transcripts(attached_files, language, premium_tier, translate).await {
+			Ok(transcripts) => transcripts,
+			Err(e) => {
+				new_msg
+					.edit(
+						ctx,
+						EditMessage::new().content(format!("Failed to transcribe files: {:?}", e)),
+					)
+					.await?;
+				return Err(e);
+			}
+		};
 
 	// sometimes to prevent spam we get no transcripts returned
 	// (ie premium tier is too low for one file)
@@ -361,8 +369,9 @@ enum TranscriptResult {
 
 async fn handle_transcripts(
 	files: Vec<&Attachment>,
-	language: &str,
+	language: String,
 	premium_tier: PremiumTierList,
+	translate: bool,
 ) -> Result<Vec<TranscriptResult>, GenericMessageError> {
 	let mut output = Vec::with_capacity(files.len());
 	for file in files {
@@ -417,7 +426,7 @@ async fn handle_transcripts(
 				output.push(TranscriptResult::VideoTooLong {
 					max_video_length,
 					video_length: file_length,
-					file_name: file.filename.clone(),
+					file_name: file.filename.to_string(),
 				});
 				continue;
 			}
@@ -427,7 +436,7 @@ async fn handle_transcripts(
 				output.push(TranscriptResult::AudioTooLong {
 					max_audio_length,
 					audio_length: file_length,
-					file_name: file.filename.clone(),
+					file_name: file.filename.to_string(),
 				});
 				continue;
 			}
@@ -438,20 +447,22 @@ async fn handle_transcripts(
 		let i16_audio = convert_to_pcm(path).await?;
 
 		// fetch a stream, feed the audio, get the result, send it
-		let stream = scripty_stt::get_stream(language, false).await?;
+		let stream = scripty_stt::get_stream().await?;
 
 		stream.feed_audio(i16_audio)?;
-		let transcript = stream.get_result().await?.result;
+		let transcript = stream
+			.get_result(language.clone(), false, translate)
+			.await?;
 		let transcript = transcript.trim();
 		if transcript.is_empty() {
 			output.push(TranscriptResult::EmptyTranscript {
-				file_name: file.filename.clone(),
+				file_name: file.filename.to_string(),
 			});
 			continue;
 		} else {
 			output.push(TranscriptResult::Success {
 				transcript: transcript.to_owned(),
-				file_name:  file.filename.clone(),
+				file_name:  file.filename.to_string(),
 			});
 		}
 	}

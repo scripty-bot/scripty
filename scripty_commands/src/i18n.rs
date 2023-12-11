@@ -46,11 +46,8 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 			}
 
 			for parameter in cmd.parameters.iter_mut() {
-				let Some(ref parameter_name) = parameter.name else {
-					continue;
-				};
 				let Some(formatted_parameter_name) =
-					get_fmt_msg(language, &key, Some(parameter_name), command_name, true)
+					get_fmt_msg(language, &key, Some(&*parameter.name), command_name, true)
 				else {
 					continue;
 				};
@@ -61,7 +58,7 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 				let Some(formatted_parameter_description) = get_fmt_msg(
 					language,
 					&key,
-					Some(&format!("{}-description", &parameter_name)),
+					Some(&format!("{}-description", &parameter.name)),
 					command_name,
 					false,
 				) else {
@@ -77,7 +74,7 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 					let Some(formatted_choice_name) = get_fmt_msg(
 						language,
 						&key,
-						Some(&format!("{}-choice-{}", parameter_name, choice.name)),
+						Some(&format!("{}-choice-{}", parameter.name, choice.name)),
 						command_name,
 						false,
 					) else {

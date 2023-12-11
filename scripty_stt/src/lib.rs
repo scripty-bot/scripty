@@ -34,10 +34,10 @@ pub fn get_model_languages() -> Vec<String> {
 }
 
 /// Get a new stream.
-pub async fn get_stream(language: &str, verbose: bool) -> Result<Stream, ModelError> {
+pub async fn get_stream() -> Result<Stream, ModelError> {
 	load_balancer::LOAD_BALANCER
 		.get()
 		.expect("initialize load balancer before trying to get stream")
-		.get_stream(language, verbose)
+		.get_stream()
 		.await
 }

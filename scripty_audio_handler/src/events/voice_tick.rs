@@ -37,6 +37,7 @@ pub async fn voice_tick(
 	transcript_results: Option<Arc<RwLock<Vec<String>>>>,
 	automod_server_cfg: Arc<AutomodServerConfig>,
 	auto_detect_lang: Arc<AtomicBool>,
+	translate: Arc<AtomicBool>,
 ) {
 	let metrics = scripty_metrics::get_metrics();
 	let tick_start_time = Instant::now();
@@ -49,14 +50,7 @@ pub async fn voice_tick(
 	last_tick_speakers.retain(|s| voice_data.silent.contains(s));
 
 	// handle those speaking this tick
-	handle_speakers(
-		Arc::clone(&ssrc_state),
-		Arc::clone(&metrics),
-		voice_data,
-		Arc::clone(&language),
-		verbose.clone(),
-	)
-	.await;
+	handle_speakers(Arc::clone(&ssrc_state), Arc::clone(&metrics), voice_data).await;
 
 	let hooks = handle_silent_speakers(SilentSpeakersContext {
 		ssrc_state: Arc::clone(&ssrc_state),
@@ -69,6 +63,7 @@ pub async fn voice_tick(
 		transcript_results: transcript_results.clone(),
 		ctx: &ctx,
 		auto_detect_lang,
+		translate,
 	})
 	.await;
 
@@ -100,6 +95,7 @@ struct SilentSpeakersContext<'a> {
 	transcript_results: TranscriptResults,
 	ctx:                &'a Context,
 	auto_detect_lang:   Arc<AtomicBool>,
+	translate:          Arc<AtomicBool>,
 }
 async fn handle_silent_speakers(
 	SilentSpeakersContext {
@@ -113,6 +109,7 @@ async fn handle_silent_speakers(
 		transcript_results,
 		ctx,
 		auto_detect_lang,
+		translate,
 	}: SilentSpeakersContext<'_>,
 ) -> Vec<(ExecuteWebhook, u32)> {
 	// batch up webhooks to send
@@ -120,34 +117,37 @@ async fn handle_silent_speakers(
 
 	for ssrc in last_tick_speakers {
 		// make a new stream for the next time they speak and remove their old one
-		let lang = language.read().to_owned();
-		let new_stream = match scripty_stt::get_stream(
-			if auto_detect_lang.load(Ordering::Relaxed) {
-				"auto"
-			} else {
-				&lang
-			},
-			verbose.load(Ordering::Relaxed),
-		)
-		.await
-		{
-			Ok(s) => s,
+		let maybe_old_stream = match scripty_stt::get_stream().await {
+			Ok(s) => ssrc_state.ssrc_stream_map.insert(ssrc, s),
 			Err(e) => {
 				error!(?ssrc, "failed to create new stream: {}", e);
-				continue;
+				ssrc_state.ssrc_stream_map.remove(&ssrc).map(|x| x.1) // take what we have
 			}
 		};
-		let Some(old_stream) = ssrc_state.ssrc_stream_map.insert(ssrc, new_stream) else {
+		let old_stream = if let Some(old_stream) = maybe_old_stream {
+			old_stream
+		} else {
+			warn!(%ssrc, "no stream found for ssrc");
+			hooks.push((
+				ExecuteWebhook::new().content(format!(
+					"no stream found for user (likely a bug): SSRC {}",
+					ssrc
+				)),
+				ssrc,
+			));
 			continue;
 		};
 
 		// finalize the stream
+		let lang = language.read().clone();
 		let (final_result, hook) = finalize_stream(
 			old_stream,
 			ssrc_state.ssrc_user_data_map.clone(),
 			thread_id,
 			ssrc,
-			verbose.load(Ordering::Relaxed),
+			lang,
+			&verbose,
+			&translate,
 		)
 		.await;
 
@@ -256,13 +256,7 @@ async fn handle_silent_speakers(
 	hooks
 }
 
-async fn handle_speakers(
-	ssrc_state: Arc<SsrcMaps>,
-	metrics: Arc<Metrics>,
-	voice_data: VoiceTick,
-	language: Arc<RwLock<String>>,
-	verbose: Arc<AtomicBool>,
-) {
+async fn handle_speakers(ssrc_state: Arc<SsrcMaps>, metrics: Arc<Metrics>, voice_data: VoiceTick) {
 	for (ssrc, data) in voice_data.speaking {
 		let st = Instant::now();
 
@@ -354,16 +348,13 @@ async fn handle_speakers(
 				trace!(?ssrc, "done processing pkt");
 			} else {
 				warn!(?ssrc, "no stream found for ssrc");
-				// cold path so we can afford to do this
-				let lang = language.read().to_owned();
-				let new_stream =
-					match scripty_stt::get_stream(&lang, verbose.load(Ordering::Relaxed)).await {
-						Ok(s) => s,
-						Err(e) => {
-							error!(?ssrc, "failed to create new stream: {}", e);
-							continue;
-						}
-					};
+				let new_stream = match scripty_stt::get_stream().await {
+					Ok(s) => s,
+					Err(e) => {
+						error!(?ssrc, "failed to create new stream: {}", e);
+						continue;
+					}
+				};
 				ssrc_state.ssrc_stream_map.insert(ssrc, new_stream);
 			}
 		} else {
@@ -381,51 +372,31 @@ async fn finalize_stream(
 	user_data_map: SsrcUserDataMap,
 	thread_id: Option<ChannelId>,
 	ssrc: u32,
-	verbose: bool,
+	language: String,
+	verbose: &Arc<AtomicBool>,
+	translate: &Arc<AtomicBool>,
 ) -> (Option<String>, Option<ExecuteWebhook>) {
 	let mut final_transcript = None;
 
 	debug!(%ssrc, "finalizing stream");
-	let mut webhook_executor = if verbose {
-		let res = stream.get_result_verbose().await;
-		match res {
-			Ok(res) => {
-				if res.num_transcripts == 0 {
-					return (None, None);
-				}
-				let mut embed =
-					CreateEmbed::new().title(format!("Transcript 1/{}", res.num_transcripts));
 
-				if let Some(transcript) = res.main_transcript {
-					if transcript.is_empty() {
-						return (None, None);
-					}
-					embed = embed.field("Transcription", &transcript, false);
-					final_transcript = Some(transcript);
-				} else {
-					return (None, None);
-				}
-				if let Some(confidence) = res.main_confidence {
-					embed = embed.field("Confidence", format!("{:.2}%", confidence), false)
-				} else {
-					embed = embed.field("Confidence", "unknown", false)
-				}
-				ExecuteWebhook::new().embed(embed)
-			}
-			Err(error) => handle_error(error, ssrc),
+	let res = stream
+		.get_result(
+			language,
+			verbose.load(Ordering::Relaxed),
+			translate.load(Ordering::Relaxed),
+		)
+		.await;
+	let mut webhook_executor = match res {
+		Ok(res) if !res.is_empty() => {
+			let webhook_executor = ExecuteWebhook::new().content(&res);
+			final_transcript = Some(res);
+			webhook_executor
 		}
-	} else {
-		let res = stream.get_result().await;
-		match res {
-			Ok(res) if !res.result.is_empty() => {
-				let webhook_executor = ExecuteWebhook::new().content(&res.result);
-				final_transcript = Some(res.result);
-				webhook_executor
-			}
-			Ok(_) => return (None, None),
-			Err(error) => handle_error(error, ssrc),
-		}
+		Ok(_) => return (None, None),
+		Err(error) => handle_error(error, ssrc),
 	};
+
 	debug!(%ssrc, "got stream results");
 
 	let Some(user_details) = user_data_map.get(&ssrc) else {
@@ -461,6 +432,42 @@ fn handle_error(error: ModelError, ssrc: u32) -> ExecuteWebhook {
 		ModelError::NoAvailableServers => {
 			error!(%ssrc, "STTS error: no available servers");
 			format!("no available STT servers (SSRC {})", ssrc)
+		}
+		ModelError::MessagePackDecode(e) => {
+			error!(%ssrc, "STTS error: failed to decode messagepack: {}", e);
+			format!("internal STT service error (SSRC {})", ssrc)
+		}
+		ModelError::MessagePackEncode(e) => {
+			error!(%ssrc, "STTS error: failed to encode messagepack: {}", e);
+			format!("internal STT service error (SSRC {})", ssrc)
+		}
+		ModelError::InvalidMagicBytes(e) => {
+			error!(%ssrc, "STTS error: invalid magic bytes: {:?}", e);
+			format!("internal STT service error (SSRC {})", ssrc)
+		}
+		ModelError::PayloadOutOfOrder => {
+			error!(%ssrc, "STTS error: payload received out of order");
+			format!("internal STT service error (SSRC {})", ssrc)
+		}
+		ModelError::InvalidPayload { expected, got } => {
+			error!(%ssrc, "STTS error: invalid payload: expected {:?}, got {:?}", expected, got);
+			format!("internal STT service error (SSRC {})", ssrc)
+		}
+		ModelError::OverloadedRemote => {
+			error!(%ssrc, "STTS error: remote overloaded");
+			format!("STT service overloaded (SSRC {})", ssrc)
+		}
+		ModelError::InitializationTimedOut => {
+			error!(%ssrc, "STTS error: initialization timed out");
+			format!("STT service initialization timed out (SSRC {})", ssrc)
+		}
+		ModelError::RemoteDisconnected => {
+			error!(%ssrc, "STTS error: remote disconnected");
+			format!("STT service disconnected (SSRC {})", ssrc)
+		}
+		ModelError::TimedOutWaitingForResult => {
+			error!(%ssrc, "STTS error: timed out waiting for result");
+			format!("STT service timed out (SSRC {})", ssrc)
 		}
 	};
 	ExecuteWebhook::new().content(user_error)

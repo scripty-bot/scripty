@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT language, transcribe_audio_files, transcribe_video_files, translate FROM guilds WHERE guild_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "language",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "transcribe_audio_files",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 2,
+        "name": "transcribe_video_files",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "translate",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "58a67995b6f90c0a75dfb93454e46e59161d686e4e179afc92321e61050fd11b"
+}

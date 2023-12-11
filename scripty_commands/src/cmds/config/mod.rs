@@ -31,7 +31,7 @@ pub async fn config_root(ctx: Context<'_>) -> Result<(), Error> {
 			.await;
 
 	ctx.send(
-		CreateReply::new().ephemeral(true).embed(
+		CreateReply::default().ephemeral(true).embed(
 			CreateEmbed::new()
 				.title(format_message!(
 					resolved_language,

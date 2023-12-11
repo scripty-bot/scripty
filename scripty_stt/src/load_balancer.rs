@@ -1,4 +1,5 @@
 use std::{
+	collections::VecDeque,
 	net::SocketAddr,
 	sync::{
 		atomic::{AtomicBool, AtomicUsize, Ordering},
@@ -7,16 +8,37 @@ use std::{
 	time::Duration,
 };
 
+use byteorder::NetworkEndian;
 use dashmap::DashMap;
 use once_cell::sync::OnceCell;
+use parking_lot::Mutex;
+use scripty_common::stt_transport_models::{
+	ClientToServerMessage,
+	ServerToClientMessage,
+	StatusConnectionData,
+	StatusConnectionOpen,
+};
 use scripty_config::SttServiceDefinition;
 use tokio::{
-	io,
 	io::{AsyncReadExt, AsyncWriteExt},
-	net::lookup_host,
+	net::{
+		lookup_host,
+		tcp::{OwnedReadHalf, OwnedWriteHalf},
+		TcpStream,
+	},
+	sync::broadcast::{Receiver, Sender},
 };
 
 use crate::{ModelError, Stream, NUM_STT_SERVICE_TRIES};
+
+/// Maximum number of workers to queue up.
+///
+/// Takes roughly 60ms after TCP RTT to establish a connection to a server.
+/// Scripty's analytics put all time peak usage at 11 simultaneous streams.
+///
+/// 11 concurrent streams * 60ms TCP RTT = 660ms / 20ms packet length = 33 queue slots,
+/// rounded down to 32.
+const MAXIMUM_QUEUE_SIZE: usize = 32;
 
 pub static LOAD_BALANCER: OnceCell<LoadBalancer> = OnceCell::new();
 
@@ -24,15 +46,25 @@ pub static LOAD_BALANCER: OnceCell<LoadBalancer> = OnceCell::new();
 /// until one notes that it is overloaded, at which point it is removed from the pool.
 ///
 /// If it notifies the master that it is no longer overloaded, it is re-added.
+#[derive(Clone)]
 pub struct LoadBalancer {
 	/// The current worker index.
-	current_index: AtomicUsize,
+	current_index:  Arc<AtomicUsize>,
 	/// A list of all workers.
-	workers:       DashMap<usize, LoadBalancedStream>,
+	workers:        Arc<DashMap<usize, LoadBalancedStream>>,
+	/// Queued-up workers ready for use.
+	///
+	/// This is used to prevent dropping a few hundred milliseconds of audio at the very start of a stream.
+	/// If a worker is queued up, it is ready to be used immediately.
+	queued_workers: Arc<Mutex<VecDeque<Stream>>>,
+	/// Channel to request a new worker be queued up.
+	///
+	/// Allows avoiding busy waiting in the background task.
+	new_worker_tx:  flume::Sender<()>,
 }
 
 impl LoadBalancer {
-	pub async fn new() -> io::Result<Self> {
+	pub async fn new() -> Result<Self, ModelError> {
 		let stt_services = scripty_config::get_config().stt_services.clone();
 		let mut peer_addresses: Vec<SocketAddr> = Vec::new();
 		for service in stt_services {
@@ -50,14 +82,20 @@ impl LoadBalancer {
 			}
 		}
 
-		let workers = DashMap::new();
+		let workers = Arc::new(DashMap::new());
 		for (n, addr) in peer_addresses.into_iter().enumerate() {
 			workers.insert(n, LoadBalancedStream::new(addr).await?);
 		}
-		Ok(Self {
-			current_index: AtomicUsize::new(0),
+		let (new_worker_tx, new_worker_rx) = flume::unbounded();
+		let this = Self {
+			current_index: Arc::new(AtomicUsize::new(0)),
 			workers,
-		})
+			queued_workers: Arc::new(Mutex::new(VecDeque::with_capacity(MAXIMUM_QUEUE_SIZE))),
+			new_worker_tx,
+		};
+		let t2 = this.clone();
+		tokio::spawn(t2.new_worker_background_task(new_worker_rx));
+		Ok(this)
 	}
 
 	fn get_next_worker_idx(&self) -> usize {
@@ -83,8 +121,8 @@ impl LoadBalancer {
 				if (allow_overload && worker.can_overload)
 					|| !worker.is_overloaded() && !worker.is_in_error()
 				{
-					// usually this is going to be the fast path and it will immediately return this worker
-					// if it isn't, this is still decently fast, an O(2n) operation worst case
+					// usually this is going to be the fast path, and it will immediately return this worker.
+					// if it isn't, this is still decently fast, an O(2n) operation worst case.
 					// given there's very likely never going to be more than 255 workers, this is fine
 					return Ok(idx);
 				}
@@ -94,8 +132,8 @@ impl LoadBalancer {
 
 			// are we back at the start?
 			if !allow_overload && iter_count > self.workers.len() {
-				// we've looped through all workers and none are available:
-				// try again, but this time allow overloading
+				// we've looped through all workers, and none are available:
+				// try again, but this time, allow overloading
 				allow_overload = true;
 			}
 
@@ -116,12 +154,12 @@ impl LoadBalancer {
 		}
 	}
 
-	pub async fn get_stream(&self, language: &str, verbose: bool) -> Result<Stream, ModelError> {
+	async fn spawn_new_stream(&self) -> Result<Stream, ModelError> {
 		let worker_id = self.find_worker()?;
 		let worker = self.workers.get(&worker_id).expect("worker should exist");
 
 		let metrics = scripty_metrics::get_metrics();
-		match worker.open_connection(language, verbose).await {
+		match worker.open_connection().await {
 			Ok(s) => {
 				metrics.stt_server_fetch_success.inc_by(1);
 				Ok(s)
@@ -132,13 +170,72 @@ impl LoadBalancer {
 			}
 		}
 	}
+
+	async fn new_worker_background_task(self, new_worker_rx: flume::Receiver<()>) {
+		loop {
+			{
+				// check if we have reached the maximum queue size
+				if self.queued_workers.lock().len() >= MAXIMUM_QUEUE_SIZE {
+					// wait for a new worker to be requested
+					if new_worker_rx.recv_async().await.is_err() {
+						error!("all clients disconnected (should never happen)");
+						return;
+					};
+				}
+				debug!(
+					"got request for new worker, {} queued",
+					self.queued_workers.lock().len()
+				);
+			}
+
+			// spawn a new worker
+			let new_worker = match self.spawn_new_stream().await {
+				Ok(s) => s,
+				Err(e) => {
+					error!("failed to spawn new worker: {}", e);
+					continue;
+				}
+			};
+			self.queued_workers.lock().push_back(new_worker);
+		}
+	}
+
+	pub async fn get_stream(&self) -> Result<Stream, ModelError> {
+		// check if we have any queued workers
+		{
+			let mut queued_workers = self.queued_workers.lock();
+			if let Some(worker) = queued_workers.pop_front() {
+				// request a new worker to be queued up
+				let new_worker_queue = self.new_worker_tx.clone();
+				tokio::spawn(async move { new_worker_queue.send_async(()).await });
+
+				// return the one we got
+				return Ok(worker);
+			}
+		}
+
+		// spawn a new worker
+		let new_worker = match self.spawn_new_stream().await {
+			Ok(s) => s,
+			Err(e) => {
+				error!("failed to spawn new worker: {}", e);
+				return Err(e);
+			}
+		};
+		Ok(new_worker)
+	}
 }
 
 pub struct LoadBalancedStream {
-	peer_address:  SocketAddr,
-	is_overloaded: Arc<AtomicBool>,
-	can_overload:  bool,
-	is_in_error:   Arc<AtomicBool>,
+	peer_address:           SocketAddr,
+	is_overloaded:          Arc<AtomicBool>,
+	can_overload:           bool,
+	waiting_for_new_stream: Arc<AtomicBool>,
+
+	msg_tx:                 Sender<ClientToServerMessage>,
+	msg_rx_transmit_handle: Sender<ServerToClientMessage>,
+	// keep this field that way there's always one receiver
+	_msg_rx:                Receiver<ServerToClientMessage>,
 }
 
 impl LoadBalancedStream {
@@ -149,116 +246,271 @@ impl LoadBalancedStream {
 
 	#[inline]
 	pub fn is_in_error(&self) -> bool {
-		self.is_in_error.load(Ordering::Relaxed)
+		self.waiting_for_new_stream.load(Ordering::Relaxed)
 	}
 
-	pub(crate) async fn open_connection(
-		&self,
-		language: &str,
-		verbose: bool,
-	) -> Result<Stream, ModelError> {
+	pub async fn open_connection(&self) -> Result<Stream, ModelError> {
 		if !self.can_overload && self.is_overloaded() {
-			return Err(ModelError::Io(io::Error::new(
-				io::ErrorKind::Other,
-				"remote is overloaded",
-			)));
+			return Err(ModelError::OverloadedRemote);
 		}
 
-		let res = Stream::new(language, verbose, self.peer_address).await;
-		self.is_in_error.store(res.is_err(), Ordering::Relaxed);
-		res
+		Stream::new(
+			self.peer_address,
+			self.msg_tx.clone(),
+			self.msg_rx_transmit_handle.subscribe(),
+		)
+		.await
 	}
 
-	pub async fn new(peer_address: SocketAddr) -> io::Result<Self> {
+	pub async fn new(peer_address: SocketAddr) -> Result<Self, ModelError> {
 		// open a connection to the remote
-		let mut peer_stream = tokio::net::TcpStream::connect(peer_address).await?;
+		info!("trying to connect to STT service at {}", peer_address);
+		let peer_stream = TcpStream::connect(peer_address).await?;
+		let (mut stream_read, stream_write) = peer_stream.into_split();
 
-		// convert this connection into a data-only connection (send 0x04)
-		peer_stream.write_u8(0x04).await?;
+		// wait for the server to send a StatusConnectionOpen message
+		info!(%peer_address, "waiting for initialization");
+		let ServerToClientMessage::StatusConnectionOpen(StatusConnectionOpen {
+			max_utilization,
+			can_overload,
+		}) = read_socket_message(&mut stream_read).await?
+		else {
+			// got something other than a StatusConnectionOpen message
+			// should never happen
+			return Err(ModelError::PayloadOutOfOrder);
+		};
 
-		// wait for a response of 0x06 (status connection open, fields max_utilization: f64, can_overload: bool)
-		if peer_stream.read_u8().await? != 0x06 {
-			return Err(io::Error::new(
-				io::ErrorKind::Other,
-				"unexpected response from server",
-			));
-		}
-
-		// read the fields
-		let max_utilization = peer_stream.read_f64().await?;
-		let can_overload = peer_stream.read_u8().await? == 1;
-
-		debug!(
+		info!(
 			?max_utilization,
 			?can_overload,
 			?peer_address,
 			"got data for new stream"
 		);
 
-		let is_overloaded = Arc::new(AtomicBool::new(false));
-		let iso2 = Arc::clone(&is_overloaded);
-		let is_in_error = Arc::new(AtomicBool::new(false));
-		let iie2 = Arc::clone(&is_in_error);
+		// spawn background tx and rx tasks
+		let (client_to_server_tx, client_to_server_rx) = tokio::sync::broadcast::channel(16384);
+		let (server_to_client_tx, server_to_client_rx) = tokio::sync::broadcast::channel(16384);
+		// error handling queue
+		let (stream_error_tx, mut stream_error_rx) = tokio::sync::mpsc::channel(2);
+		let (new_read_stream_tx, new_read_stream_rx) = tokio::sync::mpsc::channel(1);
+		let (new_write_stream_tx, new_write_stream_rx) = tokio::sync::mpsc::channel(1);
 
-		// spawn a background task that will monitor the connection, and if it reports being overloaded, sets the overloaded flag
+		// read stream task
+		struct ReadStreamTask {
+			stream_read:         OwnedReadHalf,
+			server_to_client_tx: tokio::sync::broadcast::Sender<ServerToClientMessage>,
+			stream_error_tx:     tokio::sync::mpsc::Sender<ModelError>,
+			new_read_stream_rx:  tokio::sync::mpsc::Receiver<OwnedReadHalf>,
+		}
+		let mut read_stream_task = ReadStreamTask {
+			stream_read,
+			server_to_client_tx: server_to_client_tx.clone(),
+			stream_error_tx: stream_error_tx.clone(),
+			new_read_stream_rx,
+		};
 		tokio::spawn(async move {
-			let metrics = scripty_metrics::get_metrics();
-			let mut peer_stream = peer_stream;
-			loop {
-				let data: u8 = tokio::select! {
-					data_type = peer_stream.read_u8() => {
-						match data_type {
-							Ok(d) => d,
-							Err(e) => {
-								error!(?peer_address, "error reading from peer: {}", e);
-								// try to reconnect
-								peer_stream = match tokio::net::TcpStream::connect(peer_address).await {
-									Ok(s) => s,
-									Err(e) => {
-										error!(?peer_address, "error reconnecting to peer: {}", e);
-										iie2.store(true, Ordering::Relaxed);
-										metrics.stt_server_fetch_failure.inc_by(1);
-										const ONE_SECOND: Duration = Duration::from_secs(1);
-										tokio::time::sleep(ONE_SECOND).await;
-										continue;
-									}
-								};
-								continue;
+			'outer: loop {
+				let error = 'inner: loop {
+					let message = tokio::select! {
+						biased;
+						new_handle = read_stream_task.new_read_stream_rx.recv() => {
+							// always swap handles before trying to send anything new
+							match new_handle {
+								Some(stream) => {
+									read_stream_task.stream_read = stream;
+									continue 'inner;
+								}
+								None => {
+									error!(%peer_address,
+										"error receiving new stream from error queue: error task exited early"
+									);
+									break 'outer;
+								}
 							}
 						}
-					},
-					_ = tokio::signal::ctrl_c() => {
-						break
+						message = read_socket_message(&mut read_stream_task.stream_read) => {
+							message
+						}
+					};
+					match message {
+						Ok(message) => {
+							debug!("got message: {:?}", message);
+							if let Err(e) = read_stream_task.server_to_client_tx.send(message) {
+								error!(%peer_address,
+									"error sending message to client: no remaining receivers: {}",
+									e
+								);
+								break 'outer; // no remaining receivers, thus we are done
+							}
+						}
+						Err(e) => {
+							error!(%peer_address,"error reading message from server: {}", e);
+							break 'inner e;
+						}
 					}
 				};
-				iie2.store(false, Ordering::Relaxed);
 
-				if data != 0x07 {
-					error!(?peer_address, "unexpected data type from peer: {}", data);
-					// toss the error to the handler which will retry
-					continue;
+				// error with stream, send our stream to the error queue and wait for a new one back
+				if let Err(e) = read_stream_task.stream_error_tx.send(error).await {
+					error!(
+						%peer_address,
+						"error sending error to error queue: error task exited early: {}",
+						e
+					);
+					break 'outer;
 				}
-				metrics.stt_server_fetch_success.inc_by(1);
+				// wait for a new stream to be sent back
+				match read_stream_task.new_read_stream_rx.recv().await {
+					Some(stream) => read_stream_task.stream_read = stream,
+					None => {
+						error!(
+							%peer_address,
+							"error receiving new stream from error queue: error task exited early"
+						);
+						break 'outer;
+					}
+				}
+			}
+		});
 
-				// read payload (utilization: f64)
-				let utilization = match peer_stream.read_f64().await {
-					Ok(u) => u,
-					Err(e) => {
-						error!(?peer_address, "error reading from peer: {}", e);
-						// toss the error to the handler which will try to reconnect or exit
-						continue;
+		// write stream task
+		struct WriteStreamTask {
+			stream_write:        OwnedWriteHalf,
+			client_to_server_rx: tokio::sync::broadcast::Receiver<ClientToServerMessage>,
+			stream_error_tx:     tokio::sync::mpsc::Sender<ModelError>,
+			new_write_stream_rx: tokio::sync::mpsc::Receiver<OwnedWriteHalf>,
+		}
+		let mut write_stream_task = WriteStreamTask {
+			stream_write,
+			client_to_server_rx,
+			stream_error_tx,
+			new_write_stream_rx,
+		};
+		tokio::spawn(async move {
+			'outer: loop {
+				let error = 'inner: loop {
+					let message = tokio::select! {
+						biased;
+						new_handle = write_stream_task.new_write_stream_rx.recv() => {
+							// always swap handles before trying to send anything new
+							match new_handle {
+								Some(stream) => {
+									write_stream_task.stream_write = stream;
+									continue 'inner;
+								}
+								None => {
+									error!(%peer_address,
+										"error receiving new stream from error queue: error task exited early"
+									);
+									break 'outer;
+								}
+							}
+						}
+						message = write_stream_task.client_to_server_rx.recv() => {
+							message
+						},
+					};
+					match message {
+						Ok(message) => {
+							debug!("sending message: {:?}", message);
+							if let Err(e) =
+								write_socket_message(&mut write_stream_task.stream_write, &message)
+									.await
+							{
+								error!(%peer_address, "error sending message to server: {}", e);
+								break 'inner e;
+							}
+						}
+						Err(e) => {
+							error!(
+								%peer_address,
+								"error reading message from client: no remaining transmitters: {}",
+								e
+							);
+							break 'outer; // no remaining transmitters, thus we are done
+						}
 					}
 				};
 
-				// if the utilization is above the threshold, set the overloaded flag
-				iso2.store(utilization > max_utilization, Ordering::Relaxed);
+				// error with stream, send our stream to the error queue and wait for a new one back
+				if let Err(e) = write_stream_task.stream_error_tx.send(error).await {
+					error!(%peer_address,
+						"error sending error to error queue: error task exited early: {}",
+						e
+					);
+					break 'outer;
+				}
+
+				// wait for a new stream to be sent back
+				match write_stream_task.new_write_stream_rx.recv().await {
+					Some(stream) => write_stream_task.stream_write = stream,
+					None => {
+						error!(
+							%peer_address,
+							"error receiving new stream from error queue: error task exited early",
+						);
+						break 'outer;
+					}
+				}
 			}
-			// write 0x03 to the stream to close the connection
-			if let Err(e) = peer_stream.write_u8(0x03).await {
-				error!(
-					?peer_address,
-					"error closing connection to {}: {}", peer_address, e
-				);
+		});
+
+		let waiting_for_new_stream = Arc::new(AtomicBool::new(false));
+		let wfns2 = Arc::clone(&waiting_for_new_stream);
+		// error handling task
+		tokio::spawn(async move {
+			loop {
+				let _error = stream_error_rx.recv().await;
+				warn!("got error from stream pair");
+				wfns2.store(true, Ordering::Relaxed);
+
+				// start a new connection to the server
+				let mut peer_stream = None;
+				for n in 0..=12 {
+					// try 12 times to connect to the server with exponential backoff
+					let maybe_stream = TcpStream::connect(peer_address).await;
+					match maybe_stream {
+						Ok(stream) => {
+							peer_stream = Some(stream);
+							break;
+						}
+						Err(e) => {
+							error!(%peer_address, "error connecting to server: {}", e);
+							tokio::time::sleep(Duration::from_secs(2_u64.pow(n))).await;
+						}
+					}
+				}
+				let peer_stream = match peer_stream {
+					Some(stream) => stream,
+					None => {
+						error!(%peer_address, "failed to connect to server");
+						break;
+					}
+				};
+				let (stream_read, stream_write) = peer_stream.into_split();
+				// send the new streams to the read and write tasks
+				let _ = new_read_stream_tx.send(stream_read).await;
+				let _ = new_write_stream_tx.send(stream_write).await;
+				wfns2.store(false, Ordering::Relaxed);
+			}
+		});
+
+		let is_overloaded = Arc::new(AtomicBool::new(false));
+		let iso2 = Arc::clone(&is_overloaded);
+		let mut server_to_client_rx2 = server_to_client_tx.subscribe();
+		// monitoring task
+		tokio::spawn(async move {
+			loop {
+				let Ok(res) = server_to_client_rx2.recv().await else {
+					// error happened, we are never going to get any more messages
+					break;
+				};
+				if let ServerToClientMessage::StatusConnectionData(StatusConnectionData {
+					utilization,
+				}) = res
+				{
+					iso2.store(utilization > max_utilization, Ordering::Relaxed);
+				}
 			}
 		});
 
@@ -266,7 +518,59 @@ impl LoadBalancedStream {
 			peer_address,
 			is_overloaded,
 			can_overload,
-			is_in_error,
+			waiting_for_new_stream,
+			msg_tx: client_to_server_tx,
+			msg_rx_transmit_handle: server_to_client_tx,
+			_msg_rx: server_to_client_rx,
 		})
 	}
+}
+
+async fn read_socket_message(
+	socket: &mut OwnedReadHalf,
+) -> Result<ServerToClientMessage, ModelError> {
+	// read the magic bytes
+	let mut magic = [0; 4];
+	socket.read_exact(&mut magic).await?;
+	if magic != scripty_common::MAGIC_BYTES {
+		return Err(ModelError::InvalidMagicBytes(magic));
+	}
+
+	// read the data length
+	let mut data_length_bytes = [0; 8];
+	socket.read_exact(&mut data_length_bytes).await?;
+	let data_length = {
+		use byteorder::ByteOrder;
+		NetworkEndian::read_u64(&data_length_bytes)
+	};
+
+	// read the data
+	let mut data = vec![0; data_length as usize];
+	socket.read_exact(&mut data).await?;
+
+	// deserialize the data
+	Ok(rmp_serde::from_slice(&data)?)
+}
+
+async fn write_socket_message(
+	socket: &mut OwnedWriteHalf,
+	message: &ClientToServerMessage,
+) -> Result<(), ModelError> {
+	// serialize the message
+	let mut data = Vec::new();
+	rmp_serde::encode::write(&mut data, message)?;
+
+	// write the magic bytes
+	socket.write_all(&scripty_common::MAGIC_BYTES).await?;
+
+	// write the data length
+	socket.write_u64(data.len() as u64).await?;
+
+	// write the data
+	socket.write_all(&data).await?;
+
+	// flush the socket
+	socket.flush().await?;
+
+	Ok(())
 }

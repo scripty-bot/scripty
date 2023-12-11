@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT be_verbose, language, auto_detect_lang FROM guilds WHERE guild_id = $1",
+  "query": "SELECT be_verbose, language, auto_detect_lang, transcript_only_role, translate FROM guilds WHERE guild_id = $1",
   "describe": {
     "columns": [
       {
@@ -17,6 +17,16 @@
         "ordinal": 2,
         "name": "auto_detect_lang",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "transcript_only_role",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "translate",
+        "type_info": "Bool"
       }
     ],
     "parameters": {
@@ -27,8 +37,10 @@
     "nullable": [
       false,
       false,
+      false,
+      true,
       false
     ]
   },
-  "hash": "11c8a239a12caf99448c5a65ac17360f9d6a1377f8f5777555555b9ddcd637cb"
+  "hash": "7393c23910431ddaa5b67614df6b3dc3b4c5a19076907a323070d568c545036a"
 }

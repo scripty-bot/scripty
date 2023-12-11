@@ -26,13 +26,7 @@ pub async fn entrypoint() {
 		.expect("failed to init blocked entities");
 
 	// initialize the framework
-	let client = FrameworkBuilder::default()
-		.token(&cfg.token)
-		.client_settings(|b| {
-			b.event_handler(handler::BotEventHandler)
-				.raw_event_handler(handler::RawEventHandler)
-				.register_songbird_from_config(scripty_audio_handler::get_songbird())
-		})
+	let framework = FrameworkBuilder::default()
 		.setup(move |ctx, _, c| {
 			Box::pin(async move {
 				set_cache_http(ctx.http.clone(), ctx.cache.clone());
@@ -60,7 +54,15 @@ pub async fn entrypoint() {
 			})
 		})
 		.options(framework_opts::get_framework_opts())
-		.intents(framework_opts::get_gateway_intents());
+		.build();
 
-	client.run_autosharded().await.expect("failed to run bot");
+	let mut client = serenity::Client::builder(&cfg.token, framework_opts::get_gateway_intents())
+		.framework(framework)
+		.event_handler(handler::BotEventHandler)
+		.raw_event_handler(handler::RawEventHandler)
+		.register_songbird_from_config(scripty_audio_handler::get_songbird())
+		.await
+		.expect("failed to create serenity client");
+
+	client.start_autosharded().await.expect("failed to run bot");
 }

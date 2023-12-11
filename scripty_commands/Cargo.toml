@@ -11,6 +11,8 @@ hex = "0.4"
 tracing = "0.1"
 indexmap = "1"
 humantime = "2"
+typesize = "0.1"
+num-format = "0.4"
 scripty_db = { path = "../scripty_db" }
 scripty_i18n = { path = "../scripty_i18n" }
 scripty_utils = { path = "../scripty_utils" }
@@ -33,6 +35,8 @@ serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", f
 	"builder",
 	"collector",
 	"utils",
+	"typesize",
 ] }
 sqlx = { version = "0.7", features = ["postgres", "macros", "migrate", "runtime-tokio-rustls", "time"] }
 poise = { git = "https://github.com/serenity-rs/poise", branch = "serenity-next", features = ["cache", "collector"] }
+rand = "0.8.5"

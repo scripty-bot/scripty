@@ -36,7 +36,7 @@ impl BackgroundTask for BotListUpdater {
 	async fn run(&mut self) {
 		let stats = PostStats {
 			server_count: self.ctx.cache.guild_count(),
-			shard_count:  self.ctx.cache.shard_count(),
+			shard_count:  self.ctx.cache.shard_count().get(),
 		};
 
 		for list in self.bot_lists.iter() {

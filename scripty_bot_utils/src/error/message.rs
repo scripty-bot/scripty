@@ -65,7 +65,7 @@ pub async fn log_error_message(
 	let (guild_id, guild_name) = if let Some(guild_id) = ctx.guild_id() {
 		let guild_name = cache
 			.guild(guild_id)
-			.map_or_else(|| "unknown guild".to_string(), |g| g.name.clone());
+			.map_or_else(|| "unknown guild".to_string(), |g| g.name.to_string());
 
 		e = e.field("Guild ID", guild_id.to_string(), false);
 		e = e.field("Guild Name", &guild_name, true);

@@ -15,8 +15,7 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
 	let mut error_count: u32 = 0;
 
 	// guilds should be categorized by the number of members in them
-	// groups: 0-2, 2-5, 5-10, 10-25, 25-50, 50-100, 100-250, 250-500, 500-1000, 1000-2500, 2500-5000, 5000-10000, 10000+
-	const GROUPS: [Range<u64>; 13] = [
+	const GROUPS: [Range<u64>; 18] = [
 		0..2,
 		2..5,
 		5..10,
@@ -29,7 +28,12 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
 		1000..2500,
 		2500..5000,
 		5000..10000,
-		10000..u64::MAX,
+		10000..24999,
+		25000..49999,
+		50000..99999,
+		100000..250000,
+		250000..500000,
+		1000000..u64::MAX,
 	];
 
 	// map of bounds to the number of servers in that range
@@ -43,7 +47,7 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
 		.expect("client data not initialized")
 		.shard_manager
 		.clone();
-	let shard_count = shard_manager.runners.lock().await.len() as u32;
+	let shard_count = shard_manager.runners.lock().await.len() as u16;
 
 	for guild in ctx.serenity_context().cache.guilds() {
 		let g = match guild.to_guild_cached(&ctx) {
@@ -109,7 +113,7 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
 		}
 		let ratio = bot_count as f64 / user_count as f64;
 		if ratio > specified_ratio {
-			guild_warnings.push((g.name.clone(), g.id.get(), ratio));
+			guild_warnings.push((g.name.to_string(), g.id.get(), ratio));
 		}
 	}
 

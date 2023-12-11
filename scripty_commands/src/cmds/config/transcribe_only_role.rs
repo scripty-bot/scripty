@@ -31,7 +31,7 @@ pub async fn config_transcribe_only_role(
 	.await?;
 
 	ctx.send(
-		CreateReply::new()
+		CreateReply::default()
 			.allowed_mentions(CreateAllowedMentions::new().empty_roles())
 			.content(format_message!(
 				resolved_language,

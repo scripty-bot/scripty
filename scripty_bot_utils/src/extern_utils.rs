@@ -103,11 +103,12 @@ pub fn get_voice_channel_count() -> Result<usize, CacheNotInitializedError> {
 	Ok(count)
 }
 
-pub fn get_shard_count() -> Result<u32, CacheNotInitializedError> {
+pub fn get_shard_count() -> Result<u16, CacheNotInitializedError> {
 	Ok(CLIENT_CACHE
 		.get()
 		.ok_or(CacheNotInitializedError)?
-		.shard_count())
+		.shard_count()
+		.get())
 }
 
 pub struct ShardInfo {
@@ -126,9 +127,9 @@ pub struct ShardInfo {
 	pub guild_count:       usize,
 }
 
-static CACHED_SHARD_GUILD_COUNT: OnceCell<Mutex<(HashMap<u32, usize>, Instant)>> = OnceCell::new();
+static CACHED_SHARD_GUILD_COUNT: OnceCell<Mutex<(HashMap<u16, usize>, Instant)>> = OnceCell::new();
 
-pub async fn get_shard_info() -> Result<HashMap<u32, ShardInfo>, CacheNotInitializedError> {
+pub async fn get_shard_info() -> Result<HashMap<u16, ShardInfo>, CacheNotInitializedError> {
 	let data = CLIENT_DATA.get().ok_or(CacheNotInitializedError)?;
 	let cache = CLIENT_CACHE.get().ok_or(CacheNotInitializedError)?;
 
@@ -147,7 +148,7 @@ pub async fn get_shard_info() -> Result<HashMap<u32, ShardInfo>, CacheNotInitial
 
 		let mut shard_guild_count = HashMap::new();
 		for guild in cache.guilds() {
-			let guild_shard_id = ((guild.get() >> 22) % shard_count) as u32;
+			let guild_shard_id = ((guild.get() >> 22) % shard_count) as u16;
 			if let Some(id) = shard_guild_count.get_mut(&guild_shard_id) {
 				*id += 1;
 			} else {

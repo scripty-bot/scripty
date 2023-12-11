@@ -4,7 +4,7 @@ use crate::{ShardManagerWrapper, TypeMapKey};
 
 pub async fn get_ws_latency(
 	shard_manager: &<ShardManagerWrapper as TypeMapKey>::Value,
-	shard_id: u32,
+	shard_id: u16,
 ) -> Option<u128> {
 	let runners = shard_manager.runners.lock().await;
 	runners
