@@ -4,6 +4,7 @@ mod transcribe_audio;
 mod transcribe_only_role;
 mod transcribe_video;
 mod transcribe_voice_messages;
+mod translate;
 mod verbose;
 
 pub use auto_detect_lang::config_auto_detect_lang;
@@ -15,6 +16,7 @@ pub use transcribe_audio::config_transcribe_audio;
 pub use transcribe_only_role::config_transcribe_only_role;
 pub use transcribe_video::config_transcribe_video;
 pub use transcribe_voice_messages::config_transcribe_voice_messages;
+pub use translate::config_translate;
 pub use verbose::config_verbose;
 
 /// Configure Scripty's settings

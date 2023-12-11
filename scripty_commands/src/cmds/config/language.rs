@@ -12,7 +12,7 @@ use serenity::builder::CreateEmbed;
 	slash_command,
 	check = "is_guild",
 	required_permissions = "MANAGE_GUILD",
-	rename = "guild_language"
+	rename = "language"
 )]
 pub async fn config_server_language(
 	ctx: Context<'_>,
@@ -26,6 +26,26 @@ pub async fn config_server_language(
 		.map(|g| g.get())
 		.ok_or_else(Error::expected_guild)?;
 	let resolved_language = scripty_i18n::get_guild_language(guild_id).await;
+
+	// check if the server has translate enabled and error out if so
+	if language != "en" {
+		let res = sqlx::query!(
+			"SELECT translate FROM guilds WHERE guild_id = $1",
+			guild_id as i64
+		)
+		.fetch_optional(scripty_db::get_db())
+		.await?;
+		if let Some(row) = res {
+			if row.translate {
+				ctx.reply(format_message!(
+					resolved_language,
+					"guild-language-set-failure-translate-enabled"
+				))
+				.await?;
+				return Ok(());
+			}
+		}
+	}
 
 	match scripty_i18n::set_guild_language(guild_id, language.as_str()).await {
 		Ok(_) => {

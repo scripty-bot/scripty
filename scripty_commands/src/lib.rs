@@ -60,6 +60,7 @@ pub fn build_commands() -> Vec<poise::Command<Data, Error>> {
 				cmds::config::config_verbose(),
 				cmds::config::config_auto_detect_lang(),
 				cmds::config::config_transcribe_only_role(),
+				cmds::config::config_translate(),
 			],
 			subcommand_required: true,
 			..cmds::config::config_root()

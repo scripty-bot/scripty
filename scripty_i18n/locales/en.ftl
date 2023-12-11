@@ -155,6 +155,15 @@ config_transcribe_only_role = transcribe_only_role
 config-transcribe-only-role-enabled = Scripty will now only transcribe messages from users in { $roleId }.
 config-transcribe-only-role-disabled = Scripty will now transcribe all users, regardless of role.
 
+## config - translate command
+config_translate = translate
+    .description = Automatically translate transcriptions to English?
+    .translate = translate
+    .translate-description = Defaults to false
+
+config-translate-enabled = Scripty will now translate transcriptions to English.
+config-translate-disabled = Scripty will now attempt to match the phrases being spoken to English words, but will not translate. 
+
 ## Help menu translation strings
 
 command-not-found = No command with name `{ $commandName }` found.
@@ -217,6 +226,7 @@ language-set-failure-description-invalid = The language you specified is an inva
 language-set-failure-title-db = Database error.
 # This message is shown as the embed description when the database returns an error when setting the language for an entity.
 language-set-failure-description-db = The database encountered an error while attempting to set your language. This error has been reported, and we'll look into it. Please do not spam this command. (If you're curious, here's the error: { $error })
+guild-language-set-failure-translate-enabled = Your server has auto-translation enabled. This is only supported when translating to English. Disable this feature if you want to set your language.
 
 ## Command invocation contexts
 
