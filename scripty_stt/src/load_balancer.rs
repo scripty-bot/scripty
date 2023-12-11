@@ -83,8 +83,9 @@ impl LoadBalancer {
 		}
 
 		let workers = Arc::new(DashMap::new());
+		let (purge_tx, purge_rx) = flume::bounded(1);
 		for (n, addr) in peer_addresses.into_iter().enumerate() {
-			workers.insert(n, LoadBalancedStream::new(addr).await?);
+			workers.insert(n, LoadBalancedStream::new(addr, purge_tx.clone()).await?);
 		}
 		let (new_worker_tx, new_worker_rx) = flume::unbounded();
 		let this = Self {
@@ -95,6 +96,20 @@ impl LoadBalancer {
 		};
 		let t2 = this.clone();
 		tokio::spawn(t2.new_worker_background_task(new_worker_rx));
+		let t3 = this.clone();
+		tokio::spawn(async move {
+			loop {
+				if let Ok(_) = purge_rx.recv_async().await {
+					t3.queued_workers.lock().clear();
+					// request the queue be refilled
+					if let Err(_) = t3.new_worker_tx.send_async(()).await {
+						break error!(
+							"error sending new worker request: all client queues dropped"
+						);
+					}
+				}
+			}
+		});
 		Ok(this)
 	}
 
@@ -262,7 +277,10 @@ impl LoadBalancedStream {
 		.await
 	}
 
-	pub async fn new(peer_address: SocketAddr) -> Result<Self, ModelError> {
+	pub async fn new(
+		peer_address: SocketAddr,
+		purge_tx: flume::Sender<()>,
+	) -> Result<Self, ModelError> {
 		// open a connection to the remote
 		info!("trying to connect to STT service at {}", peer_address);
 		let peer_stream = TcpStream::connect(peer_address).await?;
@@ -463,6 +481,12 @@ impl LoadBalancedStream {
 				let _error = stream_error_rx.recv().await;
 				warn!("got error from stream pair");
 				wfns2.store(true, Ordering::Relaxed);
+
+				// immediately purge all queued workers as we have bad state
+				if let Err(_) = purge_tx.send_async(()).await {
+					error!("error sending purge request: all client queues dropped");
+					break;
+				}
 
 				// start a new connection to the server
 				let mut peer_stream = None;
