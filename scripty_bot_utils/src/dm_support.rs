@@ -257,12 +257,28 @@ impl DmSupportStatus {
 			return hook;
 		}
 
-		channel
+		if let Some(hook) = channel
 			.webhooks(&ctx)
 			.await
 			.expect("error fetching hooks")
 			.pop()
-			.expect("should be at least one webhook")
+		{
+			return hook;
+		}
+
+		let hook = channel
+			.create_webhook(
+				ctx,
+				CreateWebhook::new("Scripty").avatar(
+					&CreateAttachment::url(ctx, "https://i.imgur.com/7QZvZ4e.png")
+						.await
+						.expect("failed to handle message attachments"),
+				),
+			)
+			.await
+			.expect("failed to create webhook");
+		self.webhook_cache.insert(*channel, hook.clone());
+		hook
 	}
 
 	pub async fn close_ticket(&self, ctx: &Context, channel: GuildChannel) {
