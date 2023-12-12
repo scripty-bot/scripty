@@ -267,14 +267,7 @@ impl DmSupportStatus {
 		}
 
 		let hook = channel
-			.create_webhook(
-				ctx,
-				CreateWebhook::new("Scripty").avatar(
-					&CreateAttachment::url(ctx, "https://i.imgur.com/7QZvZ4e.png")
-						.await
-						.expect("failed to handle message attachments"),
-				),
-			)
+			.create_webhook(ctx, CreateWebhook::new("Scripty"))
 			.await
 			.expect("failed to create webhook");
 		self.webhook_cache.insert(*channel, hook.clone());
