@@ -60,7 +60,16 @@ impl DmSupportStatus {
 		let channel = self.get_or_create_channel(&ctx, &message.author).await;
 		let hook = self.get_webhook(&ctx, &channel.id).await;
 
-		let mut webhook_execute = ExecuteWebhook::default();
+		let mut webhook_execute = ExecuteWebhook::default()
+			.avatar_url(message.author.face())
+			.username(
+				message
+					.author
+					.global_name
+					.as_ref()
+					.unwrap_or_else(|| &message.author.name)
+					.to_string(),
+			);
 
 		if !message.attachments.is_empty() {
 			let mut attachments = Vec::new();
@@ -309,8 +318,8 @@ impl DmSupportStatus {
 						CreateEmbed::default()
 							.title("Closed Support Ticket")
 							.description(
-								"This support ticket has now been closed.Thank you for using \
-								 Scripty's support system. If you require more assistance,simply \
+								"This support ticket has now been closed. Thank you for using \
+								 Scripty's support system. If you require more assistance, simply \
 								 send another message here to reopen a new ticket.",
 							),
 					),
