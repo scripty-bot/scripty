@@ -316,8 +316,6 @@ premium-not-premium = Du bist kein Premium-Abonnent. Abonniere unter https://scr
 # automod root command
 automod-root-response = Dies ist der Root-Befehl, der aufgrund von Discord-Einschränkungen nichts bewirkt. Siehe `{ $contextPrefix }help automod` für weitere Informationen.
 # automod setup command
-automod-setup-auto-join-premium-only = Auto-Join ist eine Premium-Funktion. Schau dir unser Premium auf https://scripty.org/premium an.
-# automod setup command
 automod-setup-embed-complete-description = Du kannst jetzt `{ $contextPrefix }automod rule add` verwenden, um eine Automod-Regel hinzuzufügen. { $extraDetails }
 # automod setup command
 automod-setup-embed-complete-free-limit = Beachte, dass die kostenlosen Server auf 25 Regeln beschränkt sind. Wenn du diese Begrenzung aufheben möchtest, schau dir unseren Premium-Server auf https://scripty.org/premium an.
