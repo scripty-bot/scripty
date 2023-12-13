@@ -26,8 +26,7 @@ pub async fn automod_setup(
 	                 Defaults to false."]
 	log_recording: Option<bool>,
 
-	#[description = "Should the bot automatically join voice if a user joins? Defaults to false. \
-	                 Requires premium."]
+	#[description = "Should the bot automatically join voice if a user joins? Defaults to false."]
 	auto_join: Option<bool>,
 ) -> Result<(), Error> {
 	let log_recording = log_recording.unwrap_or(false);
@@ -58,15 +57,6 @@ pub async fn automod_setup(
 
 	let premium_tier = scripty_premium::get_guild(ctx.guild_id().unwrap().get()).await;
 	let extra = if let Some(PremiumTierList::None) = premium_tier {
-		if auto_join {
-			ctx.say(format_message!(
-				resolved_language,
-				"automod-setup-auto-join-premium-only"
-			))
-			.await?;
-			return Ok(());
-		}
-
 		format_message!(resolved_language, "automod-setup-embed-complete-free-limit")
 	} else {
 		"".to_string()
