@@ -52,14 +52,14 @@ pub async fn connect_to_vc(
 	// automatically leave after the specified time period
 	let premium_tier = scripty_premium::get_guild(guild_id.get()).await;
 	let leave_delta = match premium_tier {
-		Some(PremiumTierList::None) => 1800, // leave after 1800 seconds (30 minutes) on free tier
-		Some(PremiumTierList::Tier1) => 3600, // leave after 3600 seconds (1 hour) on tier 1
-		Some(PremiumTierList::Tier2) => 10800, // leave after 10800 seconds (3 hours) on tier 2
-		Some(PremiumTierList::Tier3) => 21600, // leave after 21600 seconds (6 hours) on tier 3
-		Some(PremiumTierList::Tier4) => 43200, // leave after 43200 seconds (12 hours) on tier 4
-		Some(PremiumTierList::Tier5) => 86400, // leave after 86400 seconds (24 hours) on tier 5
-		Some(PremiumTierList::Tier6) => 604800, // leave after 604800 seconds (7 days) on tier 6
-		None => 1800, // we don't know the tier, so we'll just leave after 30 minutes
+		Some(PremiumTierList::None) => 10800,
+		Some(PremiumTierList::Tier1) => 21600,
+		Some(PremiumTierList::Tier2) => 43200,
+		Some(PremiumTierList::Tier3) => 86400,
+		Some(PremiumTierList::Tier4) => 259200,
+		Some(PremiumTierList::Tier5) => 604800,
+		Some(PremiumTierList::Tier6) => 1209600,
+		None => 10800,
 	};
 	debug!(%guild_id, ?premium_tier, "leave delta: {}", leave_delta);
 
