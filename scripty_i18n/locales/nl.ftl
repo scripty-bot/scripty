@@ -215,8 +215,6 @@ automod-setup-embed-complete-free-limit = Let op: gratis servers hebben een limi
 automod-setup-embed-not-setup-title = Je hebt nog niet ingestemd met de Algemene Voorwaarden en het Privacybeleid van Scripty.
 # automod setup command
 automod-setup-embed-not-setup-description = Doe dit eerst door `{ $contextPrefix } terms_of_service` uit te voeren.
-# automod setup command
-automod-setup-auto-join-premium-only = Automatisch aansluiten is een premium functie. Bekijk onze Premium-optie op https://scripty.org/premium.
 # automod add rule command
 # This and all attributes show up exclusively in the slash command picker when `automod add rule` is selected.
 cmds_add_rule = add_rule

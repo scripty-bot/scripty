@@ -169,8 +169,6 @@ automod-setup-embed-complete-free-limit = Należy pamiętać, że darmowe serwer
 automod-setup-embed-not-setup-title = Nie zgodziłeś się jeszcze na Regulamin i Politykę Prywatności Scripty.
 # automod setup command
 automod-setup-embed-not-setup-description = Zrób to najpierw, uruchamiając `{ $contextPrefix } terms_of_service`.
-# automod setup command
-automod-setup-auto-join-premium-only = Automatyczne dołączanie jest funkcją premium. Sprawdź nasze Premium na stronie https://scripty.org/premium.
 # automod add rule command
 automod-add-rule-embed-success-title = Reguła { $ruleId } dodana!
 # automod add rule command

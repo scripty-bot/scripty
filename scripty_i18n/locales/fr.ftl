@@ -151,8 +151,6 @@ automod-setup-embed-complete-free-limit = Les serveurs gratuits sont limités à
 automod-setup-embed-complete-title = Configuration de l'automod terminée !
 # automod setup command
 automod-setup-embed-not-setup-description = Faites-le d'abord en utilisant `{ $contextPrefix } terms_of_service`.
-# automod setup command
-automod-setup-auto-join-premium-only = Auto-join est une fonctionnalité premium, Découvrez notre Premium sur https://scripty.org/premium.
 # automod add rule command
 automod-add-rule-embed-failure-description-premium-limit = Les serveurs Premium tier { $tier } sont limitées à { $maxRules } règles. Si vous souscrivez au tier { $nextTier }, vous pourrez ajouter { $nextTierMaxRules } règles.
 # automod add rule command
