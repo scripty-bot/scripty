@@ -14,6 +14,7 @@ use scripty_bot_utils::{
 	handler,
 	Data,
 };
+use serenity::{all::OnlineStatus, gateway::ActivityData};
 
 pub async fn entrypoint() {
 	// fetch the config
@@ -61,6 +62,8 @@ pub async fn entrypoint() {
 		.event_handler(handler::BotEventHandler)
 		.raw_event_handler(handler::RawEventHandler)
 		.register_songbird_from_config(scripty_audio_handler::get_songbird())
+		.status(OnlineStatus::Idle)
+		.activity(ActivityData::custom("Starting up..."))
 		.await
 		.expect("failed to create serenity client");
 

@@ -1,7 +1,7 @@
 use std::{sync::Arc, time::Duration};
 
 use serenity::{
-	all::ActivityType,
+	all::{ActivityType, OnlineStatus},
 	client::Context as SerenityContext,
 	gateway::{ActivityData, ShardManager},
 };
@@ -72,7 +72,9 @@ impl BackgroundTask for StatusUpdater {
 			};
 
 			// set activity
-			shard_info.runner_tx.set_activity(Some(activity));
+			shard_info
+				.runner_tx
+				.set_presence(Some(activity), OnlineStatus::Online);
 		}
 	}
 
