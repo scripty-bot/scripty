@@ -15,5 +15,7 @@ pub async fn ready(ctx: Context, ready: Ready) {
 		version
 	);
 
+	// wait for a few seconds for the cache to be ready
+	tokio::time::sleep(std::time::Duration::from_secs(5)).await;
 	crate::background_tasks::init_background_tasks(ctx);
 }
