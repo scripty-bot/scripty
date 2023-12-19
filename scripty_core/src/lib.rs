@@ -22,6 +22,8 @@ pub fn start() {
 
 	scripty_i18n::init_i18n();
 
+	scripty_utils::init_thirdparty_http();
+
 	rt.block_on(async_init());
 	rt.spawn(scripty_webserver::entrypoint());
 	rt.block_on(scripty_bot::entrypoint());

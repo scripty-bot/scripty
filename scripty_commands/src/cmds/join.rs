@@ -8,6 +8,7 @@ use serenity::{
 	model::channel::{ChannelType, GuildChannel},
 	prelude::Mentionable,
 };
+use url::Url;
 
 use crate::{Context, Error};
 
@@ -40,6 +41,9 @@ pub async fn join(
 
 	#[description = "Create a new thread for this transcription? Defaults to false."]
 	create_thread: Option<bool>,
+
+	#[description = "Send transcribed messages to this webhook instead of Discord."]
+	message_webhook: Option<String>,
 ) -> Result<(), Error> {
 	let resolved_language =
 		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|g| g.get()))
@@ -248,10 +252,25 @@ pub async fn join(
 		(None, target_channel.id)
 	};
 
-	let output_channel_mention = if let Some(ref target_thread) = target_thread {
-		target_thread.mention().to_string()
-	} else {
-		target_channel.mention().to_string()
+	let mut url_override: Option<Url> = None;
+	match message_webhook {
+		Some(url_str) => match Url::parse(&url_str) {
+			Ok(parsed_url) => url_override = Some(parsed_url),
+			Err(e) => {
+				ctx.say(
+					format_message!(resolved_language, "join-invalid-url", error: e.to_string()),
+				)
+				.await?;
+				return Ok(());
+			}
+		},
+		None => (),
+	}
+
+	let output_channel_mention = match (&target_thread, &url_override) {
+		(_, Some(url)) => url.to_string(),
+		(Some(thread), _) => thread.mention().to_string(),
+		(_, _) => target_channel.mention().to_string(),
 	};
 	let res = scripty_audio_handler::connect_to_vc(
 		ctx.serenity_context().clone(),
@@ -261,6 +280,7 @@ pub async fn join(
 		target_thread.map(|x| x.id),
 		false,
 		record_transcriptions,
+		url_override,
 	)
 	.await;
 	match res {

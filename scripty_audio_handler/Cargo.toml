@@ -13,6 +13,7 @@ tracing = "0.1"
 backtrace = "0.3"
 async-trait = "0.1"
 parking_lot = "0.12"
+reqwest = { version = "0.11", default-features = false, features = ["json", "rustls"] }
 scripty_db = { path = "../scripty_db" }
 scripty_stt = { path = "../scripty_stt" }
 #scripty_tts = { path = "../scripty_tts" }
@@ -41,3 +42,4 @@ serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", f
 	"utils",
 ] }
 sqlx = { version = "0.7", features = ["postgres", "macros", "migrate", "runtime-tokio-rustls"] }
+url = "2"

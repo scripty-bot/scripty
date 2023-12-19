@@ -5,12 +5,13 @@ use scripty_botlists::*;
 use scripty_config::BotListsConfig;
 use serenity::client::Context;
 
+use scripty_utils::get_thirdparty_http;
+
 use crate::{background_tasks::core::BackgroundTask, Error};
 
 pub struct BotListUpdater {
 	ctx:       Context,
 	bot_lists: Arc<Vec<BotLists>>,
-	client:    reqwest::Client,
 }
 
 #[async_trait]
@@ -18,14 +19,12 @@ impl BackgroundTask for BotListUpdater {
 	async fn init(ctx: Context) -> Result<Self, Error> {
 		let mut bot_lists = vec![];
 		let bot_id = ctx.cache.current_user().id.get();
-		let client = reqwest::Client::new();
 
 		add_bot_lists(&mut bot_lists, bot_id);
 
 		Ok(Self {
 			ctx,
 			bot_lists: Arc::new(bot_lists),
-			client,
 		})
 	}
 
@@ -38,9 +37,10 @@ impl BackgroundTask for BotListUpdater {
 			server_count: self.ctx.cache.guild_count(),
 			shard_count:  self.ctx.cache.shard_count().get(),
 		};
+		let client = get_thirdparty_http();
 
 		for list in self.bot_lists.iter() {
-			if let Err(e) = list.post_stats(&self.client, stats).await {
+			if let Err(e) = list.post_stats(&client, stats).await {
 				error!("Failed to post stats to bot list: {}", e);
 			}
 		}

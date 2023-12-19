@@ -8,7 +8,7 @@ use serenity::{
 };
 use songbird::{error::JoinError, events::Event, CoreEvent};
 
-use crate::Error;
+use crate::{audio_handler::WebhookWrapper, Error};
 
 // TODO: implement `force`
 #[allow(clippy::let_unit_value)]
@@ -20,12 +20,13 @@ pub async fn connect_to_vc(
 	thread_id: Option<ChannelId>,
 	_force: bool,
 	record_transcriptions: bool,
+	webhook_override_url: Option<url::Url>,
 ) -> Result<(), Error> {
 	debug!(%guild_id, "fetching webhook");
 	// thanks to Discord undocumented breaking changes, we have to do this
 	// <3 shitcord
 	let hooks = channel_id.webhooks(&ctx).await?;
-	let webhook = if hooks.is_empty() {
+	let discord_webhook = if hooks.is_empty() {
 		channel_id
 			.create_webhook(&ctx, CreateWebhook::new("Scripty Transcriptions"))
 			.await?
@@ -48,6 +49,7 @@ pub async fn connect_to_vc(
 			}
 		}
 	};
+	let webhook = WebhookWrapper::new(discord_webhook, webhook_override_url);
 
 	// automatically leave after the specified time period
 	let premium_tier = scripty_premium::get_guild(guild_id.get()).await;
