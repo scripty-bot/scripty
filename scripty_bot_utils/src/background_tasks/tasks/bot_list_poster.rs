@@ -3,9 +3,8 @@ use std::{sync::Arc, time::Duration};
 use reqwest::Client;
 use scripty_botlists::*;
 use scripty_config::BotListsConfig;
-use serenity::client::Context;
-
 use scripty_utils::get_thirdparty_http;
+use serenity::client::Context;
 
 use crate::{background_tasks::core::BackgroundTask, Error};
 

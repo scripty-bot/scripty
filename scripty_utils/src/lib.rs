@@ -12,8 +12,7 @@ mod separate_num;
 pub use embed_pagination::do_paginate;
 pub use hash_user_id::hash_user_id;
 pub use hex_vec::vec_to_hex;
-pub use http::get_thirdparty_http;
-pub use http::init_thirdparty_http;
+pub use http::{get_thirdparty_http, init_thirdparty_http};
 pub use separate_num::separate_num;
 
 pub struct ShardManagerWrapper;
