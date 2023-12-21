@@ -18,24 +18,38 @@ impl<S> FromRequestParts<S> for DiscordServicesNetAuthorization {
 		let authorization = parts
 			.headers
 			.get("Authorization")
-			.ok_or((StatusCode::UNAUTHORIZED, "No Authorization header provided"))?;
-		let authorization = authorization.to_str().map_err(|_| {
-			(
-				StatusCode::BAD_REQUEST,
-				"Authorization header was not valid UTF-8",
-			)
-		})?;
+			.ok_or((StatusCode::UNAUTHORIZED, "No Authorization header provided"))?
+			.to_str()
+			.map_err(|_| {
+				(
+					StatusCode::BAD_REQUEST,
+					"Authorization header was not valid UTF-8",
+				)
+			})?
+			.trim();
 
-		let scripty_config::BotListsConfig::FullConfig { token: _, webhook } =
-			scripty_config::get_config()
-				.bot_lists
-				.get("discordservices_net")
-				.ok_or((StatusCode::UNAUTHORIZED, "Invalid token"))?
+		let Some(webhook_config) = scripty_config::get_config()
+			.bot_lists
+			.get("discordservices_net")
 		else {
+			warn!("couldn't find valid configuration for discordservices.net (got none)");
+			return Err((StatusCode::UNAUTHORIZED, "Invalid token"));
+		};
+
+		let scripty_config::BotListsConfig::FullConfig { token: _, webhook } = webhook_config
+		else {
+			warn!(
+				"couldn't find valid configuration for discordservices.net (got single key, need \
+				 double)"
+			);
 			return Err((StatusCode::UNAUTHORIZED, "Invalid token"));
 		};
 
 		if authorization != webhook {
+			debug!(
+				"webhook request had invalid authorization header: got <{}>",
+				authorization
+			);
 			Err((StatusCode::UNAUTHORIZED, "Invalid token"))
 		} else {
 			Ok(Self)
