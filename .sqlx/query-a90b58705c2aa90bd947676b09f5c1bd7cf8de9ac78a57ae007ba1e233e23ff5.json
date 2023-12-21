@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO guilds (guild_id, translate) VALUES ($1, $2) ON CONFLICT (guild_id) DO UPDATE SET translate = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a90b58705c2aa90bd947676b09f5c1bd7cf8de9ac78a57ae007ba1e233e23ff5"
+}

@@ -394,7 +394,10 @@ async fn finalize_stream(
 			webhook_executor
 		}
 		Ok(_) => return (None, None),
-		Err(error) => handle_error(error, ssrc),
+		Err(e) => {
+			error!(%ssrc, "failed to get stream result: {}", e);
+			return (None, None);
+		}
 	};
 
 	debug!(%ssrc, "got stream results");
