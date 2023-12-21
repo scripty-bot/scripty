@@ -44,15 +44,16 @@ impl<S> FromRequestParts<S> for DiscordServicesNetAuthorization {
 			);
 			return Err((StatusCode::UNAUTHORIZED, "Invalid token"));
 		};
+		let webhook = webhook.as_str();
 
-		if authorization != webhook {
+		if authorization == webhook {
+			Ok(Self)
+		} else {
 			debug!(
 				"webhook request had invalid authorization header: got <{}>",
 				authorization
 			);
 			Err((StatusCode::UNAUTHORIZED, "Invalid token"))
-		} else {
-			Ok(Self)
 		}
 	}
 }

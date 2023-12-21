@@ -38,15 +38,16 @@ impl<S> FromRequestParts<S> for TopGgAuthorization {
 			warn!("couldn't find valid configuration for top.gg (got single key, need double)");
 			return Err((StatusCode::UNAUTHORIZED, "Invalid token"));
 		};
+		let webhook = webhook.as_str();
 
-		if authorization != webhook {
+		if authorization == webhook {
+			Ok(Self)
+		} else {
 			debug!(
 				"webhook request had invalid authorization header: got <{}>",
 				authorization
 			);
 			Err((StatusCode::UNAUTHORIZED, "Invalid token"))
-		} else {
-			Ok(Self)
 		}
 	}
 }
