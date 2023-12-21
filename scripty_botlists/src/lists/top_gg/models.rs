@@ -1,3 +1,5 @@
+use serde_aux::field_attributes::deserialize_number_from_string;
+
 #[derive(Debug, Serialize, Copy, Clone)]
 pub struct PostStats {
 	pub server_count: usize,
@@ -6,10 +8,15 @@ pub struct PostStats {
 
 #[derive(Debug, Deserialize, Copy, Clone)]
 pub struct IncomingWebhook {
-	pub bot:        u64,
-	pub user:       u64,
+	#[serde(deserialize_with = "deserialize_number_from_string")]
+	pub bot: u64,
+
+	#[serde(deserialize_with = "deserialize_number_from_string")]
+	pub user: u64,
+
 	#[serde(rename = "type")]
-	pub kind:       VoteWebhookType,
+	pub kind: VoteWebhookType,
+
 	pub is_weekend: bool,
 }
 
