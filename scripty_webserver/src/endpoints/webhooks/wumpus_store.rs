@@ -15,6 +15,8 @@ impl<S> FromRequestParts<S> for WumpusStoreAuthorization {
 	type Rejection = (StatusCode, &'static str);
 
 	async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+		debug!("got webhook request for wumpus.store hook");
+
 		let authorization = parts
 			.headers
 			.get("Authorization")

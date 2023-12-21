@@ -15,6 +15,8 @@ impl<S> FromRequestParts<S> for TopGgAuthorization {
 	type Rejection = (StatusCode, &'static str);
 
 	async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+		debug!("got webhook request for top.gg hook");
+
 		let authorization = parts
 			.headers
 			.get("Authorization")

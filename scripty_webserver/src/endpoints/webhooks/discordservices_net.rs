@@ -15,6 +15,8 @@ impl<S> FromRequestParts<S> for DiscordServicesNetAuthorization {
 	type Rejection = (StatusCode, &'static str);
 
 	async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+		debug!("got webhook request for discordservices.net hook");
+
 		let authorization = parts
 			.headers
 			.get("Authorization")
