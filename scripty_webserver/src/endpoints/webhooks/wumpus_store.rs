@@ -60,7 +60,7 @@ impl<S> FromRequestParts<S> for WumpusStoreAuthorization {
 pub async fn wumpus_store_incoming_webhook(
 	_authorization: WumpusStoreAuthorization,
 	Json(IncomingWebhook {
-		test_webhook,
+		webhook_test,
 		user_id,
 		..
 	}): Json<IncomingWebhook>,
@@ -92,7 +92,7 @@ pub async fn wumpus_store_incoming_webhook(
 						 don't want to be notified, run `/vote_reminders False`. Thanks for your \
 						 support!"
 					})
-					.footer(CreateEmbedFooter::new(if test_webhook {
+					.footer(CreateEmbedFooter::new(if webhook_test {
 						"Webhook test"
 					} else {
 						""

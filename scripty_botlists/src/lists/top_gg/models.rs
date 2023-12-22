@@ -17,6 +17,7 @@ pub struct IncomingWebhook {
 	#[serde(rename = "type")]
 	pub kind: VoteWebhookType,
 
+	#[serde(default)] // idiots at top.gg don't know how to make a proper webhook
 	pub is_weekend: bool,
 }
 
