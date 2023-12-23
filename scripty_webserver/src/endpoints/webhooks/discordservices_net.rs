@@ -87,10 +87,10 @@ pub async fn discordservices_net_incoming_webhook(
 				CreateEmbed::new()
 					.title("Thanks for voting for Scripty on discordservices.net!")
 					.description(if opted_out {
-						"You can vote again in 12 hours. You're opted out of reminders, but if you \
+						"You can vote again in 20 hours. You're opted out of reminders, but if you \
 						 want to be notified, run `/vote_reminders True`. Thanks for your support!"
 					} else {
-						"You can vote again in 12 hours. We'll send you a reminder then. If you \
+						"You can vote again in 20 hours. We'll send you a reminder then. If you \
 						 don't want to be notified, run `/vote_reminders False`. Thanks for your \
 						 support!"
 					}),
@@ -98,12 +98,12 @@ pub async fn discordservices_net_incoming_webhook(
 		)
 		.await?;
 
-	// if they're opted in, set up a reminder for 12 hours from now
+	// if they're opted in, set up a reminder for 20 hours from now
 	sqlx::query!(
 		"INSERT INTO vote_reminders (user_id, site_id, next_reminder)
-           VALUES ($1, 2, NOW() + INTERVAL '12 hours')
+           VALUES ($1, 2, NOW() + INTERVAL '20 hours')
            ON CONFLICT (user_id, site_id)
-               DO UPDATE SET next_reminder = NOW() + INTERVAL '12 hours'",
+               DO UPDATE SET next_reminder = NOW() + INTERVAL '20 hours'",
 		id as i64
 	)
 	.execute(scripty_db::get_db())
