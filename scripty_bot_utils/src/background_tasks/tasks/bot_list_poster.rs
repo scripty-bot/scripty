@@ -1,7 +1,20 @@
 use std::{sync::Arc, time::Duration};
 
 use reqwest::Client;
-use scripty_botlists::*;
+use scripty_botlists::{
+	botlist_me::BotListMe,
+	discord_bots_gg::DiscordBotsGG,
+	discordbotlist_com::DiscordBotListCom,
+	discordextremelist_xyz::DiscordExtremeListXyz,
+	discords_com::DiscordsCom,
+	discordservices_net::DiscordServicesNet,
+	disforge_com::DisforgeCom,
+	infinitybots_gg::InfinityBotsGG,
+	top_gg::TopGG,
+	voidbots_net::VoidBotsNet,
+	PostStats,
+	StatPoster,
+};
 use scripty_config::BotListsConfig;
 use scripty_utils::get_thirdparty_http;
 use serenity::client::Context;
@@ -50,17 +63,12 @@ enum BotLists {
 	BotListMe(BotListMe),
 	DiscordBotsGG(DiscordBotsGG),
 	DiscordBotListCom(DiscordBotListCom),
-	DiscordBotListEu(DiscordBotListEu),
 	DiscordExtremeListXyz(DiscordExtremeListXyz),
-	DiscordListGG(DiscordListGG),
 	DiscordsCom(DiscordsCom),
 	DiscordServicesNet(DiscordServicesNet),
 	DisforgeCom(DisforgeCom),
 	InfinityBotsGG(InfinityBotsGG),
-	MotionDevelopmentTop(MotionDevelopmentTop),
-	RadarCordNet(RadarCordNet),
 	TopGG(TopGG),
-	TopCordXyz(TopCordXyz),
 	VoidBotsNet(VoidBotsNet),
 }
 
@@ -75,17 +83,12 @@ impl StatPoster for BotLists {
 			BotLists::BotListMe(item) => item.post_stats(client, stats).await,
 			BotLists::DiscordBotsGG(item) => item.post_stats(client, stats).await,
 			BotLists::DiscordBotListCom(item) => item.post_stats(client, stats).await,
-			BotLists::DiscordBotListEu(item) => item.post_stats(client, stats).await,
 			BotLists::DiscordExtremeListXyz(item) => item.post_stats(client, stats).await,
-			BotLists::DiscordListGG(item) => item.post_stats(client, stats).await,
 			BotLists::DiscordsCom(item) => item.post_stats(client, stats).await,
 			BotLists::DiscordServicesNet(item) => item.post_stats(client, stats).await,
 			BotLists::DisforgeCom(item) => item.post_stats(client, stats).await,
 			BotLists::InfinityBotsGG(item) => item.post_stats(client, stats).await,
-			BotLists::MotionDevelopmentTop(item) => item.post_stats(client, stats).await,
-			BotLists::RadarCordNet(item) => item.post_stats(client, stats).await,
 			BotLists::TopGG(item) => item.post_stats(client, stats).await,
-			BotLists::TopCordXyz(item) => item.post_stats(client, stats).await,
 			BotLists::VoidBotsNet(item) => item.post_stats(client, stats).await,
 		}
 	}
@@ -113,22 +116,8 @@ fn add_bot_lists(bot_lists: &mut Vec<BotLists>, bot_id: u64) {
 		)));
 	}
 
-	if let Some(BotListsConfig::TokenOnly(token)) = bot_list_cfg.get("discordbotlist_eu") {
-		bot_lists.push(BotLists::DiscordBotListEu(DiscordBotListEu::new(
-			token.clone(),
-			bot_id,
-		)));
-	}
-
 	if let Some(BotListsConfig::TokenOnly(token)) = bot_list_cfg.get("discordextremelist_xyz") {
 		bot_lists.push(BotLists::DiscordExtremeListXyz(DiscordExtremeListXyz::new(
-			token.clone(),
-			bot_id,
-		)));
-	}
-
-	if let Some(BotListsConfig::TokenOnly(token)) = bot_list_cfg.get("discordlist_gg") {
-		bot_lists.push(BotLists::DiscordListGG(DiscordListGG::new(
 			token.clone(),
 			bot_id,
 		)));
@@ -163,26 +152,8 @@ fn add_bot_lists(bot_lists: &mut Vec<BotLists>, bot_id: u64) {
 		)));
 	}
 
-	if let Some(BotListsConfig::TokenOnly(token)) = bot_list_cfg.get("motiondevelopment_top") {
-		bot_lists.push(BotLists::MotionDevelopmentTop(MotionDevelopmentTop::new(
-			token.clone(),
-			bot_id,
-		)));
-	}
-
-	if let Some(BotListsConfig::TokenOnly(token)) = bot_list_cfg.get("radarcord_net") {
-		bot_lists.push(BotLists::RadarCordNet(RadarCordNet::new(
-			token.clone(),
-			bot_id,
-		)));
-	}
-
 	if let Some(BotListsConfig::FullConfig { token, .. }) = bot_list_cfg.get("top_gg") {
 		bot_lists.push(BotLists::TopGG(TopGG::new(token.clone(), bot_id)));
-	}
-
-	if let Some(BotListsConfig::TokenOnly(token)) = bot_list_cfg.get("topcord_xyz") {
-		bot_lists.push(BotLists::TopCordXyz(TopCordXyz::new(token.clone(), bot_id)));
 	}
 
 	if let Some(BotListsConfig::TokenOnly(token)) = bot_list_cfg.get("voidbots_net") {

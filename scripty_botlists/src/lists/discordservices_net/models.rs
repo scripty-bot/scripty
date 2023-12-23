@@ -12,16 +12,17 @@ pub struct PostStatsResponse {
 
 #[derive(Serialize, Deserialize)]
 pub struct DiscordServicesNetIncomingWebhook {
-	bot:  Bot,
-	user: Bot,
+	pub bot:  Bot,
+	pub user: Bot,
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Bot {
-	id:            String,
-	name:          String,
+	#[serde(deserialize_with = "serde_aux::field_attributes::deserialize_number_from_string")]
+	pub id:            u64,
+	pub name:          String,
 	#[serde(rename = "discrim")]
-	discriminator: i64,
-	avatar_id:     String,
+	pub discriminator: Option<i64>,
+	pub avatar_id:     String,
 }
