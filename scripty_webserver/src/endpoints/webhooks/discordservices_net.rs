@@ -99,6 +99,10 @@ pub async fn discordservices_net_incoming_webhook(
 		.await?;
 
 	// if they're opted in, set up a reminder for 20 hours from now
+	if opted_out {
+		return Ok(());
+	}
+
 	sqlx::query!(
 		"INSERT INTO vote_reminders (user_id, site_id, next_reminder)
            VALUES ($1, 2, NOW() + INTERVAL '20 hours')

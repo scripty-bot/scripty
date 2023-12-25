@@ -353,6 +353,14 @@ automod-list-rules-embed-field-value = Type: { $ruleType }
 automod-list-rules-footer = Page { $page } of { $maxPage }
 automod-list-rules-no-rules = You don't have any rules!
 
+## vote reminder command
+cmds_vote_reminder = vote_reminder
+    .description = Toggle whether Scripty will remind you to vote for the bot after the time limit has passed.
+    .enabled = enabled
+    .enabled-description = Enable vote reminders?
+vote-reminders-enabled = Vote reminders enabled.
+vote-reminders-disabled = Vote reminders disabled.
+
 ## blocked entities description
 
 blocked-entity-no-reason-given = No reason was given for the block.

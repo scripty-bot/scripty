@@ -102,6 +102,10 @@ pub async fn wumpus_store_incoming_webhook(
 		.await?;
 
 	// if they're opted in, set up a reminder for 12 hours from now
+	if opted_out {
+		return Ok(());
+	}
+
 	sqlx::query!(
 		"INSERT INTO vote_reminders (user_id, site_id, next_reminder)
            VALUES ($1, 3, NOW() + INTERVAL '12 hours')

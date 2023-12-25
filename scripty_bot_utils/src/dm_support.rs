@@ -67,7 +67,7 @@ impl DmSupportStatus {
 					.author
 					.global_name
 					.as_ref()
-					.unwrap_or_else(|| &message.author.name)
+					.unwrap_or(&message.author.name)
 					.to_string(),
 			);
 

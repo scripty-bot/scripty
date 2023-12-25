@@ -13,6 +13,7 @@ pub mod premium;
 mod register_cmds;
 mod terms_of_service;
 mod throw_error;
+mod vote_reminders;
 
 pub use admin::*;
 pub use data_storage::*;
