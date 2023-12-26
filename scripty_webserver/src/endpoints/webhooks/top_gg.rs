@@ -96,7 +96,6 @@ pub async fn top_gg_incoming_webhook(
 		.await?;
 
 	// set up a reminder for 12 hours from now
-
 	sqlx::query!(
 		"INSERT INTO vote_reminders (user_id, site_id, next_reminder)
            VALUES ($1, 1, NOW() + INTERVAL '12 hours')
