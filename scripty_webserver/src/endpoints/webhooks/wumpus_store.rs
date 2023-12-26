@@ -75,7 +75,11 @@ pub async fn wumpus_store_incoming_webhook(
 	.map(|row| row.vote_reminder_disabled)
 	.unwrap_or(false);
 
-	// regardless, send them a message
+	if opted_out {
+		return Ok(());
+	}
+
+	// send them a message
 	let cache_http = scripty_bot_utils::extern_utils::get_cache_http();
 	let dm_channel = UserId::new(user_id).create_dm_channel(&cache_http).await?;
 	dm_channel
@@ -84,14 +88,11 @@ pub async fn wumpus_store_incoming_webhook(
 			CreateMessage::new().embed(
 				CreateEmbed::new()
 					.title("Thanks for voting for Scripty on wumpus.store!")
-					.description(if opted_out {
-						"You can vote again in 12 hours. You're opted out of reminders, but if you \
-						 want to be notified, run `/vote_reminders True`. Thanks for your support!"
-					} else {
+					.description(
 						"You can vote again in 12 hours. We'll send you a reminder then. If you \
 						 don't want to be notified, run `/vote_reminders False`. Thanks for your \
-						 support!"
-					})
+						 support!",
+					)
 					.footer(CreateEmbedFooter::new(if webhook_test {
 						"Webhook test"
 					} else {
@@ -102,9 +103,6 @@ pub async fn wumpus_store_incoming_webhook(
 		.await?;
 
 	// if they're opted in, set up a reminder for 12 hours from now
-	if opted_out {
-		return Ok(());
-	}
 
 	sqlx::query!(
 		"INSERT INTO vote_reminders (user_id, site_id, next_reminder)

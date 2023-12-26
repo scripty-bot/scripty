@@ -77,6 +77,10 @@ pub async fn discordservices_net_incoming_webhook(
 	.map(|row| row.vote_reminder_disabled)
 	.unwrap_or(false);
 
+	if opted_out {
+		return Ok(());
+	}
+
 	// regardless, send them a message
 	let cache_http = scripty_bot_utils::extern_utils::get_cache_http();
 	let dm_channel = UserId::new(id).create_dm_channel(&cache_http).await?;
@@ -86,23 +90,16 @@ pub async fn discordservices_net_incoming_webhook(
 			CreateMessage::new().embed(
 				CreateEmbed::new()
 					.title("Thanks for voting for Scripty on discordservices.net!")
-					.description(if opted_out {
-						"You can vote again in 20 hours. You're opted out of reminders, but if you \
-						 want to be notified, run `/vote_reminders True`. Thanks for your support!"
-					} else {
+					.description(
 						"You can vote again in 20 hours. We'll send you a reminder then. If you \
 						 don't want to be notified, run `/vote_reminders False`. Thanks for your \
-						 support!"
-					}),
+						 support!",
+					),
 			),
 		)
 		.await?;
 
-	// if they're opted in, set up a reminder for 20 hours from now
-	if opted_out {
-		return Ok(());
-	}
-
+	//  set up a reminder for 20 hours from now
 	sqlx::query!(
 		"INSERT INTO vote_reminders (user_id, site_id, next_reminder)
            VALUES ($1, 2, NOW() + INTERVAL '20 hours')
