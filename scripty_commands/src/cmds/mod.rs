@@ -27,3 +27,4 @@ pub use ping::ping;
 pub use register_cmds::register_cmds;
 pub use terms_of_service::terms_of_service;
 pub use throw_error::throw_error;
+pub use vote_reminders::vote_reminder;
