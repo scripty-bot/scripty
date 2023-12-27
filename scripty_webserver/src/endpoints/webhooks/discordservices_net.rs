@@ -77,7 +77,7 @@ pub async fn discordservices_net_incoming_webhook(
 	.map(|row| row.vote_reminder_disabled)
 	.unwrap_or(false);
 
-	if opted_out {
+	if !opted_out {
 		return Ok(());
 	}
 
