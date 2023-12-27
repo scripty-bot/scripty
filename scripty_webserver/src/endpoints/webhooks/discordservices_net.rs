@@ -92,7 +92,7 @@ pub async fn discordservices_net_incoming_webhook(
 					.title("Thanks for voting for Scripty on discordservices.net!")
 					.description(
 						"You can vote again in 20 hours. We'll send you a reminder then. If you \
-						 don't want to be notified, run `/vote_reminders False`. Thanks for your \
+						 don't want to be notified, run `/vote_reminders: False`. Thanks for your \
 						 support!",
 					),
 			),

@@ -83,7 +83,7 @@ pub async fn top_gg_incoming_webhook(
 					.title("Thanks for voting for Scripty on top.gg!")
 					.description(
 						"You can vote again in 12 hours. We'll send you a reminder then. If you \
-						 don't want to be notified, run `/vote_reminders False`. Thanks for your \
+						 don't want to be notified, run `/vote_reminders: False`. Thanks for your \
 						 support!",
 					)
 					.footer(CreateEmbedFooter::new(if kind.is_test() {

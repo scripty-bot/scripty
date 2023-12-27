@@ -104,7 +104,7 @@ impl fmt::Display for VoteList {
 impl VoteList {
 	pub fn vote_url(&self) -> &'static str {
 		match self {
-			Self::TopGg => "https://top.gg/bot/699453633624064849/vote",
+			Self::TopGg => "https://top.gg/bot/811652199100317726/vote",
 			Self::DiscordServicesNet => "https://discordservices.net/bot/scripty",
 			Self::WumpusStore => "https://wumpus.store/bot/811652199100317726/vote",
 		}
