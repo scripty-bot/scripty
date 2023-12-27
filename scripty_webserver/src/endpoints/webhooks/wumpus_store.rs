@@ -90,7 +90,7 @@ pub async fn wumpus_store_incoming_webhook(
 					.title("Thanks for voting for Scripty on wumpus.store!")
 					.description(
 						"You can vote again in 12 hours. We'll send you a reminder then. If you \
-						 don't want to be notified, run `/vote_reminders False`. Thanks for your \
+						 don't want to be notified, run `/vote_reminders: False`. Thanks for your \
 						 support!",
 					)
 					.footer(CreateEmbedFooter::new(if webhook_test {
