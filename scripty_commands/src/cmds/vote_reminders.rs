@@ -7,8 +7,9 @@ pub async fn vote_reminder(ctx: Context<'_>, enabled: bool) -> Result<(), Error>
 		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|g| g.get()))
 			.await;
 
+	let user_id = ctx.author().id.get();
 	let db = scripty_db::get_db();
-	let hashed_user_id = scripty_utils::hash_user_id(ctx.author().id.get());
+	let hashed_user_id = scripty_utils::hash_user_id(user_id);
 	sqlx::query!(
 		"INSERT INTO users (user_id) VALUES ($1) ON CONFLICT ON CONSTRAINT users_pkey DO NOTHING",
 		hashed_user_id,
@@ -22,6 +23,14 @@ pub async fn vote_reminder(ctx: Context<'_>, enabled: bool) -> Result<(), Error>
 	)
 	.execute(db)
 	.await?;
+	if !enabled {
+		sqlx::query!(
+			"DELETE FROM vote_reminders WHERE user_id = $1",
+			user_id as i64,
+		)
+		.execute(db)
+		.await?;
+	}
 
 	ctx.say(format_message!(
 		resolved_language,
