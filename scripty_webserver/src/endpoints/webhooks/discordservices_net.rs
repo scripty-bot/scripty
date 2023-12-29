@@ -68,20 +68,20 @@ pub async fn discordservices_net_incoming_webhook(
 	}): Json<DiscordServicesNetIncomingWebhook>,
 ) -> Result<(), WebServerError> {
 	// check if the user is opted out of notifications
-	let opted_out = sqlx::query!(
-		"SELECT vote_reminder_disabled FROM users WHERE user_id = $1",
+	let reminders_enabled = sqlx::query!(
+		"SELECT vote_reminder_enabled FROM users WHERE user_id = $1",
 		scripty_utils::hash_user_id(id)
 	)
 	.fetch_optional(scripty_db::get_db())
 	.await?
-	.map(|row| row.vote_reminder_disabled)
-	.unwrap_or(false);
+	.map(|row| row.vote_reminder_enabled)
+	.unwrap_or(true);
 
-	if opted_out {
+	if !reminders_enabled {
 		return Ok(());
 	}
 
-	// regardless, send them a message
+	// send them a message
 	let cache_http = scripty_bot_utils::extern_utils::get_cache_http();
 	let dm_channel = UserId::new(id).create_dm_channel(&cache_http).await?;
 	dm_channel
@@ -92,7 +92,7 @@ pub async fn discordservices_net_incoming_webhook(
 					.title("Thanks for voting for Scripty on discordservices.net!")
 					.description(
 						"You can vote again in 20 hours. We'll send you a reminder then. If you \
-						 don't want to be notified, run `/vote_reminders: False`. Thanks for your \
+						 don't want to be notified, run `/vote_reminders False`. Thanks for your \
 						 support!",
 					),
 			),

@@ -2,7 +2,10 @@ use crate::{Context, Error};
 
 /// Opt in or out of vote reminders
 #[poise::command(prefix_command, slash_command)]
-pub async fn vote_reminder(ctx: Context<'_>, enabled: bool) -> Result<(), Error> {
+pub async fn vote_reminder(
+	ctx: Context<'_>,
+	#[description = "Enable vote reminders?"] enabled: bool,
+) -> Result<(), Error> {
 	let resolved_language =
 		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|g| g.get()))
 			.await;
@@ -17,7 +20,7 @@ pub async fn vote_reminder(ctx: Context<'_>, enabled: bool) -> Result<(), Error>
 	.execute(db)
 	.await?;
 	sqlx::query!(
-		"UPDATE users SET vote_reminder_disabled = $1 WHERE user_id = $2",
+		"UPDATE users SET vote_reminder_enabled = $1 WHERE user_id = $2",
 		enabled,
 		hashed_user_id,
 	)

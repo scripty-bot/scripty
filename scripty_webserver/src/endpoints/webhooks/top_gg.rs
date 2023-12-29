@@ -59,16 +59,16 @@ pub async fn top_gg_incoming_webhook(
 	Json(IncomingWebhook { user, kind, .. }): Json<IncomingWebhook>,
 ) -> Result<(), WebServerError> {
 	// check if the user is opted out of notifications
-	let opted_out = sqlx::query!(
-		"SELECT vote_reminder_disabled FROM users WHERE user_id = $1",
+	let reminders_enabled = sqlx::query!(
+		"SELECT vote_reminder_enabled FROM users WHERE user_id = $1",
 		scripty_utils::hash_user_id(user)
 	)
 	.fetch_optional(scripty_db::get_db())
 	.await?
-	.map(|row| row.vote_reminder_disabled)
-	.unwrap_or(false);
+	.map(|row| row.vote_reminder_enabled)
+	.unwrap_or(true);
 
-	if opted_out {
+	if !reminders_enabled {
 		return Ok(());
 	}
 
@@ -83,7 +83,7 @@ pub async fn top_gg_incoming_webhook(
 					.title("Thanks for voting for Scripty on top.gg!")
 					.description(
 						"You can vote again in 12 hours. We'll send you a reminder then. If you \
-						 don't want to be notified, run `/vote_reminders: False`. Thanks for your \
+						 don't want to be notified, run `/vote_reminders False`. Thanks for your \
 						 support!",
 					)
 					.footer(CreateEmbedFooter::new(if kind.is_test() {
