@@ -10,15 +10,19 @@ use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
 use parking_lot::RwLock;
 use scripty_automod::types::AutomodServerConfig;
+use scripty_utils::get_thirdparty_http;
 use serenity::{
 	all::RoleId,
+	builder::ExecuteWebhook,
 	client::Context,
+	http::CacheHttp,
 	model::{
 		id::{ChannelId, GuildId},
-		webhook::Webhook,
+		webhook::Webhook as SerenityWebhook,
 	},
 };
 use songbird::{Event, EventContext, EventHandler};
+use url::Url;
 
 use crate::{
 	events::*,
@@ -55,7 +59,7 @@ pub struct AudioHandler {
 	channel_id:           ChannelId,
 	voice_channel_id:     ChannelId,
 	thread_id:            Option<ChannelId>,
-	webhook:              Arc<Webhook>,
+	webhook:              Arc<WebhookWrapper>,
 	context:              Context,
 	premium_level:        Arc<AtomicU8>,
 	verbose:              Arc<AtomicBool>,
@@ -68,10 +72,68 @@ pub struct AudioHandler {
 	translate:            Arc<AtomicBool>,
 }
 
+#[derive(Clone)]
+pub struct WebhookWrapper {
+	discord_webhook: SerenityWebhook,
+	url_override:    Option<Url>,
+}
+
+impl WebhookWrapper {
+	pub fn new(discord_webhook: SerenityWebhook, url_override: Option<Url>) -> WebhookWrapper {
+		WebhookWrapper {
+			discord_webhook,
+			url_override,
+		}
+	}
+
+	pub async fn execute(
+		&self,
+		cache_http: impl CacheHttp,
+		wait: bool,
+		builder: ExecuteWebhook,
+	) -> Result<(), serenity::Error> {
+		match &self.url_override {
+			Some(url) => {
+				match get_thirdparty_http()
+					.post(url.clone())
+					.json(&builder)
+					.send()
+					.await
+				{
+					Err(e) => Err(serenity::Error::Http(
+						serenity::prelude::HttpError::Request(e),
+					)),
+					Ok(_) => {
+						// TODO: debug logging
+						Ok(())
+					}
+				}
+			}
+			None => {
+				match self
+					.discord_webhook
+					.execute(cache_http, wait, builder)
+					.await
+				{
+					Err(e) => Err(e),
+					Ok(_) => {
+						// TODO: debug logging
+						Ok(())
+					}
+				}
+			}
+		}
+	}
+
+	pub fn get_url_override(&self) -> Option<Url> {
+		self.url_override.clone()
+	}
+}
+
 impl AudioHandler {
 	pub async fn new(
 		guild_id: GuildId,
-		webhook: Webhook,
+		webhook: WebhookWrapper,
 		context: Context,
 		channel_id: ChannelId,
 		voice_channel_id: ChannelId,

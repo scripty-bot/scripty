@@ -2749,6 +2749,7 @@ dependencies = [
  "backtrace",
  "dashmap",
  "parking_lot",
+ "reqwest",
  "scripty_automod",
  "scripty_data_storage",
  "scripty_db",
@@ -2762,6 +2763,7 @@ dependencies = [
  "sqlx",
  "tokio",
  "tracing",
+ "url",
 ]
 
 [[package]]
@@ -2862,6 +2864,7 @@ dependencies = [
  "tokio",
  "tracing",
  "typesize",
+ "url",
 ]
 
 [[package]]
@@ -2890,6 +2893,7 @@ dependencies = [
  "scripty_metrics",
  "scripty_redis",
  "scripty_stt",
+ "scripty_utils",
  "scripty_webserver",
  "tokio",
  "tracing",
@@ -3037,6 +3041,7 @@ dependencies = [
  "num",
  "num_cpus",
  "once_cell",
+ "reqwest",
  "scripty_config",
  "scripty_db",
  "serenity",

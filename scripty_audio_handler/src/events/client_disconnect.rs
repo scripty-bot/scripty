@@ -4,19 +4,22 @@ use std::sync::{
 };
 
 use serenity::{
-	all::{ChannelId, Context, Webhook},
+	all::{ChannelId, Context},
 	builder::ExecuteWebhook,
 };
 use songbird::model::payload::ClientDisconnect;
 
-use crate::{audio_handler::ArcSsrcMaps, types::TranscriptResults};
+use crate::{
+	audio_handler::{ArcSsrcMaps, WebhookWrapper},
+	types::TranscriptResults,
+};
 
 pub async fn client_disconnect(
 	client_disconnect_data: ClientDisconnect,
 	ssrc_state: ArcSsrcMaps,
 	premium_level: Arc<AtomicU8>,
 	ctx: Context,
-	webhook: Arc<Webhook>,
+	webhook: Arc<WebhookWrapper>,
 	thread_id: Option<ChannelId>,
 	transcript_results: TranscriptResults,
 ) {

@@ -59,6 +59,8 @@ join-forum-requires-tags = The forum channel you tried to make me use requires t
 join-target-not-text-based = The channel you told me to send transcripts to ({ $targetMention }) is not a text-based channel. Please use a text-based channel, or pick a different channel in the `target_channel` argument.
 # This message is shown when the user requests the bot create a new thread in a channel, but the channel doesn't support threads being created (usually voice channels)
 join-create-thread-in-unsupported = Discord does not support threads in { $targetMention }. Please use a different channel, or do not create a thread.
+# This message is shown when the user provides an invalid webhook url.
+join-invalid-url = The url provided is invalid. Error: { $error }
 
 ## Leave command
 # This and all attributes show up exclusively in the slash command picker when `leave` is selected.

@@ -4,11 +4,12 @@ use serenity::{
 	all::UserId,
 	builder::{CreateAttachment, CreateMessage, ExecuteWebhook},
 	client::Context,
-	model::{id::ChannelId, webhook::Webhook},
+	model::id::ChannelId,
 };
 use songbird::{events::context_data::DisconnectReason, id::GuildId, model::CloseCode};
 
 use crate::{
+	audio_handler::WebhookWrapper,
 	connect_to_vc,
 	error::ErrorKind,
 	types::{SeenUsers, TranscriptResults},
@@ -18,7 +19,7 @@ pub async fn driver_disconnect(
 	guild_id: GuildId,
 	reason: Option<DisconnectReason>,
 	ctx: Context,
-	webhook: Arc<Webhook>,
+	webhook: Arc<WebhookWrapper>,
 	channel_id: ChannelId,
 	voice_channel_id: ChannelId,
 	thread_id: Option<ChannelId>,
@@ -76,6 +77,7 @@ pub async fn driver_disconnect(
 		// retry connection in 30 seconds
 		let record_transcriptions = transcript_results.is_some();
 		let webhook2 = webhook.clone();
+		let webhook_override_url = webhook.get_url_override();
 		let ctx2 = ctx.clone();
 		let ctx3 = ctx.clone();
 		tokio::spawn(async move {
@@ -91,6 +93,7 @@ pub async fn driver_disconnect(
 				thread_id,
 				false,
 				record_transcriptions,
+				webhook_override_url,
 			)
 			.await
 			.map_err(|x| x.kind)

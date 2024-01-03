@@ -13,14 +13,14 @@ use scripty_automod::types::{AutomodRuleAction, AutomodServerConfig};
 use scripty_metrics::Metrics;
 use scripty_stt::{ModelError, Stream};
 use serenity::{
-	all::{ChannelId as SerenityChannelId, ChannelId, GuildId, Webhook},
+	all::{ChannelId as SerenityChannelId, ChannelId, GuildId},
 	builder::{CreateEmbed, CreateMessage, EditMember, ExecuteWebhook},
 	client::Context,
 };
 use songbird::events::context_data::VoiceTick;
 
 use crate::{
-	audio_handler::SsrcMaps,
+	audio_handler::{SsrcMaps, WebhookWrapper},
 	consts::SIZE_OF_I16,
 	types::{SsrcUserDataMap, TranscriptResults},
 };
@@ -32,7 +32,7 @@ pub async fn voice_tick(
 	language: Arc<RwLock<String>>,
 	verbose: Arc<AtomicBool>,
 	ctx: Context,
-	webhook: Arc<Webhook>,
+	webhook: Arc<WebhookWrapper>,
 	thread_id: Option<ChannelId>,
 	transcript_results: Option<Arc<RwLock<Vec<String>>>>,
 	automod_server_cfg: Arc<AutomodServerConfig>,
@@ -108,7 +108,7 @@ async fn handle_silent_speakers(
 		automod_server_cfg,
 		transcript_results,
 		ctx,
-		auto_detect_lang,
+		auto_detect_lang: _,
 		translate,
 	}: SilentSpeakersContext<'_>,
 ) -> Vec<(ExecuteWebhook, u32)> {
