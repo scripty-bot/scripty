@@ -524,22 +524,22 @@ fn get_max_video_length(premium_level: PremiumTierList) -> f64 {
 	match premium_level {
 		PremiumTierList::None => 0.0,
 		PremiumTierList::Tier1 => 0.0,
-		PremiumTierList::Tier2 => 30.0,
-		PremiumTierList::Tier3 => 60.0,
-		PremiumTierList::Tier4 => 120.0,
-		PremiumTierList::Tier5 => 300.0,
-		PremiumTierList::Tier6 => 600.0,
+		PremiumTierList::Tier2 => 300.0,
+		PremiumTierList::Tier3 => 600.0,
+		PremiumTierList::Tier4 => 1200.0,
+		PremiumTierList::Tier5 => 2400.0,
+		PremiumTierList::Tier6 => 3600.0,
 	}
 }
 
 fn get_max_audio_length(premium_level: PremiumTierList) -> f64 {
 	match premium_level {
 		PremiumTierList::None => 0.0,
-		PremiumTierList::Tier1 => 0.0,
-		PremiumTierList::Tier2 => 30.0,
-		PremiumTierList::Tier3 => 60.0,
-		PremiumTierList::Tier4 => 120.0,
-		PremiumTierList::Tier5 => 300.0,
-		PremiumTierList::Tier6 => 600.0,
+		PremiumTierList::Tier1 => 300.0,
+		PremiumTierList::Tier2 => 600.0,
+		PremiumTierList::Tier3 => 1200.0,
+		PremiumTierList::Tier4 => 2400.0,
+		PremiumTierList::Tier5 => 3600.0,
+		PremiumTierList::Tier6 => 7200.0,
 	}
 }
