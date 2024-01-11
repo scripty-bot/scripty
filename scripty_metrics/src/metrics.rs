@@ -164,7 +164,6 @@ pub struct Metrics {
 	pub ms_transcribed:           IntCounter,
 	pub audio_bytes_processed:    IntCounter,
 	pub total_events:             IntCounter,
-	// TODO: switch to Histogram
 	pub audio_tick_time:          Histogram,
 	pub audio_process_time:       Histogram,
 	pub total_commands:           IntCounter,
@@ -173,6 +172,7 @@ pub struct Metrics {
 	pub commands:                 IntCounterVec,
 	pub runtime_metrics:          RuntimeMetricsVec,
 	pub latency:                  LatencyVec,
+	pub stt_time:                 Histogram,
 }
 
 impl Metrics {
@@ -288,6 +288,16 @@ impl Metrics {
 			.register(Box::new(stt_server_fetch_failure.clone()))
 			.unwrap();
 
+		let stt_time = Histogram::with_opts(
+			HistogramOpts::new("stt_time", "Time to transcribe audio from STT server").buckets(
+				vec![
+					0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0,
+				],
+			),
+		)
+		.expect("failed to init stt_time histogram");
+		registry.register(Box::new(stt_time.clone())).unwrap();
+
 		let up = IntCounter::new("up", "Always 1").unwrap();
 		up.inc();
 		registry.register(Box::new(up)).unwrap();
@@ -310,6 +320,7 @@ impl Metrics {
 			latency: latency_static,
 			stt_server_fetch_success,
 			stt_server_fetch_failure,
+			stt_time,
 		})
 	}
 }

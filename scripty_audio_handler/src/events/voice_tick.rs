@@ -140,7 +140,7 @@ async fn handle_silent_speakers(
 
 		// finalize the stream
 		let lang = language.read().clone();
-		let (final_result, hook) = finalize_stream(
+		let (mut final_result, hook) = match finalize_stream(
 			old_stream,
 			ssrc_state.ssrc_user_data_map.clone(),
 			thread_id,
@@ -149,107 +149,107 @@ async fn handle_silent_speakers(
 			&verbose,
 			&translate,
 		)
-		.await;
+		.await
+		{
+			Some(x) => x,
+			None => continue,
+		};
 
-		if let Some(ref final_result) = final_result {
-			// skip garbage strings
-			if ["[BLANK_AUDIO]"].contains(&final_result.as_str()) {
+		// skip garbage strings
+		if ["[BLANK_AUDIO]"].contains(&final_result.as_str()) {
+			continue;
+		}
+
+		// re-add profanity
+		add_profanity(&mut final_result);
+
+		// run automod
+		if !automod_server_cfg.enabled {
+			trace!("automod disabled, skipping");
+		} else if let Some(res) = automod_server_cfg.get_action(&final_result) {
+			trace!(?res, ?ssrc, "automod action taken on rule match");
+			// user did something bad
+			let Some(user_id) = ssrc_state.ssrc_user_id_map.get(&ssrc).map(|x| *x.value()) else {
+				warn!(?ssrc, "no user ID found for ssrc");
 				continue;
+			};
+
+			match res {
+				AutomodRuleAction::SilentDelete => continue, // don't need to do anything more
+				// we'll handle logging after each branch falls through
+				AutomodRuleAction::DeleteAndLog => {}
+				AutomodRuleAction::DeleteLogAndKick => {
+					// remove the user from the voice channel
+					if let Err(e) = guild_id.disconnect_member(&ctx, user_id).await {
+						error!("failed to remove user from VC: {}", e);
+					}
+				}
+				AutomodRuleAction::DeleteLogAndSilence => {
+					// mute the user
+					if let Err(e) = guild_id
+						.edit_member(&ctx, user_id, EditMember::new().mute(true))
+						.await
+					{
+						error!("failed to mute user: {}", e);
+					}
+				}
 			}
 
-			// run automod
-			if !automod_server_cfg.enabled {
-				trace!("automod disabled, skipping");
-			} else if let Some(res) = automod_server_cfg.get_action(final_result) {
-				trace!(?res, ?ssrc, "automod action taken on rule match");
-				// user did something bad
-				let Some(user_id) = ssrc_state.ssrc_user_id_map.get(&ssrc).map(|x| *x.value())
-				else {
-					warn!(?ssrc, "no user ID found for ssrc");
+			if let Err(e) = SerenityChannelId::from(automod_server_cfg.log_channel_id)
+				.send_message(
+					&ctx,
+					CreateMessage::new().embed(
+						CreateEmbed::new()
+							.title("User said a forbidden word")
+							.description(format!(
+								"{}\nUser: <@{}>\nDetected word: {}",
+								match res {
+									AutomodRuleAction::SilentDelete => unreachable!(),
+									AutomodRuleAction::DeleteAndLog => "Deleted message",
+									AutomodRuleAction::DeleteLogAndKick =>
+										"Deleted message and kicked user from the VC",
+									AutomodRuleAction::DeleteLogAndSilence => {
+										"Deleted message and muted user"
+									}
+								},
+								user_id,
+								final_result
+							)),
+					),
+				)
+				.await
+			{
+				error!("failed to send log message: {}", e);
+			};
+
+			continue;
+		} else {
+			trace!(?ssrc, "no automod action taken");
+		}
+
+		hooks.push((hook, ssrc));
+
+		if let Some((_, x)) = ssrc_state.ssrc_voice_ingest_map.remove(&ssrc) {
+			// we've already checked if the user is opted in or not
+			if let Some(ingest) = x {
+				trace!(?ssrc, "user has opted in, finalizing audio");
+				tokio::spawn(ingest.destroy(final_result.clone()));
+			} else {
+				trace!(?ssrc, "user has opted out, not attempting to finalize");
+			}
+		}
+
+		if let Some(transcript_results) = &transcript_results {
+			// place this in a block that way we don't try holding two locks at once
+			let fmt_transcript = {
+				// fetch user data
+				let Some(user_details) = ssrc_state.ssrc_user_data_map.get(&ssrc) else {
 					continue;
 				};
-
-				match res {
-					AutomodRuleAction::SilentDelete => continue, /* don't need to do anything more */
-					// we'll handle logging after each branch falls through
-					AutomodRuleAction::DeleteAndLog => {}
-					AutomodRuleAction::DeleteLogAndKick => {
-						// remove the user from the voice channel
-						if let Err(e) = guild_id.disconnect_member(&ctx, user_id).await {
-							error!("failed to remove user from VC: {}", e);
-						}
-					}
-					AutomodRuleAction::DeleteLogAndSilence => {
-						// mute the user
-						if let Err(e) = guild_id
-							.edit_member(&ctx, user_id, EditMember::new().mute(true))
-							.await
-						{
-							error!("failed to mute user: {}", e);
-						}
-					}
-				}
-
-				if let Err(e) = SerenityChannelId::from(automod_server_cfg.log_channel_id)
-					.send_message(
-						&ctx,
-						CreateMessage::new().embed(
-							CreateEmbed::new()
-								.title("User said a forbidden word")
-								.description(format!(
-									"{}\nUser: <@{}>\nDetected word: {}",
-									match res {
-										AutomodRuleAction::SilentDelete => unreachable!(),
-										AutomodRuleAction::DeleteAndLog => "Deleted message",
-										AutomodRuleAction::DeleteLogAndKick =>
-											"Deleted message and kicked user from the VC",
-										AutomodRuleAction::DeleteLogAndSilence => {
-											"Deleted message and muted user"
-										}
-									},
-									user_id,
-									final_result
-								)),
-						),
-					)
-					.await
-				{
-					error!("failed to send log message: {}", e);
-				};
-
-				continue;
-			} else {
-				trace!(?ssrc, "no automod action taken");
-			}
-		}
-
-		if let Some(hook) = hook {
-			hooks.push((hook, ssrc));
-		}
-
-		if let Some(final_result) = final_result {
-			if let Some((_, x)) = ssrc_state.ssrc_voice_ingest_map.remove(&ssrc) {
-				// we've already checked if the user is opted in or not
-				if let Some(ingest) = x {
-					trace!(?ssrc, "user has opted in, finalizing audio");
-					tokio::spawn(ingest.destroy(final_result.clone()));
-				} else {
-					trace!(?ssrc, "user has opted out, not attempting to finalize");
-				}
-			}
-
-			if let Some(transcript_results) = &transcript_results {
-				// place this in a block that way we don't try holding two locks at once
-				let fmt_transcript = {
-					// fetch user data
-					let Some(user_details) = ssrc_state.ssrc_user_data_map.get(&ssrc) else {
-						continue;
-					};
-					let username = &user_details.0;
-					format!("[{}]: {}", username, final_result)
-				};
-				transcript_results.write().push(fmt_transcript);
-			}
+				let username = &user_details.0;
+				format!("[{}]: {}", username, final_result)
+			};
+			transcript_results.write().push(fmt_transcript);
 		}
 	}
 
@@ -375,11 +375,11 @@ async fn finalize_stream(
 	language: String,
 	verbose: &Arc<AtomicBool>,
 	translate: &Arc<AtomicBool>,
-) -> (Option<String>, Option<ExecuteWebhook>) {
-	let mut final_transcript = None;
-
+) -> Option<(String, ExecuteWebhook)> {
+	let metrics = scripty_metrics::get_metrics();
 	debug!(%ssrc, "finalizing stream");
 
+	let res_st = Instant::now();
 	let res = stream
 		.get_result(
 			language,
@@ -387,16 +387,20 @@ async fn finalize_stream(
 			translate.load(Ordering::Relaxed),
 		)
 		.await;
-	let mut webhook_executor = match res {
+	let res_et = Instant::now();
+	metrics
+		.stt_time
+		.observe(res_et.duration_since(res_st).as_secs_f64());
+
+	let (mut webhook_executor, final_transcript) = match res {
 		Ok(res) if !res.is_empty() => {
 			let webhook_executor = ExecuteWebhook::new().content(&res);
-			final_transcript = Some(res);
-			webhook_executor
+			(webhook_executor, res)
 		}
-		Ok(_) => return (None, None),
+		Ok(_) => return None,
 		Err(e) => {
 			error!(%ssrc, "failed to get stream result: {}", e);
-			return (None, None);
+			return None;
 		}
 	};
 
@@ -404,7 +408,7 @@ async fn finalize_stream(
 
 	let Some(user_details) = user_data_map.get(&ssrc) else {
 		warn!("no user details for ssrc {}", ssrc);
-		return (None, None);
+		return None;
 	};
 	debug!(%ssrc, "got user details for ssrc");
 
@@ -412,14 +416,12 @@ async fn finalize_stream(
 		webhook_executor = webhook_executor.in_thread(thread_id);
 	}
 
-	(
+	Some((
 		final_transcript,
-		Some(
-			webhook_executor
-				.avatar_url(&user_details.1)
-				.username(&user_details.0),
-		),
-	)
+		webhook_executor
+			.avatar_url(&user_details.1)
+			.username(&user_details.0),
+	))
 }
 
 fn handle_error(error: ModelError, ssrc: u32) -> ExecuteWebhook {
@@ -474,4 +476,18 @@ fn handle_error(error: ModelError, ssrc: u32) -> ExecuteWebhook {
 		}
 	};
 	ExecuteWebhook::new().content(user_error)
+}
+
+const PROFANITY_REPLACEMENTS: [(&str, &str); 5] = [
+	("f*ck", "fuck"),
+	("f**k", "fuck"),
+	("f***", "fuck"),
+	("f---", "fuck"),
+	("f***er", "fucker"),
+];
+
+fn add_profanity(s: &mut String) {
+	for (censored, replacement) in PROFANITY_REPLACEMENTS {
+		*s = s.replace(censored, replacement);
+	}
 }
