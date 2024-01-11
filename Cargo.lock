@@ -2752,6 +2752,7 @@ dependencies = [
  "scripty_automod",
  "scripty_data_storage",
  "scripty_db",
+ "scripty_integrations",
  "scripty_metrics",
  "scripty_premium",
  "scripty_redis",
@@ -2953,6 +2954,16 @@ dependencies = [
  "sqlx",
  "tracing",
  "unic-langid",
+]
+
+[[package]]
+name = "scripty_integrations"
+version = "0.1.0"
+dependencies = [
+ "bitflags 2.4.1",
+ "reqwest",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

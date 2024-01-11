@@ -21,6 +21,7 @@ scripty_redis = { path = "../scripty_redis" }
 scripty_automod = { path = "../scripty_automod" }
 scripty_metrics = { path = "../scripty_metrics" }
 scripty_premium = { path = "../scripty_premium" }
+scripty_integrations = { path = "../scripty_integrations" }
 tokio = { version = "1", features = ["parking_lot"] }
 scripty_data_storage = { path = "../scripty_data_storage" }
 songbird = { git = "https://github.com/tazz4843/songbird", branch = "serenity-next", features = [
