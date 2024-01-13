@@ -35,7 +35,11 @@ pub async fn voice_state_update(ctx: Context, _: Option<VoiceState>, new: VoiceS
 					continue;
 				}
 				// is the user a bot? if so, they don't count
-				if vs.user_id.to_user_cached(&ctx).map_or(false, |u| u.bot) {
+				if ctx
+					.cache
+					.member(guild_id, vs.user_id)
+					.map_or(false, |m| m.user.bot())
+				{
 					continue;
 				}
 				user_count += 1;
@@ -109,7 +113,7 @@ pub async fn voice_state_update(ctx: Context, _: Option<VoiceState>, new: VoiceS
 				return;
 			}
 		};
-		if target_user.bot {
+		if target_user.bot() {
 			debug!("user {} is a bot, not continuing with join", target_user.id);
 			return;
 		};

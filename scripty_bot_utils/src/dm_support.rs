@@ -1,4 +1,4 @@
-use std::cmp::Ordering;
+use std::{borrow::Cow, cmp::Ordering};
 
 use dashmap::DashMap;
 use serenity::{
@@ -40,7 +40,7 @@ impl DmSupportStatus {
 
 	pub async fn handle_message(&self, ctx: Context, message: Message) {
 		// ignore bots
-		if message.author.bot {
+		if message.author.bot() {
 			return;
 		}
 
@@ -75,9 +75,13 @@ impl DmSupportStatus {
 			let mut attachments = Vec::new();
 			for attachment in message.attachments.iter() {
 				attachments.push(
-					CreateAttachment::url(&ctx, attachment.url.as_str())
-						.await
-						.expect("failed to handle message attachments"),
+					CreateAttachment::url(
+						&ctx,
+						attachment.url.as_str(),
+						attachment.filename.to_string(),
+					)
+					.await
+					.expect("failed to handle message attachments"),
 				);
 			}
 			webhook_execute = webhook_execute.files(attachments);
@@ -136,15 +140,16 @@ impl DmSupportStatus {
 					.first()
 					.expect("asserted one element already exists");
 				if message_channel.is_nsfw() {
-					embed_builder = embed_builder.field("Attached", attachment.url.as_str(), true);
+					embed_builder =
+						embed_builder.field("Attached", attachment.url.to_string(), true);
 				} else {
-					embed_builder = embed_builder.image(attachment.url.as_str());
+					embed_builder = embed_builder.image(attachment.url.to_string());
 				}
 			}
 			Ordering::Greater => {
 				for attached_file in message.attachments.iter() {
 					embed_builder =
-						embed_builder.field("Attached", attached_file.url.as_str(), true);
+						embed_builder.field("Attached", attached_file.url.to_string(), true);
 				}
 			}
 		}
@@ -179,7 +184,7 @@ impl DmSupportStatus {
 		}
 	}
 
-	async fn get_or_create_channel(&self, ctx: &Context, user: &User) -> GuildChannel {
+	async fn get_or_create_channel<'a>(&self, ctx: &Context, user: &User) -> GuildChannel {
 		let config = scripty_config::get_config();
 		let category = get_forwarding_category(ctx).await;
 		let guild_id = GuildId::new(config.dm_support.guild_id);
@@ -221,9 +226,13 @@ impl DmSupportStatus {
 			.create_webhook(
 				ctx,
 				CreateWebhook::new(user.tag()).avatar(
-					&CreateAttachment::url(ctx, user.face().as_str())
-						.await
-						.expect("failed to handle message attachments"),
+					&CreateAttachment::url(
+						ctx,
+						user.face().as_str(),
+						Cow::<'static, str>::Borrowed("avatar.png"),
+					)
+					.await
+					.expect("failed to handle message attachments"),
 				),
 			)
 			.await

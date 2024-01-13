@@ -72,7 +72,7 @@ async fn internal_handle_message(
 		msg_builder = msg_builder.content("No transcription found");
 	} else if transcript.len() > 1950 {
 		msg_builder = msg_builder.new_attachment(CreateAttachment::bytes(
-			transcript.as_bytes(),
+			transcript.to_string().into_bytes(),
 			"transcript.txt",
 		));
 	} else {

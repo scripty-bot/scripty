@@ -1,4 +1,5 @@
 use std::{
+	borrow::Cow,
 	sync::{
 		atomic::{AtomicBool, Ordering},
 		Arc,
@@ -13,7 +14,7 @@ use scripty_automod::types::{AutomodRuleAction, AutomodServerConfig};
 use scripty_metrics::Metrics;
 use scripty_stt::{ModelError, Stream};
 use serenity::{
-	all::{ChannelId as SerenityChannelId, ChannelId, GuildId, Webhook},
+	all::{ChannelId as SerenityChannelId, ChannelId, GuildId, UserId, Webhook},
 	builder::{CreateEmbed, CreateMessage, EditMember, ExecuteWebhook},
 	client::Context,
 };
@@ -61,7 +62,7 @@ pub async fn voice_tick(
 		thread_id,
 		automod_server_cfg: Arc::clone(&automod_server_cfg),
 		transcript_results: transcript_results.clone(),
-		ctx: &ctx,
+		ctx: ctx.clone(),
 		auto_detect_lang,
 		translate,
 	})
@@ -84,7 +85,7 @@ pub async fn voice_tick(
 	metrics.audio_tick_time.observe(total_tick_time);
 }
 
-struct SilentSpeakersContext<'a> {
+struct SilentSpeakersContext {
 	ssrc_state:         Arc<SsrcMaps>,
 	last_tick_speakers: DashSet<u32, RandomState>,
 	language:           Arc<RwLock<String>>,
@@ -93,11 +94,11 @@ struct SilentSpeakersContext<'a> {
 	thread_id:          Option<ChannelId>,
 	automod_server_cfg: Arc<AutomodServerConfig>,
 	transcript_results: TranscriptResults,
-	ctx:                &'a Context,
+	ctx:                Context,
 	auto_detect_lang:   Arc<AtomicBool>,
 	translate:          Arc<AtomicBool>,
 }
-async fn handle_silent_speakers(
+async fn handle_silent_speakers<'a>(
 	SilentSpeakersContext {
 		ssrc_state,
 		last_tick_speakers,
@@ -110,8 +111,8 @@ async fn handle_silent_speakers(
 		ctx,
 		auto_detect_lang,
 		translate,
-	}: SilentSpeakersContext<'_>,
-) -> Vec<(ExecuteWebhook, u32)> {
+	}: SilentSpeakersContext,
+) -> Vec<(ExecuteWebhook<'a>, u32)> {
 	// batch up webhooks to send
 	let mut hooks = Vec::with_capacity(last_tick_speakers.len());
 
@@ -169,7 +170,11 @@ async fn handle_silent_speakers(
 		} else if let Some(res) = automod_server_cfg.get_action(&final_result) {
 			trace!(?res, ?ssrc, "automod action taken on rule match");
 			// user did something bad
-			let Some(user_id) = ssrc_state.ssrc_user_id_map.get(&ssrc).map(|x| *x.value()) else {
+			let Some(user_id) = ssrc_state
+				.ssrc_user_id_map
+				.get(&ssrc)
+				.map(|x| UserId::new(*x.value()))
+			else {
 				warn!(?ssrc, "no user ID found for ssrc");
 				continue;
 			};
@@ -367,7 +372,7 @@ async fn handle_speakers(ssrc_state: Arc<SsrcMaps>, metrics: Arc<Metrics>, voice
 	}
 }
 
-async fn finalize_stream(
+async fn finalize_stream<'a>(
 	stream: Stream,
 	user_data_map: SsrcUserDataMap,
 	thread_id: Option<ChannelId>,
@@ -375,7 +380,7 @@ async fn finalize_stream(
 	language: String,
 	verbose: &Arc<AtomicBool>,
 	translate: &Arc<AtomicBool>,
-) -> Option<(String, ExecuteWebhook)> {
+) -> Option<(String, ExecuteWebhook<'a>)> {
 	let metrics = scripty_metrics::get_metrics();
 	debug!(%ssrc, "finalizing stream");
 
@@ -393,10 +398,7 @@ async fn finalize_stream(
 		.observe(res_et.duration_since(res_st).as_secs_f64());
 
 	let (mut webhook_executor, final_transcript) = match res {
-		Ok(res) if !res.is_empty() => {
-			let webhook_executor = ExecuteWebhook::new().content(&res);
-			(webhook_executor, res)
-		}
+		Ok(res) if !res.is_empty() => (ExecuteWebhook::new().content(Cow::Owned(res.clone())), res),
 		Ok(_) => return None,
 		Err(e) => {
 			error!(%ssrc, "failed to get stream result: {}", e);
@@ -406,7 +408,10 @@ async fn finalize_stream(
 
 	debug!(%ssrc, "got stream results");
 
-	let Some(user_details) = user_data_map.get(&ssrc) else {
+	let Some((avatar_url, user_details)) = user_data_map
+		.get(&ssrc)
+		.map(|x| (x.value().0.to_owned(), x.value().1.to_owned()))
+	else {
 		warn!("no user details for ssrc {}", ssrc);
 		return None;
 	};
@@ -419,12 +424,12 @@ async fn finalize_stream(
 	Some((
 		final_transcript,
 		webhook_executor
-			.avatar_url(&user_details.1)
-			.username(&user_details.0),
+			.avatar_url(Cow::Owned(avatar_url))
+			.username(Cow::Owned(user_details)),
 	))
 }
 
-fn handle_error(error: ModelError, ssrc: u32) -> ExecuteWebhook {
+fn handle_error<'a>(error: ModelError, ssrc: u32) -> ExecuteWebhook<'a> {
 	let user_error = match error {
 		ModelError::Io(io_err) => {
 			error!(%ssrc, "STT IO error: {}", io_err);

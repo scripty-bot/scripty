@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use poise::Command;
 use scripty_bot_utils::{Data, Error};
 use scripty_i18n::LanguageIdentifier;
@@ -80,9 +82,10 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 					) else {
 						continue;
 					};
-					choice
-						.localizations
-						.insert(language_fmt.clone(), formatted_choice_name);
+					choice.localizations.insert(
+						Cow::Owned(language_fmt.clone()),
+						Cow::Owned(formatted_choice_name),
+					);
 				}
 			}
 		}

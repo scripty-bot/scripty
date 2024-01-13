@@ -68,14 +68,14 @@ pub async fn get_text_state(raw_user_id: u64) -> bool {
 	let user_id = scripty_utils::hash_user_id(raw_user_id);
 
 	// check cache
-	match scripty_redis::run_transaction("GET", |con| {
+	let res = scripty_redis::run_transaction("GET", |con| {
 		con.arg(format!(
 			"user:{{{}}}:store_msgs",
 			hex::encode(user_id.clone())
 		));
 	})
-	.await
-	{
+	.await;
+	match res {
 		Ok(r) => return r,
 		Err(e) => {
 			error!("error getting text state from cache: {}", e);

@@ -63,7 +63,7 @@ pub async fn speaking_state_update(
 			true
 		};
 
-		let ignored = user.bot;
+		let ignored = user.bot();
 		let user_data = (user.tag(), user.face(), has_role);
 
 		ssrc_state.ssrc_ignored_map.insert(ssrc, ignored);

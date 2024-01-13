@@ -30,13 +30,10 @@ pub fn get_songbird() -> Config {
 }
 
 pub async fn get_voice_channel_id(ctx: &Context, guild_id: GuildId) -> Option<ChannelId> {
-	let Some(call) = songbird::get(ctx)
+	let call = songbird::get(ctx)
 		.await
 		.expect("failed to get songbird object")
-		.get(guild_id)
-	else {
-		return None;
-	};
+		.get(guild_id)?;
 
 	// this allows the compiler to be happy with the lifetime of the call i guess?
 	let current_channel = call.lock().await.current_channel();

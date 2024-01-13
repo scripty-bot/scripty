@@ -1,4 +1,4 @@
-use std::{str::FromStr, time::Duration};
+use std::{borrow::Cow, str::FromStr, time::Duration};
 
 use serenity::{
 	all::{
@@ -9,6 +9,7 @@ use serenity::{
 		QuickModalResponse,
 	},
 	builder::{
+		Builder,
 		CreateActionRow,
 		CreateButton,
 		CreateEmbed,
@@ -42,26 +43,20 @@ pub async fn do_paginate(
 		.map(|x| x.to_owned())
 		.collect::<Vec<_>>();
 
-	let base_embed = CreateEmbed::default().title(title);
-	let mut current_page = 0;
+	let mut current_page: usize = 0;
 
-	let m = target_channel
-		.send_message(
-			ctx,
-			CreateMessage::default()
-				.embed(format_embed_from_page(
-					base_embed.clone(),
-					&pages[0],
-					current_page,
-					pages.len(),
-					footer_additional.clone(),
-				))
-				.components(build_components()),
-		)
-		.await?;
-
+	let msg_id = {
+		let embed = format_embed_from_page(&title, &pages, 0, footer_additional.as_deref())
+			.expect("page 0 should exist");
+		CreateMessage::new()
+			.embed(embed)
+			.components(build_components())
+			.execute(ctx, (target_channel, None))
+			.await?
+			.id
+	};
 	let mut collector = ComponentInteractionCollector::new(&ctx.shard)
-		.message_id(m.id)
+		.message_id(msg_id)
 		.timeout(Duration::from_secs(120));
 	if let Some(user) = allowed_user {
 		collector = collector.author_id(user);
@@ -136,13 +131,15 @@ pub async fn do_paginate(
 				CreateInteractionResponse::UpdateMessage(
 					CreateInteractionResponseMessage::default()
 						.components(build_components())
-						.embed(format_embed_from_page(
-							base_embed.clone(),
-							&pages[current_page],
-							current_page,
-							pages.len(),
-							footer_additional.clone(),
-						)),
+						.embed(
+							format_embed_from_page(
+								&title,
+								&pages,
+								current_page,
+								footer_additional.as_deref(),
+							)
+							.expect("page should exist"),
+						),
 				),
 			)
 			.await?;
@@ -152,26 +149,36 @@ pub async fn do_paginate(
 	Ok(())
 }
 
-fn format_embed_from_page(
-	embed: CreateEmbed,
-	page: &[(String, String)],
-	page_num: usize,
-	total_pages: usize,
-	footer_additional: Option<String>,
-) -> CreateEmbed {
-	embed
-		.fields(page.iter().map(|(name, value)| (name, value, false)))
-		.footer(CreateEmbedFooter::new(format!(
-			"Page {} of {}{}",
-			page_num,
-			total_pages,
-			footer_additional
-				.map(|s| format!(" | {}", s))
-				.unwrap_or_default()
-		)))
+fn format_embed_from_page<'a>(
+	embed_title: &'a str,
+	pages: &'a [Vec<(String, String)>],
+	page: usize,
+	footer_additional: Option<&'a str>,
+) -> Option<CreateEmbed<'a>> {
+	Some(
+		CreateEmbed::<'a>::new()
+			.title(Cow::<'a, str>::Borrowed(embed_title))
+			.fields(pages.get(page)?.iter().map(|(name, value)| {
+				(
+					Cow::<'a, str>::Borrowed(name.as_str()),
+					Cow::<'a, str>::Borrowed(value.as_str()),
+					false,
+				)
+			}))
+			.footer(CreateEmbedFooter::<'a>::new(Cow::<'a, str>::Owned(
+				format!(
+					"Page {} of {}{}",
+					page + 1,
+					pages.len(),
+					footer_additional
+						.map(|s| format!(" | {}", s))
+						.unwrap_or("".to_owned())
+				),
+			))),
+	)
 }
 
-fn build_components() -> Vec<CreateActionRow> {
+fn build_components<'a>() -> Vec<CreateActionRow<'a>> {
 	vec![CreateActionRow::Buttons(vec![
 		CreateButton::new("first_page")
 			.style(ButtonStyle::Primary)

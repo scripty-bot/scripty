@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use poise::CreateReply;
 use serenity::{
 	builder::{CreateAttachment, CreateEmbed, CreateEmbedAuthor, CreateMessage, ExecuteWebhook},
@@ -6,10 +8,10 @@ use serenity::{
 
 use crate::{Context, Error};
 
-pub async fn send_err_msg(
+pub async fn send_err_msg<'a>(
 	ctx: Context<'_>,
-	title: impl Into<String>,
-	description: impl Into<String>,
+	title: impl Into<Cow<'a, str>>,
+	description: impl Into<Cow<'a, str>>,
 ) {
 	let embed = CreateEmbed::default()
 		.title(title)
@@ -63,12 +65,13 @@ pub async fn log_error_message(
 	let cache = ctx.serenity_context().cache.clone();
 
 	let (guild_id, guild_name) = if let Some(guild_id) = ctx.guild_id() {
-		let guild_name = cache
-			.guild(guild_id)
-			.map_or_else(|| "unknown guild".to_string(), |g| g.name.to_string());
+		let guild_name = cache.guild(guild_id).map_or_else(
+			|| Cow::Borrowed("unknown guild"),
+			|g| Cow::Owned(g.name.to_string()),
+		);
 
 		e = e.field("Guild ID", guild_id.to_string(), false);
-		e = e.field("Guild Name", &guild_name, true);
+		e = e.field("Guild Name", guild_name.clone(), true);
 
 		(Some(guild_id), Some(guild_name))
 	} else {

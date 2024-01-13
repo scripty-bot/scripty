@@ -167,7 +167,7 @@ pub async fn handle_message(ctx: Context, msg: Message) -> Result<(), GenericMes
 	};
 
 	// and then transcribe it
-	let transcripts =
+	let mut transcripts =
 		match handle_transcripts(attached_files, language, premium_tier, translate).await {
 			Ok(transcripts) => transcripts,
 			Err(e) => {
@@ -200,7 +200,7 @@ pub async fn handle_message(ctx: Context, msg: Message) -> Result<(), GenericMes
 	// massage the transcripts into a message
 	let mut msg_builder = EditMessage::new();
 	if transcripts.len() == 1
-		&& let Some(transcript) = transcripts.first()
+		&& let Some(transcript) = transcripts.pop()
 	{
 		match transcript {
 			TranscriptResult::Success {
@@ -223,7 +223,7 @@ pub async fn handle_message(ctx: Context, msg: Message) -> Result<(), GenericMes
 					_ => {
 						// too long to send in a single message, so send it as a file
 						msg_builder = msg_builder.new_attachment(CreateAttachment::bytes(
-							transcript.as_bytes(),
+							transcript.into_bytes(),
 							format!("transcript_{}.txt", file_name),
 						));
 					}
@@ -286,7 +286,7 @@ pub async fn handle_message(ctx: Context, msg: Message) -> Result<(), GenericMes
 					transcript,
 				} => {
 					msg_builder = msg_builder.new_attachment(CreateAttachment::bytes(
-						transcript.as_bytes(),
+						transcript.into_bytes(),
 						format!("transcript_{}.txt", file_name),
 					))
 				}
