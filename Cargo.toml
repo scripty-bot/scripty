@@ -43,6 +43,9 @@ scripty_core = { path = "scripty_core" }
 tracing = { version = "0.1", features = ["release_max_level_info"] }
 
 [patch.crates-io]
-serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next" }
+serenity = { git = "https://github.com/tazz4843/serenity", branch = "next" }
 songbird = { git = "https://github.com/tazz4843/songbird", branch = "serenity-next" }
 small-fixed-array = { git = "https://github.com/gnomeddev/small-fixed-array", rev = "a7e4d9f97ccdb58c8d63c6749502b6b581b4cc1d" }
+
+[patch."https://github.com/serenity-rs/serenity"]
+serenity = { git = "https://github.com/tazz4843/serenity", branch = "next" }
