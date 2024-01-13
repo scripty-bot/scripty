@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use serenity::{
 	all::{Context, GuildId, Message, MessageFlags},
 	builder::{CreateAttachment, EditMessage},
@@ -49,6 +51,8 @@ async fn internal_handle_message(
 	debug!(%msg.id, "decoding voice message");
 	// start by trying to decode the waveform: it should be 1 channel, 48000Hz,32Kbps Opus in an OGG container
 	let output = scripty_stt::decode_ogg_opus_file(waveform)?;
+	// calculate length in seconds (48000 samples per second, 1 channel)
+	let output_length_secs = output.len() as f64 / 48000.0;
 
 	debug!(%msg.id, "decoded voice message, feeding to speech-to-text");
 	// fetch guild language
@@ -64,7 +68,14 @@ async fn internal_handle_message(
 
 	let stream = scripty_stt::get_stream().await?;
 	stream.feed_audio(output)?;
-	let transcript = stream.get_result(lang, false, translate).await?;
+	let transcript = stream
+		.get_result(
+			lang,
+			false,
+			translate,
+			Some(Duration::from_secs_f64(output_length_secs)),
+		)
+		.await?;
 	let transcript = transcript.trim();
 	let mut msg_builder = EditMessage::new();
 

@@ -93,7 +93,9 @@ impl Stream {
 		language: String,
 		verbose: bool,
 		translate: bool,
+		timeout: Option<Duration>,
 	) -> Result<String, ModelError> {
+		let timeout = timeout.unwrap_or(Duration::from_secs(30));
 		debug!(%self.session_id, %self.peer_address, "getting result from stts");
 		// send the finalize message
 		self.tx
@@ -123,7 +125,7 @@ impl Stream {
 			}
 			Err(ModelError::RemoteDisconnected)
 		};
-		match tokio::time::timeout(Duration::from_secs(30), stream_fut).await {
+		match tokio::time::timeout(timeout, stream_fut).await {
 			Ok(Ok(res)) => Ok(res),
 			Ok(Err(e)) => Err(e),
 			Err(_) => {

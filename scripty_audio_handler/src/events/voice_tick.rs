@@ -390,6 +390,7 @@ async fn finalize_stream<'a>(
 			language,
 			verbose.load(Ordering::Relaxed),
 			translate.load(Ordering::Relaxed),
+			None,
 		)
 		.await;
 	let res_et = Instant::now();

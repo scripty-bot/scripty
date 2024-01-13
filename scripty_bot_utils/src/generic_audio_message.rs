@@ -5,6 +5,7 @@ use std::{
 	path::{Path, PathBuf},
 	process::Stdio,
 	str::FromStr,
+	time::Duration,
 };
 
 use scripty_premium::PremiumTierList;
@@ -451,7 +452,12 @@ async fn handle_transcripts(
 
 		stream.feed_audio(i16_audio)?;
 		let transcript = stream
-			.get_result(language.clone(), false, translate)
+			.get_result(
+				language.clone(),
+				false,
+				translate,
+				Some(Duration::from_secs_f64(file_length)),
+			)
 			.await?;
 		let transcript = transcript.trim();
 		if transcript.is_empty() {
