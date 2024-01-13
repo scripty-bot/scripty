@@ -3426,7 +3426,7 @@ dependencies = [
 [[package]]
 name = "songbird"
 version = "0.4.0"
-source = "git+https://github.com/tazz4843/songbird?branch=serenity-next#14f87c9ff42eef7d92e67665bf7335d3b1db6a78"
+source = "git+https://github.com/tazz4843/songbird?branch=serenity-next#4035dff051a71bf503e7c0e9b8ef455cd7b2e35a"
 dependencies = [
  "async-trait",
  "audiopus 0.3.0-rc.0",
@@ -3439,6 +3439,7 @@ dependencies = [
  "flume",
  "futures",
  "nohash-hasher",
+ "nonmax",
  "parking_lot",
  "pin-project",
  "rand",
