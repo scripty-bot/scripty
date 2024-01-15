@@ -7,8 +7,8 @@ pub struct BotConfig {
 	/// Supported languages. (ie their ISO 639-1 code, with optional country code)
 	pub languages: Vec<String>,
 
-	/// Bot token.
-	pub token: String,
+	/// Tokens for various APIs.
+	pub tokens: Tokens,
 
 	/// Support server invite link.
 	pub support_invite: String,
@@ -94,6 +94,12 @@ pub struct LokiConfig {
 pub enum BotListsConfig {
 	TokenOnly(String),
 	FullConfig { token: String, webhook: String },
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Tokens {
+	pub discord: String,
+	pub kiai:    String,
 }
 
 #[cfg(test)]

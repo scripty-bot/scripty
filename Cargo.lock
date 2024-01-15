@@ -483,7 +483,7 @@ dependencies = [
 [[package]]
 name = "command_attr"
 version = "0.5.1"
-source = "git+https://github.com/tazz4843/serenity?branch=next#22f0098dd6de50281e0b7b7527665f5a3adb6919"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#26dedac3aa3b9262c4077fa9cb1491b6f1bb7e43"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2978,6 +2978,7 @@ version = "0.1.0"
 dependencies = [
  "bitflags 2.4.1",
  "reqwest",
+ "scripty_config",
  "serde",
  "serde_json",
 ]
@@ -3258,7 +3259,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.12.0"
-source = "git+https://github.com/tazz4843/serenity?branch=next#22f0098dd6de50281e0b7b7527665f5a3adb6919"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#26dedac3aa3b9262c4077fa9cb1491b6f1bb7e43"
 dependencies = [
  "arrayvec",
  "async-trait",
@@ -3388,12 +3389,12 @@ dependencies = [
 
 [[package]]
 name = "small-fixed-array"
-version = "0.1.2"
-source = "git+https://github.com/gnomeddev/small-fixed-array?rev=a7e4d9f97ccdb58c8d63c6749502b6b581b4cc1d#a7e4d9f97ccdb58c8d63c6749502b6b581b4cc1d"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b35c6fe7591431a7c7383d683c2e202de0217187e397e4ca2a197b5ae991098d"
 dependencies = [
  "nonmax",
  "serde",
- "tracing",
  "typesize",
 ]
 
@@ -4922,3 +4923,8 @@ name = "zeroize"
 version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "525b4ec142c6b68a2d10f01f7bbf6755599ca3f81ea53b8431b7dd348f5fdb2d"
+
+[[patch.unused]]
+name = "serenity"
+version = "0.12.0"
+source = "git+https://github.com/tazz4843/serenity?branch=next#22f0098dd6de50281e0b7b7527665f5a3adb6919"

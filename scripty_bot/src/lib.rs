@@ -57,15 +57,16 @@ pub async fn entrypoint() {
 		.options(framework_opts::get_framework_opts())
 		.build();
 
-	let mut client = serenity::Client::builder(&cfg.token, framework_opts::get_gateway_intents())
-		.framework(framework)
-		.event_handler(handler::BotEventHandler)
-		.raw_event_handler(handler::RawEventHandler)
-		.register_songbird_from_config(scripty_audio_handler::get_songbird())
-		.status(OnlineStatus::Idle)
-		.activity(ActivityData::custom("Starting up..."))
-		.await
-		.expect("failed to create serenity client");
+	let mut client =
+		serenity::Client::builder(&cfg.tokens.discord, framework_opts::get_gateway_intents())
+			.framework(framework)
+			.event_handler(handler::BotEventHandler)
+			.raw_event_handler(handler::RawEventHandler)
+			.register_songbird_from_config(scripty_audio_handler::get_songbird())
+			.status(OnlineStatus::Idle)
+			.activity(ActivityData::custom("Starting up..."))
+			.await
+			.expect("failed to create serenity client");
 
 	client.start_autosharded().await.expect("failed to run bot");
 }

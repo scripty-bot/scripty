@@ -10,6 +10,7 @@ use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
 use parking_lot::RwLock;
 use scripty_automod::types::AutomodServerConfig;
+use scripty_integrations::kiai::KiaiApiClient;
 use serenity::{
 	all::RoleId,
 	client::Context,
@@ -66,6 +67,8 @@ pub struct AudioHandler {
 	auto_detect_lang:     Arc<AtomicBool>,
 	transcribe_only_role: Arc<RwLock<Option<RoleId>>>,
 	translate:            Arc<AtomicBool>,
+	kiai_enabled:         Arc<AtomicBool>,
+	pub kiai_client:      KiaiApiClient,
 }
 
 impl AudioHandler {
@@ -78,15 +81,16 @@ impl AudioHandler {
 		thread_id: Option<ChannelId>,
 		record_transcriptions: bool,
 		automod_server_cfg: AutomodServerConfig,
+		kiai_client: KiaiApiClient,
 	) -> Result<Self, sqlx::Error> {
 		let maps = SsrcMaps {
-			ssrc_user_id_map:      DashMap::with_hasher(RandomState::new()),
-			ssrc_stream_map:       DashMap::with_hasher(RandomState::new()),
-			ssrc_user_data_map:    DashMap::with_hasher(RandomState::new()),
-			ssrc_ignored_map:      DashMap::with_hasher(RandomState::new()),
-			ssrc_voice_ingest_map: DashMap::with_hasher(RandomState::new()),
-			ssrc_speaking_set:     DashSet::with_hasher(RandomState::new()),
-			active_user_set:       DashSet::with_hasher(RandomState::new()),
+			ssrc_user_id_map:      DashMap::with_capacity_and_hasher(10, RandomState::new()),
+			ssrc_stream_map:       DashMap::with_capacity_and_hasher(10, RandomState::new()),
+			ssrc_user_data_map:    DashMap::with_capacity_and_hasher(10, RandomState::new()),
+			ssrc_ignored_map:      DashMap::with_capacity_and_hasher(10, RandomState::new()),
+			ssrc_voice_ingest_map: DashMap::with_capacity_and_hasher(10, RandomState::new()),
+			ssrc_speaking_set:     DashSet::with_capacity_and_hasher(10, RandomState::new()),
+			active_user_set:       DashSet::with_capacity_and_hasher(10, RandomState::new()),
 			next_user_list:        RwLock::new(VecDeque::with_capacity(10)),
 		};
 
@@ -108,6 +112,8 @@ impl AudioHandler {
 			auto_detect_lang: Arc::new(AtomicBool::new(false)),
 			transcribe_only_role: Arc::new(RwLock::new(None)),
 			translate: Arc::new(AtomicBool::new(false)),
+			kiai_enabled: Arc::new(AtomicBool::new(false)),
+			kiai_client,
 		};
 		this.reload_config().await?;
 
@@ -134,14 +140,12 @@ impl AudioHandler {
 	pub async fn reload_config(&self) -> Result<(), sqlx::Error> {
 		let db = scripty_db::get_db();
 		let mut guild_res = sqlx::query!(
-			"SELECT be_verbose, language, auto_detect_lang, transcript_only_role, translate FROM \
-			 guilds WHERE guild_id = $1",
+			"SELECT be_verbose, language, auto_detect_lang, transcript_only_role, translate, \
+			 kiai_enabled FROM guilds WHERE guild_id = $1",
 			self.guild_id.get() as i64
 		)
 		.fetch_one(db)
 		.await?;
-
-		self.verbose.store(guild_res.be_verbose, Ordering::Relaxed);
 
 		if let Some(lvl) = scripty_premium::get_guild(self.guild_id.get()).await {
 			self.premium_level.store(lvl as u8, Ordering::Relaxed);
@@ -151,7 +155,12 @@ impl AudioHandler {
 			self.premium_level.store(0, Ordering::Relaxed);
 			self.auto_detect_lang.store(false, Ordering::Relaxed);
 		}
+
+		self.verbose.store(guild_res.be_verbose, Ordering::Relaxed);
 		self.translate.store(guild_res.translate, Ordering::Relaxed);
+		self.kiai_enabled
+			.store(guild_res.kiai_enabled, Ordering::Relaxed);
+
 		std::mem::swap(&mut *self.language.write(), &mut guild_res.language);
 		std::mem::swap(
 			&mut *self.transcribe_only_role.write(),
@@ -180,6 +189,7 @@ impl EventHandler for AudioHandler {
 				voice_data.clone(),
 				Arc::clone(&self.ssrc_state),
 				self.guild_id,
+				self.voice_channel_id,
 				self.language.clone(),
 				self.verbose.clone(),
 				self.context.clone(),
@@ -189,6 +199,8 @@ impl EventHandler for AudioHandler {
 				Arc::clone(&self.automod_server_cfg),
 				Arc::clone(&self.auto_detect_lang),
 				Arc::clone(&self.translate),
+				Arc::clone(&self.kiai_enabled),
+				Arc::clone(&self.kiai_client),
 			)),
 			EventContext::ClientDisconnect(client_disconnect_data) => {
 				tokio::spawn(client_disconnect(

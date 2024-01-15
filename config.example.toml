@@ -7,9 +7,6 @@ languages = [
   "he", "lt", "fa", "cy", "sr", "af", "kn", "kk", "is", "mr", "mi", "sw", "hy", "be", "ne"
 ]
 
-# Find in the Discord developer portal
-token = "a.b.c"
-
 # You should change this to your own server,
 # as we're not going to be providing support
 # for self-hosted instances beyond bugfixes
@@ -69,3 +66,9 @@ guild_id = 942298454804271144
 url = "http://server.local:3100/"
 labels = { job = "scripty_node1", env = "dev" }
 extra_fields = {}
+
+[tokens]
+# Find in the Discord developer portal
+discord = "a.b.c"
+# Don't need to change this
+kiai = "000000000000000000"

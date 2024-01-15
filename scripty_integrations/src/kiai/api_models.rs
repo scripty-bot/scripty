@@ -2,7 +2,7 @@ use bitflags::bitflags;
 use serde::{Deserialize, Serialize};
 
 bitflags! {
-	pub struct Permissions: u32 {
+	pub struct Permissions: u8 {
 		const LEVELS = 1 << 0;
 		const MULTIPLIERS = 1 << 1;
 		const EXPORT = 1 << 2;
@@ -12,7 +12,7 @@ bitflags! {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct PostVirtualMessage {
+pub struct KiaiPostVirtualMessage {
 	pub channel: ChannelId,
 	pub member:  Member,
 	pub guild:   GuildId,
@@ -20,7 +20,7 @@ pub struct PostVirtualMessage {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ChannelId {
-	channel: u64,
+	pub channel: u64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -31,5 +31,10 @@ pub struct Member {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GuildId {
-	guild: u64,
+	pub guild: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct KiaiPostVirtualMessageResponse {
+	pub message: String,
 }

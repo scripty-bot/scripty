@@ -95,6 +95,7 @@ pub async fn connect_to_vc(
 		thread_id,
 		record_transcriptions,
 		automod_server_cfg,
+		scripty_integrations::kiai::get_kiai_api_client().clone(),
 	)
 	.await?;
 

@@ -9,6 +9,7 @@ use serenity::{
 		CreateInteractionResponseMessage,
 	},
 	collector::ComponentInteractionCollector,
+	small_fixed_array::{FixedArray, FixedString},
 };
 
 use crate::{Context, Error};
@@ -69,13 +70,10 @@ pub async fn terms_of_service(ctx: Context<'_>) -> Result<(), Error> {
 			.timeout(std::time::Duration::from_secs(60))
 			.author_id(ctx.author().id)
 			.message_id(m.message().await?.id)
-			.custom_ids(
-				vec![
-					"tos_agree".to_string().into(),
-					"tos_disagree".to_string().into(),
-				]
-				.into(),
-			)
+			.custom_ids(FixedArray::from_vec_trunc(vec![
+				FixedString::from_str_trunc("tos_agree"),
+				FixedString::from_str_trunc("tos_disagree"),
+			]))
 			.await;
 
 		if let Some(interaction) = maybe_interaction {

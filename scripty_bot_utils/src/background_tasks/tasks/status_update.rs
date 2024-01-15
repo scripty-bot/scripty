@@ -4,6 +4,7 @@ use serenity::{
 	all::{ActivityType, OnlineStatus},
 	client::Context as SerenityContext,
 	gateway::{ActivityData, ShardManager},
+	small_fixed_array::FixedString,
 };
 
 use crate::{background_tasks::core::BackgroundTask, globals::CLIENT_DATA, Error};
@@ -65,9 +66,9 @@ impl BackgroundTask for StatusUpdater {
 
 			// create activity
 			let activity = ActivityData {
-				name:  "UwU~".to_string().into(),
+				name:  FixedString::from_str_trunc("UwU~"),
 				kind:  ActivityType::Custom,
-				state: Some(shard_status.into()),
+				state: Some(FixedString::from_string_trunc(shard_status)),
 				url:   None,
 			};
 

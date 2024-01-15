@@ -11,6 +11,7 @@ use ahash::RandomState;
 use dashmap::DashSet;
 use parking_lot::RwLock;
 use scripty_automod::types::{AutomodRuleAction, AutomodServerConfig};
+use scripty_integrations::kiai::{KiaiApiClient, KiaiPostVirtualMessage};
 use scripty_metrics::Metrics;
 use scripty_stt::{ModelError, Stream};
 use serenity::{
@@ -30,6 +31,7 @@ pub async fn voice_tick(
 	voice_data: VoiceTick,
 	ssrc_state: Arc<SsrcMaps>,
 	guild_id: GuildId,
+	voice_channel_id: ChannelId,
 	language: Arc<RwLock<String>>,
 	verbose: Arc<AtomicBool>,
 	ctx: Context,
@@ -39,6 +41,8 @@ pub async fn voice_tick(
 	automod_server_cfg: Arc<AutomodServerConfig>,
 	auto_detect_lang: Arc<AtomicBool>,
 	translate: Arc<AtomicBool>,
+	kiai_enabled: Arc<AtomicBool>,
+	kiai_client: KiaiApiClient,
 ) {
 	let metrics = scripty_metrics::get_metrics();
 	let tick_start_time = Instant::now();
@@ -56,6 +60,7 @@ pub async fn voice_tick(
 	let hooks = handle_silent_speakers(SilentSpeakersContext {
 		ssrc_state: Arc::clone(&ssrc_state),
 		last_tick_speakers,
+		voice_channel_id,
 		language: Arc::clone(&language),
 		verbose: Arc::clone(&verbose),
 		guild_id,
@@ -65,6 +70,8 @@ pub async fn voice_tick(
 		ctx: ctx.clone(),
 		auto_detect_lang,
 		translate,
+		kiai_enabled,
+		kiai_client,
 	})
 	.await;
 
@@ -97,11 +104,15 @@ struct SilentSpeakersContext {
 	ctx:                Context,
 	auto_detect_lang:   Arc<AtomicBool>,
 	translate:          Arc<AtomicBool>,
+	kiai_enabled:       Arc<AtomicBool>,
+	kiai_client:        KiaiApiClient,
+	voice_channel_id:   ChannelId,
 }
 async fn handle_silent_speakers<'a>(
 	SilentSpeakersContext {
 		ssrc_state,
 		last_tick_speakers,
+		voice_channel_id,
 		language,
 		verbose,
 		guild_id,
@@ -111,6 +122,8 @@ async fn handle_silent_speakers<'a>(
 		ctx,
 		auto_detect_lang,
 		translate,
+		kiai_enabled,
+		kiai_client,
 	}: SilentSpeakersContext,
 ) -> Vec<(ExecuteWebhook<'a>, u32)> {
 	// batch up webhooks to send
@@ -125,9 +138,7 @@ async fn handle_silent_speakers<'a>(
 				ssrc_state.ssrc_stream_map.remove(&ssrc).map(|x| x.1) // take what we have
 			}
 		};
-		let old_stream = if let Some(old_stream) = maybe_old_stream {
-			old_stream
-		} else {
+		let Some(old_stream) = maybe_old_stream else {
 			warn!(%ssrc, "no stream found for ssrc");
 			hooks.push((
 				ExecuteWebhook::new().content(format!(
@@ -233,6 +244,48 @@ async fn handle_silent_speakers<'a>(
 		}
 
 		hooks.push((hook, ssrc));
+
+		if kiai_enabled.load(Ordering::Relaxed) {
+			let Some(user_id) = ssrc_state
+				.ssrc_user_id_map
+				.get(&ssrc)
+				.map(|x| UserId::new(*x.value()))
+			else {
+				warn!(?ssrc, "no user ID found for ssrc");
+				continue;
+			};
+			let kc = Arc::clone(&kiai_client);
+			let ctx2 = ctx.clone();
+			let channel = voice_channel_id.get();
+
+			tokio::spawn(async move {
+				let member = match guild_id.member(&ctx2, user_id).await {
+					Ok(m) => m,
+					Err(e) => {
+						error!(%user_id, "failed to fetch member for kiai integration: {}", e);
+						return;
+					}
+				};
+				let id = user_id.get();
+				let roles = member.roles.iter().map(|x| x.get()).collect::<Vec<_>>();
+				let guild = guild_id.get();
+
+				let vm = KiaiPostVirtualMessage {
+					channel: scripty_integrations::kiai::ChannelId { channel },
+					member:  scripty_integrations::kiai::Member { id, roles },
+					guild:   scripty_integrations::kiai::GuildId { guild },
+				};
+
+				match kc.post_virtual_message(vm, guild).await {
+					Ok(()) => {
+						debug!(%user_id, "posted virtual message for user");
+					}
+					Err(e) => {
+						error!(%user_id, "failed to post virtual message for user: {}", e);
+					}
+				}
+			});
+		}
 
 		if let Some((_, x)) = ssrc_state.ssrc_voice_ingest_map.remove(&ssrc) {
 			// we've already checked if the user is opted in or not
