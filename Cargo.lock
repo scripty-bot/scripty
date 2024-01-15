@@ -4923,8 +4923,3 @@ name = "zeroize"
 version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "525b4ec142c6b68a2d10f01f7bbf6755599ca3f81ea53b8431b7dd348f5fdb2d"
-
-[[patch.unused]]
-name = "serenity"
-version = "0.12.0"
-source = "git+https://github.com/tazz4843/serenity?branch=next#22f0098dd6de50281e0b7b7527665f5a3adb6919"
