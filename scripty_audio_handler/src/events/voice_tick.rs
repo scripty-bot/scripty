@@ -529,9 +529,12 @@ fn handle_error<'a>(error: ModelError, ssrc: u32) -> ExecuteWebhook<'a> {
 			error!(%ssrc, "STTS error: remote disconnected");
 			format!("STT service disconnected (SSRC {})", ssrc)
 		}
-		ModelError::TimedOutWaitingForResult => {
-			error!(%ssrc, "STTS error: timed out waiting for result");
-			format!("STT service timed out (SSRC {})", ssrc)
+		ModelError::TimedOutWaitingForResult { session_id } => {
+			error!(%ssrc, %session_id, "STTS error: timed out waiting for result");
+			format!(
+				"STT service timed out (SSRC {}, session ID {})",
+				ssrc, session_id
+			)
 		}
 	};
 	ExecuteWebhook::new().content(user_error)

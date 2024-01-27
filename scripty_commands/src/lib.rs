@@ -20,6 +20,7 @@ pub fn build_commands() -> Vec<poise::Command<Data, Error>> {
 		cmds::terms_of_service(),
 		cmds::user_language(),
 		cmds::vote_reminder(),
+		cmds::transcribe_message(),
 		poise::Command {
 			subcommands: vec![cmds::block_user(), cmds::block_guild()],
 			..cmds::block()

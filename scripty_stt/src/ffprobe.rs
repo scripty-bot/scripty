@@ -1,4 +1,4 @@
-use std::{ffi::OsStr, os::unix::process::ExitStatusExt, path::Path, process::Stdio};
+use std::{ffi::OsStr, fmt, os::unix::process::ExitStatusExt, path::Path, process::Stdio};
 
 use serde::{Deserialize, Serialize};
 use tokio::{self, io, io::AsyncReadExt};
@@ -53,6 +53,20 @@ pub enum FfprobeParsingError {
 	Signal(i32),
 	NoStdout,
 	NoStdin,
+}
+
+impl fmt::Display for FfprobeParsingError {
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		match self {
+			Self::InvalidUtf8(e) => write!(f, "invalid utf8: {}", e),
+			Self::Json(e) => write!(f, "json error: {}", e),
+			Self::Io(e) => write!(f, "io error: {}", e),
+			Self::ExitCode(code) => write!(f, "exit code: {}", code),
+			Self::Signal(signal) => write!(f, "signal: {}", signal),
+			Self::NoStdout => write!(f, "no stdout"),
+			Self::NoStdin => write!(f, "no stdin"),
+		}
+	}
 }
 
 impl From<std::string::FromUtf8Error> for FfprobeParsingError {

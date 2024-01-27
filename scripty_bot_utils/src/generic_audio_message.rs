@@ -1,5 +1,6 @@
 use std::{
 	ffi::OsStr,
+	fmt,
 	fmt::Write,
 	io,
 	path::{Path, PathBuf},
@@ -12,7 +13,7 @@ use scripty_premium::PremiumTierList;
 use scripty_stt::FfprobeParsingError;
 use serenity::{
 	all::{Attachment, Context, EditMessage, Message},
-	builder::{CreateAttachment, CreateMessage},
+	builder::{CreateAllowedMentions, CreateAttachment, CreateMessage},
 	model::channel::MessageFlags,
 };
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
@@ -72,11 +73,31 @@ impl From<async_tempfile::Error> for GenericMessageError {
 	}
 }
 
-pub async fn handle_message(ctx: Context, msg: Message) -> Result<(), GenericMessageError> {
+impl fmt::Display for GenericMessageError {
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		match self {
+			Self::Sqlx(e) => write!(f, "sqlx error: {}", e),
+			Self::Serenity(e) => write!(f, "serenity error: {}", e),
+			Self::Model(e) => write!(f, "model error: {}", e),
+			Self::Io(e) => write!(f, "io error: {}", e),
+			Self::NoStdout => write!(f, "no stdout"),
+			Self::FfmpegExited(code) => write!(f, "ffmpeg exited with code {}", code),
+			Self::Ffprobe(e) => write!(f, "ffprobe error: {}", e),
+			Self::TempFile(e) => write!(f, "tempfile error: {}", e),
+		}
+	}
+}
+
+impl std::error::Error for GenericMessageError {}
+
+pub async fn handle_message(ctx: &Context, msg: Message) -> Result<(), GenericMessageError> {
 	// are we in a guild?
 	let guild_id = match msg.guild_id {
 		Some(id) => id,
-		None => return Ok(()),
+		None => {
+			debug!(%msg.id, "not in guild, returning");
+			return Ok(());
+		}
 	};
 
 	// does the message have the voice message flag?
@@ -157,7 +178,8 @@ pub async fn handle_message(ctx: Context, msg: Message) -> Result<(), GenericMes
 	// so notify the user that we're working on it
 	let msg_builder = CreateMessage::new()
 		.reference_message(&msg)
-		.content("Transcribing files, please wait...");
+		.allowed_mentions(CreateAllowedMentions::default().replied_user(false))
+		.content("Downloading files...");
 	let mut new_msg = match msg.channel_id.send_message(&ctx, msg_builder).await {
 		Ok(msg) => msg,
 		Err(e) => {
@@ -168,19 +190,27 @@ pub async fn handle_message(ctx: Context, msg: Message) -> Result<(), GenericMes
 	};
 
 	// and then transcribe it
-	let mut transcripts =
-		match handle_transcripts(attached_files, language, premium_tier, translate).await {
-			Ok(transcripts) => transcripts,
-			Err(e) => {
-				new_msg
-					.edit(
-						ctx,
-						EditMessage::new().content(format!("Failed to transcribe files: {:?}", e)),
-					)
-					.await?;
-				return Err(e);
-			}
-		};
+	let mut transcripts = match handle_transcripts(
+		&ctx,
+		&mut new_msg,
+		attached_files,
+		language,
+		premium_tier,
+		translate,
+	)
+	.await
+	{
+		Ok(transcripts) => transcripts,
+		Err(e) => {
+			new_msg
+				.edit(
+					ctx,
+					EditMessage::new().content(format!("Failed to transcribe files: {}", e)),
+				)
+				.await?;
+			return Err(e);
+		}
+	};
 
 	// sometimes to prevent spam we get no transcripts returned
 	// (ie premium tier is too low for one file)
@@ -207,18 +237,35 @@ pub async fn handle_message(ctx: Context, msg: Message) -> Result<(), GenericMes
 			TranscriptResult::Success {
 				file_name,
 				transcript,
+				took,
+				file_length,
 			} => {
 				match transcript.len() {
 					0 => {
 						msg_builder = msg_builder.content("No transcript detected by STT library.");
 					}
-					1..=1950 => {
+					1..=1800 => {
 						// send as a quote
 						let mut quote = String::from("Transcript:\n");
 						for line in transcript.split_inclusive('\n') {
 							quote.push_str("> ");
 							quote.push_str(line);
 						}
+
+						writeln!(
+							&mut quote,
+							"\nTook {:.3}s to transcribe {:.3}s audio file.",
+							took.as_secs_f64(),
+							file_length
+						)
+						.expect("writing to string should be infallible");
+						if took.as_secs_f64() > file_length {
+							quote.push_str(
+								"\nThis shouldn't take so long. If you're willing to share the \
+								 content with us, please let us know in our support server.",
+							);
+						}
+
 						msg_builder = msg_builder.content(quote);
 					}
 					_ => {
@@ -285,6 +332,7 @@ pub async fn handle_message(ctx: Context, msg: Message) -> Result<(), GenericMes
 				TranscriptResult::Success {
 					file_name,
 					transcript,
+					..
 				} => {
 					msg_builder = msg_builder.new_attachment(CreateAttachment::bytes(
 						transcript.into_bytes(),
@@ -347,8 +395,10 @@ pub async fn handle_message(ctx: Context, msg: Message) -> Result<(), GenericMes
 
 enum TranscriptResult {
 	Success {
-		transcript: String,
-		file_name:  String,
+		transcript:  String,
+		file_name:   String,
+		took:        Duration,
+		file_length: f64,
 	},
 	EmptyTranscript {
 		file_name: String,
@@ -369,6 +419,8 @@ enum TranscriptResult {
 }
 
 async fn handle_transcripts(
+	ctx: &Context,
+	msg: &mut Message,
 	files: Vec<&Attachment>,
 	language: String,
 	premium_tier: PremiumTierList,
@@ -393,6 +445,14 @@ async fn handle_transcripts(
 		};
 
 		debug!(%file.id, "fetching file to transcribe");
+		msg.edit(
+			ctx,
+			EditMessage::new().content(format!(
+				"Downloading file {}... (size {} bytes)",
+				file.filename, file.size
+			)),
+		)
+		.await?;
 		let waveform = file.download().await?;
 		// save it to disk
 		let mut tmp_file = async_tempfile::TempFile::new_in(
@@ -404,6 +464,11 @@ async fn handle_transcripts(
 
 		// probe the file
 		debug!(%file.id, "probing file");
+		msg.edit(
+			ctx,
+			EditMessage::new().content(format!("Probing file {}...", file.filename)),
+		)
+		.await?;
 		let probe = scripty_stt::file_info(path).await?;
 		let is_video = probe.streams.iter().any(|x| x.is_video());
 		let file_length = match probe.format.duration.parse::<f64>() {
@@ -444,21 +509,37 @@ async fn handle_transcripts(
 		}
 
 		// feed to ffmpeg
-		debug!(%file.id, "processing file");
+		debug!(%file.id, "transcribing file");
+		msg.edit(
+			ctx,
+			EditMessage::new().content(format!(
+				"Transcribing file {}... ({} seconds long)",
+				file.filename, file_length
+			)),
+		)
+		.await?;
 		let i16_audio = convert_to_pcm(path).await?;
 
 		// fetch a stream, feed the audio, get the result, send it
 		let stream = scripty_stt::get_stream().await?;
 
+		// some files are really slow to transcribe
+		// while others are really fast
+		// not sure why
+		let transcribe_timeout = file_length * 10.0;
+
 		stream.feed_audio(i16_audio)?;
+		let transcript_start = tokio::time::Instant::now();
 		let transcript = stream
 			.get_result(
 				language.clone(),
 				false,
 				translate,
-				Some(Duration::from_secs_f64(file_length)),
+				Some(Duration::from_secs_f64(transcribe_timeout)),
 			)
 			.await?;
+		let transcript_end = tokio::time::Instant::now();
+
 		let transcript = transcript.trim();
 		if transcript.is_empty() {
 			output.push(TranscriptResult::EmptyTranscript {
@@ -468,7 +549,9 @@ async fn handle_transcripts(
 		} else {
 			output.push(TranscriptResult::Success {
 				transcript: transcript.to_owned(),
-				file_name:  file.filename.to_string(),
+				file_name: file.filename.to_string(),
+				took: transcript_end - transcript_start,
+				file_length,
 			});
 		}
 	}

@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO vote_reminders (user_id, site_id, next_reminder)\n           VALUES ($1, 2, NOW() + INTERVAL '20 hours')\n           ON CONFLICT (user_id, site_id)\n               DO UPDATE SET next_reminder = NOW() + INTERVAL '20 hours'",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "597e1b1256bc783fb85af110b378fcdd652b9b0314d5d2f3d6a18aa42a6f1592"
+}

@@ -74,6 +74,11 @@ cmds_help = help
     .command = command
     .command-description = Specific command to show help about
 
+## transcribe_message command
+# This and all attributes show up exclusively in the slash command picker when `transcribe_message` is selected.
+cmds_transcribe_message = transcribe_message
+    .description = Transcribe a message. Reply to a message to transcribe it.
+
 ## premium command
 # This and all attributes show up exclusively in the slash command picker when `premium` is selected.
 cmds_premium = premium

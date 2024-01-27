@@ -437,7 +437,6 @@ impl LoadBalancedStream {
 					};
 					match message {
 						Ok(message) => {
-							debug!("sending message: {:?}", message);
 							if let Err(e) =
 								write_socket_message(&mut write_stream_task.stream_write, &message)
 									.await

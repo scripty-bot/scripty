@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT be_verbose, language, auto_detect_lang, transcript_only_role, translate, kiai_enabled FROM guilds WHERE guild_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "be_verbose",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 1,
+        "name": "language",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "auto_detect_lang",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "transcript_only_role",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "translate",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "kiai_enabled",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "f2b76182252d68d938737226b537ddff4930ff59af6dd60bfbb15e11236cdfdb"
+}
