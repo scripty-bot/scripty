@@ -19,5 +19,5 @@ scripty_botlists = { path = "../scripty_botlists" }
 scripty_bot_utils = { path = "../scripty_bot_utils" }
 serde = { version = "1", features = ["derive"] }
 tokio = { version = "1", features = ["parking_lot"] }
-axum = { version = "0.6", features = ["headers", "json"] }
+axum = { version = "0.7", features = ["json"] }
 sqlx = { version = "0.7", features = ["postgres", "macros", "migrate", "runtime-tokio-rustls"] }
