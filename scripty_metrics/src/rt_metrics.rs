@@ -2,6 +2,9 @@
 
 use std::time::Duration;
 
+#[cfg(not(tokio_unstable))]
+compile_error!("Please enable the tokio_unstable cfg flag.");
+
 use tokio_metrics::RuntimeMetrics;
 
 use crate::metrics::Metrics;
