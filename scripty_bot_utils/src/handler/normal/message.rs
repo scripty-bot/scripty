@@ -8,12 +8,13 @@ pub async fn message(ctx: Context, msg: Message) {
 		tokio::spawn(st.handle_message(ctx.clone(), msg.clone()));
 	}
 
-	tokio::spawn(crate::voice_message::handle_message(
-		ctx.clone(),
-		msg.clone(),
-	));
+	let ctx2 = ctx.clone();
+	let msg2 = msg.clone();
 	tokio::spawn(async move {
-		if let Err(e) = crate::generic_audio_message::handle_message(ctx, msg).await {
+		crate::voice_message::handle_message(&ctx2, msg2).await;
+	});
+	tokio::spawn(async move {
+		if let Err(e) = crate::generic_audio_message::handle_message(&ctx, msg).await {
 			error!("failed to handle generic audio message: {:?}", e);
 		}
 	});

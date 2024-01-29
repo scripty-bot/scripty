@@ -1,0 +1,32 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM vote_reminders WHERE next_reminder < NOW() RETURNING user_id, site_id, next_reminder",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "site_id",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 2,
+        "name": "next_reminder",
+        "type_info": "Timestamp"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "35ae6e890e43bd712a5fcbab383cf0f84b295784587d25301f8d23dbce6a3524"
+}

@@ -2,10 +2,10 @@ use std::time::Duration;
 
 use serenity::{
 	all::{Context, GuildId, Message, MessageFlags},
-	builder::{CreateAttachment, EditMessage},
+	builder::{CreateAllowedMentions, CreateAttachment, CreateMessage, EditMessage},
 };
 
-pub async fn handle_message(ctx: Context, msg: Message) {
+pub async fn handle_message(ctx: &Context, msg: Message) {
 	if let Some(flags) = msg.flags
 		&& flags.contains(MessageFlags::IS_VOICE_MESSAGE)
 	{
@@ -16,9 +16,29 @@ pub async fn handle_message(ctx: Context, msg: Message) {
 					debug!(%msg.id, "voice message not enabled for guild");
 					return;
 				}
+				let new_msg = match msg
+					.channel_id
+					.send_message(
+						&ctx,
+						CreateMessage::new()
+							.content("Downloading voice message...")
+							.allowed_mentions(CreateAllowedMentions::new().replied_user(false))
+							.reference_message(&msg),
+					)
+					.await
+				{
+					Ok(msg) => msg,
+					Err(e) => {
+						// likely can't send messages, so just ignore
+						error!(%msg.id, "failed to send reply: {}", e);
+						return;
+					}
+				};
 
 				let res = match attachment.download().await {
-					Ok(waveform) => internal_handle_message(&ctx, msg.clone(), waveform).await,
+					Ok(waveform) => {
+						internal_handle_message(ctx, new_msg, msg.clone(), waveform).await
+					}
 					Err(e) => {
 						error!(%msg.id, "failed to download voice message: {}", e);
 						return;
@@ -44,15 +64,21 @@ pub async fn handle_message(ctx: Context, msg: Message) {
 async fn internal_handle_message(
 	ctx: &Context,
 	msg: Message,
+	mut new_msg: Message,
 	waveform: Vec<u8>,
 ) -> Result<(), crate::Error> {
-	let mut new_msg = msg.reply(&ctx, "Transcribing voice message...").await?;
+	new_msg
+		.edit(
+			&ctx,
+			EditMessage::new().content("Decoding voice message..."),
+		)
+		.await?;
 
 	debug!(%msg.id, "decoding voice message");
-	// start by trying to decode the waveform: it should be 1 channel, 48000Hz,32Kbps Opus in an OGG container
+	// start by trying to decode the waveform: it should be 1 channel, 48000Hz, 32Kbps Opus in an OGG container
 	let output = scripty_stt::decode_ogg_opus_file(waveform)?;
-	// calculate length in seconds (48000 samples per second, 1 channel)
-	let output_length_secs = output.len() as f64 / 48000.0;
+	// calculate length in seconds (fn above resamples to 16KHz, 1 channel)
+	let output_length_secs = output.len() as f64 / 16000.0;
 
 	debug!(%msg.id, "decoded voice message, feeding to speech-to-text");
 	// fetch guild language
@@ -68,12 +94,13 @@ async fn internal_handle_message(
 
 	let stream = scripty_stt::get_stream().await?;
 	stream.feed_audio(output)?;
+	debug!(%msg.id, "fed audio to speech-to-text, waiting up to {} seconds for result", output_length_secs * 2.0);
 	let transcript = stream
 		.get_result(
 			lang,
 			false,
 			translate,
-			Some(Duration::from_secs_f64(output_length_secs)),
+			Some(Duration::from_secs_f64(output_length_secs * 2.0)),
 		)
 		.await?;
 	let transcript = transcript.trim();

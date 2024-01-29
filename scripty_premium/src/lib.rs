@@ -1,4 +1,4 @@
-use std::{fmt::Formatter, num::NonZeroU64};
+use std::{fmt, num::NonZeroU64};
 
 use time::OffsetDateTime;
 
@@ -45,8 +45,8 @@ impl Default for PremiumTierList {
 	}
 }
 
-impl std::fmt::Display for PremiumTierList {
-	fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for PremiumTierList {
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		match self {
 			Self::None => write!(f, "0"),
 			Self::Tier1 => write!(f, "1"),

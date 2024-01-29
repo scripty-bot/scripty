@@ -13,6 +13,7 @@ pub mod premium;
 mod register_cmds;
 mod terms_of_service;
 mod throw_error;
+mod transcribe_message;
 mod vote_reminders;
 
 pub use admin::*;
@@ -27,4 +28,5 @@ pub use ping::ping;
 pub use register_cmds::register_cmds;
 pub use terms_of_service::terms_of_service;
 pub use throw_error::throw_error;
+pub use transcribe_message::transcribe_message;
 pub use vote_reminders::vote_reminder;

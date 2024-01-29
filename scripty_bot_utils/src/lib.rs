@@ -13,11 +13,11 @@ pub mod dm_support;
 pub mod entity_block;
 pub mod error;
 pub mod extern_utils;
-mod generic_audio_message;
+pub mod generic_audio_message;
 pub mod globals;
 pub mod handler;
 pub mod types;
-mod voice_message;
+pub mod voice_message;
 
 pub use error::error_type::Error;
 pub use types::{Context, Data};

@@ -9,6 +9,8 @@ use scripty_audio_handler::JoinError;
 use scripty_stt::{ModelError, OpusSourceError};
 use serenity::{model::channel::ChannelType, prelude::SerenityError};
 
+use crate::generic_audio_message::GenericMessageError;
+
 pub struct Error {
 	bt:             Backtrace,
 	pub(super) err: ErrorEnum,
@@ -37,6 +39,7 @@ pub enum ErrorEnum {
 	VoiceMessageDecode(OpusSourceError),
 	Transcription(ModelError),
 	ExpectedPremiumValue,
+	AudioTranscription(GenericMessageError),
 	Custom(String),
 }
 
@@ -131,6 +134,14 @@ impl Error {
 	}
 
 	#[inline]
+	pub fn audio_transcription(err: GenericMessageError) -> Self {
+		Error {
+			bt:  Backtrace::new(),
+			err: ErrorEnum::AudioTranscription(err),
+		}
+	}
+
+	#[inline]
 	pub fn custom(err: String) -> Self {
 		Error {
 			bt:  Backtrace::new(),
@@ -204,6 +215,7 @@ impl Display for Error {
 				"Expected a response from Premium service, got none. Try again later.".into()
 			}
 			Custom(e) => format!("Custom error: {}", e).into(),
+			AudioTranscription(e) => format!("Failed to transcribe audio message: {}", e).into(),
 		};
 		f.write_str(res.as_ref())
 	}
@@ -224,6 +236,7 @@ impl StdError for Error {
 			VoiceMessageDecode(e) => Some(e),
 			Transcription(e) => Some(e),
 			ExpectedPremiumValue => None,
+			AudioTranscription(e) => Some(e),
 			Custom(_) => None,
 		}
 	}
@@ -317,6 +330,16 @@ impl From<ModelError> for Error {
 	fn from(e: ModelError) -> Self {
 		Self {
 			err: ErrorEnum::Transcription(e),
+			bt:  Backtrace::new(),
+		}
+	}
+}
+
+impl From<GenericMessageError> for Error {
+	#[inline]
+	fn from(e: GenericMessageError) -> Self {
+		Self {
+			err: ErrorEnum::AudioTranscription(e),
 			bt:  Backtrace::new(),
 		}
 	}

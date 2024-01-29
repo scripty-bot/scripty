@@ -125,13 +125,16 @@ impl Stream {
 			}
 			Err(ModelError::RemoteDisconnected)
 		};
+		debug!(%self.session_id, %self.peer_address, "waiting for result from stts, timeout: {:?}", timeout);
 		match tokio::time::timeout(timeout, stream_fut).await {
 			Ok(Ok(res)) => Ok(res),
 			Ok(Err(e)) => Err(e),
 			Err(_) => {
 				warn!(%self.session_id, %self.peer_address, "timed out waiting for result");
 				self.purge_tx.send_async(()).await.ok();
-				Err(ModelError::TimedOutWaitingForResult)
+				Err(ModelError::TimedOutWaitingForResult {
+					session_id: self.session_id,
+				})
 			}
 		}
 	}
@@ -149,7 +152,9 @@ pub enum ModelError {
 	PayloadOutOfOrder,
 	OverloadedRemote,
 	InitializationTimedOut,
-	TimedOutWaitingForResult,
+	TimedOutWaitingForResult {
+		session_id: Uuid,
+	},
 	RemoteDisconnected,
 	InvalidPayload {
 		expected: Vec<u8>,
@@ -219,8 +224,8 @@ impl std::fmt::Display for ModelError {
 			ModelError::RemoteDisconnected => {
 				write!(f, "remote disconnected")
 			}
-			ModelError::TimedOutWaitingForResult => {
-				write!(f, "timed out waiting for result")
+			ModelError::TimedOutWaitingForResult { session_id } => {
+				write!(f, "timed out waiting for result: session ID {}", session_id)
 			}
 		}
 	}
