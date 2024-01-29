@@ -79,9 +79,9 @@ pub async fn voice_tick(
 	for (hook, ssrc) in hooks {
 		debug!(%ssrc, "firing webhook");
 		let webhook1 = webhook.clone();
-		let ctx1 = ctx.clone();
+		let http1 = ctx.http.clone();
 		tokio::spawn(async move {
-			if let Err(e) = webhook1.execute(ctx1, false, hook).await {
+			if let Err(e) = webhook1.execute(http1.as_ref(), false, hook).await {
 				warn!(%ssrc, "failed to send transcription final webhook: {}", e);
 			};
 		});
@@ -93,20 +93,20 @@ pub async fn voice_tick(
 }
 
 struct SilentSpeakersContext {
-	ssrc_state:         Arc<SsrcMaps>,
+	ssrc_state: Arc<SsrcMaps>,
 	last_tick_speakers: DashSet<u32, RandomState>,
-	language:           Arc<RwLock<String>>,
-	verbose:            Arc<AtomicBool>,
-	guild_id:           GuildId,
-	thread_id:          Option<ChannelId>,
+	language: Arc<RwLock<String>>,
+	verbose: Arc<AtomicBool>,
+	guild_id: GuildId,
+	thread_id: Option<ChannelId>,
 	automod_server_cfg: Arc<AutomodServerConfig>,
 	transcript_results: TranscriptResults,
-	ctx:                Context,
-	auto_detect_lang:   Arc<AtomicBool>,
-	translate:          Arc<AtomicBool>,
-	kiai_enabled:       Arc<AtomicBool>,
-	kiai_client:        KiaiApiClient,
-	voice_channel_id:   ChannelId,
+	ctx: Context,
+	auto_detect_lang: Arc<AtomicBool>,
+	translate: Arc<AtomicBool>,
+	kiai_enabled: Arc<AtomicBool>,
+	kiai_client: KiaiApiClient,
+	voice_channel_id: ChannelId,
 }
 async fn handle_silent_speakers<'a>(
 	SilentSpeakersContext {
@@ -120,7 +120,7 @@ async fn handle_silent_speakers<'a>(
 		automod_server_cfg,
 		transcript_results,
 		ctx,
-		auto_detect_lang,
+		auto_detect_lang: _,
 		translate,
 		kiai_enabled,
 		kiai_client,
@@ -196,14 +196,14 @@ async fn handle_silent_speakers<'a>(
 				AutomodRuleAction::DeleteAndLog => {}
 				AutomodRuleAction::DeleteLogAndKick => {
 					// remove the user from the voice channel
-					if let Err(e) = guild_id.disconnect_member(&ctx, user_id).await {
+					if let Err(e) = guild_id.disconnect_member(ctx.http.as_ref(), user_id).await {
 						error!("failed to remove user from VC: {}", e);
 					}
 				}
 				AutomodRuleAction::DeleteLogAndSilence => {
 					// mute the user
 					if let Err(e) = guild_id
-						.edit_member(&ctx, user_id, EditMember::new().mute(true))
+						.edit_member(ctx.http.as_ref(), user_id, EditMember::new().mute(true))
 						.await
 					{
 						error!("failed to mute user: {}", e);
@@ -272,8 +272,8 @@ async fn handle_silent_speakers<'a>(
 
 				let vm = KiaiPostVirtualMessage {
 					channel: scripty_integrations::kiai::ChannelId { channel },
-					member:  scripty_integrations::kiai::Member { id, roles },
-					guild:   scripty_integrations::kiai::GuildId { guild },
+					member: scripty_integrations::kiai::Member { id, roles },
+					guild: scripty_integrations::kiai::GuildId { guild },
 				};
 
 				match kc.post_virtual_message(vm, guild).await {

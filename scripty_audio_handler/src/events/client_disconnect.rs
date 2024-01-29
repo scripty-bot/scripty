@@ -75,7 +75,10 @@ pub async fn client_disconnect(
 	if let Some(thread_id) = thread_id {
 		webhook_builder = webhook_builder.in_thread(thread_id);
 	}
-	if let Err(e) = webhook.execute(&ctx, false, webhook_builder).await {
+	if let Err(e) = webhook
+		.execute(ctx.http.as_ref(), false, webhook_builder)
+		.await
+	{
 		warn!(%ssrc, "failed to send the user leave webhook: {}", e);
 	}
 

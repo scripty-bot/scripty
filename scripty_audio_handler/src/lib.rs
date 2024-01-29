@@ -30,7 +30,7 @@ pub fn get_songbird() -> Config {
 }
 
 pub async fn get_voice_channel_id(ctx: &Context, guild_id: GuildId) -> Option<ChannelId> {
-	let call = songbird::get(ctx)
+	let call = songbird::serenity::get(ctx)
 		.await
 		.expect("failed to get songbird object")
 		.get(guild_id)?;
@@ -41,7 +41,7 @@ pub async fn get_voice_channel_id(ctx: &Context, guild_id: GuildId) -> Option<Ch
 }
 
 pub async fn get_songbird_from_ctx(ctx: &Context) -> Arc<Songbird> {
-	songbird::get(ctx).await.expect("songbird not registered")
+	get(ctx).await.expect("songbird not registered")
 }
 
 static AUTO_LEAVE_TASKS: OnceCell<DashMap<GuildId, Sender<()>, ahash::RandomState>> =

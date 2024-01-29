@@ -24,7 +24,7 @@ pub async fn connect_to_vc(
 	debug!(%guild_id, "fetching webhook");
 	// thanks to Discord undocumented breaking changes, we have to do this
 	// <3 shitcord
-	let hooks = channel_id.webhooks(&ctx).await?;
+	let hooks = channel_id.webhooks(ctx.http.as_ref()).await?;
 	let webhook = if hooks.is_empty() {
 		channel_id
 			.create_webhook(&ctx, CreateWebhook::new("Scripty Transcriptions"))
@@ -143,7 +143,9 @@ pub async fn connect_to_vc(
 		}
 
 		// send a message to the channel
-		let m = webhook.execute(ctx2, false, webhook_executor).await;
+		let m = webhook
+			.execute(ctx2.http.as_ref(), false, webhook_executor)
+			.await;
 		if let Err(e) = m {
 			error!(%guild_id, "failed to send message: {}", e);
 		}

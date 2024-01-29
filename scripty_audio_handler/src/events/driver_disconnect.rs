@@ -97,7 +97,7 @@ pub async fn driver_disconnect(
 			{
 				if let Err(e) = webhook2
 					.execute(
-						ctx3,
+						ctx3.http.as_ref(),
 						false,
 						ExecuteWebhook::default()
 							.content(format!("Failed to reconnect due to: {}", e)),
@@ -117,7 +117,7 @@ pub async fn driver_disconnect(
 		debug!(?guild_id, "giving user reason for disconnection");
 		if let Err(e) = webhook
 			.execute(
-				&ctx,
+				ctx.http.as_ref(),
 				false,
 				ExecuteWebhook::default().content(format!(
 					"I had an issue ({}) and disconnected from the voice chat. {}",
@@ -163,7 +163,7 @@ pub async fn driver_disconnect(
 		// send the transcript to the channel
 		if let Err(e) = webhook
 			.execute(
-				&ctx,
+				ctx.http.as_ref(),
 				false,
 				ExecuteWebhook::new()
 					.content(
