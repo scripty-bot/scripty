@@ -13,10 +13,10 @@ Scripty *will not* run on Windows whatsoever. Don't even try.\nNote: one of our 
 	 dependencies also has a chance to segfault on Windows."
 );
 
-#[cfg(not(target_os = "linux"))]
+#[cfg(all(not(target_os = "linux"), not(ignore_os)))]
 compile_error!(
 	"Scripty is only designed for Linux.It may not run at all on other platforms.If you'd like to \
-	 try anyway, comment this section of code."
+	 try anyway, enable the `--cfg ignore_os` flag in RUSTFLAGS."
 );
 
 pub use cfg::*;
