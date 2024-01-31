@@ -167,7 +167,8 @@ config_translate = translate
     .translate-description = Defaults to false
 
 config-translate-enabled = Scripty will now translate transcriptions to English.
-config-translate-disabled = Scripty will now attempt to match the phrases being spoken to English words, but will not translate. 
+config-translate-disabled = Scripty will now attempt to match the phrases being spoken to English words, but will not translate.
+config-translate-not-english = You must set your language to English to enable translation. Do so with `{ $contextPrefix }config language en`.
 
 ## Help menu translation strings
 

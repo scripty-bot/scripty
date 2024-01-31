@@ -58,7 +58,7 @@ impl BackgroundTask for StatusUpdater {
 
 			// format the latency as a decimal to three decimal places
 			let shard_status = format!(
-				"{} guilds | {:.3}ms latency | shard ID {}",
+				"{} guilds | {}ms latency | shard ID {}",
 				guild_count_fmt.as_str(),
 				shard_latency_fmt.as_str(),
 				shard_id.0

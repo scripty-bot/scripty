@@ -20,16 +20,9 @@ impl BackgroundTask for LatencyUpdater {
 
 	async fn run(&mut self) {
 		self.0.latency.websocket.set(
-			scripty_utils::latency::get_ws_latency(
-				&CLIENT_DATA
-					.get()
-					.expect("client data not set yet")
-					.shard_manager
-					.clone(),
-				self.1.shard_id.0,
-			)
-			.await
-			.unwrap_or(0) as i64,
+			scripty_utils::latency::get_ws_latency(&self.1.data(), self.1.shard_id.0)
+				.await
+				.unwrap_or(0) as i64,
 		);
 
 		let http_latency = tokio::time::timeout(

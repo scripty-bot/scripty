@@ -172,7 +172,7 @@ pub async fn join(
 	}
 
 	// resolve our permissions in the channel
-	let permissions = voice_channel.permissions_for_user(ctx, ctx.framework().bot_id)?;
+	let permissions = voice_channel.permissions_for_user(ctx.cache(), ctx.framework().bot_id())?;
 	// do we have permission to view and connect to the channel?
 	if !permissions.connect() || !permissions.view_channel() {
 		ctx.say(
@@ -185,7 +185,7 @@ pub async fn join(
 	// check if there are any users in the channel
 	// prevents Join(Dropped) errors being thrown, as this would be confusing to the user
 	if voice_channel
-		.guild(&ctx)
+		.guild(ctx.cache())
 		.ok_or(Error::custom(
 			"the current server was not found in the cache (Discord didn't send data)".to_string(),
 		))?
@@ -213,7 +213,7 @@ pub async fn join(
 			Some(
 				target_channel
 					.create_thread(
-						&ctx,
+						ctx.http(),
 						CreateThread::new(
 							format_message!(resolved_language, "join-thread-title", timestamp: timestamp),
 						)
@@ -229,7 +229,7 @@ pub async fn join(
 		let timestamp = format_rfc3339_seconds(SystemTime::now()).to_string();
 		(
 			Some(target_channel.create_forum_post(
-				&ctx,
+				ctx.http(),
 				CreateForumPost::new(
 					format_message!(resolved_language, "join-thread-title", timestamp: &*timestamp),
 					CreateMessage::new().content(

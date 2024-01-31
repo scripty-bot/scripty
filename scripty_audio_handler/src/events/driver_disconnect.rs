@@ -85,7 +85,7 @@ pub async fn driver_disconnect(
 
 			if let Err(ErrorKind::Join(e)) = connect_to_vc(
 				ctx2,
-				serenity::all::GuildId::new(guild_id.0.get()),
+				serenity::all::GuildId::new(guild_id.get()),
 				channel_id,
 				voice_channel_id,
 				thread_id,
@@ -97,7 +97,7 @@ pub async fn driver_disconnect(
 			{
 				if let Err(e) = webhook2
 					.execute(
-						ctx3.http.as_ref(),
+						&ctx3.http,
 						false,
 						ExecuteWebhook::default()
 							.content(format!("Failed to reconnect due to: {}", e)),
@@ -117,7 +117,7 @@ pub async fn driver_disconnect(
 		debug!(?guild_id, "giving user reason for disconnection");
 		if let Err(e) = webhook
 			.execute(
-				ctx.http.as_ref(),
+				&ctx.http,
 				false,
 				ExecuteWebhook::default().content(format!(
 					"I had an issue ({}) and disconnected from the voice chat. {}",
@@ -163,7 +163,7 @@ pub async fn driver_disconnect(
 		// send the transcript to the channel
 		if let Err(e) = webhook
 			.execute(
-				ctx.http.as_ref(),
+				&ctx.http,
 				false,
 				ExecuteWebhook::new()
 					.content(

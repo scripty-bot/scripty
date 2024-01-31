@@ -8,9 +8,11 @@ license = "EUPL-1.2"
 
 [dependencies]
 url = "2"
+libc = "0.2"
 rlimit = "0.10"
 num_cpus = "1"
 humantime = "2"
+tikv-jemalloc-ctl = "0.5"
 scripty_db = { path = "../scripty_db" }
 scripty_bot = { path = "../scripty_bot" }
 scripty_stt = { path = "../scripty_stt" }

@@ -70,7 +70,7 @@ pub async fn connect_to_vc(
 		.unwrap_or_default();
 
 	debug!(%guild_id, "fetching songbird");
-	let sb = songbird::get(&ctx).await.expect("songbird not initialized");
+	let sb = crate::get_songbird();
 	debug!(%guild_id, "leaving old call");
 	match sb.remove(guild_id).await {
 		Ok(()) | Err(JoinError::NoCall) => {}
@@ -117,7 +117,6 @@ pub async fn connect_to_vc(
 		let _ = existing.send(()); // ignore errors as the task may have already been cancelled
 	}
 
-	let sb2 = songbird::get(&ctx).await.expect("songbird not initialized");
 	let ctx2 = ctx.clone();
 	let mut webhook_executor = ExecuteWebhook::new().content("I left the voice channel to prevent abuse of our systems. \
 	Just run `/join` again to have me join. \
@@ -137,15 +136,13 @@ pub async fn connect_to_vc(
 		}
 		debug!(%guild_id, "leaving call after {} seconds", leave_delta);
 
-		if let Err(e) = sb2.remove(guild_id).await {
+		if let Err(e) = crate::get_songbird().remove(guild_id).await {
 			error!(%guild_id, "failed to leave call: {}", e);
 			return;
 		}
 
 		// send a message to the channel
-		let m = webhook
-			.execute(ctx2.http.as_ref(), false, webhook_executor)
-			.await;
+		let m = webhook.execute(&ctx2.http, false, webhook_executor).await;
 		if let Err(e) = m {
 			error!(%guild_id, "failed to send message: {}", e);
 		}

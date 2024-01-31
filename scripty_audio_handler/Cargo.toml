@@ -24,12 +24,12 @@ scripty_premium = { path = "../scripty_premium" }
 scripty_integrations = { path = "../scripty_integrations" }
 tokio = { version = "1", features = ["parking_lot"] }
 scripty_data_storage = { path = "../scripty_data_storage" }
-songbird = { git = "https://github.com/tazz4843/songbird", branch = "serenity-next", features = [
+songbird = { git = "https://github.com/serenity-rs/songbird", branch = "serenity-next", features = [
 	"receive",
 	"rustls",
 	"serenity"
 ] }
-serenity = { git = "https://github.com/serenity-rs/serenity", rev = "c9b6766941c8acc8c06c9451e3f4ca46db5d84d4", features = [
+serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [
 	"voice",
 	"dashmap",
 	"parking_lot",

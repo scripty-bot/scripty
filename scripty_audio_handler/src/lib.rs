@@ -17,31 +17,27 @@ use dashmap::DashMap;
 pub use disconnect::disconnect_from_vc;
 pub use error::{Error, ErrorKind};
 pub use scripty_stt::{check_model_language, get_model_languages};
-use serenity::{
-	all::{ChannelId, GuildId},
-	client::Context,
-};
+use serenity::all::{ChannelId, GuildId};
+pub use songbird::error::JoinError;
 use songbird::{driver::DecodeMode, Config, Songbird};
-pub use songbird::{error::JoinError, serenity::SerenityInit};
 use tokio::sync::oneshot::Sender;
 
-pub fn get_songbird() -> Config {
+pub fn get_songbird_config() -> Config {
 	Config::default().decode_mode(DecodeMode::Decode)
 }
 
-pub async fn get_voice_channel_id(ctx: &Context, guild_id: GuildId) -> Option<ChannelId> {
-	let call = songbird::serenity::get(ctx)
-		.await
-		.expect("failed to get songbird object")
-		.get(guild_id)?;
+static SONGBIRD: OnceCell<Arc<Songbird>> = OnceCell::new();
+
+pub async fn get_voice_channel_id(guild_id: GuildId) -> Option<ChannelId> {
+	let call = get_songbird().get(guild_id)?;
 
 	// this allows the compiler to be happy with the lifetime of the call i guess?
 	let current_channel = call.lock().await.current_channel();
-	current_channel.map(|c| ChannelId::new(c.0.get()))
+	current_channel.map(|c| ChannelId::new(c.get()))
 }
 
-pub async fn get_songbird_from_ctx(ctx: &Context) -> Arc<Songbird> {
-	get(ctx).await.expect("songbird not registered")
+pub fn get_songbird() -> Arc<Songbird> {
+	SONGBIRD.get().expect("songbird not registered").clone()
 }
 
 static AUTO_LEAVE_TASKS: OnceCell<DashMap<GuildId, Sender<()>, ahash::RandomState>> =

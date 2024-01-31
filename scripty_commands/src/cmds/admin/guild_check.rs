@@ -50,7 +50,7 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
 	let shard_count = shard_manager.runners.lock().await.len() as u16;
 
 	for guild in ctx.serenity_context().cache.guilds() {
-		let g = match guild.to_guild_cached(&ctx) {
+		let g = match guild.to_guild_cached(&ctx.cache()) {
 			Some(g) => g,
 			None => {
 				error_count += 1;
