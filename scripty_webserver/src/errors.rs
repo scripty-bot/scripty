@@ -134,17 +134,13 @@ impl IntoResponse for WebServerError {
 			Ok(bytes) => bytes,
 			Err(e) => {
 				warn!("Error serializing error response: {}", e);
-				return Response::builder()
-					.status(StatusCode::INTERNAL_SERVER_ERROR)
-					.header(CONTENT_TYPE, HeaderValue::from_static("text/plain"))
-					.body(body::boxed(body::Full::from(e.to_string())))
-					.expect("failed to convert static data to a valid request");
+				return (
+					StatusCode::INTERNAL_SERVER_ERROR,
+					[(CONTENT_TYPE, HeaderValue::from_static("text/plain"))],
+					e.to_string(),
+				).into_response();
 			}
 		};
-
-		Response::builder()
-			.status(code)
-			.body(body::boxed(body::Full::from(bytes)))
-			.expect("json serialization returned invalid data")
+		(code, bytes).into_response()
 	}
 }
