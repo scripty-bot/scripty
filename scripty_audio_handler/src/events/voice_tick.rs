@@ -81,7 +81,7 @@ pub async fn voice_tick(
 		let webhook1 = webhook.clone();
 		let ctx1 = ctx.clone();
 		tokio::spawn(async move {
-			if let Err(e) = webhook1.execute(ctx1, false, hook).await {
+			if let Err(e) = webhook1.execute(&ctx1.http, false, hook).await {
 				warn!(%ssrc, "failed to send transcription final webhook: {}", e);
 			};
 		});
@@ -196,14 +196,14 @@ async fn handle_silent_speakers<'a>(
 				AutomodRuleAction::DeleteAndLog => {}
 				AutomodRuleAction::DeleteLogAndKick => {
 					// remove the user from the voice channel
-					if let Err(e) = guild_id.disconnect_member(&ctx, user_id).await {
+					if let Err(e) = guild_id.disconnect_member(&ctx.http, user_id).await {
 						error!("failed to remove user from VC: {}", e);
 					}
 				}
 				AutomodRuleAction::DeleteLogAndSilence => {
 					// mute the user
 					if let Err(e) = guild_id
-						.edit_member(&ctx, user_id, EditMember::new().mute(true))
+						.edit_member(&ctx.http, user_id, EditMember::new().mute(true))
 						.await
 					{
 						error!("failed to mute user: {}", e);

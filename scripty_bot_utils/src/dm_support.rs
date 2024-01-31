@@ -76,7 +76,7 @@ impl DmSupportStatus {
 			for attachment in message.attachments.iter() {
 				attachments.push(
 					CreateAttachment::url(
-						&ctx,
+						&ctx.http,
 						attachment.url.as_str(),
 						attachment.filename.to_string(),
 					)
@@ -89,7 +89,7 @@ impl DmSupportStatus {
 
 		let resp = hook
 			.execute(
-				&ctx,
+				&ctx.http,
 				true,
 				webhook_execute
 					.content(message.content.clone())
@@ -227,7 +227,7 @@ impl DmSupportStatus {
 				ctx,
 				CreateWebhook::new(user.tag()).avatar(
 					&CreateAttachment::url(
-						ctx,
+						&ctx.http,
 						user.face().as_str(),
 						Cow::<'static, str>::Borrowed("avatar.png"),
 					)
@@ -276,7 +276,7 @@ impl DmSupportStatus {
 		}
 
 		if let Some(hook) = channel
-			.webhooks(&ctx)
+			.webhooks(&ctx.http)
 			.await
 			.expect("error fetching hooks")
 			.pop()

@@ -9,7 +9,6 @@ use serenity::{
 		QuickModalResponse,
 	},
 	builder::{
-		Builder,
 		CreateActionRow,
 		CreateButton,
 		CreateEmbed,
@@ -51,11 +50,11 @@ pub async fn do_paginate(
 		CreateMessage::new()
 			.embed(embed)
 			.components(build_components())
-			.execute(ctx, (target_channel, None))
+			.execute(ctx, target_channel, None)
 			.await?
 			.id
 	};
-	let mut collector = ComponentInteractionCollector::new(&ctx.shard)
+	let mut collector = ComponentInteractionCollector::new(ctx.shard.clone())
 		.message_id(msg_id)
 		.timeout(Duration::from_secs(120));
 	if let Some(user) = allowed_user {
@@ -100,7 +99,7 @@ pub async fn do_paginate(
 				}) = response
 				{
 					interaction
-						.create_response(ctx, CreateInteractionResponse::Acknowledge)
+						.create_response(&ctx.http, CreateInteractionResponse::Acknowledge)
 						.await?;
 
 					if let Some(Ok(page)) = inputs.first().map(|x| usize::from_str(x)) {
@@ -113,7 +112,7 @@ pub async fn do_paginate(
 			}
 			_ => {
 				c.create_response(
-					&ctx,
+					&ctx.http,
 					CreateInteractionResponse::Message(
 						CreateInteractionResponseMessage::default()
 							.content("internal error")
@@ -127,7 +126,7 @@ pub async fn do_paginate(
 
 		if !did_respond {
 			c.create_response(
-				&ctx,
+				&ctx.http,
 				CreateInteractionResponse::UpdateMessage(
 					CreateInteractionResponseMessage::default()
 						.components(build_components())

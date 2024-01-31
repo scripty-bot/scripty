@@ -17,7 +17,6 @@ pub async fn on_error(error: FrameworkError<'_, Data, Error>) {
 	info!("handling error event");
 	#[allow(unreachable_patterns)]
 	match error {
-		FrameworkError::Setup { error, .. } => panic!("error during bot init: {}", error),
 		FrameworkError::Command { error, ctx, .. } => {
 			if !error.should_handle() {
 				return;
@@ -124,8 +123,8 @@ pub async fn on_error(error: FrameworkError<'_, Data, Error>) {
 					.description(format!(
 						"{}\n\n**Note**: this is a Discord error\nThe only fix for this is to \
 						 wait for Discord to propagate slash commands, which can take up to one \
-						 hour.\nIf you do not want to wait this hour, you should use the prefix \
-						 commands: run this command with `~{} {}`.",
+						 hour.\nIf you do not want to wait for this hour, you should use the \
+						 prefix commands: run this command with `~{} {}`.",
 						description, ctx.command.qualified_name, args
 					)),
 			);

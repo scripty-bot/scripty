@@ -39,12 +39,10 @@ members = [
 ]
 
 [dependencies]
+tikv-jemallocator = "0.5"
 scripty_core = { path = "scripty_core" }
-tracing = { version = "0.1", features = ["release_max_level_info"] }
 
 [patch.crates-io]
-serenity = { git = "https://github.com/serenity-rs/serenity", rev = "c9b6766941c8acc8c06c9451e3f4ca46db5d84d4" }
-songbird = { git = "https://github.com/tazz4843/songbird", branch = "serenity-next" }
+serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next" }
+songbird = { git = "https://github.com/serenity-rs/songbird", branch = "serenity-next" }
 
-[patch."https://github.com/serenity-rs/serenity"]
-serenity = { git = "https://github.com/tazz4843/serenity", rev = "c9b6766941c8acc8c06c9451e3f4ca46db5d84d4" }

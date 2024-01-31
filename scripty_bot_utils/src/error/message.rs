@@ -95,14 +95,14 @@ pub async fn log_error_message(
 	m = m.embed(e);
 
 	let cfg = scripty_config::get_config();
-	let hook = match Webhook::from_url(&ctx, &cfg.error_webhook).await {
+	let hook = match Webhook::from_url(&ctx.http(), &cfg.error_webhook).await {
 		Ok(hook) => hook,
 		Err(e) => {
 			error!("failed to fetch error webhook: {}", e);
 			return;
 		}
 	};
-	if let Err(e) = hook.execute(&ctx, false, m).await {
+	if let Err(e) = hook.execute(&ctx.http(), false, m).await {
 		error!("failed to log error to discord: {}", e);
 	}
 

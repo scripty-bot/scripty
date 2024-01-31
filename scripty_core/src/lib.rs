@@ -9,6 +9,7 @@ use fern::{
 	Dispatch,
 };
 use rlimit::Resource;
+use tikv_jemalloc_ctl::{epoch, stats};
 use url::Url;
 
 pub fn start() {
@@ -171,4 +172,42 @@ fn load_config() {
 fn increase_open_file_limit() {
 	rlimit::setrlimit(Resource::NOFILE, 8192, 8192)
 		.expect("failed to increase open file limit: will likely cause issues with STT service");
+}
+
+fn spawn_malloc_trim() {
+	std::thread::spawn(|| {
+		let epoch = epoch::mib().expect("failed to get epoch mib");
+		let active = stats::active::mib().expect("failed to get active mib");
+		let allocated = stats::allocated::mib().expect("failed to get allocated mib");
+		let mapped = stats::mapped::mib().expect("failed to get mapped mib");
+		let metadata = stats::metadata::mib().expect("failed to get metadata mib");
+		let resident = stats::resident::mib().expect("failed to get resident mib");
+		let retained = stats::retained::mib().expect("failed to get retained mib");
+
+		let log_mem_info = || {
+			epoch.advance().expect("failed to advance epoch");
+			debug!(
+				"running malloc_trim, {} bytes allocated",
+				allocated.read().unwrap()
+			);
+			trace!(
+				"detailed mem info: active: {} bytes, allocated: {} bytes, mapped: {} bytes, \
+				 metadata: {} bytes, resident: {} bytes, retained: {} bytes",
+				active.read().unwrap(),
+				allocated.read().unwrap(),
+				mapped.read().unwrap(),
+				metadata.read().unwrap(),
+				resident.read().unwrap(),
+				retained.read().unwrap()
+			);
+		};
+
+		loop {
+			std::thread::sleep(std::time::Duration::from_secs(300));
+
+			log_mem_info();
+			unsafe { libc::malloc_trim(0) };
+			log_mem_info();
+		}
+	});
 }

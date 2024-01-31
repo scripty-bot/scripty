@@ -231,7 +231,5 @@ impl CacheHttp for CacheHttpWrapper {
 }
 
 pub fn set_cache_http(http: Arc<Http>, cache: Arc<Cache>) {
-	HTTP_CLIENT
-		.set(CacheHttpWrapper { cache, http })
-		.unwrap_or_else(|_| panic!("set_cache_http should be called only once"))
+	HTTP_CLIENT.set(CacheHttpWrapper { cache, http });
 }

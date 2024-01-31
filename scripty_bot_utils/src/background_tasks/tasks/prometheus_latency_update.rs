@@ -21,11 +21,7 @@ impl BackgroundTask for LatencyUpdater {
 	async fn run(&mut self) {
 		self.0.latency.websocket.set(
 			scripty_utils::latency::get_ws_latency(
-				&CLIENT_DATA
-					.get()
-					.expect("client data not set yet")
-					.shard_manager
-					.clone(),
+				&self.1.shard.,
 				self.1.shard_id.0,
 			)
 			.await

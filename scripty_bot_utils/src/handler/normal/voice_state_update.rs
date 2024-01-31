@@ -6,18 +6,18 @@ use serenity::{
 	client::Context,
 };
 
-pub async fn voice_state_update(ctx: Context, _: Option<VoiceState>, new: VoiceState) {
+pub async fn voice_state_update(ctx: &Context, _old: &Option<VoiceState>, new: &VoiceState) {
 	let Some(guild_id) = new.guild_id else {
 		warn!("no guild id in voice_state_update");
 		return;
 	};
 
-	if let Some(cid) = get_voice_channel_id(&ctx, guild_id).await {
+	if let Some(cid) = get_voice_channel_id(guild_id).await {
 		let own_user_id = ctx.cache.current_user().id;
 
 		// GuildRef forces a block here to prevent hold over await
 		{
-			let guild = match guild_id.to_guild_cached(&ctx) {
+			let guild = match guild_id.to_guild_cached(&ctx.cache) {
 				Some(g) => g,
 				None => {
 					warn!("guild id {} not found in cache", guild_id);
@@ -121,7 +121,7 @@ pub async fn voice_state_update(ctx: Context, _: Option<VoiceState>, new: VoiceS
 		// now we need to check the voice channel the user is joining
 		// discord doesn't give us the channel id, so we need to get it from the guild's voice states
 		let vs = {
-			let guild = match guild_id.to_guild_cached(&ctx) {
+			let guild = match guild_id.to_guild_cached(&ctx.cache) {
 				Some(g) => g,
 				None => {
 					warn!("guild id {} not found in cache", guild_id);

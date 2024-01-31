@@ -16,13 +16,13 @@ pub async fn config_translate(
 		.guild_id()
 		.map(|g| g.get())
 		.ok_or_else(Error::expected_guild)?;
-	let resolved_language =
-		scripty_i18n::get_resolved_language(ctx.author().id.get(), Some(guild_id)).await;
+	let resolved_language = scripty_i18n::get_resolved_language(0, Some(guild_id)).await;
 
-	if resolved_language.language != "en" {
+	if resolved_language.language != "en" && translate {
 		ctx.say(format_message!(
 			resolved_language,
-			"config-translate-not-english"
+			"config-translate-not-english",
+			contextPrefix: ctx.prefix(),
 		))
 		.await?;
 		return Ok(());

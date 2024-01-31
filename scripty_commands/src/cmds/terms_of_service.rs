@@ -66,22 +66,23 @@ pub async fn terms_of_service(ctx: Context<'_>) -> Result<(), Error> {
 			)
 			.await?;
 
-		let maybe_interaction = ComponentInteractionCollector::new(&ctx.serenity_context().shard)
-			.timeout(std::time::Duration::from_secs(60))
-			.author_id(ctx.author().id)
-			.message_id(m.message().await?.id)
-			.custom_ids(FixedArray::from_vec_trunc(vec![
-				FixedString::from_str_trunc("tos_agree"),
-				FixedString::from_str_trunc("tos_disagree"),
-			]))
-			.await;
+		let maybe_interaction =
+			ComponentInteractionCollector::new(ctx.serenity_context().shard.clone())
+				.timeout(std::time::Duration::from_secs(60))
+				.author_id(ctx.author().id)
+				.message_id(m.message().await?.id)
+				.custom_ids(FixedArray::from_vec_trunc(vec![
+					FixedString::from_str_trunc("tos_agree"),
+					FixedString::from_str_trunc("tos_disagree"),
+				]))
+				.await;
 
 		if let Some(interaction) = maybe_interaction {
 			let did_agree = interaction.data.custom_id == "tos_agree";
 
 			interaction
 				.create_response(
-					&ctx,
+					ctx.http(),
 					CreateInteractionResponse::UpdateMessage(
 						CreateInteractionResponseMessage::new()
 							.content(if did_agree {

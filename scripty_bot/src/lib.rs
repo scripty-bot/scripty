@@ -7,7 +7,6 @@ mod framework_opts;
 extern crate tracing;
 
 use poise::FrameworkBuilder;
-use scripty_audio_handler::SerenityInit;
 use scripty_bot_utils::{
 	extern_utils::set_cache_http,
 	globals::{CLIENT_CACHE, CLIENT_DATA},
@@ -59,10 +58,13 @@ pub async fn entrypoint() {
 
 	let mut client =
 		serenity::Client::builder(&cfg.tokens.discord, framework_opts::get_gateway_intents())
+			.data(Data {
+				shard_manager: 
+			})
 			.framework(framework)
 			.event_handler(handler::BotEventHandler)
 			.raw_event_handler(handler::RawEventHandler)
-			.register_songbird_from_config(scripty_audio_handler::get_songbird())
+			.register_songbird_from_config(scripty_audio_handler::get_songbird_config())
 			.status(OnlineStatus::Idle)
 			.activity(ActivityData::custom("Starting up..."))
 			.await

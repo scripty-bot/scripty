@@ -1,13 +1,14 @@
 use serenity::{client::Context, model::prelude::Ready};
 
-pub async fn ready(ctx: Context, ready: Ready) {
-	let Ready {
+pub async fn ready(
+	ctx: &Context,
+	Ready {
 		version,
 		user,
 		guilds,
 		..
-	} = ready;
-
+	}: &Ready,
+) {
 	info!(
 		"bot ready: logged in as {}, in {} guilds, using API version {}",
 		user.tag(),
