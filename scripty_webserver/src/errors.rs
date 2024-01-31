@@ -138,7 +138,8 @@ impl IntoResponse for WebServerError {
 					StatusCode::INTERNAL_SERVER_ERROR,
 					[(CONTENT_TYPE, HeaderValue::from_static("text/plain"))],
 					e.to_string(),
-				).into_response();
+				)
+					.into_response();
 			}
 		};
 		(code, bytes).into_response()
