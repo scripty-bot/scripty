@@ -1,6 +1,7 @@
 **/target
 /.env
 /.idea
+/.vscode
 /config.toml
 /config.local.toml
 /config.dev.toml

@@ -6,6 +6,8 @@ mod framework_opts;
 #[macro_use]
 extern crate tracing;
 
+use std::sync::Arc;
+
 use poise::FrameworkBuilder;
 use scripty_bot_utils::{
 	extern_utils::set_cache_http,
@@ -25,44 +27,33 @@ pub async fn entrypoint() {
 		.await
 		.expect("failed to init blocked entities");
 
+
 	// initialize the framework
 	let framework = FrameworkBuilder::default()
-		.setup(move |ctx, _, c| {
-			Box::pin(async move {
-				set_cache_http(ctx.http.clone(), ctx.cache.clone());
-
-				CLIENT_DATA
-					.set(Data {
-						shard_manager: c.shard_manager().clone(),
-					})
-					.expect("user data setup called more than once: bug?");
-				CLIENT_CACHE
-					.set(ctx.cache.clone())
-					.expect("user data setup called more than once: bug?");
-
-				let sm = c.shard_manager().clone();
-				tokio::spawn(async move {
-					tokio::signal::ctrl_c()
-						.await
-						.expect("failed to listen for ctrl+c");
-					sm.shutdown_all().await;
-				});
-
-				Ok(Data {
-					shard_manager: c.shard_manager().clone(),
-				})
-			})
-		})
 		.options(framework_opts::get_framework_opts())
 		.build();
+	CLIENT_DATA
+	.set(Data {
+		shard_manager: framework.shard_manager().clone(),
+	})
+	.expect("user data setup called more than once: bug?");
+let sm = framework.shard_manager().clone();
+tokio::spawn(async move {
+	tokio::signal::ctrl_c()
+		.await
+		.expect("failed to listen for ctrl+c");
+	sm.shutdown_all().await;
+});
+
 
 	let mut client =
 		serenity::Client::builder(&cfg.tokens.discord, framework_opts::get_gateway_intents())
-			.data(Data { shard_manager })
+			.data(Arc::new(Data {
+				shard_manager: framework.shard_manager().clone(),
+			}))
 			.framework(framework)
 			.event_handler(handler::BotEventHandler)
 			.raw_event_handler(handler::RawEventHandler)
-			.register_songbird_from_config(scripty_audio_handler::get_songbird_config())
 			.status(OnlineStatus::Idle)
 			.activity(ActivityData::custom("Starting up..."))
 			.await
