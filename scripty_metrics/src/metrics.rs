@@ -146,6 +146,14 @@ make_static_metric! {
 	pub struct LatencyVec: IntGauge {
 		"latency_type" => LatencyType,
 	}
+
+	pub label_enum CommandUsage {
+		slash,
+		prefix,
+	}
+	pub struct CommandUsageVec: IntCounter {
+		"command_usage_type" => CommandUsage,
+	}
 }
 
 pub static METRICS: OnceCell<Arc<Metrics>> = OnceCell::new();
@@ -173,6 +181,7 @@ pub struct Metrics {
 	pub runtime_metrics:          RuntimeMetricsVec,
 	pub latency:                  LatencyVec,
 	pub stt_time:                 Histogram,
+	pub command_usage:            CommandUsageVec,
 }
 
 impl Metrics {
@@ -298,6 +307,14 @@ impl Metrics {
 		.expect("failed to init stt_time histogram");
 		registry.register(Box::new(stt_time.clone())).unwrap();
 
+		let command_usage_stats = IntCounterVec::new(
+			Opts::new("command_usage", "Breakdown of each command used"),
+			&["command_usage_type"],
+		)
+		.unwrap();
+		let command_usage = CommandUsageVec::from(&command_usage_stats);
+		registry.register(Box::new(command_usage_stats)).unwrap();
+
 		let up = IntCounter::new("up", "Always 1").unwrap();
 		up.inc();
 		registry.register(Box::new(up)).unwrap();
@@ -321,6 +338,7 @@ impl Metrics {
 			stt_server_fetch_success,
 			stt_server_fetch_failure,
 			stt_time,
+			command_usage,
 		})
 	}
 }
