@@ -11,13 +11,18 @@ pub async fn ping(ctx: Context<'_>) -> Result<(), Error> {
 		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|g| g.get()))
 			.await;
 
+	let ctx_data = ctx.data();
+	let shard_manager = ctx_data
+		.shard_manager
+		.get()
+		.ok_or(Error::custom("shard manager not initialized".to_string()))?;
+
 	// all latency methods return a latency in nanoseconds
 
 	// get WebSocket latency in nanoseconds and milliseconds, defaulting to 0 if it fails
-	let ws_latency_ns =
-		get_ws_latency(&ctx.data().shard_manager, ctx.serenity_context().shard_id.0)
-			.await
-			.unwrap_or(0);
+	let ws_latency_ns = get_ws_latency(&shard_manager, ctx.serenity_context().shard_id.0)
+		.await
+		.unwrap_or(0);
 	let ws_latency_ms = (ws_latency_ns as f64 / 1_000_000.0).round();
 	// get HTTP latency in nanoseconds and milliseconds
 	let http_latency_ns = get_http_latency(ctx.serenity_context(), ctx.channel_id()).await;

@@ -1,7 +1,6 @@
 use std::{collections::HashMap, fmt::Write, ops::Range};
 
 use poise::CreateReply;
-use scripty_bot_utils::globals::CLIENT_DATA;
 use serenity::{all::ShardId, gateway::ChunkGuildFilter};
 
 use crate::{Context, Error};
@@ -42,11 +41,11 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
 	// fields of the tuple are, respectively, the guild name, the guild id, and the ratio (bot count / user count)
 	let mut guild_warnings: Vec<(String, u64, f64)> = Vec::new();
 
-	let shard_manager = CLIENT_DATA
-		.get()
-		.expect("client data not initialized")
+	let ctx_data = ctx.data();
+	let shard_manager = ctx_data
 		.shard_manager
-		.clone();
+		.get()
+		.ok_or(Error::custom("shard manager not initialized".to_string()))?;
 	let shard_count = shard_manager.runners.lock().await.len() as u16;
 
 	for guild in ctx.serenity_context().cache.guilds() {
@@ -64,17 +63,12 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
 		if (member_count as usize) < g.members.len() {
 			debug!(?g.id, "chunking guild");
 			let guild_id = g.id;
+			let shard_manager2 = shard_manager.clone();
 			tokio::spawn(async move {
 				// calculate the shard this guild is on
 				let shard_id = serenity::utils::shard_id(guild_id, shard_count);
 
-				let shard_manager = CLIENT_DATA
-					.get()
-					.expect("client data not initialized")
-					.shard_manager
-					.clone();
-
-				let runner_guard = shard_manager.runners.lock().await;
+				let runner_guard = shard_manager2.runners.lock().await;
 				runner_guard
 					.get(&ShardId(shard_id))
 					.expect("shard should exist")

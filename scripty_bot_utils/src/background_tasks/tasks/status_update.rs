@@ -7,27 +7,18 @@ use serenity::{
 	small_fixed_array::FixedString,
 };
 
-use crate::{background_tasks::core::BackgroundTask, globals::CLIENT_DATA, Error};
+use crate::{background_tasks::core::BackgroundTask, globals::CLIENT_DATA, Data, Error};
 
 /// Updates the bot status every minute.
 pub struct StatusUpdater {
-	ctx:           SerenityContext,
-	shard_manager: Arc<ShardManager>,
-	run_number:    u32,
+	ctx:        SerenityContext,
+	run_number: u32,
 }
 
 #[async_trait]
 impl BackgroundTask for StatusUpdater {
 	async fn init(ctx: SerenityContext) -> Result<Self, Error> {
-		Ok(Self {
-			ctx,
-			shard_manager: CLIENT_DATA
-				.get()
-				.expect("client data not initialized")
-				.shard_manager
-				.clone(),
-			run_number: 0,
-		})
+		Ok(Self { ctx, run_number: 0 })
 	}
 
 	fn interval(&mut self) -> Duration {
@@ -42,11 +33,16 @@ impl BackgroundTask for StatusUpdater {
 			return;
 		}
 
+		let ctx_data = self.ctx.data::<Data>();
+		let Some(shard_manager) = ctx_data.shard_manager.get().clone() else {
+			return;
+		};
+
 		let guild_count = self.ctx.cache.guild_count();
 		let mut guild_count_fmt = num_format::Buffer::new();
 		guild_count_fmt.write_formatted(&guild_count, &num_format::Locale::en);
 
-		let runners = self.shard_manager.runners.lock().await;
+		let runners = shard_manager.runners.lock().await;
 		for (shard_id, shard_info) in runners.iter() {
 			let shard_latency = shard_info
 				.latency

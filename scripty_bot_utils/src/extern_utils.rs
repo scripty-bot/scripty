@@ -143,8 +143,10 @@ pub async fn get_shard_info() -> Result<HashMap<u16, ShardInfo>, CacheNotInitial
 		}
 	};
 
+	let shard_manager = data.shard_manager.get().ok_or(CacheNotInitializedError)?;
+
 	if should_update {
-		let shard_count = data.shard_manager.runners.lock().await.len() as u64;
+		let shard_count = shard_manager.runners.lock().await.len() as u64;
 
 		let mut shard_guild_count = HashMap::new();
 		for guild in cache.guilds() {
@@ -178,7 +180,7 @@ pub async fn get_shard_info() -> Result<HashMap<u16, ShardInfo>, CacheNotInitial
 		data.0.clone()
 	};
 
-	let runners = data.shard_manager.runners.lock().await;
+	let runners = shard_manager.runners.lock().await;
 	let mut shard_list = HashMap::new();
 
 	for (shard_id, shard_info) in runners.iter() {
