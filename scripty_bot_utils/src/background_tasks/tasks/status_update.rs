@@ -1,13 +1,13 @@
-use std::{sync::Arc, time::Duration};
+use std::time::Duration;
 
 use serenity::{
 	all::{ActivityType, OnlineStatus},
 	client::Context as SerenityContext,
-	gateway::{ActivityData, ShardManager},
+	gateway::ActivityData,
 	small_fixed_array::FixedString,
 };
 
-use crate::{background_tasks::core::BackgroundTask, globals::CLIENT_DATA, Data, Error};
+use crate::{background_tasks::core::BackgroundTask, Data, Error};
 
 /// Updates the bot status every minute.
 pub struct StatusUpdater {
@@ -34,7 +34,7 @@ impl BackgroundTask for StatusUpdater {
 		}
 
 		let ctx_data = self.ctx.data::<Data>();
-		let Some(shard_manager) = ctx_data.shard_manager.get().clone() else {
+		let Some(shard_manager) = ctx_data.shard_manager.get() else {
 			return;
 		};
 
