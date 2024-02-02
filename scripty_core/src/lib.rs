@@ -176,7 +176,7 @@ fn increase_open_file_limit() {
 
 fn spawn_malloc_trim() {
 	std::thread::spawn(|| {
-		let epoch = epoch::mib().expect("failed to get epoch mib");
+		let emib = epoch::mib().expect("failed to get epoch mib");
 		let active = stats::active::mib().expect("failed to get active mib");
 		let allocated = stats::allocated::mib().expect("failed to get allocated mib");
 		let mapped = stats::mapped::mib().expect("failed to get mapped mib");
@@ -185,7 +185,7 @@ fn spawn_malloc_trim() {
 		let retained = stats::retained::mib().expect("failed to get retained mib");
 
 		let log_mem_info = || {
-			epoch.advance().expect("failed to advance epoch");
+			emib.advance().expect("failed to advance epoch");
 			debug!(
 				"running malloc_trim, {} bytes allocated",
 				allocated.read().unwrap()

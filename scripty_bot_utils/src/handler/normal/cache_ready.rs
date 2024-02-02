@@ -11,7 +11,6 @@ use crate::{
 const SIZE_OF_GUILD_ID: usize = std::mem::size_of::<GuildId>();
 
 pub async fn cache_ready(ctx: &Context, guilds: &Vec<GuildId>) {
-
 	set_cache_http(ctx.http.clone(), ctx.cache.clone());
 
 	CLIENT_CACHE

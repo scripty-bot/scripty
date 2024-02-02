@@ -27,24 +27,22 @@ pub async fn entrypoint() {
 		.await
 		.expect("failed to init blocked entities");
 
-
 	// initialize the framework
 	let framework = FrameworkBuilder::default()
 		.options(framework_opts::get_framework_opts())
 		.build();
 	CLIENT_DATA
-	.set(Data {
-		shard_manager: framework.shard_manager().clone(),
-	})
-	.expect("user data setup called more than once: bug?");
-let sm = framework.shard_manager().clone();
-tokio::spawn(async move {
-	tokio::signal::ctrl_c()
-		.await
-		.expect("failed to listen for ctrl+c");
-	sm.shutdown_all().await;
-});
-
+		.set(Data {
+			shard_manager: framework.shard_manager().clone(),
+		})
+		.expect("user data setup called more than once: bug?");
+	let sm = framework.shard_manager().clone();
+	tokio::spawn(async move {
+		tokio::signal::ctrl_c()
+			.await
+			.expect("failed to listen for ctrl+c");
+		sm.shutdown_all().await;
+	});
 
 	let mut client =
 		serenity::Client::builder(&cfg.tokens.discord, framework_opts::get_gateway_intents())
