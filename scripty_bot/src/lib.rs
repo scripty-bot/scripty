@@ -9,12 +9,7 @@ extern crate tracing;
 use std::sync::Arc;
 
 use poise::FrameworkBuilder;
-use scripty_bot_utils::{
-	extern_utils::set_cache_http,
-	globals::{CLIENT_CACHE, CLIENT_DATA},
-	handler,
-	Data,
-};
+use scripty_bot_utils::{globals::CLIENT_DATA, handler, Data};
 use serenity::{all::OnlineStatus, gateway::ActivityData};
 
 pub async fn entrypoint() {

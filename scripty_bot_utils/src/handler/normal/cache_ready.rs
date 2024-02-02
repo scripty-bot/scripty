@@ -3,13 +3,12 @@ use serenity::{client::Context, model::id::GuildId};
 use crate::{
 	dm_support::DmSupportStatus,
 	extern_utils::set_cache_http,
-	globals::{CLIENT_CACHE, CLIENT_DATA, DM_SUPPORT_GLOBAL},
-	handler,
-	Data,
+	globals::{CLIENT_CACHE, DM_SUPPORT_GLOBAL},
 };
 
 const SIZE_OF_GUILD_ID: usize = std::mem::size_of::<GuildId>();
 
+#[allow(clippy::ptr_arg)] // we get this from the trait and can't change it
 pub async fn cache_ready(ctx: &Context, guilds: &Vec<GuildId>) {
 	set_cache_http(ctx.http.clone(), ctx.cache.clone());
 

@@ -191,7 +191,7 @@ pub async fn handle_message(ctx: &Context, msg: Message) -> Result<(), GenericMe
 
 	// and then transcribe it
 	let mut transcripts = match handle_transcripts(
-		&ctx,
+		ctx,
 		&mut new_msg,
 		attached_files,
 		language,

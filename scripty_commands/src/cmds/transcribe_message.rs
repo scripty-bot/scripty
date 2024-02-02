@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use poise::CreateReply;
 use scripty_bot_utils::checks::is_guild;
 use serenity::all::MessageFlags;

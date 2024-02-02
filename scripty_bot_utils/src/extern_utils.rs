@@ -43,7 +43,7 @@ pub fn get_user_count() -> Result<usize, CacheNotInitializedError> {
 	let count = cache
 		.guilds()
 		.into_iter()
-		.filter_map(|g| g.to_guild_cached(&cache).map(|g| g.member_count as usize))
+		.filter_map(|g| g.to_guild_cached(cache).map(|g| g.member_count as usize))
 		.sum();
 	let current_time = Instant::now();
 	let mut lock = CACHED_USER_COUNT
@@ -231,5 +231,5 @@ impl CacheHttp for CacheHttpWrapper {
 }
 
 pub fn set_cache_http(http: Arc<Http>, cache: Arc<Cache>) {
-	HTTP_CLIENT.set(CacheHttpWrapper { cache, http });
+	let _ = HTTP_CLIENT.set(CacheHttpWrapper { cache, http });
 }

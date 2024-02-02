@@ -1,7 +1,6 @@
 use std::fmt::{Display, Formatter};
 
 use axum::{
-	body,
 	http::{header::CONTENT_TYPE, HeaderValue, StatusCode},
 	response::{IntoResponse, Response},
 };

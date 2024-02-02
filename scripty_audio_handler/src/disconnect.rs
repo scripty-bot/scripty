@@ -4,7 +4,7 @@ use songbird::error::JoinError;
 
 use crate::error::Error;
 
-pub async fn disconnect_from_vc(ctx: &Context, guild_id: GuildId) -> Result<bool, Error> {
+pub async fn disconnect_from_vc(_ctx: &Context, guild_id: GuildId) -> Result<bool, Error> {
 	let sb = crate::get_songbird();
 	let res = match sb.remove(guild_id).await {
 		Ok(()) => Ok(true),
