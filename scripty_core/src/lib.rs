@@ -15,6 +15,8 @@ use url::Url;
 pub fn start() {
 	load_config();
 
+	spawn_malloc_trim();
+
 	let rt = get_tokio_rt();
 
 	rt.block_on(init_logging());
