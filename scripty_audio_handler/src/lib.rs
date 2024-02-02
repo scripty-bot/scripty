@@ -18,8 +18,8 @@ pub use disconnect::disconnect_from_vc;
 pub use error::{Error, ErrorKind};
 pub use scripty_stt::{check_model_language, get_model_languages};
 use serenity::all::{ChannelId, GuildId};
-pub use songbird::error::JoinError;
-use songbird::{driver::DecodeMode, Config, Songbird};
+use songbird::{driver::DecodeMode, Config};
+pub use songbird::{error::JoinError, Songbird};
 use tokio::sync::oneshot::Sender;
 
 pub fn get_songbird_config() -> Config {
@@ -34,6 +34,12 @@ pub async fn get_voice_channel_id(guild_id: GuildId) -> Option<ChannelId> {
 	// this allows the compiler to be happy with the lifetime of the call i guess?
 	let current_channel = call.lock().await.current_channel();
 	current_channel.map(|c| ChannelId::new(c.get()))
+}
+
+pub fn set_songbird(sb: Arc<Songbird>) {
+	SONGBIRD
+		.set(sb)
+		.expect("should not call set_songbird more than once");
 }
 
 pub fn get_songbird() -> Arc<Songbird> {

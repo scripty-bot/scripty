@@ -33,10 +33,16 @@ pub async fn entrypoint() {
 		.set(data.clone())
 		.expect("user data setup called more than once: bug?");
 
+	let songbird = scripty_audio_handler::Songbird::serenity_from_config(
+		scripty_audio_handler::get_songbird_config(),
+	);
+	scripty_audio_handler::set_songbird(songbird.clone());
+
 	let mut client =
 		serenity::Client::builder(&cfg.tokens.discord, framework_opts::get_gateway_intents())
 			.data(data.clone())
 			.framework(framework)
+			.voice_manager::<scripty_audio_handler::Songbird>(songbird)
 			.event_handler(handler::BotEventHandler)
 			.raw_event_handler(handler::RawEventHandler)
 			.status(OnlineStatus::Idle)
