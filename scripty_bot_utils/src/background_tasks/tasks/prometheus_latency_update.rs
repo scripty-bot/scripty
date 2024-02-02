@@ -3,7 +3,7 @@ use std::{sync::Arc, time::Duration};
 use scripty_metrics::Metrics;
 use serenity::{client::Context, model::id::ChannelId};
 
-use crate::{background_tasks::core::BackgroundTask, Error};
+use crate::{background_tasks::core::BackgroundTask, Data, Error};
 
 /// Updates Prometheus latency metrics every 10 seconds.
 pub struct LatencyUpdater(Arc<Metrics>, Context);
@@ -19,8 +19,12 @@ impl BackgroundTask for LatencyUpdater {
 	}
 
 	async fn run(&mut self) {
+		let ctx_data = self.1.data::<Data>();
+		let Some(shard_manager) = ctx_data.shard_manager.get() else {
+			return;
+		};
 		self.0.latency.websocket.set(
-			scripty_utils::latency::get_ws_latency(&self.1.data(), self.1.shard_id.0)
+			scripty_utils::latency::get_ws_latency(&shard_manager, self.1.shard_id.0)
 				.await
 				.unwrap_or(0) as i64,
 		);
