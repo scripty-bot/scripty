@@ -51,6 +51,7 @@ async fn init_logging() {
 		.network(NetworkingBackend::Reqwest)
 		.format(SerializationFormat::Json)
 		.max_message_size(cfg.loki.max_message_size)
+		.flush_threshold(cfg.loki.flush_threshold.unwrap_or(1_000))
 		.include_level();
 
 	for field in cfg.loki.labels.iter() {

@@ -87,6 +87,9 @@ pub struct LokiConfig {
 
 	/// Maximum size of one message before being dropped. Defaults to infinite.
 	pub max_message_size: Option<usize>,
+
+	/// Number of messages to buffer before sending all to Loki. Defaults to 1000.
+	pub flush_threshold: Option<usize>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
