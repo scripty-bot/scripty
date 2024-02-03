@@ -462,7 +462,7 @@ async fn finalize_stream<'a>(
 
 	debug!(%ssrc, "got stream results");
 
-	let Some((avatar_url, user_details)) = user_data_map
+	let Some((user_details, avatar_url)) = user_data_map
 		.get(&ssrc)
 		.map(|x| (x.value().0.to_owned(), x.value().1.to_owned()))
 	else {
