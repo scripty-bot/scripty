@@ -35,7 +35,7 @@ impl BackgroundTask for VoteReminderTask {
 			let user = match user.map(|u| u.right()) {
 				Ok(Some(user)) => user,
 				Ok(None) => {
-					error!("got no user from vote reminder query");
+					debug!("got no user from vote reminder query");
 					continue;
 				}
 				Err(err) => {

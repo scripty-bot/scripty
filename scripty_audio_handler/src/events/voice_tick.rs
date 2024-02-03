@@ -332,7 +332,7 @@ async fn handle_speakers(ssrc_state: Arc<SsrcMaps>, metrics: Arc<Metrics>, voice
 				timestamp
 			);
 		} else {
-			warn!(%ssrc, "no packet data: likely no audio too?");
+			trace!(%ssrc, "no packet data: likely no audio too?");
 		}
 
 		if ssrc_state
