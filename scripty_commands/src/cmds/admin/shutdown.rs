@@ -40,12 +40,12 @@ pub async fn shutdown(ctx: Context<'_>) -> Result<(), Error> {
 			// notify the guild
 
 			// need to fetch from redis
-			let webhook_id = scripty_redis::run_transaction::<u64>("GET", |f| {
+			let webhook_id = scripty_redis::run_transaction::<u64>("GETDEL", |f| {
 				f.arg(format!("voice:{{{}}}:webhook_id", guild_id));
 			})
 			.await
 			.map(WebhookId::new)?;
-			let webhook_token = scripty_redis::run_transaction::<String>("GET", |f| {
+			let webhook_token = scripty_redis::run_transaction::<String>("GETDEL", |f| {
 				f.arg(format!("voice:{{{}}}:webhook_token", guild_id));
 			})
 			.await?;
