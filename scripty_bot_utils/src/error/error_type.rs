@@ -269,6 +269,15 @@ impl From<scripty_audio_handler::Error> for Error {
 			scripty_audio_handler::ErrorKind::Join(e) => Self::join(e),
 			scripty_audio_handler::ErrorKind::Database(e) => Self::db(e),
 			scripty_audio_handler::ErrorKind::Serenity(e) => Self::serenity(e),
+			scripty_audio_handler::ErrorKind::Redis(scripty_redis::TransactionError::Redis(e)) => {
+				Self::redis(e)
+			}
+			scripty_audio_handler::ErrorKind::Redis(scripty_redis::TransactionError::Deadpool(
+				e,
+			)) => Self::redis_pool(e),
+			scripty_audio_handler::ErrorKind::NoWebhookToken => {
+				Self::custom("No webhook token found".to_string())
+			}
 		};
 		err.bt = e.backtrace;
 		err
@@ -341,6 +350,16 @@ impl From<GenericMessageError> for Error {
 		Self {
 			err: ErrorEnum::AudioTranscription(e),
 			bt:  Backtrace::new(),
+		}
+	}
+}
+
+impl From<scripty_redis::TransactionError> for Error {
+	#[inline]
+	fn from(e: scripty_redis::TransactionError) -> Self {
+		match e {
+			scripty_redis::TransactionError::Deadpool(e) => Self::from(e),
+			scripty_redis::TransactionError::Redis(e) => Self::from(e),
 		}
 	}
 }

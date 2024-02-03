@@ -16,10 +16,19 @@ pub struct Error {
 pub enum ErrorKind {
 	Join(JoinError),
 	Database(sqlx::Error),
+	Redis(scripty_redis::TransactionError),
 	Serenity(serenity::Error),
+	NoWebhookToken,
 }
 
 impl Error {
+	pub fn no_webhook_token() -> Self {
+		Self {
+			kind:      ErrorKind::NoWebhookToken,
+			backtrace: Backtrace::new_unresolved(),
+		}
+	}
+
 	pub fn is_timed_out(&self) -> bool {
 		matches!(self.kind, ErrorKind::Join(JoinError::TimedOut))
 	}
@@ -59,12 +68,24 @@ impl From<serenity::Error> for Error {
 	}
 }
 
+impl From<scripty_redis::TransactionError> for Error {
+	#[inline]
+	fn from(e: scripty_redis::TransactionError) -> Self {
+		Self {
+			kind:      ErrorKind::Redis(e),
+			backtrace: Backtrace::new_unresolved(),
+		}
+	}
+}
+
 impl Display for Error {
 	fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
 		match &self.kind {
 			ErrorKind::Join(e) => write!(f, "JoinError: {}", e),
 			ErrorKind::Database(e) => write!(f, "DatabaseError: {}", e),
 			ErrorKind::Serenity(e) => write!(f, "SerenityError: {}", e),
+			ErrorKind::NoWebhookToken => write!(f, "No webhook token found"),
+			ErrorKind::Redis(e) => write!(f, "RedisError: {}", e),
 		}
 	}
 }

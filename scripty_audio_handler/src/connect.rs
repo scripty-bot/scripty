@@ -1,6 +1,7 @@
 use ahash::RandomState;
 use dashmap::DashMap;
 use scripty_premium::PremiumTierList;
+use secrecy::ExposeSecret;
 use serenity::{
 	builder::{CreateWebhook, ExecuteWebhook},
 	model::id::{ChannelId, GuildId},
@@ -48,6 +49,10 @@ pub async fn connect_to_vc(
 			}
 		}
 	};
+	let Some(ref webhook_token) = webhook.token else {
+		return Err(Error::no_webhook_token());
+	};
+	let webhook_id = webhook.id;
 
 	// automatically leave after the specified time period
 	let premium_tier = scripty_premium::get_guild(guild_id.get()).await;
@@ -84,6 +89,22 @@ pub async fn connect_to_vc(
 
 	debug!(%guild_id, "muting call");
 	call.mute(true).await?;
+
+	debug!(%guild_id, "placing info into redis");
+	scripty_redis::run_transaction("SET", |f| {
+		f.arg("EX")
+			.arg(leave_delta + 5)
+			.arg(format!("voice:{{{}}}:webhook_token", guild_id))
+			.arg(webhook_token.expose_secret());
+	})
+	.await?;
+	scripty_redis::run_transaction("SET", |f| {
+		f.arg("EX")
+			.arg(leave_delta + 5)
+			.arg(format!("voice:{{{}}}:webhook_id", guild_id))
+			.arg(webhook_id.get());
+	})
+	.await?;
 
 	debug!(%guild_id, "initializing audio handler");
 	let handler = crate::AudioHandler::new(

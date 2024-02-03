@@ -16,6 +16,7 @@ num-format = "0.4"
 scripty_db = { path = "../scripty_db" }
 scripty_i18n = { path = "../scripty_i18n" }
 scripty_utils = { path = "../scripty_utils" }
+scripty_redis = { path = "../scripty_redis" }
 scripty_config = { path = "../scripty_config" }
 scripty_automod = { path = "../scripty_automod" }
 scripty_premium = { path = "../scripty_premium" }
