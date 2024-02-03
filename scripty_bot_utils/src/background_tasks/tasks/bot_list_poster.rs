@@ -26,7 +26,6 @@ pub struct BotListUpdater {
 	client:    reqwest::Client,
 }
 
-#[async_trait]
 impl BackgroundTask for BotListUpdater {
 	async fn init(ctx: Context) -> Result<Self, Error> {
 		let mut bot_lists = vec![];

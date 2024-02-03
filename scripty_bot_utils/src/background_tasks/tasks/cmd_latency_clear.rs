@@ -7,7 +7,6 @@ use crate::{background_tasks::core::BackgroundTask, Error};
 /// Clears stale latency metrics every 2 minutes to free up memory.
 pub struct CommandLatencyClearer;
 
-#[async_trait]
 impl BackgroundTask for CommandLatencyClearer {
 	async fn init(_: Context) -> Result<Self, Error> {
 		Ok(Self)

@@ -15,7 +15,6 @@ pub struct StatusUpdater {
 	run_number: u32,
 }
 
-#[async_trait]
 impl BackgroundTask for StatusUpdater {
 	async fn init(ctx: SerenityContext) -> Result<Self, Error> {
 		Ok(Self { ctx, run_number: 0 })

@@ -1,7 +1,6 @@
 use once_cell::sync::OnceCell;
 use serenity::client::Context;
 
-#[async_trait]
 pub trait BackgroundTask: Sized {
 	async fn init(ctx: Context) -> Result<Self, crate::Error>;
 

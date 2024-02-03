@@ -8,7 +8,6 @@ use crate::{background_tasks::core::BackgroundTask, Error};
 /// Updates bot stats in Prometheus every 20 seconds.
 pub struct BasicStatsUpdater(Arc<Metrics>, Context);
 
-#[async_trait]
 impl BackgroundTask for BasicStatsUpdater {
 	async fn init(ctx: Context) -> Result<Self, Error> {
 		Ok(BasicStatsUpdater(scripty_metrics::get_metrics(), ctx))

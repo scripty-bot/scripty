@@ -14,7 +14,6 @@ pub struct VoteReminderTask {
 	ctx: SerenityContext,
 }
 
-#[async_trait]
 impl BackgroundTask for VoteReminderTask {
 	async fn init(ctx: SerenityContext) -> Result<Self, Error> {
 		Ok(Self { ctx })

@@ -8,7 +8,6 @@ use crate::{background_tasks::core::BackgroundTask, Data, Error};
 /// Updates Prometheus latency metrics every 10 seconds.
 pub struct LatencyUpdater(Arc<Metrics>, Context);
 
-#[async_trait]
 impl BackgroundTask for LatencyUpdater {
 	async fn init(ctx: Context) -> Result<Self, Error> {
 		Ok(Self(scripty_metrics::get_metrics(), ctx))
