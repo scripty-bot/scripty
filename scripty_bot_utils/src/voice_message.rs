@@ -37,7 +37,7 @@ pub async fn handle_message(ctx: &Context, msg: Message) {
 
 				let res = match attachment.download().await {
 					Ok(waveform) => {
-						internal_handle_message(ctx, new_msg, msg.clone(), waveform).await
+						internal_handle_message(ctx, msg.clone(), new_msg, waveform).await
 					}
 					Err(e) => {
 						error!(%msg.id, "failed to download voice message: {}", e);
