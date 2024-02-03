@@ -24,7 +24,7 @@ impl BackgroundTask for LatencyUpdater {
 			return;
 		};
 		self.0.latency.websocket.set(
-			scripty_utils::latency::get_ws_latency(&shard_manager, self.1.shard_id.0)
+			scripty_utils::latency::get_ws_latency(shard_manager, self.1.shard_id.0)
 				.await
 				.unwrap_or(0) as i64,
 		);
