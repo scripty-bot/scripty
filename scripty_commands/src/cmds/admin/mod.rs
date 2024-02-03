@@ -8,6 +8,7 @@ mod shutdown;
 pub use cache_info::cache_info;
 pub use guild_check::*;
 pub use hash_user_id::hash_user_id;
+pub use shutdown::shutdown;
 
 #[poise::command(prefix_command, hide_in_help, owners_only)]
 pub async fn admin(ctx: Context<'_>) -> Result<(), Error> {

@@ -4,7 +4,7 @@ extern crate scripty_i18n;
 #[macro_use]
 extern crate tracing;
 
-pub mod cmds;
+mod cmds;
 mod i18n;
 
 pub fn build_commands() -> Vec<poise::Command<Data, Error>> {
@@ -30,6 +30,7 @@ pub fn build_commands() -> Vec<poise::Command<Data, Error>> {
 				cmds::check_guilds(),
 				cmds::hash_user_id(),
 				cmds::cache_info(),
+				cmds::shutdown(),
 			],
 			..cmds::admin()
 		},
