@@ -1,6 +1,6 @@
-use std::{borrow::Cow, fmt::Write};
+use std::{borrow::Cow, fmt::Write, future::Future, pin::Pin};
 
-use poise::FrameworkError;
+use poise::{BoxFuture, FrameworkError};
 use serenity::{
 	all::DiscordJsonError,
 	builder::{CreateEmbed, CreateMessage},
@@ -13,7 +13,7 @@ use crate::{
 	Error,
 };
 
-pub async fn on_error(error: FrameworkError<'_, Data, Error>) {
+async fn _on_error(error: FrameworkError<'_, Data, Error>) {
 	info!("handling error event");
 	#[allow(unreachable_patterns)]
 	match error {
@@ -219,4 +219,9 @@ pub async fn on_error(error: FrameworkError<'_, Data, Error>) {
 			}
 		}
 	}
+}
+
+#[inline]
+pub fn on_error(error: FrameworkError<'_, Data, Error>) -> BoxFuture<'_, ()> {
+	Box::pin(_on_error(error))
 }

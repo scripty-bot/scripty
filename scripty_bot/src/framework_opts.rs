@@ -1,16 +1,20 @@
 use poise::{FrameworkOptions, PrefixFrameworkOptions};
-use scripty_bot_utils::error::handler::on_error;
+use scripty_bot_utils::{
+	error::handler::on_error,
+	handler::{post_command, pre_command},
+};
 use scripty_commands::build_commands;
 use serenity::{builder::CreateAllowedMentions, model::id::UserId, prelude::GatewayIntents};
 
 pub fn get_framework_opts() -> FrameworkOptions<scripty_bot_utils::Data, scripty_bot_utils::Error> {
+	let commands = build_commands();
+
 	FrameworkOptions {
-		commands: build_commands(),
-		on_error: |error| Box::pin(on_error(error)),
+		commands,
+		on_error,
+		pre_command,
+		post_command,
 		command_check: Some(scripty_bot_utils::entity_block::check_block),
-		pre_command: scripty_bot_utils::handler::pre_command,
-		post_command: scripty_bot_utils::handler::post_command,
-		// Only support direct user pings by default
 		allowed_mentions: Some(
 			CreateAllowedMentions::default()
 				.empty_roles()
