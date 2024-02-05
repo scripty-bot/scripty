@@ -1,4 +1,4 @@
-use std::{borrow::Cow, fmt::Write, future::Future, pin::Pin};
+use std::{borrow::Cow, fmt::Write};
 
 use poise::{BoxFuture, FrameworkError};
 use serenity::{
