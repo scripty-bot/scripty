@@ -33,6 +33,7 @@ pub fn get_framework_opts() -> FrameworkOptions<scripty_bot_utils::Data, scripty
 			.iter()
 			.map(|id| UserId::new(*id))
 			.collect(),
+		skip_checks_for_owners: true,
 
 		..Default::default()
 	}
