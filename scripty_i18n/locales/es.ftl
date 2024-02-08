@@ -129,3 +129,6 @@ join-target-not-text-based = El canal al que me dijo que enviara transcripciones
 # This and all attributes show up exclusively in the slash command picker when `terms_of_service` is selected.
 cmds_terms_of_service = términos_de_servicio
     .description = Vea y acepte los Términos de servicio y la Política de privacidad de Scripty.
+# ToS command
+# This is sent when the user has not yet agreed to the ToS and must do so.
+agreeing-to-tos = Podrá acceder a Los Términos de servicio y Política de Privacidad aquí https://scripty.org/terms y https://scripty.org/privacy respectivamente. Debe hacer clic en el botón de abajo para aceptar ambos documentos y usar Scripty.
