@@ -148,9 +148,9 @@ pub async fn driver_disconnect(
 		);
 		for user in seen_users.iter() {
 			match UserId::new(*user).create_dm_channel(&ctx).await {
-				Ok(user) => {
-					if let Err(e) = user.send_message(&ctx, message.clone()).await {
-						debug!(?guild_id, "failed to send transcript to {}: {}", user, e);
+				Ok(user_channel) => {
+					if let Err(e) = user_channel.send_message(&ctx, message.clone()).await {
+						debug!(?guild_id, "failed to send transcript to {}: {}", *user, e);
 					}
 				}
 				Err(e) => {

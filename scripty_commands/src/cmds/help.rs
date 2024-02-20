@@ -90,7 +90,7 @@ async fn help_global(ctx: Context<'_>, resolved_language: LanguageIdentifier) ->
 			}
 
 			let prefix = if command.slash_action.is_some() {
-				String::from("/")
+				Cow::Borrowed("/")
 			} else if command.prefix_action.is_some() {
 				let options = &ctx.framework().options().prefix_options;
 
@@ -100,10 +100,10 @@ async fn help_global(ctx: Context<'_>, resolved_language: LanguageIdentifier) ->
 						Some(dynamic_prefix_callback) => {
 							match dynamic_prefix_callback(poise::PartialContext::from(ctx)).await? {
 								Some(dynamic_prefix) => dynamic_prefix,
-								None => String::from(""),
+								None => Cow::Borrowed(""),
 							}
 						}
-						None => String::from(""),
+						None => Cow::Borrowed(""),
 					},
 				}
 			} else {

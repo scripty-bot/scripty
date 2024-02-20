@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use poise::{FrameworkOptions, PrefixFrameworkOptions};
 use scripty_bot_utils::{
 	error::handler::on_error,
@@ -22,7 +24,7 @@ pub fn get_framework_opts() -> FrameworkOptions<scripty_bot_utils::Data, scripty
 				.replied_user(true),
 		),
 		prefix_options: PrefixFrameworkOptions {
-			prefix: Some("~".to_string()),
+			prefix: Some(Cow::Borrowed("~")),
 			execute_self_messages: false,
 			execute_untracked_edits: true,
 			mention_as_prefix: true,
