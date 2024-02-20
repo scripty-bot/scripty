@@ -1,12 +1,13 @@
 use poise::serenity_prelude::EventHandler;
 use serenity::{
-	all::VoiceState,
+	all::{RatelimitInfo, VoiceState},
 	client::Context as SerenityContext,
 	model::{channel::Message, event::ResumedEvent, gateway::Ready, id::GuildId},
 };
 
 mod cache_ready;
 mod message;
+mod ratelimit;
 mod ready;
 mod resume;
 mod voice_state_update;
@@ -43,5 +44,10 @@ impl EventHandler for BotEventHandler {
 		new: &VoiceState,
 	) {
 		voice_state_update::voice_state_update(ctx, old, new).await;
+	}
+
+	#[inline]
+	async fn ratelimit(&self, data: &RatelimitInfo) {
+		ratelimit::ratelimit(data).await;
 	}
 }
