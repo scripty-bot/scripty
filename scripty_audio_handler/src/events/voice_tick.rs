@@ -36,6 +36,7 @@ pub async fn voice_tick(
 	verbose: Arc<AtomicBool>,
 	ctx: Context,
 	webhook: Arc<Webhook>,
+	channel_id: ChannelId,
 	thread_id: Option<ChannelId>,
 	transcript_results: Option<Arc<RwLock<Vec<String>>>>,
 	automod_server_cfg: Arc<AutomodServerConfig>,
@@ -64,6 +65,7 @@ pub async fn voice_tick(
 		language: Arc::clone(&language),
 		verbose: Arc::clone(&verbose),
 		guild_id,
+		channel_id,
 		thread_id,
 		automod_server_cfg: Arc::clone(&automod_server_cfg),
 		transcript_results: transcript_results.clone(),
@@ -98,6 +100,7 @@ struct SilentSpeakersContext {
 	language:           Arc<RwLock<String>>,
 	verbose:            Arc<AtomicBool>,
 	guild_id:           GuildId,
+	channel_id:         ChannelId,
 	thread_id:          Option<ChannelId>,
 	automod_server_cfg: Arc<AutomodServerConfig>,
 	transcript_results: TranscriptResults,
@@ -116,6 +119,7 @@ async fn handle_silent_speakers<'a>(
 		language,
 		verbose,
 		guild_id,
+		channel_id,
 		thread_id,
 		automod_server_cfg,
 		transcript_results,
@@ -152,6 +156,7 @@ async fn handle_silent_speakers<'a>(
 
 		// finalize the stream
 		let lang = language.read().clone();
+		let _typing = thread_id.unwrap_or(channel_id).start_typing(&ctx.http);
 		let (mut final_result, hook) = match finalize_stream(
 			old_stream,
 			ssrc_state.ssrc_user_data_map.clone(),
@@ -244,6 +249,8 @@ async fn handle_silent_speakers<'a>(
 		}
 
 		hooks.push((hook, ssrc));
+
+		drop(_typing);
 
 		if kiai_enabled.load(Ordering::Relaxed) {
 			let Some(user_id) = ssrc_state

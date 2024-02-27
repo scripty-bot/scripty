@@ -194,6 +194,7 @@ impl EventHandler for AudioHandler {
 				self.verbose.clone(),
 				self.context.clone(),
 				Arc::clone(&self.webhook),
+				self.channel_id,
 				self.thread_id,
 				self.transcript_results.clone(),
 				Arc::clone(&self.automod_server_cfg),
