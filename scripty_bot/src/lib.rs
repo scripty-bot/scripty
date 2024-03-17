@@ -10,7 +10,7 @@ use std::sync::{Arc, OnceLock};
 
 use poise::FrameworkBuilder;
 use scripty_bot_utils::{globals::CLIENT_DATA, handler, Data};
-use serenity::{all::OnlineStatus, gateway::ActivityData};
+use serenity::{all::OnlineStatus, client::ClientBuilder, gateway::ActivityData};
 
 pub async fn entrypoint() {
 	// fetch the config
@@ -38,17 +38,24 @@ pub async fn entrypoint() {
 	);
 	scripty_audio_handler::set_songbird(songbird.clone());
 
-	let mut client =
-		serenity::Client::builder(&cfg.tokens.discord, framework_opts::get_gateway_intents())
-			.data(data.clone())
-			.framework(framework)
-			.voice_manager::<scripty_audio_handler::Songbird>(songbird)
-			.event_handler(handler::BotEventHandler)
-			.raw_event_handler(handler::RawEventHandler)
-			.status(OnlineStatus::Idle)
-			.activity(ActivityData::custom("Starting up..."))
-			.await
-			.expect("failed to create serenity client");
+	let mut http = serenity::http::HttpBuilder::new(&cfg.tokens.discord);
+	if let Some(proxy) = &cfg.proxy {
+		http = http.proxy(proxy).ratelimiter_disabled(true);
+	}
+
+	let mut client = ClientBuilder::new_with_http(
+		Arc::new(http.build()),
+		framework_opts::get_gateway_intents(),
+	)
+	.data(data.clone())
+	.framework(framework)
+	.voice_manager::<scripty_audio_handler::Songbird>(songbird)
+	.event_handler(handler::BotEventHandler)
+	.raw_event_handler(handler::RawEventHandler)
+	.status(OnlineStatus::Idle)
+	.activity(ActivityData::custom("Starting up..."))
+	.await
+	.expect("failed to create serenity client");
 
 	data.shard_manager
 		.set(client.shard_manager.clone())
