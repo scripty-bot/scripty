@@ -1,7 +1,7 @@
 use std::{ffi::OsStr, fmt, os::unix::process::ExitStatusExt, path::Path, process::Stdio};
 
 use serde::{Deserialize, Serialize};
-use tokio::{self, io, io::AsyncReadExt};
+use tokio::{io, io::AsyncReadExt};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FfprobeOutput {

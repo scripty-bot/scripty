@@ -4,7 +4,6 @@ use std::{
 };
 
 use backtrace::Backtrace;
-use scripty_db::sqlx;
 use songbird::error::JoinError;
 
 pub struct Error {

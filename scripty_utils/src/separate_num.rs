@@ -3,9 +3,6 @@ use std::fmt::Display;
 use num::Num;
 use thousands::Separable;
 
-pub fn separate_num<T: Num>(num: T) -> String
-where
-	T: Display,
-{
+pub fn separate_num<T: Num + Display>(num: T) -> String {
 	num.separate_with_commas()
 }

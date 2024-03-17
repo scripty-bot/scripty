@@ -139,7 +139,7 @@ impl DmSupportStatus {
 					.attachments
 					.first()
 					.expect("asserted one element already exists");
-				if message_channel.is_nsfw() {
+				if message_channel.nsfw {
 					embed_builder =
 						embed_builder.field("Attached", attachment.url.to_string(), true);
 				} else {
@@ -192,11 +192,10 @@ impl DmSupportStatus {
 		let user_id_str = user.id.to_string();
 
 		let channel = {
-			let channels = ctx
-				.cache
-				.guild_channels(guild_id)
-				.expect("failed to get guild channels");
-			channels
+			ctx.cache
+				.guild(guild_id)
+				.expect("failed to get guild")
+				.channels
 				.iter()
 				.find_map(|(_, c)| {
 					if c.parent_id == Some(category.id) && c.name == user_id_str {

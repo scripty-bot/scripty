@@ -35,9 +35,9 @@ pub async fn voice_state_update(ctx: &Context, _old: &Option<VoiceState>, new: &
 					continue;
 				}
 				// is the user a bot? if so, they don't count
-				if ctx
-					.cache
-					.member(guild_id, vs.user_id)
+				if guild
+					.members
+					.get(&vs.user_id)
 					.map_or(false, |m| m.user.bot())
 				{
 					continue;

@@ -136,13 +136,10 @@ pub async fn voice_message_enabled_for_guild(guild: GuildId) -> bool {
 		cmd.arg(format!("msg_transcript_{}", guild.get()));
 	})
 	.await
-	.map_or_else(
-		|e| {
-			error!("failed fetching from redis: {}", e);
-			None
-		},
-		|r| r,
-	);
+	.unwrap_or_else(|e| {
+		error!("failed fetching from redis: {}", e);
+		None
+	});
 	if let Some(enabled) = redis_res {
 		return enabled;
 	};

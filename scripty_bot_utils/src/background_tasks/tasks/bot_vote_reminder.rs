@@ -4,7 +4,6 @@ use serenity::{
 	all::UserId,
 	builder::{CreateEmbed, CreateMessage},
 	client::Context as SerenityContext,
-	futures::StreamExt,
 };
 
 use crate::{background_tasks::core::BackgroundTask, Error};
@@ -24,24 +23,21 @@ impl BackgroundTask for VoteReminderTask {
 	}
 
 	async fn run(&mut self) {
-		let mut vote_query = sqlx::query!(
+		let vote_query = match sqlx::query!(
 			"DELETE FROM vote_reminders WHERE next_reminder < NOW() RETURNING user_id, site_id, \
 			 next_reminder"
 		)
-		.fetch_many(scripty_db::get_db());
+		.fetch_all(scripty_db::get_db())
+		.await
+		{
+			Ok(vote_query) => vote_query,
+			Err(e) => {
+				error!("failed to get vote reminders: {}", e);
+				return;
+			}
+		};
 
-		while let Some(user) = vote_query.next().await {
-			let user = match user.map(|u| u.right()) {
-				Ok(Some(user)) => user,
-				Ok(None) => {
-					debug!("got no user from vote reminder query");
-					continue;
-				}
-				Err(err) => {
-					error!("failed to get vote reminder: {}", err);
-					continue;
-				}
-			};
+		for user in vote_query {
 			let site: VoteList = user.site_id.into();
 			let user_id = user.user_id as u64;
 			let reminder_unix_ts = user.next_reminder.assume_utc().unix_timestamp();

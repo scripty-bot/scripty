@@ -57,10 +57,17 @@ pub fn get_user_count() -> Result<usize, CacheNotInitializedError> {
 }
 
 pub fn get_channel_count() -> Result<usize, CacheNotInitializedError> {
-	Ok(CLIENT_CACHE
-		.get()
-		.ok_or(CacheNotInitializedError)?
-		.guild_channel_count())
+	let client_cache = CLIENT_CACHE.get().ok_or(CacheNotInitializedError)?;
+
+	Ok(client_cache
+		.guilds()
+		.iter()
+		.map(|g| {
+			client_cache
+				.guild(*g)
+				.map_or(0, |guild| guild.channels.len())
+		})
+		.sum())
 }
 
 static CACHED_VOICE_CHANNEL_COUNT: OnceCell<Mutex<(usize, Instant)>> = OnceCell::new();
@@ -82,8 +89,9 @@ pub fn get_voice_channel_count() -> Result<usize, CacheNotInitializedError> {
 		.guilds()
 		.into_iter()
 		.filter_map(|g| {
-			cache.guild_channels(g).map(|x| {
-				x.iter()
+			cache.guild(g).map(|x| {
+				x.channels
+					.iter()
 					.filter_map(|(_, x)| match x.kind {
 						ChannelType::Voice | ChannelType::Stage => Some(()),
 						_ => None,
