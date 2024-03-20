@@ -190,7 +190,7 @@ pub async fn join(
 			"the current server was not found in the cache (Discord didn't send data)".to_string(),
 		))?
 		.voice_states
-		.values()
+		.iter()
 		.filter(|state| state.channel_id == Some(voice_channel.id))
 		.count() == 0
 	{

@@ -93,7 +93,7 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
 
 		let mut user_count = 0;
 		let mut bot_count = 0;
-		for member in g.members.values() {
+		for member in g.members.iter() {
 			if member.user.bot() {
 				bot_count += 1;
 			} else {

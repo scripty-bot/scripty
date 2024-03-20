@@ -197,13 +197,7 @@ impl DmSupportStatus {
 				.expect("failed to get guild")
 				.channels
 				.iter()
-				.find_map(|(_, c)| {
-					if c.parent_id == Some(category.id) && c.name == user_id_str {
-						Some(c)
-					} else {
-						None
-					}
-				})
+				.find(|c| c.parent_id == Some(category.id) && c.name == user_id_str)
 				.cloned()
 		};
 

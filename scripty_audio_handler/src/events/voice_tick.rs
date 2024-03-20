@@ -156,7 +156,9 @@ async fn handle_silent_speakers<'a>(
 
 		// finalize the stream
 		let lang = language.read().clone();
-		let _typing = thread_id.unwrap_or(channel_id).start_typing(&ctx.http);
+		let _typing = thread_id
+			.unwrap_or(channel_id)
+			.start_typing(ctx.http.clone());
 		let (mut final_result, hook) = match finalize_stream(
 			old_stream,
 			ssrc_state.ssrc_user_data_map.clone(),

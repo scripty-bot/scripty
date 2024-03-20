@@ -29,7 +29,7 @@ pub async fn voice_state_update(ctx: &Context, _old: &Option<VoiceState>, new: &
 			// if there are any more than 1 in this channel, return
 			// if there are 0, leave the channel
 			let mut user_count = 0;
-			for (_, vs) in guild.voice_states.iter() {
+			for vs in guild.voice_states.iter() {
 				// is the voice state in the channel we're in, and is it not us?
 				if !(vs.channel_id == Some(cid) || vs.user_id != own_user_id) {
 					continue;

@@ -92,7 +92,7 @@ pub fn get_voice_channel_count() -> Result<usize, CacheNotInitializedError> {
 			cache.guild(g).map(|x| {
 				x.channels
 					.iter()
-					.filter_map(|(_, x)| match x.kind {
+					.filter_map(|x| match x.kind {
 						ChannelType::Voice | ChannelType::Stage => Some(()),
 						_ => None,
 					})
