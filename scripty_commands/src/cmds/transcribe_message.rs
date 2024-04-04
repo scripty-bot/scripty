@@ -57,7 +57,7 @@ pub async fn transcribe_message(ctx: Context<'_>) -> Result<(), Error> {
 			.await?;
 	}
 
-	ctx.msg.delete(&ctx).await?;
+	ctx.msg.delete(&ctx.http(), None).await?;
 
 	// the message gets sent in the above functions
 	Ok(())

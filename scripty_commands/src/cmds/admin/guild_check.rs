@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fmt::Write, ops::Range};
+use std::{collections::HashMap, fmt::Write, num::NonZeroU16, ops::Range};
 
 use poise::CreateReply;
 use serenity::{all::ShardId, gateway::ChunkGuildFilter};
@@ -46,7 +46,8 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
 		.shard_manager
 		.get()
 		.ok_or(Error::custom("shard manager not initialized".to_string()))?;
-	let shard_count = shard_manager.runners.lock().await.len() as u16;
+	let shard_count = NonZeroU16::new(shard_manager.runners.lock().await.len() as u16)
+		.ok_or(Error::custom("shard count is zero".to_string()))?;
 
 	for guild in ctx.serenity_context().cache.guilds() {
 		let g = match guild.to_guild_cached(ctx.cache()) {

@@ -9,7 +9,7 @@ license = "EUPL-1.2"
 [dependencies]
 hex = "0.4"
 tracing = "0.1"
-indexmap = "1"
+indexmap = "2"
 humantime = "2"
 typesize = "0.1"
 num-format = "0.4"

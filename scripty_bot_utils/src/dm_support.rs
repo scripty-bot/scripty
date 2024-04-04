@@ -170,7 +170,7 @@ impl DmSupportStatus {
 				}
 			};
 
-			user.direct_message(&ctx, CreateMessage::default().embed(embed_builder))
+			user.direct_message(&ctx.http, CreateMessage::default().embed(embed_builder))
 				.await
 		};
 
@@ -217,7 +217,7 @@ impl DmSupportStatus {
 
 		let hook = channel
 			.create_webhook(
-				ctx,
+				&ctx.http,
 				CreateWebhook::new(user.tag()).avatar(
 					&CreateAttachment::url(
 						&ctx.http,
@@ -248,7 +248,7 @@ impl DmSupportStatus {
 
 	async fn handle_opening(&self, ctx: &Context, user: &User) -> serenity::Result<()> {
 		user.direct_message(
-			ctx,
+			&ctx.http,
 			CreateMessage::default().embed(
 				CreateEmbed::default()
 					.title("DM Ticket Opened")
@@ -278,7 +278,7 @@ impl DmSupportStatus {
 		}
 
 		let hook = channel
-			.create_webhook(ctx, CreateWebhook::new("Scripty"))
+			.create_webhook(&ctx.http, CreateWebhook::new("Scripty"))
 			.await
 			.expect("failed to create webhook");
 		self.webhook_cache.insert(*channel, hook.clone());
@@ -315,7 +315,7 @@ impl DmSupportStatus {
 
 			let _ = user
 				.direct_message(
-					&ctx,
+					&ctx.http,
 					CreateMessage::default().embed(
 						CreateEmbed::default()
 							.title("Closed Support Ticket")
@@ -331,7 +331,7 @@ impl DmSupportStatus {
 
 		self.webhook_cache.remove(&channel.id);
 
-		let _ = channel.delete(ctx).await;
+		let _ = channel.delete(ctx, Some("DM support ticket closed")).await;
 	}
 }
 

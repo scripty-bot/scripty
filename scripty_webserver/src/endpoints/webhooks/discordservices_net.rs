@@ -83,7 +83,7 @@ pub async fn discordservices_net_incoming_webhook(
 
 	// send them a message
 	let cache_http = scripty_bot_utils::extern_utils::get_cache_http();
-	let dm_channel = UserId::new(id).create_dm_channel(&cache_http).await?;
+	let dm_channel = UserId::new(id).create_dm_channel(&cache_http.http).await?;
 	dm_channel
 		.send_message(
 			&cache_http,

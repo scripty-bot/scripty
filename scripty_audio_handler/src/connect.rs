@@ -28,7 +28,7 @@ pub async fn connect_to_vc(
 	let hooks = channel_id.webhooks(ctx.http.as_ref()).await?;
 	let webhook = if hooks.is_empty() {
 		channel_id
-			.create_webhook(&ctx, CreateWebhook::new("Scripty Transcriptions"))
+			.create_webhook(&ctx.http, CreateWebhook::new("Scripty Transcriptions"))
 			.await?
 	} else {
 		// iterate through each hook and find one where token is not None
@@ -44,7 +44,7 @@ pub async fn connect_to_vc(
 			Some(hook) => hook,
 			None => {
 				channel_id
-					.create_webhook(&ctx, CreateWebhook::new("Scripty Transcriptions"))
+					.create_webhook(&ctx.http, CreateWebhook::new("Scripty Transcriptions"))
 					.await?
 			}
 		}

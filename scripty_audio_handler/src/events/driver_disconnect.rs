@@ -147,7 +147,7 @@ pub async fn driver_disconnect(
 			"This transcript was automatically sent to all users who spoke in the voice chat.",
 		);
 		for user in seen_users.iter() {
-			match UserId::new(*user).create_dm_channel(&ctx).await {
+			match UserId::new(*user).create_dm_channel(&ctx.http).await {
 				Ok(user_channel) => {
 					if let Err(e) = user_channel.send_message(&ctx, message.clone()).await {
 						debug!(?guild_id, "failed to send transcript to {}: {}", *user, e);

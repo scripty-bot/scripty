@@ -226,8 +226,8 @@ pub fn get_cache_http() -> &'static CacheHttpWrapper {
 
 #[derive(Clone)]
 pub struct CacheHttpWrapper {
-	cache: Arc<Cache>,
-	http:  Arc<Http>,
+	pub cache: Arc<Cache>,
+	pub http:  Arc<Http>,
 }
 
 impl CacheHttp for CacheHttpWrapper {

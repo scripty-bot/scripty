@@ -136,11 +136,7 @@ async fn _on_error(error: FrameworkError<'_, Data, Error>) {
 				.await;
 			if let Err(e) = response {
 				warn!("failed to send message while handling error: {}", e);
-				let response = ctx
-					.interaction
-					.user
-					.direct_message(ctx.serenity_context(), msg)
-					.await;
+				let response = ctx.interaction.user.direct_message(ctx.http(), msg).await;
 				if let Err(e) = response {
 					error!("failed to DM user while handling error: {}", e)
 				}

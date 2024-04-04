@@ -27,23 +27,44 @@ use crate::{
 	types::{SsrcUserDataMap, TranscriptResults},
 };
 
+pub struct VoiceTickContext {
+	pub voice_data:         VoiceTick,
+	pub ssrc_state:         Arc<SsrcMaps>,
+	pub guild_id:           GuildId,
+	pub voice_channel_id:   ChannelId,
+	pub language:           Arc<RwLock<String>>,
+	pub verbose:            Arc<AtomicBool>,
+	pub ctx:                Context,
+	pub webhook:            Arc<Webhook>,
+	pub channel_id:         ChannelId,
+	pub thread_id:          Option<ChannelId>,
+	pub transcript_results: Option<Arc<RwLock<Vec<String>>>>,
+	pub automod_server_cfg: Arc<AutomodServerConfig>,
+	pub auto_detect_lang:   Arc<AtomicBool>,
+	pub translate:          Arc<AtomicBool>,
+	pub kiai_enabled:       Arc<AtomicBool>,
+	pub kiai_client:        KiaiApiClient,
+}
+
 pub async fn voice_tick(
-	voice_data: VoiceTick,
-	ssrc_state: Arc<SsrcMaps>,
-	guild_id: GuildId,
-	voice_channel_id: ChannelId,
-	language: Arc<RwLock<String>>,
-	verbose: Arc<AtomicBool>,
-	ctx: Context,
-	webhook: Arc<Webhook>,
-	channel_id: ChannelId,
-	thread_id: Option<ChannelId>,
-	transcript_results: Option<Arc<RwLock<Vec<String>>>>,
-	automod_server_cfg: Arc<AutomodServerConfig>,
-	auto_detect_lang: Arc<AtomicBool>,
-	translate: Arc<AtomicBool>,
-	kiai_enabled: Arc<AtomicBool>,
-	kiai_client: KiaiApiClient,
+	VoiceTickContext {
+		voice_data,
+		ssrc_state,
+		guild_id,
+		voice_channel_id,
+		language,
+		verbose,
+		ctx,
+		webhook,
+		channel_id,
+		thread_id,
+		transcript_results,
+		automod_server_cfg,
+		auto_detect_lang,
+		translate,
+		kiai_enabled,
+		kiai_client,
+	}: VoiceTickContext,
 ) {
 	let metrics = scripty_metrics::get_metrics();
 	let tick_start_time = Instant::now();
@@ -59,16 +80,16 @@ pub async fn voice_tick(
 	handle_speakers(Arc::clone(&ssrc_state), Arc::clone(&metrics), voice_data).await;
 
 	let hooks = handle_silent_speakers(SilentSpeakersContext {
-		ssrc_state: Arc::clone(&ssrc_state),
+		ssrc_state,
 		last_tick_speakers,
 		voice_channel_id,
-		language: Arc::clone(&language),
-		verbose: Arc::clone(&verbose),
+		language,
+		verbose,
 		guild_id,
 		channel_id,
 		thread_id,
-		automod_server_cfg: Arc::clone(&automod_server_cfg),
-		transcript_results: transcript_results.clone(),
+		automod_server_cfg,
+		transcript_results,
 		ctx: ctx.clone(),
 		auto_detect_lang,
 		translate,
@@ -124,7 +145,7 @@ async fn handle_silent_speakers<'a>(
 		automod_server_cfg,
 		transcript_results,
 		ctx,
-		auto_detect_lang: _,
+		auto_detect_lang,
 		translate,
 		kiai_enabled,
 		kiai_client,
@@ -492,6 +513,7 @@ async fn finalize_stream<'a>(
 	))
 }
 
+#[allow(dead_code)] // may be used in the future
 fn handle_error<'a>(error: ModelError, ssrc: u32) -> ExecuteWebhook<'a> {
 	let user_error = match error {
 		ModelError::Io(io_err) => {
