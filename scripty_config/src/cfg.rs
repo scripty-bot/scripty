@@ -47,7 +47,7 @@ pub struct BotConfig {
 
 	/// Bot lists config
 	pub bot_lists: HashMap<String, BotListsConfig>,
-	
+
 	/// Optional proxy URL
 	pub proxy: Option<String>,
 }

@@ -63,7 +63,7 @@ pub fn get_formatted_message<'l>(
 ///
 /// # Panics
 /// This macro panics at runtime if:
-/// * The language ID is not a valid language ID. (See RFC 5646, or https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)
+/// * The language ID is not a valid language ID. (See RFC 5646, or <https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes>)
 /// * The message ID is not a valid message ID.
 ///
 /// # Returns
