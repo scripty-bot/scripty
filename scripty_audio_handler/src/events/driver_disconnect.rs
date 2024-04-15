@@ -46,12 +46,19 @@ pub async fn driver_disconnect(
 			);
 			(
 				true,
-				Some("library and discord disagreed on protocol".into()),
+				Some(
+					"library and discord disagreed on protocol (this is a bug, please report!)"
+						.into(),
+				),
 			)
 		}
 		Some(DisconnectReason::TimedOut) => {
 			warn!(?guild_id, "timed out waiting for connection");
 			(true, Some("timed out waiting for connection".into()))
+		}
+		Some(DisconnectReason::Requested) => {
+			debug!(?guild_id, "requested disconnection");
+			(false, None)
 		}
 		Some(DisconnectReason::WsClosed(None)) => {
 			debug!(?guild_id, "voice session WebSocket closed without reason");
