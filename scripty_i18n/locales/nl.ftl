@@ -381,9 +381,6 @@ general-error-invalid-args-title = Ongeldige argumenten tijdens het verwerken va
 # You do not need to translate this, but it is here if your language can provide a more accurate translation.
 transcription-info-transcription-ssrc = SSRC { $ssrc }
 # join command
-# This message is shown when the user tries to tell the bot to join, but they have not agreed to the ToS.
-must-agree-to-tos = Je moet akkoord gaan met de Algemene Voorwaarden en het Privacybeleid om Scripty te gebruiken. Zie `{ $contextPrefix }terms_of_service` voor meer informatie.
-# join command
 # This message is shown when the user is not in a voice channel, nor was a voice channel specified.
 no-channel-specified = Je zit niet in een spraakchat en je hebt me ook geen kanaal opgegeven om naartoe te gaan. Probeer `{ $contextPrefix }join <kanaal>` om een spraakchat op te geven, of ga zelf naar een spraakchat en voer deze opdracht opnieuw uit.
 # join command

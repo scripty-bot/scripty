@@ -246,9 +246,6 @@ general-error-command-check-failed-description-no-reason = kein Grund angegeben
 # join command
 # This message is shown when the user has told the bot to create a thread while in a thread.
 join-create-thread-in-thread = Ich kann keinen Thread erstellen, während ich mich in einem Thread befinde. Bitte führe diesen Befehl in einem normalen Channel aus, wahrscheinlich { $parentChannelMention }.
-# join command
-# This message is shown when the user tries to tell the bot to join, but they have not agreed to the ToS.
-must-agree-to-tos = Um Scripty nutzen zu können, musst du den Nutzungsbedingungen und der Datenschutzrichtlinie zustimmen. Siehe `{ $contextPrefix }terms_of_service` für weitere Informationen.
 # automod add rule command
 automod-add-rule-embed-success-title = Regel { $ruleId } hinzugefügt!
 # automod remove rule command

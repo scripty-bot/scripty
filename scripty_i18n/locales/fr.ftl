@@ -395,9 +395,6 @@ transcription-info-transcription-error =
 cmds_delete_all_data = delete_all_data
     .description = Supprimer toutes vos données.
 # join command
-# This message is shown when the user tries to tell the bot to join, but they have not agreed to the ToS.
-must-agree-to-tos = Vous devez acceptez les Conditions d'Utilisation et la Politique de Confidentialité pour utiliser Scripty. Pour plus d'informations, utilisez `{ $contextPrefix }terms_of_service`.
-# join command
 # This message is shown when the user has told the bot to create a thread while in a thread.
 join-create-thread-in-thread = Je ne peux pas créer un fil dans un fil. Merci d'utiliser cette commande dans un salon normal, probablement { $parentChannelMention }.
 # join command

@@ -434,9 +434,6 @@ join-failed-dropped = Discord pare să aibă probleme, nu putem face nimic în a
 # If the user specifies they would like to create a thread, this is set as the thread name. { $timestamp } is the current timestamp, in ISO format.
 join-thread-title = Transcriere din { $timestamp }
 # join command
-# This message is shown when the user tries to tell the bot to join, but they have not agreed to the ToS.
-must-agree-to-tos = Trebuie să fiți de acord cu Termenii și condițiile și cu Politica de confidențialitate pentru a utiliza Scripty. Consultați `{ $contextPrefix }terms_of_service` pentru mai multe informații.
-# join command
 # This message is shown when the user attempts to make Scripty join a voice channel, but there is no one in the channel.
 join-no-one-in-channel = Nu este nimeni în { $targetMention }. Nu mă alătur dacă nu este nimeni acolo, deoarece este o risipă de resurse limitate.
 # join command
