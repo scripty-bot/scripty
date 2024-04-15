@@ -17,7 +17,6 @@ pub fn build_commands() -> Vec<poise::Command<Data, Error>> {
 		cmds::leave(),
 		cmds::delete_all_data(),
 		cmds::throw_error(),
-		cmds::terms_of_service(),
 		cmds::user_language(),
 		cmds::vote_reminder(),
 		cmds::transcribe_message(),

@@ -45,8 +45,6 @@ join-no-one-in-channel = There's no one in { $targetMention }. I'm not joining i
 join-failed-dropped = Discord appears to be having issues, we cannot do anything about this. Please try again later.
 # This message is shown when the bot does not have permissions for the voice channel it is trying to join.
 join-no-permission = I don't have permission to join { $targetMention }. Please give me the View Channel and Join permissions, or join a different voice chat where I do have permissions.
-# This message is shown when the user tries to tell the bot to join, but they have not agreed to the ToS.
-must-agree-to-tos = You must agree to the Terms of Service and Privacy Policy to use Scripty. See `{ $contextPrefix }terms_of_service` for more info.
 # This message is shown when the user has told the bot to create a thread while in a thread.
 join-create-thread-in-thread = I can't create a thread while in a thread. Please run this command in a normal channel, likely { $parentChannelMention }.
 # If the user specifies they would like to create a thread, this is set as the thread name. { $timestamp } is the current timestamp, in ISO format.

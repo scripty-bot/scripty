@@ -128,22 +128,12 @@ pub async fn join(
 	};
 
 	let res = sqlx::query!(
-		"SELECT trial_used, agreed_tos FROM guilds WHERE guild_id = $1",
+		"SELECT trial_used FROM guilds WHERE guild_id = $1",
 		guild_id.get() as i64
 	)
 	.fetch_optional(db)
 	.await?;
-	let (trial_used, agreed_tos) = res
-		.as_ref()
-		.map_or((false, false), |row| (row.trial_used, row.agreed_tos));
-
-	if !agreed_tos {
-		ctx.say(
-			format_message!(resolved_language, "must-agree-to-tos", contextPrefix: ctx.prefix()),
-		)
-		.await?;
-		return Ok(());
-	}
+	let trial_used = res.as_ref().map_or(false, |row| row.trial_used);
 
 	let voice_channel = match voice_channel {
 		Ok(vc) => vc,
