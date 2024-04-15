@@ -264,9 +264,6 @@ agreeing-to-tos = Możesz zobaczyć Regulamin i Politykę Prywatności Scripty p
 # This is sent when the user has already agreed to the ToS and does not need to do so again.
 already-agreed-to-tos = Już zaakceptowałeś Regulamin i Politykę Prywatności Scripty. Jeśli chcesz je ponownie zobaczyć, możesz to zrobić pod adresem https://scripty.org/terms i https://scripty.org/privacy odpowiednio.
 # join command
-# This message is shown when the user tries to tell the bot to join, but they have not agreed to the ToS.
-must-agree-to-tos = Musisz zaakceptować Regulamin i Politykę Prywatności, aby korzystać z Scripty. Zobacz `{ $contextPrefix }terms_of_service` dla więcej informacji.
-# join command
 # This message is shown when the user is not in a voice channel, nor was a voice channel specified.
 no-channel-specified = Nie jesteś w czacie głosowym, ani nie podałeś mi kanału do dołączenia. Spróbuj `{ $contextPrefix }join <kanał>` aby określić czat głosowy lub sam dołącz do czatu głosowego i ponownie uruchom tę komendę.
 # join command
