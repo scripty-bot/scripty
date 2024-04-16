@@ -68,6 +68,14 @@ pub async fn connect_to_vc(
 	};
 	debug!(%guild_id, ?premium_tier, "leave delta: {}", leave_delta);
 
+	// insert default
+	sqlx::query!(
+		"INSERT INTO guilds (guild_id) VALUES ($1) ON CONFLICT DO NOTHING",
+		guild_id.get() as i64
+	)
+	.execute(scripty_db::get_db())
+	.await?;
+
 	// fetch automod
 	debug!(%guild_id, "fetching automod");
 	let automod_server_cfg = scripty_automod::db::get_guild_config(guild_id.get())
