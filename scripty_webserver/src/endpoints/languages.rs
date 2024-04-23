@@ -11,10 +11,7 @@ pub async fn get_languages() -> Json<Vec<LanguageMapValue>> {
 			.languages
 			.iter()
 			.map(|x| scripty_i18n::get_pretty_language_name(x))
-			.map(|x| LanguageMapValue {
-				native:  x.0,
-				english: x.1,
-			})
+			.map(|x| LanguageMapValue::new(x.0, x.1))
 			.collect::<Vec<_>>(),
 	)
 }

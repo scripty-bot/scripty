@@ -2944,6 +2944,7 @@ dependencies = [
  "scripty_redis",
  "scripty_stt",
  "scripty_utils",
+ "serde_json",
  "serenity",
  "sqlx",
  "time",

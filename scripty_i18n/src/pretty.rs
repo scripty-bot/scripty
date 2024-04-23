@@ -6,10 +6,53 @@ use serde::{Deserialize, Serialize};
 
 pub type LanguageMap = HashMap<String, LanguageMapValue>;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
+struct LanguageMapJsonValue {
+	pub native:  String,
+	pub english: String,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(from = "LanguageMapJsonValue", into = "LanguageMapJsonValue")]
 pub struct LanguageMapValue {
 	pub native:  String,
 	pub english: String,
+
+	native_lowercase:  String,
+	english_lowercase: String,
+}
+
+impl From<LanguageMapJsonValue> for LanguageMapValue {
+	fn from(value: LanguageMapJsonValue) -> Self {
+		Self::new(value.native, value.english)
+	}
+}
+
+impl From<LanguageMapValue> for LanguageMapJsonValue {
+	fn from(value: LanguageMapValue) -> Self {
+		Self {
+			native:  value.native,
+			english: value.english,
+		}
+	}
+}
+
+impl LanguageMapValue {
+	pub fn new(native: String, english: String) -> Self {
+		let native_lowercase = native.to_lowercase();
+		let english_lowercase = english.to_lowercase();
+
+		Self {
+			native,
+			english,
+			native_lowercase,
+			english_lowercase,
+		}
+	}
+
+	pub fn starts_with(&self, s: &str) -> bool {
+		self.native_lowercase.starts_with(s) || self.english_lowercase.starts_with(s)
+	}
 }
 
 const LANGUAGE_MAP: &str = include_str!("../locales/codes.json");

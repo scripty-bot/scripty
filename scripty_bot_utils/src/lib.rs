@@ -7,6 +7,7 @@ extern crate scripty_i18n;
 #[macro_use]
 extern crate async_trait;
 
+mod available_language_autocomplete;
 pub mod background_tasks;
 pub mod checks;
 pub mod dm_support;
@@ -19,15 +20,6 @@ pub mod handler;
 pub mod types;
 pub mod voice_message;
 
+pub use available_language_autocomplete::available_language_autocomplete;
 pub use error::error_type::Error;
 pub use types::{Context, Data};
-
-pub async fn available_language_autocomplete<'a>(
-	_: Context<'a>,
-	partial: &'a str,
-) -> impl Iterator<Item = String> + 'a {
-	scripty_i18n::get_all_bundle_languages()
-		.into_iter()
-		.map(|lang| lang.to_string())
-		.filter(move |lang| lang.starts_with(partial))
-}
