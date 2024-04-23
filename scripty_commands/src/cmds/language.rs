@@ -1,28 +1,11 @@
+use std::borrow::Cow;
+
 use poise::CreateReply;
 use scripty_bot_utils::available_language_autocomplete;
 use scripty_i18n::InvalidLanguageError;
 use serenity::builder::CreateEmbed;
 
 use crate::{Context, Error};
-
-/// Modify your language preferences.
-///
-/// Base command of this group. See subcommands for more information.
-#[poise::command(prefix_command, slash_command)]
-pub async fn language(ctx: Context<'_>) -> Result<(), Error> {
-	let resolved_language =
-		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|g| g.get()))
-			.await;
-
-	ctx.send(        CreateReply::default().ephemeral(true)
-        .embed(            CreateEmbed::default()
-            .title(format_message!(resolved_language, "root-command-invoked-title"))
-            .description(format_message!(resolved_language, "root-command-invoked-description", contextPrefix: ctx.prefix(), commandName: "language"))
-        )
-    )
-    .await?;
-	Ok(())
-}
 
 /// Set your user language to one of the available languages.
 ///
@@ -53,7 +36,15 @@ pub async fn user_language(
 							resolved_language,
 							"user-language-set-success-description",
 							contextPrefix: ctx.prefix()
-						)),
+						))
+						.field(
+							Cow::Borrowed("​"),
+							format_message!(
+								resolved_language,
+								"language-set-partially-translated-help",
+							),
+							false,
+						),
 				),
 			)
 			.await?;

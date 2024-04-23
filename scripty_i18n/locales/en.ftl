@@ -218,6 +218,7 @@ user-language-set-success-description = To return to English, type `{ $contextPr
 guild-language-set-success = Guild language set to `{ $language }`.
 # This message is shown as the embed description when the guild sets their language successfully.
 guild-language-set-success-description = To return to English, type `{ $contextPrefix }language guild_language en`.
+language-set-partially-translated-help = Want to help translate Scripty into your language? Check out the translation project at https://hosted.weblate.org/engage/scripty-bot/.
 # This message is shown as the embed title when an entity tries to set their language to an unsupported language.
 language-set-failure-title-unsupported = The language you specified is not supported by the bot.
 # This message is shown as the embed description when an entity tries to set their language to an unsupported language.

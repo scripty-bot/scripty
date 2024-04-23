@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use poise::CreateReply;
 use scripty_bot_utils::{available_language_autocomplete, checks::is_guild, Context, Error};
 use scripty_i18n::InvalidLanguageError;
@@ -59,8 +61,17 @@ pub async fn config_server_language(
 						))
 						.description(format_message!(
 							resolved_language,
-							"guild-language-set-success-description"
-						)),
+							"guild-language-set-success-description",
+							contextPrefix: ctx.prefix()
+						))
+						.field(
+							Cow::Borrowed("​"),
+							format_message!(
+								resolved_language,
+								"language-set-partially-translated-help",
+							),
+							false,
+						),
 				),
 			)
 			.await?;
