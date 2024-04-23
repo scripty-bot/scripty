@@ -84,12 +84,12 @@
     "english": "German"
   },
   "dz": {
-    "native": "Dzongkha",
+    "native": "རྫོང་ཁ་",
     "english": "Dzongkha"
   },
   "el": {
-    "native": "Modern Greek (1453-)",
-    "english": "Modern Greek (1453-)"
+    "native": "Ελληνικά",
+    "english": "Greek"
   },
   "en": {
     "native": "English",
@@ -176,7 +176,7 @@
     "english": "Hungarian"
   },
   "hy": {
-    "native": "Armenian",
+    "native": "հայերեն",
     "english": "Armenian"
   },
   "ia": {
@@ -288,8 +288,8 @@
     "english": "Marathi"
   },
   "ms": {
-    "native": "Malay (macrolanguage)",
-    "english": "Malay (macrolanguage)"
+    "native": "Bahasa Melayu",
+    "english": "Malay"
   },
   "mt": {
     "native": "Malti",
@@ -304,8 +304,8 @@
     "english": "Nauru"
   },
   "ne": {
-    "native": "Nepali (macrolanguage)",
-    "english": "Nepali (macrolanguage)"
+    "native": "नेपाली",
+    "english": "Nepali"
   },
   "nl": {
     "native": "Nederlands",
@@ -432,8 +432,8 @@
     "english": "Swedish"
   },
   "sw": {
-    "native": "Swahili (macrolanguage)",
-    "english": "Swahili (macrolanguage)"
+    "native": "Kiswahili",
+    "english": "Swahili"
   },
   "ta": {
     "native": "தமிழ்",
@@ -492,7 +492,7 @@
     "english": "Ukrainian"
   },
   "ur": {
-    "native": "Urdu",
+    "native": "اُردُو",
     "english": "Urdu"
   },
   "uz": {
