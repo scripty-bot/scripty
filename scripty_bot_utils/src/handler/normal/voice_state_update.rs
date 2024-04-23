@@ -64,6 +64,10 @@ pub async fn voice_state_update(ctx: &Context, _old: &Option<VoiceState>, new: &
 		};
 	} else {
 		debug!("not in a voice channel in guild {}", guild_id);
+		if new.channel_id.is_none() {
+			// the user left the VC, ignore this event
+			return;
+		}
 
 		// check if the guild has active premium
 		let Some(_) = scripty_premium::get_guild(guild_id.get()).await else {
