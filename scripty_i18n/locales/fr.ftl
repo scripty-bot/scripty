@@ -225,12 +225,6 @@ general-error-user-missing-perms-title = Vous n'avez pas la permissions d'utilis
 general-error-cooldown-hit-description = { $time } secondes restantes.
 # general errors
 general-error-user-missing-perms-description-known = Permissions manquantes : { $perms }
-# ToS command
-# This is sent when the user has not yet agreed to the ToS and must do so.
-agreeing-to-tos = Vous pouvez lire les Conditions d'Utilisation et la Politique de Confidentialité de Scripty sur https://scripty.org/terms et https://scripty.org/privacy. Pour accepter ces deux documents et utiliser Scripty, utilisez le bouton ci-dessous.
-# ToS command
-# This is sent when the user has already agreed to the ToS and does not need to do so again.
-already-agreed-to-tos = Vous avez déjà accepté les Conditions d'Utilisation et la Politique de Confidentialité de Scripty . Si vous voulez les re-lire, vous pouvez le faire sur https://scripty.org/terms et https://scripty.org/privacy.
 # Context menu command translation strings
 more-info-on-command =
     Pour plus d'informations à propos d'une commande, tapez `{ $contextPrefix }help <nom>`
@@ -435,12 +429,6 @@ join-no-permission = Je n'ai pas la permission de rejoindre { $targetMention }. 
 premium-too-many-guilds = Vous avez réclamé { $totalServers } clés premium. Vous ne pouvez plus en ajouter, sauf si vous mettez à niveau votre abonnement premium sur <https://dash.scripty.org/premium>, ou en supprimez certaines avec la commande `{ $commandPrefix }premium remove`.
 # Help menu translation strings
 no-help-found = Aucune aide trouvée pour la commande `{ $commandName }`.
-# ToS command
-# This replaces the original content of the message (key agreeing-to-tos) when the user fails to select a button in time.
-tos-agree-timed-out = Temps écoulé. Réexécutez cette commande si vous souhaitez toujours accepter les CGU.
-# ToS command
-# This replaces the original content of the message (key agreeing-to-tos) when the user agrees to the ToS.
-tos-agree-success = Vous avez accepté avec succès les Conditions d'Utilisation et la Politique de Confidentialité de Scripty. Vous pouvez maintenant utiliser Scripty.
 # Leave command
 # This is shown when the bot successfully leaves a voice call
 leave-success = A quitté le salon vocal avec succès.
@@ -455,10 +443,6 @@ cmds_premium = premium
 # join command
 # This message is shown when the user has told a bot to join a forum channel, but the forum requires tags. This is not possible for the bot to work around as it has no way of knowing what tags to use.
 join-forum-requires-tags = Le forum que vous avez essayé de me faire utiliser demande des balises obligatoires. Je n'ai aucun moyen de savoir quelles balises utiliser, je ne peux donc pas rejoindre ce canal. Veuillez utiliser un autre canal ou demander à un administrateur de supprimer l'exigence de balise.
-# ToS command
-# This and all attributes show up exclusively in the slash command picker when `terms_of_service` is selected.
-cmds_terms_of_service = conditions_d_utilisation
-    .description = Voir et accepter les Conditions d'Utilisation et la Politique de Confidentialité de Scripty.
 # Help command
 # This and all attributes show up exclusively in the slash command picker when `help` is selected.
 cmds_help = aide
@@ -481,9 +465,6 @@ cmds_join = rejoindre
     .target_channel-description = Envoyez les transcriptions ici, au lieu du canal actuel. Ciblez un forum pour créer un nouveau message.
     .create_thread = créer_thread
     .create_thread-description = Créer un nouveau fil pour cette transcription ? La valeur par défaut est false.
-# ToS command
-# This replaces the original content of the message (key agreeing-to-tos) when the user fails to agree to the ToS, usually by explicitly clicking the "No" button.
-disagreed-to-tos = Vous avez refusé les Conditions d'Utilisation et la Politique de Confidentialité de Scripty. Si vous souhaitez utiliser Scripty, vous devez accepter ces documents. Vous pouvez le faire en exécutant à nouveau cette commande.
 # premium command
 # This and all attributes show up exclusively in the slash command picker when `premium remove` is selected.
 cmds_premium_remove = Supprimer
@@ -499,9 +480,6 @@ context-menu-command-user =
     { "" }
     { $commandName } (sur un utilisateur)
     { "" }
-# premium command
-# This is shown when the guild the user is running this command in has not yet agreed to the ToS.
-premium-server-not-set-up = Ce serveur n'a pas encore accepté les conditions d'utilisation et la politique de confidentialité de Scripty. Faites-le d'abord avec la commande `{ $commandPrefix }terms_of_service`.
 # premium command
 # This is shown to the user when they are not subscribed to premium.
 premium-not-premium = Vous n'êtes pas un abonné premium. Abonnez-vous sur https://scripty.org/premium. Si vous savez que vous en êtes un, veuillez envoyer un DM au bot afin que nous puissions rétablir votre premium.

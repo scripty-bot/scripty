@@ -215,9 +215,6 @@ premium-too-many-guilds = Du hast { $totalServers } Premium-Keys beansprucht. Du
 # automod remove rule command
 automod-remove-rule-embed-success-description = { $rulesLeft } Regeln, die außerhalb von { $maxRules } liegen.
 # premium command
-# This is shown when the guild the user is running this command in has not finished setup.
-premium-server-not-set-up = Dieser Server hat den ToS und Datenschutzrichtlinien von Scripty noch nicht zugestimmt. Erledige das zuerst mit dem Befehl `{ $commandPrefix }terms_of_service`.
-# premium command
 # This is shown when the user successfully claims one of their premium subscriptions.
 premium-claimed = Du hast erfolgreich Premium auf diesem Server aktiviert. Wenn du upgraden oder mehr Slots kaufen möchtest, gehe zu <https://dash.scripty.org/premium>. Wenn du dein premium von diesem Server entfernen möchtest, führe `{ $commandPrefix }premium remove` aus.
 # join command
@@ -279,21 +276,6 @@ join-forum-thread-content = { $authorMention } hat eine Transkription um { $time
 # join command
 # This message is shown when the user has told a bot to join a forum channel, but the forum requires tags. This is not possible for the bot to work around as it has no way of knowing what tags to use.
 join-forum-requires-tags = Der Forumskanal, den ich benutzen soll, erfordert Tags. Da ich nicht weiß, welche Tags ich verwenden soll, kann ich diesem Channel nicht beitreten. Bitte verwende einen anderen Kanal oder bitte einen Administrator, die Tag-Anforderung zu entfernen.
-# ToS command
-# This is sent when the user has not yet agreed to the ToS and must do so.
-agreeing-to-tos = Du kannst die Nutzungsbedingungen und die Datenschutzrichtlinie von Scripty unter https://scripty.org/terms bzw. https://scripty.org/privacy einsehen. Du kannst auf die Schaltfläche unten klicken, um diesen beiden Dokumenten zuzustimmen und Scripty zu nutzen.
-# ToS command
-# This is sent when the user has already agreed to the ToS and does not need to do so again.
-already-agreed-to-tos = Du hast den Nutzungsbedingungen und der Datenschutzrichtlinie von Scripty bereits zugestimmt. Wenn du sie noch einmal ansehen möchtest, kannst du das unter https://scripty.org/terms bzw. https://scripty.org/privacy tun.
-# ToS command
-# This replaces the original content of the message (key agreeing-to-tos) when the user fails to select a button in time.
-tos-agree-timed-out = Zeitüberschreitung. Führe diesen Befehl noch einmal aus, wenn du den ToS immer noch zustimmen willst.
-# ToS command
-# This replaces the original content of the message (key agreeing-to-tos) when the user agrees to the ToS.
-tos-agree-success = Du hast den Nutzungsbedingungen und der Datenschutzrichtlinie von Scripty zugestimmt. Du kannst Scripty jetzt benutzen.
-# ToS command
-# This replaces the original content of the message (key agreeing-to-tos) when the user fails to agree to the ToS, usually by explicitly clicking the "No" button.
-disagreed-to-tos = Du hast den Nutzungsbedingungen und der Datenschutzrichtlinie von Scripty nicht zugestimmt. Wenn du Scripty nutzen möchtest, musst du diesen Dokumenten zustimmen. Du kannst dies tun, indem du diesen Befehl erneut ausführst.
 # automod add rule command
 automod-add-rule-embed-failure-description-free-limit = Kostenlose Server sind auf 25 reguläre Regeln beschränkt. Wenn du dieses Limit erhöhen möchtest, schau dir unser Premium-Angebot auf https://scripty.org/premium an.
 # automod add rule command
@@ -360,10 +342,6 @@ data-storage-embed-description =
     Deine Daten werden auf Servern gespeichert, die streng abgeschottet sind. Es wäre für jeden, der versucht, sich Zugang zu verschaffen, äußerst schwierig, dies erfolgreich zu tun.
 
     Mit den Schaltflächen unten kannst du zwischen den verschiedenen Optionen wechseln.
-# ToS command
-# This and all attributes show up exclusively in the slash command picker when `terms_of_service` is selected.
-cmds_terms_of_service = Allgemeine_Geschäftsbedingungen
-    .description = Sieh dir die Nutzungsbedingungen und Datenschutzrichtlinien von Scripty an und stimme ihnen zu.
 # data_storage command
 # This and all attributes show up exclusively in the slash command picker when `data_storage` is selected.
 cmds_data_storage = daten_speicher

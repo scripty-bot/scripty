@@ -1,7 +1,3 @@
-# ToS command
-# This and all attributes show up exclusively in the slash command picker when `terms_of_service` is selected.
-cmds_terms_of_service = terms_of_service
-    .description = Wyświetl i zaakceptuj Regulamin oraz Politykę Prywatności Scripty.
 # premium command
 # This and all attributes show up exclusively in the slash command picker when `premium` is selected.
 cmds_premium = premium
@@ -29,9 +25,6 @@ cmds_premium_remove = remove
 # premium command
 # This is shown to the user when they are not subscribed to premium.
 premium-not-premium = Nie jesteś subskrybentem premium. Zasubskrybuj na stronie https://scripty.org/premium. Jeśli wiesz, że jesteś subskrybentem, proszę wyślij prywatną wiadomość do bota, abyśmy mogli przywrócić twoje premium.
-# premium command
-# This is shown when the guild the user is running this command in has not yet agreed to the ToS.
-premium-server-not-set-up = Ten serwer nie zaakceptował jeszcze Regulaminu i Polityki Prywatności Scripty. Zrób to najpierw za pomocą komendy `{ $commandPrefix }terms_of_service`.
 # premium command
 # This is shown to the user when they have too many used servers to add more.
 premium-too-many-guilds = Zgłosiłeś { $totalServers } kluczy premium. Nie możesz dodać więcej, chyba że zaktualizujesz subskrypcję premium na stronie <https://dash.scripty.org/premium> lub usuniesz niektóre za pomocą komendy `{ $commandPrefix }premium remove`.
@@ -230,15 +223,6 @@ language-set-failure-description-invalid = Podany przez ciebie język to niepopr
 # Command invocation contexts
 # This message is shown as the embed title when a user tries to invoke the root command of a group.
 root-command-invoked-title = To jest komenda główna!
-# ToS command
-# This replaces the original content of the message (key agreeing-to-tos) when the user fails to select a button in time.
-tos-agree-timed-out = Przekroczono limit czasu. Uruchom ponownie to polecenie, jeśli wciąż chcesz zaakceptować Regulamin.
-# ToS command
-# This replaces the original content of the message (key agreeing-to-tos) when the user agrees to the ToS.
-tos-agree-success = Pomyślnie zaakceptowałeś Regulamin i Politykę Prywatności Scripty. Możesz teraz z niej korzystać.
-# ToS command
-# This replaces the original content of the message (key agreeing-to-tos) when the user fails to agree to the ToS, usually by explicitly clicking the "No" button.
-disagreed-to-tos = Nie zgodziłeś się na Warunki korzystania z usługi Scripty i Politykę prywatności. Aby korzystać z Scripty, musisz zaakceptować te dokumenty. Możesz to zrobić, uruchamiając ponownie to polecenie.
 # join command
 # This message is shown when the user has told a bot to join a forum channel, but the forum requires tags. This is not possible for the bot to work around as it has no way of knowing what tags to use.
 join-forum-requires-tags = Kanał forum, który próbowałeś użyć, wymaga tagów. Nie mam sposobu, aby poznać jakie tagi użyć, więc nie mogę dołączyć do tego kanału. Proszę użyj innego kanału lub poproś administratora o usunięcie wymogu tagów.
@@ -257,12 +241,6 @@ data-storage-embed-title = Przechowywanie Danych
 # Leave command
 # This is shown when the bot successfully leaves a voice call
 leave-success = Pomyślnie opuszczono VC.
-# ToS command
-# This is sent when the user has not yet agreed to the ToS and must do so.
-agreeing-to-tos = Możesz zobaczyć Regulamin i Politykę Prywatności Scripty pod adresem https://scripty.org/terms i https://scripty.org/privacy odpowiednio. Możesz kliknąć poniższy przycisk, aby zaakceptować oba te dokumenty i korzystać z Scripty.
-# ToS command
-# This is sent when the user has already agreed to the ToS and does not need to do so again.
-already-agreed-to-tos = Już zaakceptowałeś Regulamin i Politykę Prywatności Scripty. Jeśli chcesz je ponownie zobaczyć, możesz to zrobić pod adresem https://scripty.org/terms i https://scripty.org/privacy odpowiednio.
 # join command
 # This message is shown when the user is not in a voice channel, nor was a voice channel specified.
 no-channel-specified = Nie jesteś w czacie głosowym, ani nie podałeś mi kanału do dołączenia. Spróbuj `{ $contextPrefix }join <kanał>` aby określić czat głosowy lub sam dołącz do czatu głosowego i ponownie uruchom tę komendę.

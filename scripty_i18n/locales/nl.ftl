@@ -10,25 +10,12 @@ root-command-invoked-title = Dit is een hoofdcommando!
 # Command invocation contexts
 # This message is shown as the embed description when a user tries to invoke the root command of a group.
 root-command-invoked-description = Roep alleen de subcommando's van deze opdracht aan om deze te gebruiken. Bekijk `{ $contextPrefix }help { $commandName }` voor meer informatie.
-# ToS command
-# This replaces the original content of the message (key agreeing-to-tos) when the user fails to select a button in time.
-tos-agree-timed-out = Time-out. Voer deze opdracht opnieuw uit als je nog steeds akkoord wilt gaan met de Gebruiksvoorwaarden.
-# ToS command
-# This replaces the original content of the message (key agreeing-to-tos) when the user agrees to the ToS.
-tos-agree-success = Je hebt succesvol ingestemd met de Gebruiksvoorwaarden en het Privacybeleid van Scripty. Je kunt nu Scripty gebruiken.
 # data_storage command
 data-storage-embed-title = Data opslag
 # general errors
 general-error-command-check-failed-description-no-reason = Geen reden opgegeven
-# ToS command
-# This and all attributes show up exclusively in the slash command picker when `terms_of_service` is selected.
-cmds_terms_of_service = tems_of_service
-    .description = Bekijk en ga akkoord met de Gebruiksvoorwaarden van Scripty.
 # general errors
 general-error-user-missing-perms-description-known = Missende rechten: { $perms }
-# ToS command
-# This replaces the original content of the message (key agreeing-to-tos) when the user fails to agree to the ToS, usually by explicitly clicking the "No" button.
-disagreed-to-tos = Je hebt niet ingestemd met de Gebruiksvoorwaarden en het Privacybeleid van Scripty. Als je Scripty wilt gebruiken, moet je akkoord gaan met deze documenten. Dit kun je doen door deze opdracht opnieuw uit te voeren.
 # join command
 # This and all attributes show up exclusively in the slash command picker when `join` is selected.
 cmds_join = join
@@ -72,9 +59,6 @@ premium-not-premium = Je bent geen premium-abonnee. Abonneer je op https://scrip
 # premium command
 # This is shown to the user when they have too many used servers to add more.
 premium-too-many-guilds = Je hebt { $totalServers } premiumcodes geclaimd. Je kunt er geen meer toevoegen, tenzij je je premiumabonnement upgrade op <https://dash.scripty.org/premium>, of enkele verwijdert met het commando { $commandPrefix }premium remove.
-# premium command
-# This is shown when the guild the user is running this command in has not yet agreed to the ToS.
-premium-server-not-set-up = Deze server heeft nog niet ingestemd met de Gebruiksvoorwaarden en het Privacybeleid van Scripty. Doe dit eerst met het commando `{ $commandPrefix }terms_of_service`.
 # premium command
 # This is shown when the user successfully claims one of their premium subscriptions.
 premium-claimed = Je hebt met succes premium geclaimd op deze server. Als je wilt upgraden of meer slots wilt kopen, ga naar <https://dash.scripty.org/premium>. Als je je premium wilt verwijderen van deze server, voer `{ $commandPrefix }premium remove` uit.
@@ -431,12 +415,6 @@ delete-data-confirm-banned = Ja, verwijder alle gegevens en verbied mezelf
 # generic strings
 # Message shown if a guild has not claimed their free trial of premium. Always appears on its own standalone line in the surrounding message.
 free-trial-upsell = We bieden 3-daagse proefperiodes van Scripty Premium aan als je het wilt uitproberen en wilt zien of het iets voor jou is. Stuur de bot een privébericht om te beginnen met een gratis proefperiode.
-# ToS command
-# This is sent when the user has not yet agreed to the ToS and must do so.
-agreeing-to-tos = Je kunt de Algemene Voorwaarden en het Privacybeleid van Scripty bekijken op respectievelijk https://scripty.org/terms en https://scripty.org/privacy. Je kunt op de onderstaande knop klikken om akkoord te gaan met beide documenten en Scripty te gebruiken.
-# ToS command
-# This is sent when the user has already agreed to the ToS and does not need to do so again.
-already-agreed-to-tos = Je hebt al ingestemd met de Algemene Voorwaarden en het Privacybeleid van Scripty. Als je ze opnieuw wilt bekijken, kun je dat doen op respectievelijk https://scripty.org/terms en https://scripty.org/privacy.
 # join command
 # This message is shown when Discord tosses a Dropped or TimedOut error when trying to join a voice channel.
 join-failed-dropped = Discord lijkt problemen te hebben, hier kunnen we niets aan doen. Probeer het later opnieuw.
