@@ -483,7 +483,7 @@ cmds_premium_remove = elimina
 # This is shown to the user when they have too many used servers to add more.
 premium-too-many-guilds =
     Ați revendicat { $totalServers } chei premium. Nu puteți adăuga mai multe, decât dacă vă actualizați abonamentul premium la <https://dash.scripty.org/premium>, sau eliminați unele cu comanda
-    `{ $commandPrefix }premium remove`.
+    `{ $commandPrefix }premium ștergere`.
 # premium command
 # This is shown when the guild the user is running this command in has not yet agreed to the ToS.
 premium-server-not-set-up = Acest server nu a fost încă de acord cu Termenii de utilizare și Politica de confidențialitate a Scripty. Faceți asta mai întâi cu comanda `{ $commandPrefix }terms_of_service`.
@@ -568,3 +568,5 @@ data-storage-embed-description =
     Datele dvs. sunt stocate pe servere care sunt blocate strâns. Ar fi extrem de dificil pentru oricine încearcă să obțină acces să o facă cu succes.
 
     Puteți comuta opțiunile folosind butoanele de mai jos.
+# Language configuration strings
+language-set-partially-translated-help = Doriți să ajutați la traducerea Scripty în limba dvs.? Consultă proiectul de traducere la https://hosted.weblate.org/engage/scripty-bot/.
