@@ -60,30 +60,20 @@ pub async fn premium_claim(ctx: Context<'_>) -> Result<(), Error> {
 	}
 
 	let guild_id = ctx.guild().ok_or_else(Error::expected_guild)?.id.get() as i64;
-	let rows_affected: u64 = sqlx::query!(
-		"UPDATE guilds SET premium_owner_id = $1 WHERE guild_id = $2",
+	sqlx::query!(
+		"INSERT INTO guilds (premium_owner_id, guild_id) VALUES ($1, $2) ON CONFLICT ON \
+		 CONSTRAINT guilds_pkey DO UPDATE SET premium_owner_id = $1",
 		hashed_author_id,
 		guild_id
 	)
 	.execute(db)
-	.await?
-	.rows_affected();
+	.await?;
 
-	if rows_affected == 0 {
-		ctx.say(format_message!(
-			resolved_language,
-			"premium-server-not-set-up",
-			commandPrefix: ctx.prefix()
-		))
-		.await?;
-		return Ok(());
-	} else {
-		ctx.say(format_message!(
-			resolved_language, "premium-claimed",
-			commandPrefix: ctx.prefix()
-		))
-		.await?;
-	}
+	ctx.say(format_message!(
+		resolved_language, "premium-claimed",
+		commandPrefix: ctx.prefix()
+	))
+	.await?;
 
 	Ok(())
 }

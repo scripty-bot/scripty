@@ -38,7 +38,7 @@ pub async fn user_language(
 							contextPrefix: ctx.prefix()
 						))
 						.field(
-							Cow::Borrowed("​"),
+							Cow::Borrowed("\u{200B}"),
 							format_message!(
 								resolved_language,
 								"language-set-partially-translated-help",

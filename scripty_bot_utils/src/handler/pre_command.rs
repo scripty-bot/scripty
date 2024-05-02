@@ -1,6 +1,6 @@
 use poise::BoxFuture;
 
-use crate::Context;
+use crate::{types::InvocationData, Context};
 
 async fn _pre_command(ctx: Context<'_>) {
 	scripty_metrics::measure_end_latency(ctx.id());
@@ -21,6 +21,15 @@ async fn _pre_command(ctx: Context<'_>) {
 			metrics.command_usage.slash.inc();
 		}
 	}
+
+	let invocation_data = InvocationData {
+		resolved_language: scripty_i18n::get_resolved_language(
+			ctx.author().id.get(),
+			ctx.guild_id().map(|g| g.get()),
+		)
+		.await,
+	};
+	ctx.set_invocation_data(invocation_data).await;
 }
 
 #[inline]

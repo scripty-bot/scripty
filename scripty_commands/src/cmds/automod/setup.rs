@@ -82,25 +82,13 @@ pub async fn automod_setup(
 	.await
 	{
 		Ok(_) => {}
-		// if we get a 23503 error, it means this server has not been set up yet
-		// tell the user to run the setup command first
 		Err(sqlx::Error::Database(e)) if e.code() == Some("23503".into()) => {
-			ctx.send(
-				CreateReply::default().embed(
-					CreateEmbed::default()
-						.title(format_message!(
-							resolved_language,
-							"automod-setup-embed-not-setup-title"
-						))
-						.description(format_message!(
-							resolved_language,
-							"automod-setup-embed-not-setup-description",
-							contextPrefix: ctx.prefix()
-						)),
-				),
-			)
-			.await?;
-			return Ok(());
+			// guild not found, insert it
+			sqlx::query!("INSERT INTO guilds (guild_id) VALUES ($1)", guild_id as i64)
+				.execute(db)
+				.await?;
+
+			return ctx.rerun().await;
 		}
 		Err(e) => return Err(e.into()),
 	}

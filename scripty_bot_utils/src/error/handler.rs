@@ -1,14 +1,26 @@
 use std::{borrow::Cow, fmt::Write};
 
-use poise::{BoxFuture, FrameworkError};
+use poise::{
+	serenity_prelude::StatusCode,
+	BoxFuture,
+	CreateReply,
+	FrameworkError,
+	MessageDispatchTrigger,
+};
 use serenity::{
-	all::DiscordJsonError,
-	builder::{CreateEmbed, CreateMessage},
+	all::{DiscordJsonError, InteractionResponseFlags},
+	builder::{
+		CreateEmbed,
+		CreateInteractionResponse,
+		CreateInteractionResponseMessage,
+		CreateMessage,
+	},
 	http,
 };
 
 use crate::{
 	error::{error_type::ErrorEnum, log_error_message, message::send_err_msg},
+	types::InvocationData,
 	Data,
 	Error,
 };
@@ -209,10 +221,194 @@ async fn _on_error(error: FrameworkError<'_, Data, Error>) {
 			)
 			.await;
 		}
-		_ => {
-			if let Err(e) = poise::builtins::on_error(error).await {
-				println!("error while handling error: {}", e)
+		FrameworkError::EventHandler { error, event, .. } => {
+			error!(?event, "Error in event handler: {:?}", error);
+		}
+		FrameworkError::SubcommandRequired { ctx } => {
+			let resolved_language = scripty_i18n::get_resolved_language(
+				ctx.author().id.get(),
+				ctx.guild_id().map(|g| g.get()),
+			)
+			.await;
+
+			if let Err(e) = ctx
+				.send(
+					CreateReply::default().ephemeral(true).embed(
+						CreateEmbed::new()
+							.title(format_message!(
+								resolved_language,
+								"root-command-invoked-title"
+							))
+							.description(format_message!(
+								resolved_language,
+								"root-command-invoked-description"
+							)),
+					),
+				)
+				.await
+			{
+				error!("failed to send message: {:?}", e);
 			}
+		}
+		FrameworkError::CommandPanic { payload, .. } => {
+			error!("Command panicked: {:?}", payload);
+		}
+		FrameworkError::GuildOnly { ctx, .. } => {
+			let resolved_language = scripty_i18n::get_resolved_language(
+				ctx.author().id.get(),
+				ctx.guild_id().map(|g| g.get()),
+			)
+			.await;
+
+			if let Err(e) = ctx
+				.send(
+					CreateReply::default().ephemeral(true).embed(
+						CreateEmbed::new()
+							.title(format_message!(
+								resolved_language,
+								"guild-only-command-invoked-title"
+							))
+							.description(format_message!(
+								resolved_language,
+								"guild-only-command-invoked-description"
+							)),
+					),
+				)
+				.await
+			{
+				error!("failed to send message: {:?}", e);
+			}
+		}
+		FrameworkError::DmOnly { ctx, .. } => {
+			let resolved_language = scripty_i18n::get_resolved_language(
+				ctx.author().id.get(),
+				ctx.guild_id().map(|g| g.get()),
+			)
+			.await;
+
+			if let Err(e) = ctx
+				.send(
+					CreateReply::default().ephemeral(true).embed(
+						CreateEmbed::new()
+							.title(format_message!(
+								resolved_language,
+								"dm-only-command-invoked-title"
+							))
+							.description(format_message!(
+								resolved_language,
+								"dm-only-command-invoked-description"
+							)),
+					),
+				)
+				.await
+			{
+				error!("failed to send message: {:?}", e);
+			}
+		}
+		FrameworkError::NsfwOnly { ctx, .. } => {
+			let resolved_language = &ctx
+				.invocation_data::<InvocationData>()
+				.await
+				.expect("invocation data should be populated in pre_command hook")
+				.resolved_language;
+
+			if let Err(e) = ctx
+				.send(
+					CreateReply::default().ephemeral(true).embed(
+						CreateEmbed::new()
+							.title(format_message!(
+								resolved_language,
+								"nsfw-only-command-invoked-title"
+							))
+							.description(format_message!(
+								resolved_language,
+								"nsfw-only-command-invoked-description"
+							)),
+					),
+				)
+				.await
+			{
+				error!("failed to send message: {:?}", e);
+			}
+		}
+		FrameworkError::DynamicPrefix { error, .. } => {
+			error!("Error while fetching prefix: {}", error);
+		}
+		FrameworkError::UnknownCommand {
+			msg,
+			msg_content,
+			framework,
+			trigger,
+			..
+		} => {
+			if !msg_content.trim().is_empty()
+				|| msg.mentions.len() != 1
+				|| !msg.mentions.contains(
+					&framework
+						.bot_id()
+						.to_user(&framework.serenity_context)
+						.await
+						.expect("should always be able to get bot user"),
+				) || trigger != MessageDispatchTrigger::MessageCreate
+			{
+				return;
+			}
+			match msg
+				.channel_id
+				.say(
+					framework.serenity_context,
+					"To get started with Scripty, you can run </join:1179256548241973269> in a \
+					 channel where you want transcriptions sent to.",
+				)
+				.await
+			{
+				Ok(_) => {}
+				Err(serenity::Error::Http(e)) if e.status_code() == Some(StatusCode::FORBIDDEN) => {
+					// DM user
+					if let Err(e) = msg
+						.author
+						.direct_message(
+							&framework.serenity_context.http,
+							CreateMessage::new().content(format!(
+								"I don't have permission to send messages in <#{}>! To get \
+								 started with Scripty, you can run </join:1179256548241973269> in \
+								 a channel where I do have permission to send messages.",
+								msg.channel_id.get()
+							)),
+						)
+						.await
+					{
+						warn!("failed to DM user: {:?}", e);
+					}
+				}
+				Err(e) => {
+					error!("failed to send message: {:?}", e);
+				}
+			}
+		}
+		FrameworkError::UnknownInteraction {
+			framework,
+			interaction,
+			..
+		} => {
+			error!("Unknown interaction: {:?}", interaction);
+			interaction
+				.create_response(
+					&framework.serenity_context.http,
+					CreateInteractionResponse::Message(
+						CreateInteractionResponseMessage::new()
+							.content("Internal error: unknown interaction")
+							.flags(InteractionResponseFlags::EPHEMERAL),
+					),
+				)
+				.await
+				.expect("failed to send response");
+		}
+		FrameworkError::NonCommandMessage { error, .. } => {
+			error!("Error in non-command message handler: {:?}", error);
+		}
+		FrameworkError::__NonExhaustive(_) => {
+			unreachable!("__NonExhaustive is not supposed to be used")
 		}
 	}
 }

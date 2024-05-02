@@ -1,19 +1,3 @@
-## ToS command
-# This and all attributes show up exclusively in the slash command picker when `terms_of_service` is selected.
-cmds_terms_of_service = terms_of_service
-    .description = View and agree to Scripty's Terms of Service and Privacy Policy.
-# This is sent when the user has not yet agreed to the ToS and must do so.
-agreeing-to-tos = You can view Scripty's Terms of Service and Privacy Policy at https://scripty.org/terms and https://scripty.org/privacy respectively. You may click the button below to agree to both of these documents, and use Scripty.
-# This is sent when the user has already agreed to the ToS and does not need to do so again.
-already-agreed-to-tos = You have already agreed to Scripty's Terms of Service and Privacy Policy. If you would like to view them again, you can do so at https://scripty.org/terms and https://scripty.org/privacy respectively.
-# This replaces the original content of the message (key agreeing-to-tos) when the user fails to select a button in time.
-tos-agree-timed-out = Timed out. Rerun this command if you still want to agree to the ToS.
-# This replaces the original content of the message (key agreeing-to-tos) when the user agrees to the ToS.
-tos-agree-success = You have successfully agreed to Scripty's Terms of Service and Privacy Policy. You may now use Scripty.
-# This replaces the original content of the message (key agreeing-to-tos) when the user fails to agree to the ToS, usually by explicitly clicking the "No" button.
-disagreed-to-tos = You have disagreed to Scripty's Terms of Service and Privacy Policy. If you would like to use Scripty, you must agree to these documents. You may do so by running this command again.
-
-
 ## join command
 # This and all attributes show up exclusively in the slash command picker when `join` is selected.
 cmds_join = join
@@ -91,8 +75,6 @@ cmds_premium_remove = remove
 premium-not-premium = You are not a premium subscriber. Subscribe at https://scripty.org/premium. If you know you are one, please DM the bot that way we can reinstate your premium.
 # This is shown to the user when they have too many used servers to add more.
 premium-too-many-guilds = You have claimed { $totalServers } premium keys. You cannot add any more, unless you upgrade your premium subscription at <https://dash.scripty.org/premium>, or remove some with the `{ $commandPrefix }premium remove` command.
-# This is shown when the guild the user is running this command in has not yet agreed to the ToS.
-premium-server-not-set-up = This server has not yet agreed to Scripty's ToS and Privacy Policy. Do that first with the `{ $commandPrefix }terms_of_service` command.
 # This is shown when the user successfully claims one of their premium subscriptions.
 premium-claimed = You have successfully claimed premium on this server. If you would like to upgrade, or purchase more slots, head to <https://dash.scripty.org/premium>. If you would like to remove your premium from this guild, run `{ $commandPrefix }premium remove`.
 # This is shown when the user successfully removes their premium from this guild.
