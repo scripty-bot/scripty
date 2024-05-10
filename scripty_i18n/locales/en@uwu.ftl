@@ -39,9 +39,6 @@ context-menu-command-message =
     { "" }
 # Help menu translation strings
 no-help-found = no hewp found fow command `{ $commandName }`. >_<
-# premium command
-# This is shown when the guild the user is running this command in has not yet agreed to the ToS.
-premium-server-not-set-up = this sewvew has not yet agweed to s-scwipty's tos and p-pwivacy powicy. 🥺 d-do that fiwst w-with the `{ $commandPrefix }tewms_of_sewvice` command.
 # join command
 # This message is shown on successfuly joining a voice channel.
 # { $targetMention } is the mention of the channel the bot joined.
@@ -55,9 +52,6 @@ join-success =
 # join command
 # This message is shown when the bot does not have permissions for the voice channel it is trying to join.
 join-no-permission = i don't have pewmission to join { $targetMention }. (U ᵕ U❁) p-pwease give me t-the view channew a-and join pewmissions, (⑅˘꒳˘) o-ow join a-a diffewent voice c-chat whewe i d-do have pewmissions. ( ͡o ω ͡o )
-# ToS command
-# This is sent when the user has not yet agreed to the ToS and must do so.
-agreeing-to-tos = you can view scwipty's tewms of sewvice a-and pwivacy p-powicy at https://scripty.org/terms a-and https://scripty.org/privacy w-wespectivewy. UwU y-you may cwick t-the button bewow t-to agwee to b-both of these documents, rawr x3 and use scwipty. rawr
 # join command
 # This message is shown when the user is not in a voice channel, nor was a voice channel specified.
 no-channel-specified = you'we nyot in a voice chat, ( ͡o ω ͡o ) nyow d-did you teww me a-a channew to join. UwU t-twy `{ $contextPrefix }join <channew>` t-to specify a-a voice chat, rawr x3 o-ow join a voice c-chat youwsewf a-and we-wun this command. rawr
@@ -71,22 +65,9 @@ premium-not-premium = you awe nyot a pwemium subscwibew. (U ᵕ U❁) s-subscwib
 more-info-on-command =
     fow mowe infowmation on a specific c-command, (ꈍᴗꈍ) type `{ $contextPrefix }help <name>`
     ```
-# ToS command
-# This and all attributes show up exclusively in the slash command picker when `terms_of_service` is selected.
-cmds_terms_of_service = tewms_of_sewvice
-    .description = view and agwee to scwipty's tewms o-of sewvice and p-pwivacy powicy. ^•ﻌ•^
-# ToS command
-# This replaces the original content of the message (key agreeing-to-tos) when the user fails to select a button in time.
-tos-agree-timed-out = timed out. ^•ﻌ•^ wewun this command if y-you stiww want to a-agwee to the tos. OwO
 # Leave command
 # This is shown when the bot successfully leaves a voice call
 leave-success = Weft vc successfuwwy.
-# ToS command
-# This replaces the original content of the message (key agreeing-to-tos) when the user agrees to the ToS.
-tos-agree-success = you have successfuwwy agweed to scwipty's t-tewms of s-sewvice and pwivacy p-powicy. 🥺 you m-may nyow use scwipty.
-# ToS command
-# This replaces the original content of the message (key agreeing-to-tos) when the user fails to agree to the ToS, usually by explicitly clicking the "No" button.
-disagreed-to-tos = Uwu have disagweed tuwu scwipty's tewms of sewvice awnd pwivacy powicy. If uwu wouwd wike tuwu use scwipty, uwu must agwee tuwu these documents. Uwu may duwu so by wunning thiws command again.
 # join command
 # This message is shown when the user has told a bot to join a forum channel, but the forum requires tags. This is not possible for the bot to work around as it has no way of knowing what tags to use.
 join-forum-requires-tags = The fowum channew uwu twied tuwu make me use wequiwes tags. I have no way of knowing whawt tags tuwu use, so i cannot join thawt channew. Pwease use a diffewent channew, ow awsk an admin tuwu wemove the tag wequiwement.

@@ -43,13 +43,6 @@ data-storage-opted-out-audio = Acum ați renunțat la stocarea sunetului pentru 
 automod-add-rule-embed-failure-description-premium-limit-hard-cap = Ați atins numărul maxim absolut de reguli ({ $hardCap }). Această limită există pentru a ne asigura că nu adăugăm prea multă latență într-un singur mesaj.
 # automod list rules command
 automod-list-rules-embed-description = { $rulesLeft } reguli rămase din { $maxRules }.
-# ToS command
-# This and all attributes show up exclusively in the slash command picker when `terms_of_service` is selected.
-cmds_terms_of_service = Termenii serviciului
-    .description = Vizualizați și acceptați Termenii și condițiile și Politica de confidențialitate Scripty.
-# ToS command
-# This replaces the original content of the message (key agreeing-to-tos) when the user agrees to the ToS.
-tos-agree-success = Ați acceptat cu succes Termenii, condițiile și Politica de confidențialitate Scripty. Acum puteți folosi Scripty.
 # join command
 # This and all attributes show up exclusively in the slash command picker when `join` is selected.
 cmds_join = Alăturăte
@@ -409,18 +402,6 @@ cmds_delete_all_data = șterge_toate_datele
     .description = Ștergeți toate datele dvs.
 # Data deletion command
 delete-data-confirm-banned = Da, șterge toate datele și banează-mă
-# ToS command
-# This replaces the original content of the message (key agreeing-to-tos) when the user fails to select a button in time.
-tos-agree-timed-out = A expirat. Reluați această comandă dacă tot doriți să fiți de acord cu ToS.
-# ToS command
-# This replaces the original content of the message (key agreeing-to-tos) when the user fails to agree to the ToS, usually by explicitly clicking the "No" button.
-disagreed-to-tos = Nu ați fost de acord cu Termenii și condițiile și cu Politica de confidențialitate Scripty. Dacă doriți să utilizați Scripty, trebuie să fiți de acord cu aceste documente. Puteți face acest lucru rulând această comandă din nou.
-# ToS command
-# This is sent when the user has not yet agreed to the ToS and must do so.
-agreeing-to-tos = Puteți vedea Termenii și condițiile Scripty și Politica de confidențialitate la https://scripty.org/terms și, respectiv, https://scripty.org/privacy. Puteți face clic pe butonul de mai jos pentru a fi de acord cu ambele documente și pentru a utiliza Scripty.
-# ToS command
-# This is sent when the user has already agreed to the ToS and does not need to do so again.
-already-agreed-to-tos = Ați fost deja de acord cu Termenii și condițiile și Politica de confidențialitate Scripty. Dacă doriți să le vizualizați din nou, puteți face acest lucru la https://scripty.org/terms și, respectiv, https://scripty.org/privacy.
 # join command
 # This message is shown when the user is not in a voice channel, nor was a voice channel specified.
 no-channel-specified = Nu ești într-un chat vocal și nici nu mi-ai spus un canal la care să mă alătur. Încercați `{ $contextPrefix }join <channel>` pentru a specifica un chat vocal sau alăturați-vă singur la un chat vocal și reluați această comandă.
@@ -484,9 +465,6 @@ cmds_premium_remove = elimina
 premium-too-many-guilds =
     Ați revendicat { $totalServers } chei premium. Nu puteți adăuga mai multe, decât dacă vă actualizați abonamentul premium la <https://dash.scripty.org/premium>, sau eliminați unele cu comanda
     `{ $commandPrefix }premium ștergere`.
-# premium command
-# This is shown when the guild the user is running this command in has not yet agreed to the ToS.
-premium-server-not-set-up = Acest server nu a fost încă de acord cu Termenii de utilizare și Politica de confidențialitate a Scripty. Faceți asta mai întâi cu comanda `{ $commandPrefix }terms_of_service`.
 # premium command
 # This is shown when the user successfully removes their premium from this guild.
 premium-removed = Dacă sunteți utilizatorul care a revendicat statutul Premium, acum ați eliminat cu succes statutul premium de pe acest server. Dacă doriți să faceți upgrade sau să cumpărați mai multe sloturi, accesați <https://dash.scripty.org/premium>.

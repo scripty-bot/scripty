@@ -1,25 +1,9 @@
-# ToS command
-# This replaces the original content of the message (key agreeing-to-tos) when the user fails to select a button in time.
-tos-agree-timed-out = Időtúllépés. Futtasd még egyszer ezt a parancsot, ha mégis el szeretnéd fogadni a nyilatkozatot.
-# ToS command
-# This replaces the original content of the message (key agreeing-to-tos) when the user agrees to the ToS.
-tos-agree-success = Sikeresen elfogadtad a Scripty szolgáltatási feltételeit és adatvédelmi nyilatkozatát. Mostmár használhatod a Scripty-t.
 # join command
 # This message is shown when the user has told a bot to join a forum channel, but the forum requires tags. This is not possible for the bot to work around as it has no way of knowing what tags to use.
 join-forum-requires-tags = A fórumcsatorna, amit megkértél, hogy használjak, kötelezi címkék használatát. Nem tudhatom, hogy mely címkéket használjam, így nem tudok csatlakozni a csatornához. Kérlek, használj egy másik csatornát, vagy kérj meg egy rendszergazdát, hogy távolítsa el a címkék használatának követelményét.
-# ToS command
-# This is sent when the user has not yet agreed to the ToS and must do so.
-agreeing-to-tos = A Scripty szolgáltatási feltételeit és adatvédelmi nyilatkozatát a https://scripty.org/terms, illetve https://scripty.org/privacy címen tekintheted meg. Az alábbi gombot megnyomva elfogadhatod mindkettőt, és használhatod a Scripty-t.
 # Leave command
 # This is shown when the bot successfully leaves a voice call
 leave-success = Sikeresen kiléptem a hangcsatornából.
-# ToS command
-# This and all attributes show up exclusively in the slash command picker when `terms_of_service` is selected.
-cmds_terms_of_service = szolgáltatási_feltételek
-    .description = Tekintsd meg és fogadd el a Scripty Szolgáltatási feltételeit és adatvédelmi szabályzatát.
-# ToS command
-# This replaces the original content of the message (key agreeing-to-tos) when the user fails to agree to the ToS, usually by explicitly clicking the "No" button.
-disagreed-to-tos = Elutasítottad a Scripty szolgáltatási feltételeit és adatvédelmi nyilatkozatát. Ha szeretnéd használni a Scripty-t, akkor el kell fogadnod ezeket a dokumentumokat. Megteheted a parancs ismételt futtatásával.
 # join command
 # This and all attributes show up exclusively in the slash command picker when `join` is selected.
 cmds_join = csatlakozás
