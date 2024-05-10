@@ -58,6 +58,8 @@ pub async fn handle_message(ctx: &Context, msg: Message) {
 		} else {
 			warn!(%msg.id, "voice message did not contain attachment");
 		}
+	} else {
+		trace!(%msg.id, "message was not a voice message");
 	}
 }
 
