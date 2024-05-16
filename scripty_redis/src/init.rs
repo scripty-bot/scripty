@@ -4,6 +4,8 @@ use deadpool::managed::{PoolConfig, QueueMode, Timeouts};
 use deadpool_redis::{redis::cmd, Config, Runtime};
 
 pub async fn init_redis() {
+	info!("configuring redis pool");
+
 	// set up pool config
 	let mut config = Config::from_url(&scripty_config::get_config().redis_url);
 	let mut timeouts = Timeouts::new();
@@ -17,11 +19,13 @@ pub async fn init_redis() {
 	});
 
 	// initialize the pool
+	info!("connecting to redis server");
 	let pool = config
 		.create_pool(Some(Runtime::Tokio1))
 		.expect("failed to init redis");
 
 	// test the pool by setting a key and getting it, then deleting it
+	info!("testing connection");
 	let mut conn = pool.get().await.unwrap();
 	let _: () = cmd("SET")
 		.arg("test")

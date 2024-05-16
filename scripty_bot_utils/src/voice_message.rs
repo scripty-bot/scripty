@@ -94,15 +94,26 @@ async fn internal_handle_message(
 	let lang = res.language;
 	let translate = res.translate;
 
+	let max_duration = output_length_secs * 2.0;
+	new_msg
+		.edit(
+			&ctx,
+			EditMessage::new().content(format!(
+				"Transcribing voice message...\nThis should take no longer than {} seconds +- 1 \
+				 second.",
+				max_duration
+			)),
+		)
+		.await?;
 	let stream = scripty_stt::get_stream().await?;
 	stream.feed_audio(output)?;
-	debug!(%msg.id, "fed audio to speech-to-text, waiting up to {} seconds for result", output_length_secs * 2.0);
+	debug!(%msg.id, "fed audio to speech-to-text, waiting up to {} seconds for result", max_duration);
 	let transcript = stream
 		.get_result(
 			lang,
 			false,
 			translate,
-			Some(Duration::from_secs_f64(output_length_secs * 2.0)),
+			Some(Duration::from_secs_f64(max_duration)),
 		)
 		.await?;
 	let transcript = transcript.trim();
@@ -135,7 +146,7 @@ async fn internal_handle_message(
 pub async fn voice_message_enabled_for_guild(guild: GuildId) -> bool {
 	// try to fetch from redis
 	let redis_res = scripty_redis::run_transaction::<Option<bool>>("GET", |cmd| {
-		cmd.arg(format!("msg_transcript_{}", guild.get()));
+		cmd.arg(format!("voice_msg_transcript_	{}", guild.get()));
 	})
 	.await
 	.unwrap_or_else(|e| {
@@ -160,7 +171,7 @@ pub async fn voice_message_enabled_for_guild(guild: GuildId) -> bool {
 
 			// cache in redis
 			if let Err(e) = scripty_redis::run_transaction::<()>("SETEX", |cmd| {
-				cmd.arg(format!("msg_transcript_{}", guild.get()))
+				cmd.arg(format!("voice_msg_transcript_{}", guild.get()))
 					.arg(60 * 60 * 3)
 					.arg(ret);
 			})
