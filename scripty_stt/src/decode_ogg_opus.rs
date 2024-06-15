@@ -12,7 +12,7 @@ pub fn decode_ogg_opus_file(file: Vec<u8>) -> Result<Vec<i16>, OpusSourceError> 
 	let mut i16_audio = Vec::with_capacity(f32_audio.len());
 	for sample in f32_audio {
 		// clamp the sample to [-1.0, 1.0]
-		let sample = sample.max(-1.0).min(1.0);
+		let sample = sample.clamp(-1.0, 1.0);
 		i16_audio.push((sample * i16::MAX as f32) as i16);
 	}
 
