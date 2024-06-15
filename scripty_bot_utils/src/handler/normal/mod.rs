@@ -5,7 +5,6 @@ use serenity::{
 	model::{channel::Message, event::ResumedEvent, gateway::Ready, id::GuildId},
 };
 
-mod cache_ready;
 mod message;
 mod ratelimit;
 mod ready;
@@ -16,11 +15,6 @@ pub struct BotEventHandler;
 
 #[async_trait]
 impl EventHandler for BotEventHandler {
-	#[inline]
-	async fn cache_ready(&self, ctx: &SerenityContext, guilds: &Vec<GuildId>) {
-		cache_ready::cache_ready(ctx, guilds).await;
-	}
-
 	#[inline]
 	async fn message(&self, ctx: &SerenityContext, new_message: &Message) {
 		message::message(ctx, new_message).await;
