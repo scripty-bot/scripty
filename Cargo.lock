@@ -2872,6 +2872,7 @@ version = "1.0.0"
 dependencies = [
  "ahash",
  "async-trait",
+ "audiopus_sys 0.2.2",
  "backtrace",
  "dashmap",
  "parking_lot",

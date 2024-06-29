@@ -12,7 +12,6 @@ libc = "0.2"
 rlimit = "0.10"
 num_cpus = "1"
 humantime = "2"
-tikv-jemalloc-ctl = "0.5"
 scripty_db = { path = "../scripty_db" }
 scripty_bot = { path = "../scripty_bot" }
 scripty_stt = { path = "../scripty_stt" }
@@ -26,3 +25,6 @@ scripty_webserver = { path = "../scripty_webserver" }
 tokio = { version = "1", features = ["parking_lot", "rt-multi-thread"] }
 scripty_data_storage = { path = "../scripty_data_storage" }
 fenrir-rs = { git = "https://github.com/tazz4843/fenrir-rs", branch = "json-logs", features = ["reqwest-async", "json-log-fmt"] }
+
+[target.'cfg(target_arch = "x86_64")'.dependencies]
+tikv-jemalloc-ctl = "0.5"

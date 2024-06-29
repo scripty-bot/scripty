@@ -39,8 +39,10 @@ members = [
 ]
 
 [dependencies]
-tikv-jemallocator = "0.5"
 scripty_core = { path = "scripty_core" }
+
+[target.'cfg(target_arch = "x86_64")'.dependencies]
+tikv-jemallocator = "0.5"
 
 [patch.crates-io]
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next" }
