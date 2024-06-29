@@ -18,9 +18,7 @@ pub async fn ready(
 ) {
 	set_cache_http(ctx.http.clone(), ctx.cache.clone());
 
-	CLIENT_CACHE
-		.set(ctx.cache.clone())
-		.expect("user data setup called more than once: bug?");
+	let _ = CLIENT_CACHE.set(ctx.cache.clone());
 
 	let dm_support = DmSupportStatus::new();
 	let _ = DM_SUPPORT_GLOBAL.set(dm_support);
