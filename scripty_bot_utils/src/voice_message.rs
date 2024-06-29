@@ -146,7 +146,7 @@ async fn internal_handle_message(
 pub async fn voice_message_enabled_for_guild(guild: GuildId) -> bool {
 	// try to fetch from redis
 	let redis_res = scripty_redis::run_transaction::<Option<bool>>("GET", |cmd| {
-		cmd.arg(format!("voice_msg_transcript_	{}", guild.get()));
+		cmd.arg(format!("voice_msg_transcript_{}", guild.get()));
 	})
 	.await
 	.unwrap_or_else(|e| {
