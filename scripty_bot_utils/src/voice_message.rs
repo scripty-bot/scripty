@@ -179,7 +179,7 @@ pub async fn voice_message_enabled_for_guild(guild: GuildId) -> bool {
 			{
 				error!("failed to cache in redis: {}", e);
 			}
-			false
+			ret
 		}
 		Ok(None) => false,
 		Err(e) => {
