@@ -26,6 +26,11 @@ pub async fn config_transcribe_voice_messages(
 	)
 	.execute(scripty_db::get_db())
 	.await?;
+	// purge cache
+	scripty_redis::run_transaction::<()>("DEL", |cmd| {
+		cmd.arg(format!("msg_transcript_{}", guild.get()))
+	})
+	.await?;
 
 	ctx.say(format_message!(
 		resolved_language,
