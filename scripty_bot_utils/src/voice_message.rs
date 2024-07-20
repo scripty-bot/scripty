@@ -37,7 +37,7 @@ pub async fn handle_message(ctx: &Context, msg: Message) {
 
 				let res = match attachment.download().await {
 					Ok(waveform) => {
-						internal_handle_message(ctx, msg.clone(), new_msg, waveform).await
+						internal_handle_message(ctx, msg.clone(), new_msg.clone(), waveform).await
 					}
 					Err(e) => {
 						error!(%msg.id, "failed to download voice message: {}", e);
@@ -47,11 +47,26 @@ pub async fn handle_message(ctx: &Context, msg: Message) {
 
 				if let Err(e) = res {
 					error!(%msg.id, "failed to handle voice message: {}", e);
-					if let Err(e) = msg
+					if let Err(e) = new_msg.delete(&ctx).await {
+						error!(%msg.id, "failed to delete message");
+					}
+					match msg
 						.reply(ctx, format!("failed to handle this voice message: {}", e))
 						.await
 					{
-						error!(%msg.id, "failed to send error message: {}", e)
+						Ok(error_msg) => {
+							let http = ctx.http.clone();
+							const FIFTEEN_SECONDS: Duration = Duration::from_secs(15);
+							tokio::spawn(async move {
+								tokio::time::sleep(FIFTEEN_SECONDS).await;
+								if Err(e) = error_msg.delete(http, None).await {
+									error!(%msg.id, "failed to delete message: {}", e);
+								}
+							});
+						}
+						Err(e) => {
+							error!(%msg.id, "failed to send error message: {}", e)
+						}
 					}
 				}
 			}
