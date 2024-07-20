@@ -98,6 +98,7 @@ pub async fn driver_disconnect(
 				thread_id,
 				false,
 				record_transcriptions,
+				,
 			)
 			.await
 			.map_err(|x| x.kind)

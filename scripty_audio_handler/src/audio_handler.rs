@@ -13,6 +13,7 @@ use scripty_automod::types::AutomodServerConfig;
 use scripty_integrations::kiai::KiaiApiClient;
 use serenity::{
 	all::RoleId,
+	builder::ExecuteWebhook,
 	client::Context,
 	model::{
 		id::{ChannelId, GuildId},
@@ -82,6 +83,7 @@ impl AudioHandler {
 		record_transcriptions: bool,
 		automod_server_cfg: AutomodServerConfig,
 		kiai_client: KiaiApiClient,
+		ephemeral: bool,
 	) -> Result<Self, sqlx::Error> {
 		let maps = SsrcMaps {
 			ssrc_user_id_map:      DashMap::with_capacity_and_hasher(10, RandomState::new()),
@@ -129,6 +131,23 @@ impl AudioHandler {
 
 				if Arc::<_>::strong_count(&t2.verbose) == 1 {
 					// this is the last strong pointer because all the others have been dropped
+					// run cleanup tasks
+					if ephemeral && let Some(thread_id) = t2.thread_id {
+						let http = t2.context.http;
+						if let Err(e) = thread_id.delete(&http, None).await {
+							let _ = t2
+								.webhook
+								.execute(
+									&http,
+									false,
+									ExecuteWebhook::new()
+										.content(format!("Failed to delete this thread: {}", e)),
+								)
+								.await;
+							error!(%thread_id, "Failed to delete thread: {}", e);
+						}
+					}
+
 					break;
 				}
 			}

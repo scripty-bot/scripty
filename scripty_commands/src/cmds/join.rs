@@ -40,6 +40,9 @@ pub async fn join(
 
 	#[description = "Create a new thread for this transcription? Defaults to false."]
 	create_thread: Option<bool>,
+
+	#[description = "Delete the transcript after the last user has left? Defaults to false."]
+	ephemeral: Option<bool>,
 ) -> Result<(), Error> {
 	let resolved_language =
 		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|g| g.get()))
@@ -51,6 +54,7 @@ pub async fn join(
 	// validate arguments
 	let record_transcriptions = record_transcriptions.unwrap_or(false);
 	let mut create_thread = create_thread.unwrap_or(false);
+	let ephemeral = ephemeral.unwrap_or(false);
 	let target_channel = match target_channel {
 		Some(c) => c,
 		None => ctx
@@ -60,16 +64,27 @@ pub async fn join(
 			.guild()
 			.ok_or_else(Error::expected_guild)?,
 	};
+	let target_is_thread =
+		target_channel.thread_metadata.is_some() && target_channel.parent_id.is_some();
+
+	if !(create_thread || target_is_thread) && ephemeral {
+		ctx.say(format_message!(
+			resolved_language,
+			"join-ephemeral-not-thread",
+		))
+		.await?;
+		return Ok(());
+	}
 
 	if target_channel.kind == ChannelType::Forum {
 		// we do this before the thread check just as a double check, even though that should never happen
 		create_thread = true;
 	}
 
-	if create_thread
-		&& target_channel.thread_metadata.is_some()
-		&& let Some(parent_id) = target_channel.parent_id
-	{
+	if create_thread && target_is_thread {
+		let parent_id = target_channel
+			.parent_id
+			.expect("target_is_thread should be true only if target_channel.parent_id is Some");
 		ctx.say(format_message!(
 			resolved_language,
 			"join-create-thread-in-thread",
@@ -182,7 +197,8 @@ pub async fn join(
 		.voice_states
 		.iter()
 		.filter(|state| state.channel_id == Some(voice_channel.id))
-		.count() == 0
+		.count()
+		== 0
 	{
 		ctx.say(
 			format_message!(resolved_language, "join-no-one-in-channel", targetMention: voice_channel.mention().to_string()),
@@ -251,6 +267,7 @@ pub async fn join(
 		target_thread.map(|x| x.id),
 		false,
 		record_transcriptions,
+		ephemeral,
 	)
 	.await;
 	match res {
