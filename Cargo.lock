@@ -663,6 +663,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "dashmap"
+version = "6.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "804c8821570c3f8b70230c2ba75ffa5c0f9a4189b9a432b6656c536712acae28"
+dependencies = [
+ "cfg-if",
+ "crossbeam-utils",
+ "hashbrown",
+ "lock_api",
+ "once_cell",
+ "parking_lot_core",
+]
+
+[[package]]
 name = "dasp_envelope"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1754,7 +1768,7 @@ checksum = "c325dfab65f261f386debee8b0969da215b3fa0037e74c8a1234db7ba986d803"
 dependencies = [
  "crossbeam-channel",
  "crossbeam-utils",
- "dashmap",
+ "dashmap 5.5.3",
  "skeptic",
  "smallvec",
  "tagptr",
@@ -2874,7 +2888,7 @@ dependencies = [
  "async-trait",
  "audiopus_sys 0.2.2",
  "backtrace",
- "dashmap",
+ "dashmap 6.0.1",
  "parking_lot",
  "scripty_automod",
  "scripty_data_storage",
@@ -2928,7 +2942,7 @@ dependencies = [
  "async-tempfile",
  "async-trait",
  "backtrace",
- "dashmap",
+ "dashmap 6.0.1",
  "num-format",
  "once_cell",
  "parking_lot",
@@ -3035,7 +3049,7 @@ version = "1.0.0"
 dependencies = [
  "aes-gcm",
  "csv",
- "dashmap",
+ "dashmap 6.0.1",
  "hex",
  "hound",
  "once_cell",
@@ -3074,7 +3088,7 @@ dependencies = [
 name = "scripty_i18n"
 version = "1.0.0"
 dependencies = [
- "dashmap",
+ "dashmap 6.0.1",
  "fluent",
  "intl-memoizer",
  "once_cell",
@@ -3104,7 +3118,7 @@ name = "scripty_metrics"
 version = "1.0.0"
 dependencies = [
  "chrono",
- "dashmap",
+ "dashmap 6.0.1",
  "once_cell",
  "prometheus",
  "prometheus-static-metric",
@@ -3119,7 +3133,7 @@ name = "scripty_premium"
 version = "1.0.0"
 dependencies = [
  "bitflags 2.5.0",
- "dashmap",
+ "dashmap 6.0.1",
  "once_cell",
  "scripty_db",
  "sqlx",
@@ -3144,7 +3158,7 @@ name = "scripty_stt"
 version = "1.0.0"
 dependencies = [
  "byteorder",
- "dashmap",
+ "dashmap 6.0.1",
  "dasp_interpolate",
  "dasp_signal",
  "flume",
@@ -3393,7 +3407,7 @@ dependencies = [
  "bool_to_bitflags",
  "bytes",
  "chrono",
- "dashmap",
+ "dashmap 5.5.3",
  "extract_map",
  "flate2",
  "futures",
@@ -3554,7 +3568,7 @@ dependencies = [
  "byteorder",
  "bytes",
  "crypto_secretbox",
- "dashmap",
+ "dashmap 5.5.3",
  "derivative",
  "discortp",
  "either",
@@ -4539,7 +4553,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eb704842c709bc76f63e99e704cb208beeccca2abbabd0d9aec02e48ca1cee0f"
 dependencies = [
  "chrono",
- "dashmap",
+ "dashmap 5.5.3",
  "extract_map",
  "hashbrown",
  "mini-moka",

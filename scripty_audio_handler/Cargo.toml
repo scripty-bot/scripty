@@ -8,7 +8,7 @@ license = "EUPL-1.2"
 
 [dependencies]
 ahash = "0.8"
-dashmap = "5"
+dashmap = "6"
 tracing = "0.1"
 secrecy = "0.8"
 backtrace = "0.3"
