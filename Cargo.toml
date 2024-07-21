@@ -36,10 +36,12 @@ members = [
 	"scripty_error",
 	"scripty_tts",
 	"scripty_integrations",
+	"scripty_build_checks",
 ]
 
 [dependencies]
 scripty_core = { path = "scripty_core" }
+scripty_build_checks = { path = "scripty_build_checks" }
 
 [target.'cfg(target_arch = "x86_64")'.dependencies]
 tikv-jemallocator = "0.5"

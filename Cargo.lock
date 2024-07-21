@@ -2983,6 +2983,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "scripty_build_checks"
+version = "0.1.0"
+
+[[package]]
 name = "scripty_commands"
 version = "1.0.0"
 dependencies = [
@@ -3210,6 +3214,7 @@ dependencies = [
 name = "scripty_v2"
 version = "1.0.0"
 dependencies = [
+ "scripty_build_checks",
  "scripty_core",
  "tikv-jemallocator",
 ]
