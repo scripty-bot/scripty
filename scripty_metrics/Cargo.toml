@@ -16,3 +16,6 @@ prometheus-static-metric = "0.5"
 tokio-metrics = { version = "0.3", features = ["rt"] }
 prometheus = { version = "0.13", features = ["process"] }
 tokio = { version = "1", features = ["parking_lot", "signal"] }
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(tokio_unstable)'] }

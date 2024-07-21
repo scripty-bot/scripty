@@ -146,11 +146,11 @@ impl AudioHandler {
 					// run cleanup tasks
 					if ephemeral && let Some(thread_id) = t2.thread_id {
 						let http = &t2.context.http;
-						if let Err(e) = thread_id.delete(&http, None).await {
+						if let Err(e) = thread_id.delete(http, None).await {
 							let _ = t2
 								.webhook
 								.execute(
-									&http,
+									http,
 									false,
 									ExecuteWebhook::new()
 										.content(format!("Failed to delete this thread: {}", e)),
@@ -301,10 +301,10 @@ impl Clone for AudioHandler {
 
 		Self {
 			ssrc_state: self.ssrc_state.clone(),
-			guild_id: self.guild_id.clone(),
-			channel_id: self.channel_id.clone(),
-			voice_channel_id: self.voice_channel_id.clone(),
-			thread_id: self.thread_id.clone(),
+			guild_id: self.guild_id,
+			channel_id: self.channel_id,
+			voice_channel_id: self.voice_channel_id,
+			thread_id: self.thread_id,
 			webhook: self.webhook.clone(),
 			context: self.context.clone(),
 			premium_level: self.premium_level.clone(),

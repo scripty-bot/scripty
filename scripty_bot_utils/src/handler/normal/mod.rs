@@ -2,7 +2,7 @@ use poise::serenity_prelude::EventHandler;
 use serenity::{
 	all::{RatelimitInfo, VoiceState},
 	client::Context as SerenityContext,
-	model::{channel::Message, event::ResumedEvent, gateway::Ready, id::GuildId},
+	model::{channel::Message, event::ResumedEvent, gateway::Ready},
 };
 
 mod message;

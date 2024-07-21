@@ -48,7 +48,7 @@ pub async fn handle_message(ctx: &Context, msg: Message) {
 				if let Err(e) = res {
 					error!(%msg.id, "failed to handle voice message: {}", e);
 					if let Err(e) = new_msg.delete(&ctx, None).await {
-						error!(%msg.id, "failed to delete message");
+						error!(%msg.id, "failed to delete message: {}", e);
 					}
 					match msg
 						.reply(ctx, format!("failed to handle this voice message: {}", e))
