@@ -21,7 +21,7 @@ pub use scripty_stt::{check_model_language, get_model_languages};
 use serenity::all::{ChannelId, GuildId};
 use songbird::{driver::DecodeMode, Config};
 pub use songbird::{error::JoinError, Songbird};
-use tokio::sync::oneshot::Sender;
+use tokio::sync::{broadcast, oneshot::Sender};
 
 pub fn get_songbird_config() -> Config {
 	Config::default().decode_mode(DecodeMode::Decode)
@@ -49,3 +49,22 @@ pub fn get_songbird() -> Arc<Songbird> {
 
 static AUTO_LEAVE_TASKS: OnceCell<DashMap<GuildId, Sender<()>, ahash::RandomState>> =
 	OnceCell::new();
+static VOICE_HANDLER_UPDATES: OnceCell<
+	DashMap<GuildId, broadcast::Sender<()>, ahash::RandomState>,
+> = OnceCell::new();
+
+/// Asynchronously force a handler update. If the bot has left the VC, this will run cleanup
+/// tasks.
+pub fn force_handler_update(guild_id: &GuildId) {
+	let res = VOICE_HANDLER_UPDATES
+		.get_or_init(|| DashMap::with_hasher(ahash::RandomState::new()))
+		.get(guild_id)
+		.map(|tx| tx.send(()));
+	match res {
+		Some(Ok(num_recv)) => debug!(%guild_id, "sent update to {} receivers", num_recv),
+		Some(Err(tokio::sync::broadcast::error::SendError(()))) => {
+			warn!(%guild_id, "sent update to dead channel")
+		}
+		None => debug!(%guild_id, "not actively in call for this server"),
+	}
+}

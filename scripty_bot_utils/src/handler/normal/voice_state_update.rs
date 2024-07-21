@@ -160,7 +160,7 @@ pub async fn voice_state_update(ctx: &Context, _old: &Option<VoiceState>, new: &
 			None,
 			false,
 			false,
-			,
+			false,
 		)
 		.await
 		{

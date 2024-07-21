@@ -24,6 +24,7 @@ pub async fn driver_disconnect(
 	thread_id: Option<ChannelId>,
 	transcript_results: TranscriptResults,
 	seen_users: SeenUsers,
+	ephemeral: bool,
 ) {
 	debug!(?guild_id, "handler disconnected");
 	let (should_reconnect, reason) = match reason {
@@ -98,7 +99,7 @@ pub async fn driver_disconnect(
 				thread_id,
 				false,
 				record_transcriptions,
-				,
+				ephemeral,
 			)
 			.await
 			.map_err(|x| x.kind)

@@ -47,7 +47,7 @@ pub async fn handle_message(ctx: &Context, msg: Message) {
 
 				if let Err(e) = res {
 					error!(%msg.id, "failed to handle voice message: {}", e);
-					if let Err(e) = new_msg.delete(&ctx).await {
+					if let Err(e) = new_msg.delete(&ctx, None).await {
 						error!(%msg.id, "failed to delete message");
 					}
 					match msg
@@ -59,7 +59,7 @@ pub async fn handle_message(ctx: &Context, msg: Message) {
 							const FIFTEEN_SECONDS: Duration = Duration::from_secs(15);
 							tokio::spawn(async move {
 								tokio::time::sleep(FIFTEEN_SECONDS).await;
-								if Err(e) = error_msg.delete(http, None).await {
+								if let Err(e) = error_msg.delete(http, None).await {
 									error!(%msg.id, "failed to delete message: {}", e);
 								}
 							});

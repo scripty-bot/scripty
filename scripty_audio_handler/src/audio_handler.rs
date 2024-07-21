@@ -50,7 +50,6 @@ pub struct SsrcMaps {
 }
 pub type ArcSsrcMaps = Arc<SsrcMaps>;
 
-#[derive(Clone)]
 pub struct AudioHandler {
 	ssrc_state:           ArcSsrcMaps,
 	guild_id:             GuildId,
@@ -70,6 +69,7 @@ pub struct AudioHandler {
 	translate:            Arc<AtomicBool>,
 	kiai_enabled:         Arc<AtomicBool>,
 	pub kiai_client:      KiaiApiClient,
+	ephemeral:            bool,
 }
 
 impl AudioHandler {
@@ -116,24 +116,36 @@ impl AudioHandler {
 			translate: Arc::new(AtomicBool::new(false)),
 			kiai_enabled: Arc::new(AtomicBool::new(false)),
 			kiai_client,
+			ephemeral,
 		};
 		this.reload_config().await?;
 
 		let t2 = this.clone();
 		tokio::spawn(async move {
 			const RELOAD_TIME: std::time::Duration = std::time::Duration::from_secs(300);
+			let (tx, mut rx) = tokio::sync::broadcast::channel::<()>(1);
+			if let Some(old) = crate::VOICE_HANDLER_UPDATES
+				.get_or_init(|| DashMap::with_hasher(RandomState::new()))
+				.insert(guild_id, tx)
+			{
+				// trigger a cleanup
+				let _ = old.send(());
+			}
 
 			loop {
-				tokio::time::sleep(RELOAD_TIME).await;
+				tokio::select! {
+					_ = rx.recv() => {}
+					_ = tokio::time::sleep(RELOAD_TIME) => {}
+				}
 				if let Err(e) = t2.reload_config().await {
 					error!("failed to reload config: {:?}", e);
 				};
 
-				if Arc::<_>::strong_count(&t2.verbose) == 1 {
+				if Arc::<_>::strong_count(&t2.verbose) <= 2 {
 					// this is the last strong pointer because all the others have been dropped
 					// run cleanup tasks
 					if ephemeral && let Some(thread_id) = t2.thread_id {
-						let http = t2.context.http;
+						let http = &t2.context.http;
 						if let Err(e) = thread_id.delete(&http, None).await {
 							let _ = t2
 								.webhook
@@ -147,6 +159,10 @@ impl AudioHandler {
 							error!(%thread_id, "Failed to delete thread: {}", e);
 						}
 					}
+
+					crate::VOICE_HANDLER_UPDATES
+						.get_or_init(|| DashMap::with_hasher(RandomState::new()))
+						.remove(&guild_id);
 
 					break;
 				}
@@ -250,9 +266,59 @@ impl EventHandler for AudioHandler {
 				self.thread_id,
 				self.transcript_results.clone(),
 				self.seen_users.clone(),
+				self.ephemeral,
 			)),
 			_ => return None,
 		};
 		None
+	}
+}
+
+impl Drop for AudioHandler {
+	fn drop(&mut self) {
+		let remaining = Arc::<_>::strong_count(&self.verbose);
+		trace!(
+			%self.guild_id,
+			"{} references to AudioHandler {{ guild_id: {} }} left",
+			remaining,
+			self.guild_id
+		);
+		let trace = std::backtrace::Backtrace::force_capture();
+		trace!(%self.guild_id, "reference drop stack trace: {}", trace);
+	}
+}
+
+impl Clone for AudioHandler {
+	fn clone(&self) -> Self {
+		let verbose = self.verbose.clone();
+
+		let remaining = Arc::<_>::strong_count(&self.verbose);
+		trace!(
+			"{} references to AudioHandler {{ guild_id: {} }} left",
+			remaining,
+			self.guild_id
+		);
+
+		Self {
+			ssrc_state: self.ssrc_state.clone(),
+			guild_id: self.guild_id.clone(),
+			channel_id: self.channel_id.clone(),
+			voice_channel_id: self.voice_channel_id.clone(),
+			thread_id: self.thread_id.clone(),
+			webhook: self.webhook.clone(),
+			context: self.context.clone(),
+			premium_level: self.premium_level.clone(),
+			verbose,
+			language: self.language.clone(),
+			transcript_results: self.transcript_results.clone(),
+			seen_users: self.seen_users.clone(),
+			automod_server_cfg: self.automod_server_cfg.clone(),
+			auto_detect_lang: self.auto_detect_lang.clone(),
+			transcribe_only_role: self.transcribe_only_role.clone(),
+			translate: self.translate.clone(),
+			kiai_enabled: self.kiai_enabled.clone(),
+			kiai_client: self.kiai_client.clone(),
+			ephemeral: self.ephemeral,
+		}
 	}
 }
