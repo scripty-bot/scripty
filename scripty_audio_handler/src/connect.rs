@@ -21,6 +21,7 @@ pub async fn connect_to_vc(
 	thread_id: Option<ChannelId>,
 	_force: bool,
 	record_transcriptions: bool,
+	ephemeral: bool,
 ) -> Result<(), Error> {
 	debug!(%guild_id, "fetching webhook");
 	// thanks to Discord undocumented breaking changes, we have to do this
@@ -125,6 +126,7 @@ pub async fn connect_to_vc(
 		record_transcriptions,
 		automod_server_cfg,
 		scripty_integrations::kiai::get_kiai_api_client().clone(),
+		ephemeral,
 	)
 	.await?;
 

@@ -8,7 +8,7 @@ license = "EUPL-1.2"
 
 [dependencies]
 time = "0.3"
-dashmap = "5"
+dashmap = "6"
 tracing = "0.1"
 bitflags = "2"
 once_cell = "1"

@@ -16,7 +16,7 @@ pub use voice::{change_voice_state, get_voice_state};
 
 /// Optionally load all users in database into cache
 pub async fn init_cache_async() -> Result<(), scripty_redis::redis::RedisError> {
-	text::init_text_cache_async().await?;
-	voice::init_voice_cache_async().await?;
+	// text::init_text_cache_async().await?;
+	// voice::init_voice_cache_async().await?;
 	Ok(())
 }

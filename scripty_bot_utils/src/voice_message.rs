@@ -37,7 +37,7 @@ pub async fn handle_message(ctx: &Context, msg: Message) {
 
 				let res = match attachment.download().await {
 					Ok(waveform) => {
-						internal_handle_message(ctx, msg.clone(), new_msg, waveform).await
+						internal_handle_message(ctx, msg.clone(), new_msg.clone(), waveform).await
 					}
 					Err(e) => {
 						error!(%msg.id, "failed to download voice message: {}", e);
@@ -47,11 +47,26 @@ pub async fn handle_message(ctx: &Context, msg: Message) {
 
 				if let Err(e) = res {
 					error!(%msg.id, "failed to handle voice message: {}", e);
-					if let Err(e) = msg
+					if let Err(e) = new_msg.delete(&ctx, None).await {
+						error!(%msg.id, "failed to delete message: {}", e);
+					}
+					match msg
 						.reply(ctx, format!("failed to handle this voice message: {}", e))
 						.await
 					{
-						error!(%msg.id, "failed to send error message: {}", e)
+						Ok(error_msg) => {
+							let http = ctx.http.clone();
+							const FIFTEEN_SECONDS: Duration = Duration::from_secs(15);
+							tokio::spawn(async move {
+								tokio::time::sleep(FIFTEEN_SECONDS).await;
+								if let Err(e) = error_msg.delete(http, None).await {
+									error!(%msg.id, "failed to delete message: {}", e);
+								}
+							});
+						}
+						Err(e) => {
+							error!(%msg.id, "failed to send error message: {}", e)
+						}
 					}
 				}
 			}
@@ -94,15 +109,26 @@ async fn internal_handle_message(
 	let lang = res.language;
 	let translate = res.translate;
 
+	let max_duration = output_length_secs * 2.0;
+	new_msg
+		.edit(
+			&ctx,
+			EditMessage::new().content(format!(
+				"Transcribing voice message...\nThis should take no longer than {} seconds +- 1 \
+				 second.",
+				max_duration
+			)),
+		)
+		.await?;
 	let stream = scripty_stt::get_stream().await?;
 	stream.feed_audio(output)?;
-	debug!(%msg.id, "fed audio to speech-to-text, waiting up to {} seconds for result", output_length_secs * 2.0);
+	debug!(%msg.id, "fed audio to speech-to-text, waiting up to {} seconds for result", max_duration);
 	let transcript = stream
 		.get_result(
 			lang,
 			false,
 			translate,
-			Some(Duration::from_secs_f64(output_length_secs * 2.0)),
+			Some(Duration::from_secs_f64(max_duration)),
 		)
 		.await?;
 	let transcript = transcript.trim();
@@ -135,7 +161,7 @@ async fn internal_handle_message(
 pub async fn voice_message_enabled_for_guild(guild: GuildId) -> bool {
 	// try to fetch from redis
 	let redis_res = scripty_redis::run_transaction::<Option<bool>>("GET", |cmd| {
-		cmd.arg(format!("msg_transcript_{}", guild.get()));
+		cmd.arg(format!("voice_msg_transcript_{}", guild.get()));
 	})
 	.await
 	.unwrap_or_else(|e| {
@@ -160,7 +186,7 @@ pub async fn voice_message_enabled_for_guild(guild: GuildId) -> bool {
 
 			// cache in redis
 			if let Err(e) = scripty_redis::run_transaction::<()>("SETEX", |cmd| {
-				cmd.arg(format!("msg_transcript_{}", guild.get()))
+				cmd.arg(format!("voice_msg_transcript_{}", guild.get()))
 					.arg(60 * 60 * 3)
 					.arg(ret);
 			})
@@ -168,7 +194,7 @@ pub async fn voice_message_enabled_for_guild(guild: GuildId) -> bool {
 			{
 				error!("failed to cache in redis: {}", e);
 			}
-			false
+			ret
 		}
 		Ok(None) => false,
 		Err(e) => {

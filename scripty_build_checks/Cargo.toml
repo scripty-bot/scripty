@@ -1,0 +1,9 @@
+[package]
+name = "scripty_build_checks"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(ignore_os)'] }

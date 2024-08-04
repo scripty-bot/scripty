@@ -9,12 +9,14 @@ use fern::{
 	Dispatch,
 };
 use rlimit::Resource;
+#[cfg(target_arch = "x86_64")]
 use tikv_jemalloc_ctl::{epoch, stats};
 use url::Url;
 
 pub fn start() {
 	load_config();
 
+	#[cfg(target_arch = "x86_64")]
 	spawn_malloc_trim();
 
 	let rt = get_tokio_rt();
@@ -178,6 +180,7 @@ fn increase_open_file_limit() {
 		.expect("failed to increase open file limit: will likely cause issues with STT service");
 }
 
+#[cfg(target_arch = "x86_64")]
 fn spawn_malloc_trim() {
 	std::thread::spawn(|| {
 		let emib = epoch::mib().expect("failed to get epoch mib");

@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use dashmap::DashMap;
 use serenity::{client::Context, model::id::GuildId};
 use songbird::error::JoinError;
@@ -19,6 +21,12 @@ pub async fn disconnect_from_vc(_ctx: &Context, guild_id: GuildId) -> Result<boo
 		// cancel the existing auto-leave task
 		let _ = existing.1.send(()); // ignore errors as the task may have already been cancelled
 	}
+
+	tokio::spawn(async move {
+		const FIVE_SECONDS: Duration = Duration::from_secs(5);
+		tokio::time::sleep(FIVE_SECONDS).await;
+		crate::force_handler_update(&guild_id);
+	});
 
 	res
 }

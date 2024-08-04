@@ -52,7 +52,7 @@ leave-success = Успешно покинул голосовой канал.
 # This and all attributes show up exclusively in the slash command picker when `help` is selected.
 cmds_help = help
     .description = Показать меню помощи.
-    .command = Команда.
+    .command = Команда
     .command-description = Показать страницу помощи для конкретной команды
 # transcribe_message command
 # This and all attributes show up exclusively in the slash command picker when `transcribe_message` is selected.

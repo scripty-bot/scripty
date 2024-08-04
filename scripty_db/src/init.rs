@@ -15,6 +15,7 @@ pub async fn init_db() {
 		DatabaseConnection::Unix(path) => conn_opts.socket(path),
 	};
 
+	info!("trying to connect to postgres");
 	let pool = PgPoolOptions::new()
 		.min_connections(2)
 		.max_connections(32)
@@ -22,6 +23,7 @@ pub async fn init_db() {
 		.await
 		.expect("failed to connect to db");
 
+	info!("running pending migrations");
 	sqlx::migrate!("../migrations")
 		.run(&pool)
 		.await

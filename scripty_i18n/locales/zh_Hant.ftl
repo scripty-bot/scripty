@@ -99,7 +99,7 @@ voice-connection-error-ws-closed-server-crashed = Discord 語音服務器崩潰
 voice-connection-error-unknown = 因不明原因斷開連接
 voice-connection-error-msg-no-reconnect = 我遇到了一個問題（{ $reason }）並與語音頻道斷開了連接。
 # This is shown as the number of transcriptions the algorithm has discovered.
-transcription-info-transcript-count = 10 個轉錄中的 1 個。
+transcription-info-transcript-count = { $count }	個轉錄中的 1 個。
 # This is shown as the title of the transcript
 transcription-info-transcription-title = 轉錄
 # This is shown as the percent accuracy of the transcription (roughly)
@@ -125,7 +125,7 @@ data-storage-embed-description =
     { "*" } 通過存儲的信息，我們會將它們提供給針對你的語言的記分器。 該記分器將允許算法為一組音頻選擇最可能的單詞。 儘管非常有用，但這並不像音頻那麼重要。
     { "*" } 使用存儲的音頻，我們會將其及其轉錄內容輸入到模型中，以提高語音到文本模型的準確性。 這非常有用，即使你的麥克風很差並且背景噪音很大：事實上，噪音越多越好，只要人類仍然可以聽清你在說什麼。
 
-    如果你選擇加入，並且稍後決定退出，你的數據仍會被存儲，但你可以通過聯繫支持服務器中的核心開發人員請求刪除：{ $supportServerInvite }。 我們將永久擦除你的所有數據。
+    如果你選擇加入，並且稍後決定退出，你的數據仍會被存儲，但你可以通過聯繫支持服務器中的核心開發人員請求刪除：`{ $contextPrefix }delete_all_data`。 我們將永久擦除你的所有數據。
     你的數據存儲在核心開發人員擁有的硬件上，並被鎖定。 對於任何試圖成功訪問的人來說，這將是極其困難的。
 
     你可以使用以下按鈕切換你的選擇。

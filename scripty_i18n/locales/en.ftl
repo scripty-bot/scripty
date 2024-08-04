@@ -35,6 +35,8 @@ join-create-thread-in-thread = I can't create a thread while in a thread. Please
 join-thread-title = Transcription from { $timestamp }
 # If the user specifies they would like to create a forum post, this is the contents of the initial message. { $timestamp } is the current timestamp, in ISO format, and { $authorMention } is the mention of the user who ran the command.
 join-forum-thread-content = { $authorMention } started a transcription at { $timestamp }.
+# Message shown when a user tries to use an ephemeral thread but cannot do so as a thread was not selected
+join-ephemeral-not-thread = To use the ephemeral parameter, you must select a thread as the target, by either setting `create_thread` to true or by targeting a thread with `target_channel`.
 # This message is shown when the user has told a bot to join a forum channel, but the forum requires tags. This is not possible for the bot to work around as it has no way of knowing what tags to use.
 join-forum-requires-tags = The forum channel you tried to make me use requires tags. I have no way of knowing what tags to use, so I cannot join that channel. Please use a different channel, or ask an admin to remove the tag requirement.
 # This message is shown when the user has told the bot to send transcripts to a non-text-based channel (ie category). `target_channel` should be translated, as slash command arguments are localized.

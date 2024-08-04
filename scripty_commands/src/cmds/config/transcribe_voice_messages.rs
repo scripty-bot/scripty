@@ -16,19 +16,20 @@ pub async fn config_transcribe_voice_messages(
 		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|g| g.get()))
 			.await;
 
+	let guild_id = ctx
+		.guild_id()
+		.map(|g| g.get())
+		.ok_or_else(Error::expected_guild)?;
 	sqlx::query!(
 		"INSERT INTO guilds (guild_id, transcribe_voice_messages) VALUES ($1, $2) ON CONFLICT \
 		 (guild_id) DO UPDATE SET transcribe_voice_messages = $2",
-		ctx.guild_id()
-			.map(|g| g.get())
-			.ok_or_else(Error::expected_guild)? as i64,
+		guild_id as i64,
 		transcribe_voice_messages
 	)
 	.execute(scripty_db::get_db())
 	.await?;
-	// purge cache
 	scripty_redis::run_transaction::<()>("DEL", |cmd| {
-		cmd.arg(format!("msg_transcript_{}", guild.get()))
+		cmd.arg(format!("voice_msg_transcript_{}", guild_id));
 	})
 	.await?;
 

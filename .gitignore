@@ -8,3 +8,5 @@
 /output.log
 # not ignored by **/target for some reason
 scripty_commands/target/*
+fetch-voice-message.http
+scripty_botlists/src/http-client.private.env.json

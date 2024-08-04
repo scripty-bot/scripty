@@ -1,6 +1,8 @@
 use crate::load_balancer::LoadBalancer;
 
 pub async fn init_stt() {
+	info!("starting stt load balancer");
+
 	let balancer = LoadBalancer::new()
 		.await
 		.expect("failed to initialize a STT service");
