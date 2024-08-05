@@ -100,7 +100,7 @@ impl DmSupportStatus {
 		if let Err(e) = resp {
 			warn!("failed to send message to webhook: {:?}", e);
 			let _ = message
-				.reply(ctx, format!("failed to send message: {}", e))
+				.reply(&ctx.http, format!("failed to send message: {}", e))
 				.await;
 		}
 	}
@@ -177,7 +177,7 @@ impl DmSupportStatus {
 		if let Err(e) = resp {
 			let _ = message_channel
 				.send_message(
-					&ctx,
+					&ctx.http,
 					CreateMessage::default().content(format!("Couldn't send message: {}", e)),
 				)
 				.await;
@@ -207,7 +207,7 @@ impl DmSupportStatus {
 
 		let channel = guild_id
 			.create_channel(
-				&ctx,
+				&ctx.http,
 				CreateChannel::new(user_id_str)
 					.category(category.id)
 					.kind(ChannelType::Text),
@@ -236,7 +236,7 @@ impl DmSupportStatus {
 			warn!("failed to handle opening: {}", e);
 			channel
 				.send_message(
-					ctx,
+					&ctx.http,
 					CreateMessage::default().content(format!("failed to handle opening: {}", e)),
 				)
 				.await
@@ -331,13 +331,15 @@ impl DmSupportStatus {
 
 		self.webhook_cache.remove(&channel.id);
 
-		let _ = channel.delete(ctx, Some("DM support ticket closed")).await;
+		let _ = channel
+			.delete(&ctx.http, Some("DM support ticket closed"))
+			.await;
 	}
 }
 
 async fn get_forwarding_category(ctx: &Context) -> GuildChannel {
 	ChannelId::new(scripty_config::get_config().dm_support.forwarding_category)
-		.to_channel(&ctx)
+		.to_channel(&ctx, None)
 		.await
 		.expect("failed to get forwarding category")
 		.guild()

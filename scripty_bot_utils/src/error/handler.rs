@@ -144,7 +144,7 @@ async fn _on_error(error: FrameworkError<'_, Data, Error>) {
 			let response = ctx
 				.interaction
 				.channel_id
-				.send_message(&ctx.serenity_context(), msg.clone())
+				.send_message(ctx.http(), msg.clone())
 				.await;
 			if let Err(e) = response {
 				warn!("failed to send message while handling error: {}", e);
@@ -356,7 +356,7 @@ async fn _on_error(error: FrameworkError<'_, Data, Error>) {
 			match msg
 				.channel_id
 				.say(
-					framework.serenity_context,
+					&framework.serenity_context.http,
 					"To get started with Scripty, you can run </join:1179256548241973269> in a \
 					 channel where you want transcriptions sent to.",
 				)

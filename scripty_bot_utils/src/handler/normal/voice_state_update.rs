@@ -6,7 +6,7 @@ use serenity::{
 	client::Context,
 };
 
-pub async fn voice_state_update(ctx: &Context, _old: &Option<VoiceState>, new: &VoiceState) {
+pub async fn voice_state_update(ctx: Context, _old: Option<VoiceState>, new: VoiceState) {
 	let Some(guild_id) = new.guild_id else {
 		warn!("no guild id in voice_state_update");
 		return;
@@ -59,7 +59,7 @@ pub async fn voice_state_update(ctx: &Context, _old: &Option<VoiceState>, new: &
 			"leaving voice channel {} in guild {} (we're last user)",
 			cid, guild_id
 		);
-		if let Err(e) = scripty_audio_handler::disconnect_from_vc(ctx, guild_id).await {
+		if let Err(e) = scripty_audio_handler::disconnect_from_vc(&ctx, guild_id).await {
 			error!("error disconnecting from voice channel: {:?}", e);
 		};
 	} else {

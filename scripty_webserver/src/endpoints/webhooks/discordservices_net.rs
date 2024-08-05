@@ -86,7 +86,7 @@ pub async fn discordservices_net_incoming_webhook(
 	let dm_channel = UserId::new(id).create_dm_channel(&cache_http.http).await?;
 	dm_channel
 		.send_message(
-			&cache_http,
+			&cache_http.http,
 			CreateMessage::new().embed(
 				CreateEmbed::new()
 					.title("Thanks for voting for Scripty on discordservices.net!")

@@ -180,7 +180,7 @@ pub async fn handle_message(ctx: &Context, msg: Message) -> Result<(), GenericMe
 		.reference_message(&msg)
 		.allowed_mentions(CreateAllowedMentions::default().replied_user(false))
 		.content("Downloading files...");
-	let mut new_msg = match msg.channel_id.send_message(&ctx, msg_builder).await {
+	let mut new_msg = match msg.channel_id.send_message(&ctx.http, msg_builder).await {
 		Ok(msg) => msg,
 		Err(e) => {
 			error!(%msg.id, "failed to send message: {}", e);

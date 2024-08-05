@@ -8,7 +8,7 @@ pub async fn ratelimit(
 		path,
 		global,
 		..
-	}: &RatelimitInfo,
+	}: RatelimitInfo,
 ) {
 	let method = method.reqwest_method();
 	warn!(

@@ -1,7 +1,6 @@
 use std::time::Duration;
 
-use deadpool::managed::{PoolConfig, QueueMode, Timeouts};
-use deadpool_redis::{redis::cmd, Config, Runtime};
+use deadpool_redis::{redis::cmd, Config, PoolConfig, Runtime, Timeouts};
 
 pub async fn init_redis() {
 	info!("configuring redis pool");
@@ -12,11 +11,9 @@ pub async fn init_redis() {
 	timeouts.create = Some(Duration::from_secs(5));
 	timeouts.recycle = Some(Duration::from_secs(2));
 	timeouts.wait = Some(Duration::from_secs(5));
-	config.pool = Some(PoolConfig {
-		max_size: 128,
-		timeouts,
-		queue_mode: QueueMode::Fifo,
-	});
+	let mut pool = PoolConfig::new(128);
+	pool.timeouts = timeouts;
+	config.pool = Some(pool);
 
 	// initialize the pool
 	info!("connecting to redis server");

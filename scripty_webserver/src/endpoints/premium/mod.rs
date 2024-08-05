@@ -479,7 +479,7 @@ ON CONFLICT
 			.create_dm_channel(&cache_http.http)
 			.await?;
 		dm_channel
-			.send_message(cache_http, CreateMessage::default().embed(embed))
+			.send_message(&cache_http.http, CreateMessage::default().embed(embed))
 			.await?;
 	} else {
 		debug!("not sending DM to user");

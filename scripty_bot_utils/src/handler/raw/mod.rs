@@ -59,7 +59,6 @@ impl SerenityRawEventHandler for RawEventHandler {
 			Event::MessageDeleteBulk(_) => metrics.events.message_delete_bulk.inc(),
 			Event::MessageUpdate(_) => metrics.events.message_update.inc(),
 			Event::PresenceUpdate(_) => metrics.events.presence_update.inc(),
-			Event::PresencesReplace(_) => metrics.events.presences_replace.inc(),
 			Event::ReactionAdd(_) => metrics.events.reaction_add.inc(),
 			Event::ReactionRemove(_) => metrics.events.reaction_remove.inc(),
 			Event::ReactionRemoveAll(_) => metrics.events.reaction_remove_all.inc(),
@@ -99,6 +98,13 @@ impl SerenityRawEventHandler for RawEventHandler {
 			Event::GuildScheduledEventUserRemove(_) => {
 				metrics.events.guild_scheduled_event_user_remove.inc()
 			}
+			Event::GuildAuditLogEntryCreate(_) => metrics.events.guild_audit_log_entry_create.inc(),
+			Event::VoiceChannelStatusUpdate(_) => metrics.events.voice_state_update.inc(),
+			Event::EntitlementCreate(_) => metrics.events.entitlement_create.inc(),
+			Event::EntitlementUpdate(_) => metrics.events.entitlement_update.inc(),
+			Event::EntitlementDelete(_) => metrics.events.entitlement_delete.inc(),
+			Event::MessagePollVoteAdd(_) => metrics.events.message_poll_vote_add.inc(),
+			Event::MessagePollVoteRemove(_) => metrics.events.message_poll_vote_remove.inc(),
 			_ => metrics.events.unknown.inc(),
 		}
 	}

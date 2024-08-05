@@ -19,7 +19,7 @@ pub async fn handle_message(ctx: &Context, msg: Message) {
 				let new_msg = match msg
 					.channel_id
 					.send_message(
-						&ctx,
+						&ctx.http,
 						CreateMessage::new()
 							.content("Downloading voice message...")
 							.allowed_mentions(CreateAllowedMentions::new().replied_user(false))
@@ -47,11 +47,14 @@ pub async fn handle_message(ctx: &Context, msg: Message) {
 
 				if let Err(e) = res {
 					error!(%msg.id, "failed to handle voice message: {}", e);
-					if let Err(e) = new_msg.delete(&ctx, None).await {
+					if let Err(e) = new_msg.delete(&ctx.http, None).await {
 						error!(%msg.id, "failed to delete message: {}", e);
 					}
 					match msg
-						.reply(ctx, format!("failed to handle this voice message: {}", e))
+						.reply(
+							&ctx.http,
+							format!("failed to handle this voice message: {}", e),
+						)
 						.await
 					{
 						Ok(error_msg) => {
@@ -59,7 +62,7 @@ pub async fn handle_message(ctx: &Context, msg: Message) {
 							const FIFTEEN_SECONDS: Duration = Duration::from_secs(15);
 							tokio::spawn(async move {
 								tokio::time::sleep(FIFTEEN_SECONDS).await;
-								if let Err(e) = error_msg.delete(http, None).await {
+								if let Err(e) = error_msg.delete(&http, None).await {
 									error!(%msg.id, "failed to delete message: {}", e);
 								}
 							});

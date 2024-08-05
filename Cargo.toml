@@ -50,3 +50,6 @@ tikv-jemallocator = "0.5"
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next" }
 songbird = { git = "https://github.com/serenity-rs/songbird", branch = "serenity-next" }
 
+[patch.crates-io.serenity-voice-model]
+git = "https://github.com/serenity-rs/serenity"
+branch = "current"

@@ -59,7 +59,7 @@ pub async fn join(
 		Some(c) => c,
 		None => ctx
 			.channel_id()
-			.to_channel(&ctx)
+			.to_channel(&ctx, ctx.guild_id())
 			.await?
 			.guild()
 			.ok_or_else(Error::expected_guild)?,
@@ -153,7 +153,7 @@ pub async fn join(
 	let voice_channel = match voice_channel {
 		Ok(vc) => vc,
 		Err(Some(state)) => state
-			.to_channel(&ctx)
+			.to_channel(&ctx, ctx.guild_id())
 			.await?
 			.guild()
 			.expect("asserted we are already in guild"),
