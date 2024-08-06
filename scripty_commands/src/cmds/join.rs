@@ -47,7 +47,7 @@ pub async fn join(
 	let resolved_language =
 		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|g| g.get()))
 			.await;
-	let _typing = ctx.defer_or_broadcast().await;
+	ctx.defer().await?;
 	let db = scripty_db::get_db();
 	let cfg = scripty_config::get_config();
 
