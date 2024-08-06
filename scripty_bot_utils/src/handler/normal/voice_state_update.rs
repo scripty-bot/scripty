@@ -6,7 +6,7 @@ use serenity::{
 	client::Context,
 };
 
-pub async fn voice_state_update(ctx: Context, _old: Option<VoiceState>, new: VoiceState) {
+pub async fn voice_state_update(ctx: Context, new: VoiceState) {
 	let Some(guild_id) = new.guild_id else {
 		warn!("no guild id in voice_state_update");
 		return;

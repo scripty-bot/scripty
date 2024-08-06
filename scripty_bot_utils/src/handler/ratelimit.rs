@@ -1,6 +1,6 @@
 use serenity::http::RatelimitInfo;
 
-pub async fn ratelimit(
+pub fn ratelimit(
 	RatelimitInfo {
 		timeout,
 		limit,
