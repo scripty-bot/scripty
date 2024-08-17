@@ -42,20 +42,21 @@ pub async fn entrypoint() {
 	if let Some(proxy) = &cfg.proxy {
 		http = http.proxy(proxy).ratelimiter_disabled(true);
 	}
+	let http = http.build();
+	if let Some(ratelimiter) = &http.ratelimiter {
+		ratelimiter.set_ratelimit_callback(Box::new(handler::ratelimit))
+	}
 
-	let mut client = ClientBuilder::new_with_http(
-		Arc::new(http.build()),
-		framework_opts::get_gateway_intents(),
-	)
-	.data(data.clone())
-	.framework(framework)
-	.voice_manager::<scripty_audio_handler::Songbird>(songbird)
-	.event_handler(handler::BotEventHandler)
-	.raw_event_handler(handler::RawEventHandler)
-	.status(OnlineStatus::Idle)
-	.activity(ActivityData::custom("Starting up..."))
-	.await
-	.expect("failed to create serenity client");
+	let mut client =
+		ClientBuilder::new_with_http(Arc::new(http), framework_opts::get_gateway_intents())
+			.data(data.clone())
+			.framework(framework)
+			.voice_manager::<scripty_audio_handler::Songbird>(songbird)
+			.raw_event_handler(handler::RawEventHandler)
+			.status(OnlineStatus::Idle)
+			.activity(ActivityData::custom("Starting up..."))
+			.await
+			.expect("failed to create serenity client");
 
 	data.shard_manager
 		.set(client.shard_manager.clone())

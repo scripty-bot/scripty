@@ -1,6 +1,6 @@
 use serenity::http::RatelimitInfo;
 
-pub async fn ratelimit(
+pub fn ratelimit(
 	RatelimitInfo {
 		timeout,
 		limit,
@@ -8,7 +8,7 @@ pub async fn ratelimit(
 		path,
 		global,
 		..
-	}: &RatelimitInfo,
+	}: RatelimitInfo,
 ) {
 	let method = method.reqwest_method();
 	warn!(

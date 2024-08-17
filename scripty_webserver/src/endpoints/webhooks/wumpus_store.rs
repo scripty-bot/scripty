@@ -86,7 +86,7 @@ pub async fn wumpus_store_incoming_webhook(
 		.await?;
 	dm_channel
 		.send_message(
-			&cache_http,
+			&cache_http.http,
 			CreateMessage::new().embed(
 				CreateEmbed::new()
 					.title("Thanks for voting for Scripty on wumpus.store!")

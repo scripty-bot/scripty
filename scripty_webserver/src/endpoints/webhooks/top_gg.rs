@@ -79,7 +79,7 @@ pub async fn top_gg_incoming_webhook(
 		.await?;
 	dm_channel
 		.send_message(
-			&cache_http,
+			&cache_http.http,
 			CreateMessage::new().embed(
 				CreateEmbed::new()
 					.title("Thanks for voting for Scripty on top.gg!")

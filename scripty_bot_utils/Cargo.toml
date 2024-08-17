@@ -34,7 +34,6 @@ reqwest = { version = "0.12", default-features = false, features = ["json", "rus
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [
 	"voice",
 	"dashmap",
-	"parking_lot",
 	"rustls_backend",
 	"model",
 	"gateway",

@@ -242,7 +242,7 @@ async fn handle_silent_speakers<'a>(
 
 			if let Err(e) = SerenityChannelId::from(automod_server_cfg.log_channel_id)
 				.send_message(
-					&ctx,
+					&ctx.http,
 					CreateMessage::new().embed(
 						CreateEmbed::new()
 							.title("User said a forbidden word")

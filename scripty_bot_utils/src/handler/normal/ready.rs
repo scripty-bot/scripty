@@ -7,14 +7,14 @@ use crate::{
 };
 
 pub async fn ready(
-	ctx: &Context,
+	ctx: Context,
 	Ready {
 		version,
 		user,
 		guilds,
 		shard,
 		..
-	}: &Ready,
+	}: Ready,
 ) {
 	set_cache_http(ctx.http.clone(), ctx.cache.clone());
 

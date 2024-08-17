@@ -1,13 +1,15 @@
 use std::time::Instant;
 
-use poise::serenity_prelude::RawEventHandler as SerenityRawEventHandler;
-use serenity::{client::Context, model::event::Event};
+use serenity::{
+	client::{Context, RawEventHandler as SerenityRawEventHandler},
+	model::event::{Event, MessageCreateEvent, ReadyEvent, ResumedEvent, VoiceStateUpdateEvent},
+};
 
 pub struct RawEventHandler;
 
 #[async_trait]
 impl SerenityRawEventHandler for RawEventHandler {
-	async fn raw_event(&self, _ctx: Context, event: Event) {
+	async fn raw_event(&self, ctx: Context, event: Event) {
 		// we need to handle command latency measurements here too,
 		// as poise overwrites serenity and calls it after command processing
 		let st = Instant::now();
@@ -59,7 +61,6 @@ impl SerenityRawEventHandler for RawEventHandler {
 			Event::MessageDeleteBulk(_) => metrics.events.message_delete_bulk.inc(),
 			Event::MessageUpdate(_) => metrics.events.message_update.inc(),
 			Event::PresenceUpdate(_) => metrics.events.presence_update.inc(),
-			Event::PresencesReplace(_) => metrics.events.presences_replace.inc(),
 			Event::ReactionAdd(_) => metrics.events.reaction_add.inc(),
 			Event::ReactionRemove(_) => metrics.events.reaction_remove.inc(),
 			Event::ReactionRemoveAll(_) => metrics.events.reaction_remove_all.inc(),
@@ -99,7 +100,27 @@ impl SerenityRawEventHandler for RawEventHandler {
 			Event::GuildScheduledEventUserRemove(_) => {
 				metrics.events.guild_scheduled_event_user_remove.inc()
 			}
+			Event::GuildAuditLogEntryCreate(_) => metrics.events.guild_audit_log_entry_create.inc(),
+			Event::VoiceChannelStatusUpdate(_) => metrics.events.voice_state_update.inc(),
+			Event::EntitlementCreate(_) => metrics.events.entitlement_create.inc(),
+			Event::EntitlementUpdate(_) => metrics.events.entitlement_update.inc(),
+			Event::EntitlementDelete(_) => metrics.events.entitlement_delete.inc(),
+			Event::MessagePollVoteAdd(_) => metrics.events.message_poll_vote_add.inc(),
+			Event::MessagePollVoteRemove(_) => metrics.events.message_poll_vote_remove.inc(),
 			_ => metrics.events.unknown.inc(),
+		}
+
+		// Dispatch events as normal
+		match event {
+			Event::MessageCreate(MessageCreateEvent { message, .. }) => {
+				super::normal::message(ctx, message).await
+			}
+			Event::Ready(ReadyEvent { ready, .. }) => super::normal::ready(ctx, ready).await,
+			Event::Resumed(ResumedEvent { .. }) => super::normal::resume(ctx).await,
+			Event::VoiceStateUpdate(VoiceStateUpdateEvent { voice_state, .. }) => {
+				super::normal::voice_state_update(ctx, voice_state).await
+			}
+			_ => {}
 		}
 	}
 }

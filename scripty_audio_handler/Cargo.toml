@@ -34,7 +34,6 @@ songbird = { git = "https://github.com/serenity-rs/songbird", branch = "serenity
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [
 	"voice",
 	"dashmap",
-	"parking_lot",
 	"rustls_backend",
 	"model",
 	"gateway",

@@ -15,7 +15,7 @@ pub async fn ps_close(ctx: Context<'_>) -> Result<(), Error> {
 		st.close_ticket(
 			ctx.serenity_context(),
 			ctx.channel_id()
-				.to_channel(&ctx)
+				.to_channel(&ctx.http(), ctx.guild_id())
 				.await?
 				.guild()
 				.expect("should be in guild"),

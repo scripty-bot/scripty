@@ -6,12 +6,12 @@ language-set-failure-description-unsupported = 如果你想幫助我們添加對
 default-category-name = 指令
 # Context menu command translation strings
 context-menu-command-title =
-       { "" }
-    菜單指令:
+    { "" }
+    菜單指令：
     { "" }
 context-menu-command-user =
-      { " " }
-    { $commandName } (在用戶上)
+    { " " }
+    { $commandName }（在用戶上）
     { "" }
 context-menu-command-message =
     { " " }

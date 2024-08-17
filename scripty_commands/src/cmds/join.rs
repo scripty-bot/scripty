@@ -47,7 +47,7 @@ pub async fn join(
 	let resolved_language =
 		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|g| g.get()))
 			.await;
-	let _typing = ctx.defer_or_broadcast().await;
+	ctx.defer().await?;
 	let db = scripty_db::get_db();
 	let cfg = scripty_config::get_config();
 
@@ -59,7 +59,7 @@ pub async fn join(
 		Some(c) => c,
 		None => ctx
 			.channel_id()
-			.to_channel(&ctx)
+			.to_channel(&ctx, ctx.guild_id())
 			.await?
 			.guild()
 			.ok_or_else(Error::expected_guild)?,
@@ -153,7 +153,7 @@ pub async fn join(
 	let voice_channel = match voice_channel {
 		Ok(vc) => vc,
 		Err(Some(state)) => state
-			.to_channel(&ctx)
+			.to_channel(&ctx, ctx.guild_id())
 			.await?
 			.guild()
 			.expect("asserted we are already in guild"),

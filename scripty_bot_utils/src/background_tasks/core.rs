@@ -55,7 +55,7 @@ macro_rules! init_task {
 
 static READY: OnceCell<()> = OnceCell::new();
 
-pub fn init_background_tasks(ctx: &Context) {
+pub fn init_background_tasks(ctx: Context) {
 	if READY.set(()).is_err() {
 		return;
 	}
