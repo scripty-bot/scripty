@@ -47,6 +47,10 @@ stt_services = [
   ["127.0.0.1", 7269]
 ]
 
+# Twilight REST API proxy: https://github.com/twilight-rs/http-proxy
+# Recommended if you have more than 1 transcript per second
+#proxy = "http://localhost:4000"
+
 [database]
 host = "/var/run/postgresql/"
 # host = ["0.0.0.0", 5432]
@@ -72,3 +76,5 @@ extra_fields = {}
 discord = "a.b.c"
 # Don't need to change this
 kiai = "000000000000000000"
+
+[bot_lists]
