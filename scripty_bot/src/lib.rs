@@ -55,6 +55,7 @@ pub async fn entrypoint() {
 			.data(data.clone())
 			.framework(framework)
 			.voice_manager::<scripty_audio_handler::Songbird>(songbird)
+			.event_handler(handler::EventHandler)
 			.raw_event_handler(handler::RawEventHandler)
 			.status(OnlineStatus::Idle)
 			.activity(ActivityData::custom("Starting up..."))
