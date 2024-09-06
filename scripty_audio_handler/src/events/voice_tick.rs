@@ -17,7 +17,7 @@ use scripty_stt::{ModelError, Stream};
 use serenity::{
 	all::{ChannelId as SerenityChannelId, ChannelId, GuildId, UserId, Webhook},
 	builder::{CreateEmbed, CreateMessage, EditMember, ExecuteWebhook},
-	client::Context,
+	gateway::client::Context,
 };
 use songbird::events::context_data::VoiceTick;
 

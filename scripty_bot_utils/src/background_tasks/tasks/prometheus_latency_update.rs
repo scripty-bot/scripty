@@ -1,7 +1,7 @@
 use std::{sync::Arc, time::Duration};
 
 use scripty_metrics::Metrics;
-use serenity::{client::Context, model::id::ChannelId};
+use serenity::{gateway::client::Context, model::id::ChannelId};
 
 use crate::{background_tasks::core::BackgroundTask, Data, Error};
 

@@ -12,7 +12,7 @@ use serenity::{
 		CreateWebhook,
 		ExecuteWebhook,
 	},
-	client::Context,
+	gateway::client::Context,
 	model::{
 		channel::{ChannelType, GuildChannel, Message},
 		id::{ChannelId, GuildId, UserId},

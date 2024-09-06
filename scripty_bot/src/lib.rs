@@ -10,7 +10,10 @@ use std::sync::{Arc, OnceLock};
 
 use poise::FrameworkBuilder;
 use scripty_bot_utils::{globals::CLIENT_DATA, handler, Data};
-use serenity::{all::OnlineStatus, client::ClientBuilder, gateway::ActivityData};
+use serenity::{
+	gateway::{client::ClientBuilder, ActivityData},
+	model::user::OnlineStatus,
+};
 
 pub async fn entrypoint() {
 	// fetch the config

@@ -3,7 +3,7 @@ use std::{borrow::Cow, sync::Arc};
 use serenity::{
 	all::UserId,
 	builder::{CreateAttachment, CreateMessage, ExecuteWebhook},
-	client::Context,
+	gateway::client::Context,
 	model::{id::ChannelId, webhook::Webhook},
 };
 use songbird::{events::context_data::DisconnectReason, id::GuildId, model::CloseCode};

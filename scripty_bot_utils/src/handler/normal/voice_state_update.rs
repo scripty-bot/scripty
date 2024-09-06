@@ -3,7 +3,7 @@ use std::time::Duration;
 use scripty_audio_handler::get_voice_channel_id;
 use serenity::{
 	all::{ChannelId, VoiceState},
-	client::Context,
+	gateway::client::Context,
 };
 
 pub async fn voice_state_update(ctx: Context, new: VoiceState) {

@@ -24,7 +24,7 @@ use serenity::{
 };
 
 pub async fn do_paginate(
-	ctx: &serenity::client::Context,
+	ctx: &serenity::gateway::client::Context,
 	target_channel: ChannelId,
 	items: Vec<(String, String)>,
 	title: String,

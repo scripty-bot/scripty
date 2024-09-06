@@ -14,7 +14,7 @@ use scripty_integrations::kiai::KiaiApiClient;
 use serenity::{
 	all::RoleId,
 	builder::ExecuteWebhook,
-	client::Context,
+	gateway::client::Context,
 	model::{
 		id::{ChannelId, GuildId},
 		webhook::Webhook,

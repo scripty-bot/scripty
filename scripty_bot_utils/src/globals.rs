@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use once_cell::sync::OnceCell;
-use serenity::client::Cache;
+use serenity::cache::Cache;
 
 use crate::{dm_support::DmSupportStatus, Data};
 

@@ -1,7 +1,7 @@
 use std::{sync::Arc, time::Duration};
 
 use scripty_metrics::Metrics;
-use serenity::client::Context;
+use serenity::gateway::client::Context;
 
 use crate::{background_tasks::core::BackgroundTask, Error};
 

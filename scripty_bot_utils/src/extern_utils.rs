@@ -8,7 +8,7 @@ pub use serenity::{
 	Error as SerenityError,
 };
 use serenity::{
-	client::Cache,
+	cache::Cache,
 	gateway::ConnectionStage,
 	http::{CacheHttp, Http},
 	model::channel::ChannelType,

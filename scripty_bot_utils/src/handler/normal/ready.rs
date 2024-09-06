@@ -1,4 +1,4 @@
-use serenity::{all::ShardInfo, client::Context, model::prelude::Ready};
+use serenity::{all::ShardInfo, gateway::client::Context, model::prelude::Ready};
 
 use crate::{
 	dm_support::DmSupportStatus,

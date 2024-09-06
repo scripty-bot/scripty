@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use serenity::client::Context;
+use serenity::gateway::client::Context;
 
 use crate::{background_tasks::core::BackgroundTask, Error};
 
