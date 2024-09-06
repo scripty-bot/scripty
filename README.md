@@ -4,7 +4,7 @@ rewrite of the [old Scripty](https://github.com/tazz4843/scripty) in general
 
 # selfhosting
 
-should work, untested
+should work, officially supported if you're using linux:
 
 only supports linux, will not support any other OS, especially not windows
 
