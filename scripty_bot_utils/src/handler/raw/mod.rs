@@ -2,14 +2,14 @@ use std::time::Instant;
 
 use serenity::{
 	gateway::client::{Context, RawEventHandler as SerenityRawEventHandler},
-	model::event::{Event, MessageCreateEvent, ReadyEvent, ResumedEvent, VoiceStateUpdateEvent},
+	model::event::Event,
 };
 
 pub struct RawEventHandler;
 
 #[async_trait]
 impl SerenityRawEventHandler for RawEventHandler {
-	async fn raw_event(&self, ctx: Context, event: &Event) {
+	async fn raw_event(&self, _ctx: Context, event: &Event) {
 		debug!("got raw event: {}", event.name());
 
 		// we need to handle command latency measurements here too,
