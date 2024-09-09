@@ -2,8 +2,7 @@ use std::time::Duration;
 
 use serenity::{
 	all::{ActivityType, OnlineStatus},
-	client::Context as SerenityContext,
-	gateway::ActivityData,
+	gateway::{client::Context as SerenityContext, ActivityData},
 	small_fixed_array::FixedString,
 };
 

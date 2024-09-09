@@ -3,7 +3,7 @@ use std::{fmt, time::Duration};
 use serenity::{
 	all::UserId,
 	builder::{CreateEmbed, CreateMessage},
-	client::Context as SerenityContext,
+	gateway::client::Context as SerenityContext,
 };
 
 use crate::{background_tasks::core::BackgroundTask, Error};

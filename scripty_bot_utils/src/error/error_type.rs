@@ -7,7 +7,7 @@ use std::{
 use backtrace::Backtrace;
 use scripty_audio_handler::JoinError;
 use scripty_stt::{ModelError, OpusSourceError};
-use serenity::{model::channel::ChannelType, prelude::SerenityError};
+use serenity::{http::JsonErrorCode, model::channel::ChannelType, prelude::SerenityError};
 
 use crate::generic_audio_message::GenericMessageError;
 
@@ -163,7 +163,11 @@ impl Error {
 		match &self.err {
 			ErrorEnum::Serenity(SerenityError::Http(
 				serenity::http::HttpError::UnsuccessfulRequest(serenity::http::ErrorResponse {
-					error: serenity::http::DiscordJsonError { code: 10062, .. },
+					error:
+						serenity::http::DiscordJsonError {
+							code: JsonErrorCode::UnknownInteraction,
+							..
+						},
 					..
 				}),
 			)) => {

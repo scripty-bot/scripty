@@ -49,9 +49,9 @@ async fn _on_error(error: FrameworkError<'_, Data, Error>) {
 						ctx,
 						format!("Missing permissions for {}!", cmd_name),
 						format!(
-							"I tried doing something (not sure what) but was not allowed \
-							 to.Please check my permissions and try again.\nDiscord error code \
-							 {}, message: `{}`",
+							"I tried doing something (not sure what) but was not allowed to. \
+							 Please check my permissions and try again.\nDiscord error code {:?}, \
+							 message: `{}`",
 							code, message
 						),
 					)

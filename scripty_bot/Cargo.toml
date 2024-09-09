@@ -20,7 +20,6 @@ serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", f
 	"rustls_backend",
 	"model",
 	"gateway",
-	"client",
 	"cache",
 	"builder",
 	"collector",

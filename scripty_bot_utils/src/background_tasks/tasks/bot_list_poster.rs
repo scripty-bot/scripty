@@ -16,7 +16,7 @@ use scripty_botlists::{
 	StatPoster,
 };
 use scripty_config::BotListsConfig;
-use serenity::client::Context;
+use serenity::gateway::client::Context;
 
 use crate::{background_tasks::core::BackgroundTask, Error};
 

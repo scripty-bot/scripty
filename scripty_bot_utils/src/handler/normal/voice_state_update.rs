@@ -3,7 +3,7 @@ use std::time::Duration;
 use scripty_audio_handler::get_voice_channel_id;
 use serenity::{
 	all::{ChannelId, VoiceState},
-	client::Context,
+	gateway::client::Context,
 };
 
 pub async fn voice_state_update(ctx: Context, new: VoiceState) {
@@ -36,16 +36,14 @@ pub async fn voice_state_update(ctx: Context, new: VoiceState) {
 			// if there are 0, leave the channel
 			let mut user_count = 0;
 			for vs in guild.voice_states.iter() {
-				// is the voice state in the channel we're in, and is it not us?
-				if !(vs.channel_id == Some(cid) || vs.user_id != own_user_id) {
-					continue;
-				}
-				// is the user a bot? if so, they don't count
-				if guild
+				let is_self = vs.user_id == own_user_id;
+				let is_other_channel = vs.channel_id != Some(cid);
+				let is_bot = guild
 					.members
 					.get(&vs.user_id)
-					.map_or(false, |m| m.user.bot())
-				{
+					.map_or(false, |m| m.user.bot());
+
+				if is_self || is_other_channel || is_bot {
 					continue;
 				}
 				user_count += 1;

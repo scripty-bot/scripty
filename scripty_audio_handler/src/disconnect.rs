@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use dashmap::DashMap;
-use serenity::{client::Context, model::id::GuildId};
+use serenity::{gateway::client::Context, model::id::GuildId};
 use songbird::error::JoinError;
 
 use crate::error::Error;

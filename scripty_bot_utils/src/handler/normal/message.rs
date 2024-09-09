@@ -1,4 +1,4 @@
-use serenity::{client::Context, model::prelude::Message};
+use serenity::{gateway::client::Context, model::prelude::Message};
 
 use crate::globals::DM_SUPPORT_GLOBAL;
 
