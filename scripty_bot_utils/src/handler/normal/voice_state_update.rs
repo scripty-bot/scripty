@@ -17,6 +17,7 @@ pub async fn voice_state_update(ctx: Context, new: VoiceState) {
 	if own_user_id == new.user_id {
 		// ignore own voice events
 		debug!(?new.guild_id, "got voice state update event, ignoring as it was our own");
+		return;
 	}
 
 	if let Some(cid) = get_voice_channel_id(guild_id).await {
