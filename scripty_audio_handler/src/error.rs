@@ -18,12 +18,20 @@ pub enum ErrorKind {
 	Redis(scripty_redis::TransactionError),
 	Serenity(serenity::Error),
 	NoWebhookToken,
+	AlreadyExists,
 }
 
 impl Error {
 	pub fn no_webhook_token() -> Self {
 		Self {
 			kind:      ErrorKind::NoWebhookToken,
+			backtrace: Backtrace::new_unresolved(),
+		}
+	}
+
+	pub fn already_exists() -> Self {
+		Self {
+			kind:      ErrorKind::AlreadyExists,
 			backtrace: Backtrace::new_unresolved(),
 		}
 	}
@@ -85,6 +93,7 @@ impl Display for Error {
 			ErrorKind::Serenity(e) => write!(f, "SerenityError: {}", e),
 			ErrorKind::NoWebhookToken => write!(f, "No webhook token found"),
 			ErrorKind::Redis(e) => write!(f, "RedisError: {}", e),
+			ErrorKind::AlreadyExists => write!(f, "Call for this channel already exists"),
 		}
 	}
 }

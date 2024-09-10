@@ -37,6 +37,7 @@ members = [
 	"scripty_tts",
 	"scripty_integrations",
 	"scripty_build_checks",
+	"scripty_data_type",
 ]
 
 [dependencies]

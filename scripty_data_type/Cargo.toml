@@ -1,0 +1,8 @@
+[package]
+name = "scripty_data_type"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+dashmap = "6"
+serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = ["gateway", "utils"] }

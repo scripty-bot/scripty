@@ -22,6 +22,7 @@ scripty_redis = { path = "../scripty_redis" }
 scripty_automod = { path = "../scripty_automod" }
 scripty_metrics = { path = "../scripty_metrics" }
 scripty_premium = { path = "../scripty_premium" }
+scripty_data_type = { path = "../scripty_data_type" }
 audiopus_sys = { version = "0.2", features = ["static"] }
 scripty_integrations = { path = "../scripty_integrations" }
 tokio = { version = "1", features = ["parking_lot"] }

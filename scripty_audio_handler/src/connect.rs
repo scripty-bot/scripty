@@ -1,5 +1,8 @@
+use std::time::Duration;
+
 use ahash::RandomState;
 use dashmap::DashMap;
+use scripty_data_type::get_data;
 use scripty_premium::PremiumTierList;
 use secrecy::ExposeSecret;
 use serenity::{
@@ -11,7 +14,6 @@ use songbird::{error::JoinError, events::Event, CoreEvent};
 
 use crate::Error;
 
-// TODO: implement `force`
 #[allow(clippy::let_unit_value)]
 pub async fn connect_to_vc(
 	ctx: Context,
@@ -19,10 +21,20 @@ pub async fn connect_to_vc(
 	channel_id: ChannelId,
 	voice_channel_id: ChannelId,
 	thread_id: Option<ChannelId>,
-	_force: bool,
 	record_transcriptions: bool,
 	ephemeral: bool,
 ) -> Result<(), Error> {
+	let ctx_data = get_data(&ctx);
+
+	debug!(%guild_id, "checking if call already exists");
+	if let Some(existing) = ctx_data.existing_calls.insert(guild_id, voice_channel_id) {
+		// call already exists, if channel ID != current one continue as we need to switch VCs
+		if existing == voice_channel_id {
+			// attempting to rejoin the same channel, so return early
+			return Err(Error::already_exists());
+		}
+	}
+
 	debug!(%guild_id, "fetching webhook");
 	// thanks to Discord undocumented breaking changes, we have to do this
 	// <3 shitcord
@@ -87,7 +99,10 @@ pub async fn connect_to_vc(
 	let sb = crate::get_songbird();
 	debug!(%guild_id, "leaving old call");
 	match sb.remove(guild_id).await {
-		Ok(()) | Err(JoinError::NoCall) => {}
+		Ok(()) => {
+			tokio::time::sleep(Duration::from_secs(1)).await;
+		}
+		Err(JoinError::NoCall) => {}
 		Err(e) => return Err(e.into()),
 	};
 	debug!(%guild_id, "joining new call");

@@ -3152,6 +3152,7 @@ dependencies = [
  "parking_lot",
  "scripty_automod",
  "scripty_data_storage",
+ "scripty_data_type",
  "scripty_db",
  "scripty_integrations",
  "scripty_metrics",
@@ -3212,6 +3213,7 @@ dependencies = [
  "scripty_botlists",
  "scripty_config",
  "scripty_data_storage",
+ "scripty_data_type",
  "scripty_db",
  "scripty_i18n",
  "scripty_metrics",
@@ -3329,6 +3331,14 @@ dependencies = [
  "sqlx",
  "tokio",
  "tracing",
+]
+
+[[package]]
+name = "scripty_data_type"
+version = "0.1.0"
+dependencies = [
+ "dashmap 6.1.0",
+ "serenity",
 ]
 
 [[package]]

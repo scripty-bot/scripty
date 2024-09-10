@@ -10,6 +10,7 @@ use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
 use parking_lot::RwLock;
 use scripty_automod::types::AutomodServerConfig;
+use scripty_data_type::get_data;
 use scripty_integrations::kiai::KiaiApiClient;
 use serenity::{
 	all::RoleId,
@@ -23,6 +24,7 @@ use serenity::{
 use songbird::{Event, EventContext, EventHandler};
 
 use crate::{
+	error::Error,
 	events::*,
 	types::{
 		ActiveUserSet,
@@ -84,7 +86,7 @@ impl AudioHandler {
 		automod_server_cfg: AutomodServerConfig,
 		kiai_client: KiaiApiClient,
 		ephemeral: bool,
-	) -> Result<Self, sqlx::Error> {
+	) -> Result<Self, Error> {
 		let maps = SsrcMaps {
 			ssrc_user_id_map:      DashMap::with_capacity_and_hasher(10, RandomState::new()),
 			ssrc_stream_map:       DashMap::with_capacity_and_hasher(10, RandomState::new()),
@@ -283,8 +285,13 @@ impl Drop for AudioHandler {
 			remaining,
 			self.guild_id
 		);
-		let trace = std::backtrace::Backtrace::force_capture();
-		trace!(%self.guild_id, "reference drop stack trace: {}", trace);
+
+		if remaining == 1 {
+			// this is the final reference, clear ourselves from the map
+			get_data(&self.context)
+				.existing_calls
+				.remove(&self.guild_id);
+		}
 	}
 }
 

@@ -6,7 +6,7 @@ mod framework_opts;
 #[macro_use]
 extern crate tracing;
 
-use std::sync::{Arc, OnceLock};
+use std::sync::Arc;
 
 use poise::FrameworkBuilder;
 use scripty_bot_utils::{globals::CLIENT_DATA, handler, Data};
@@ -29,9 +29,7 @@ pub async fn entrypoint() {
 	let framework = FrameworkBuilder::default()
 		.options(framework_opts::get_framework_opts())
 		.build();
-	let data = Arc::new(Data {
-		shard_manager: OnceLock::new(),
-	});
+	let data = Arc::new(Data::new());
 	CLIENT_DATA
 		.set(data.clone())
 		.expect("user data setup called more than once: bug?");

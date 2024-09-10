@@ -265,7 +265,6 @@ pub async fn join(
 		target_channel,
 		voice_channel.id,
 		target_thread.map(|x| x.id),
-		false,
 		record_transcriptions,
 		ephemeral,
 	)

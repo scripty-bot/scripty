@@ -97,7 +97,6 @@ pub async fn driver_disconnect(
 				channel_id,
 				voice_channel_id,
 				thread_id,
-				false,
 				record_transcriptions,
 				ephemeral,
 			)

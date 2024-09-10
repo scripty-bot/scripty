@@ -5,7 +5,6 @@ use std::{
 };
 
 use backtrace::Backtrace;
-use scripty_audio_handler::JoinError;
 use scripty_stt::{ModelError, OpusSourceError};
 use serenity::{http::JsonErrorCode, model::channel::ChannelType, prelude::SerenityError};
 
@@ -32,7 +31,7 @@ pub enum ErrorEnum {
 	},
 	Db(sqlx::Error),
 	ExpectedGuild,
-	Join(JoinError),
+	Join(scripty_audio_handler::JoinError),
 	ManualError,
 	Redis(scripty_redis::redis::RedisError),
 	RedisPool(scripty_redis::PoolError),
@@ -40,6 +39,7 @@ pub enum ErrorEnum {
 	Transcription(ModelError),
 	ExpectedPremiumValue,
 	AudioTranscription(GenericMessageError),
+	CallAlreadyExists,
 	Custom(String),
 }
 
@@ -48,7 +48,7 @@ impl Error {
 	#[inline]
 	pub fn serenity(err: serenity::Error) -> Self {
 		Error {
-			bt:  Backtrace::new(),
+			bt:  Backtrace::new_unresolved(),
 			err: ErrorEnum::Serenity(err),
 		}
 	}
@@ -56,7 +56,7 @@ impl Error {
 	#[inline]
 	pub fn invalid_channel_type(expected: ChannelType, got: ChannelType) -> Self {
 		Error {
-			bt:  Backtrace::new(),
+			bt:  Backtrace::new_unresolved(),
 			err: ErrorEnum::InvalidChannelType { expected, got },
 		}
 	}
@@ -64,7 +64,7 @@ impl Error {
 	#[inline]
 	pub fn db(err: sqlx::Error) -> Self {
 		Error {
-			bt:  Backtrace::new(),
+			bt:  Backtrace::new_unresolved(),
 			err: ErrorEnum::Db(err),
 		}
 	}
@@ -72,15 +72,15 @@ impl Error {
 	#[inline]
 	pub fn expected_guild() -> Self {
 		Error {
-			bt:  Backtrace::new(),
+			bt:  Backtrace::new_unresolved(),
 			err: ErrorEnum::ExpectedGuild,
 		}
 	}
 
 	#[inline]
-	pub fn join(err: JoinError) -> Self {
+	pub fn join(err: scripty_audio_handler::JoinError) -> Self {
 		Error {
-			bt:  Backtrace::new(),
+			bt:  Backtrace::new_unresolved(),
 			err: ErrorEnum::Join(err),
 		}
 	}
@@ -88,7 +88,7 @@ impl Error {
 	#[inline]
 	pub fn manual() -> Self {
 		Error {
-			bt:  Backtrace::new(),
+			bt:  Backtrace::new_unresolved(),
 			err: ErrorEnum::ManualError,
 		}
 	}
@@ -96,7 +96,7 @@ impl Error {
 	#[inline]
 	pub fn redis(err: scripty_redis::redis::RedisError) -> Self {
 		Error {
-			bt:  Backtrace::new(),
+			bt:  Backtrace::new_unresolved(),
 			err: ErrorEnum::Redis(err),
 		}
 	}
@@ -104,7 +104,7 @@ impl Error {
 	#[inline]
 	pub fn redis_pool(err: scripty_redis::PoolError) -> Self {
 		Error {
-			bt:  Backtrace::new(),
+			bt:  Backtrace::new_unresolved(),
 			err: ErrorEnum::RedisPool(err),
 		}
 	}
@@ -112,7 +112,7 @@ impl Error {
 	#[inline]
 	pub fn voice_message_decode(err: OpusSourceError) -> Self {
 		Error {
-			bt:  Backtrace::new(),
+			bt:  Backtrace::new_unresolved(),
 			err: ErrorEnum::VoiceMessageDecode(err),
 		}
 	}
@@ -120,7 +120,7 @@ impl Error {
 	#[inline]
 	pub fn transcription(err: ModelError) -> Self {
 		Error {
-			bt:  Backtrace::new(),
+			bt:  Backtrace::new_unresolved(),
 			err: ErrorEnum::Transcription(err),
 		}
 	}
@@ -128,7 +128,7 @@ impl Error {
 	#[inline]
 	pub fn expected_premium_value() -> Self {
 		Error {
-			bt:  Backtrace::new(),
+			bt:  Backtrace::new_unresolved(),
 			err: ErrorEnum::ExpectedPremiumValue,
 		}
 	}
@@ -136,7 +136,7 @@ impl Error {
 	#[inline]
 	pub fn audio_transcription(err: GenericMessageError) -> Self {
 		Error {
-			bt:  Backtrace::new(),
+			bt:  Backtrace::new_unresolved(),
 			err: ErrorEnum::AudioTranscription(err),
 		}
 	}
@@ -144,8 +144,16 @@ impl Error {
 	#[inline]
 	pub fn custom(err: String) -> Self {
 		Error {
-			bt:  Backtrace::new(),
+			bt:  Backtrace::new_unresolved(),
 			err: ErrorEnum::Custom(err),
+		}
+	}
+
+	#[inline]
+	pub fn call_already_exists() -> Self {
+		Error {
+			bt:  Backtrace::new_unresolved(),
+			err: ErrorEnum::CallAlreadyExists,
 		}
 	}
 
@@ -185,7 +193,9 @@ impl Error {
 	pub fn is_user_error(&self) -> bool {
 		matches!(
 			&self.err,
-			ErrorEnum::ExpectedGuild | ErrorEnum::InvalidChannelType { .. }
+			ErrorEnum::ExpectedGuild
+				| ErrorEnum::InvalidChannelType { .. }
+				| ErrorEnum::CallAlreadyExists
 		)
 	}
 }
@@ -220,6 +230,9 @@ impl Display for Error {
 			}
 			Custom(e) => format!("Custom error: {}", e).into(),
 			AudioTranscription(e) => format!("Failed to transcribe audio message: {}", e).into(),
+			CallAlreadyExists => "a call for this channel already exists - not trying to rejoin \
+			                      the same channel"
+				.into(),
 		};
 		f.write_str(res.as_ref())
 	}
@@ -241,6 +254,7 @@ impl StdError for Error {
 			Transcription(e) => Some(e),
 			ExpectedPremiumValue => None,
 			AudioTranscription(e) => Some(e),
+			CallAlreadyExists => None,
 			Custom(_) => None,
 		}
 	}
@@ -282,6 +296,7 @@ impl From<scripty_audio_handler::Error> for Error {
 			scripty_audio_handler::ErrorKind::NoWebhookToken => {
 				Self::custom("No webhook token found".to_string())
 			}
+			scripty_audio_handler::ErrorKind::AlreadyExists => Self::call_already_exists(),
 		};
 		err.bt = e.backtrace;
 		err
