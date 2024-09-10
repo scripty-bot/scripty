@@ -11,7 +11,7 @@ hex = "0.4"
 tracing = "0.1"
 indexmap = "2"
 humantime = "2"
-typesize = "0.1"
+typesize = { version = "0.1", features = ["details"] }
 num-format = "0.4"
 scripty_db = { path = "../scripty_db" }
 scripty_i18n = { path = "../scripty_i18n" }
