@@ -31,6 +31,7 @@ pub async fn connect_to_vc(
 		// call already exists, if channel ID != current one continue as we need to switch VCs
 		if existing == voice_channel_id {
 			// attempting to rejoin the same channel, so return early
+			debug!(%voice_channel_id, %guild_id, "attempting to rejoin the same channel that we were already in, refusing to do so");
 			return Err(Error::already_exists());
 		}
 	}
