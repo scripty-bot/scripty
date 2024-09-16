@@ -136,7 +136,13 @@ impl AudioHandler {
 
 			loop {
 				tokio::select! {
-					_ = rx.recv() => {}
+					val = rx.recv() => {
+						let Ok(val) = val else {
+							debug!(%guild_id, "all tx handlers for this call dropped");
+							return;
+						}
+						debug!(%guild_id, "got request to reload config for this call");
+					}
 					_ = tokio::time::sleep(RELOAD_TIME) => {}
 				}
 				if let Err(e) = t2.reload_config().await {
