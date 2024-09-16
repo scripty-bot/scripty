@@ -1,3 +1,5 @@
+use std::simd::i16x64;
+
 use dasp_interpolate::linear::Linear;
 use dasp_signal::{from_iter, interpolate::Converter, Signal};
 
@@ -30,7 +32,7 @@ pub fn process_audio(
 	};
 
 	if channel_count == 2 {
-		stereo_to_mono(&src)
+		stereo_to_mono_simd(&src)
 	} else if channel_count != 1 {
 		panic!("Invalid channel count: {}", channel_count)
 	} else {
@@ -38,7 +40,47 @@ pub fn process_audio(
 	}
 }
 
-pub fn stereo_to_mono(src: &[i16]) -> Vec<i16> {
+type SimdBitType = i16x64;
+
+const BIT_WIDTH: usize = SimdBitType::LEN;
+const TWICE_BIT_WIDTH: usize = BIT_WIDTH * 2;
+
+// noinspection RsAssertEqual
+const _: () = assert!(BIT_WIDTH % 2 == 0);
+pub fn stereo_to_mono_simd(samples: &[i16]) -> Vec<i16> {
+	let mut mono = Vec::with_capacity(samples.len() / 2);
+
+	let div = SimdBitType::splat(2);
+
+	let (chunks, remainder) = samples.as_chunks::<TWICE_BIT_WIDTH>();
+	for chunk in chunks {
+		let mut c1 = [0; BIT_WIDTH];
+		let mut c2 = [0; BIT_WIDTH];
+		let (chunks, &[]) = chunk.as_chunks::<2>() else {
+			unreachable!(
+				"Remainder array should always be empty if taking chunks of size 2 from an array \
+				 whose length is divisible by 2"
+			)
+		};
+		assert_eq!(chunks.len(), BIT_WIDTH);
+
+		for (i, [lhs, rhs]) in chunks.iter().enumerate() {
+			c1[i] = *lhs;
+			c2[i] = *rhs;
+		}
+
+		let c1 = SimdBitType::from_array(c1);
+		let c2 = SimdBitType::from_array(c2);
+		let mono_simd = (c1 / div) + (c2 / div);
+		mono.extend(&mono_simd.to_array()[..]);
+	}
+
+	mono.extend(stereo_to_mono_normal(remainder));
+
+	mono
+}
+
+pub fn stereo_to_mono_normal(src: &[i16]) -> Vec<i16> {
 	// note: we're not doing this the normal way, because in release mode, there are no arithmetic overflow checks
 	// so we divide the samples by two, and then add them together to get the mono sample
 	// this causes a mild distortion, but it's not noticeable (since it only affects the LSB)
@@ -48,13 +90,9 @@ pub fn stereo_to_mono(src: &[i16]) -> Vec<i16> {
 		trace!("input does not have an even number of samples, ignoring extra samples");
 	}
 
-	let mut dst = Vec::with_capacity(src.len() / 2);
-	for sample_pair in chunks.0 {
-		// SAFETY: the length of the chunk is defined at compile time, so we can safely index into it up to two elements
-		let s1 = unsafe { sample_pair.get_unchecked(0) };
-		let s2 = unsafe { sample_pair.get_unchecked(1) };
-		// see the notes above for why we're doing it this way
-		dst.push((s1 / 2) + (s2 / 2));
-	}
-	dst
+	chunks
+		.0
+		.iter()
+		.map(|[first, last]| (first / 2) + (last / 2))
+		.collect()
 }

@@ -1,5 +1,5 @@
 #![feature(slice_as_chunks)]
-
+#![feature(portable_simd)]
 #[macro_use]
 extern crate tracing;
 
