@@ -140,7 +140,7 @@ impl AudioHandler {
 						let Ok(val) = val else {
 							debug!(%guild_id, "all tx handlers for this call dropped");
 							return;
-						}
+						};
 						debug!(%guild_id, "got request to reload config for this call");
 					}
 					_ = tokio::time::sleep(RELOAD_TIME) => {}
