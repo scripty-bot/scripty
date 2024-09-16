@@ -12,7 +12,6 @@ pub async fn voice_state_update(ctx: Context, new: VoiceState) {
 		return;
 	};
 
-
 	let own_user_id = ctx.cache.current_user().id;
 	if own_user_id == new.user_id {
 		// ignore own voice events
@@ -21,7 +20,6 @@ pub async fn voice_state_update(ctx: Context, new: VoiceState) {
 	}
 
 	if let Some(cid) = get_voice_channel_id(guild_id).await {
-
 		// GuildRef forces a block here to prevent hold over await
 		{
 			let guild = match guild_id.to_guild_cached(&ctx.cache) {
