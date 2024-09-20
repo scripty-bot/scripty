@@ -487,8 +487,8 @@ async fn handle_transcripts(
 				output.push(TranscriptResult::VideoNeedsPremium);
 				continue;
 			}
-			let max_video_length = get_max_video_length(premium_tier);
-			if file_length > get_max_video_length(premium_tier) {
+			let max_video_length = premium_tier.max_video_length();
+			if file_length > max_video_length {
 				output.push(TranscriptResult::VideoTooLong {
 					max_video_length,
 					video_length: file_length,
@@ -497,7 +497,7 @@ async fn handle_transcripts(
 				continue;
 			}
 		} else {
-			let max_audio_length = get_max_audio_length(premium_tier);
+			let max_audio_length = premium_tier.max_audio_length();
 			if file_length > max_audio_length {
 				output.push(TranscriptResult::AudioTooLong {
 					max_audio_length,
@@ -607,28 +607,4 @@ async fn convert_to_pcm(path: &Path) -> Result<Vec<i16>, GenericMessageError> {
 	i16_audio.shrink_to_fit();
 
 	Ok(i16_audio)
-}
-
-fn get_max_video_length(premium_level: PremiumTierList) -> f64 {
-	match premium_level {
-		PremiumTierList::None => 0.0,
-		PremiumTierList::Tier1 => 0.0,
-		PremiumTierList::Tier2 => 900.0,
-		PremiumTierList::Tier3 => 1800.0,
-		PremiumTierList::Tier4 => 3600.0,
-		PremiumTierList::Tier5 => 7200.0,
-		PremiumTierList::Tier6 => 14400.0,
-	}
-}
-
-fn get_max_audio_length(premium_level: PremiumTierList) -> f64 {
-	match premium_level {
-		PremiumTierList::None => 0.0,
-		PremiumTierList::Tier1 => 900.0,
-		PremiumTierList::Tier2 => 1800.0,
-		PremiumTierList::Tier3 => 3600.0,
-		PremiumTierList::Tier4 => 7200.0,
-		PremiumTierList::Tier5 => 14400.0,
-		PremiumTierList::Tier6 => 28800.0,
-	}
 }

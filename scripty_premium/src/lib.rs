@@ -1,4 +1,4 @@
-use std::{fmt, num::NonZeroU64};
+use std::{borrow::Cow, fmt, num::NonZeroU64};
 
 use time::OffsetDateTime;
 
@@ -21,6 +21,57 @@ pub enum PremiumTierList {
 	Tier4 = 4,
 	Tier5 = 5,
 	Tier6 = 6,
+}
+
+impl PremiumTierList {
+	pub fn max_users(&self) -> i16 {
+		match self {
+			Self::None => 5,
+			Self::Tier1 => 10,
+			Self::Tier2 => 25,
+			Self::Tier3 => 50,
+			Self::Tier4 => 75,
+			Self::Tier5 => 100,
+			Self::Tier6 => 250,
+		}
+	}
+
+	/// Return maximum session duration in seconds
+	pub fn max_duration(&self) -> u64 {
+		match self {
+			Self::None => 10800,
+			Self::Tier1 => 21600,
+			Self::Tier2 => 43200,
+			Self::Tier3 => 86400,
+			Self::Tier4 => 259200,
+			Self::Tier5 => 604800,
+			Self::Tier6 => 1209600,
+		}
+	}
+
+	pub fn max_video_length(&self) -> f64 {
+		match self {
+			Self::None => 0.0,
+			Self::Tier1 => 0.0,
+			Self::Tier2 => 900.0,
+			Self::Tier3 => 1800.0,
+			Self::Tier4 => 3600.0,
+			Self::Tier5 => 7200.0,
+			Self::Tier6 => 14400.0,
+		}
+	}
+
+	pub fn max_audio_length(&self) -> f64 {
+		match self {
+			Self::None => 0.0,
+			Self::Tier1 => 900.0,
+			Self::Tier2 => 1800.0,
+			Self::Tier3 => 3600.0,
+			Self::Tier4 => 7200.0,
+			Self::Tier5 => 14400.0,
+			Self::Tier6 => 28800.0,
+		}
+	}
 }
 
 impl From<i16> for PremiumTierList {
@@ -56,6 +107,12 @@ impl fmt::Display for PremiumTierList {
 			Self::Tier5 => write!(f, "5"),
 			Self::Tier6 => write!(f, "6"),
 		}
+	}
+}
+
+impl Into<Cow<'_, str>> for PremiumTierList {
+	fn into(self) -> Cow<'static, str> {
+		self.to_string().into()
 	}
 }
 
