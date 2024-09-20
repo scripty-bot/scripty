@@ -164,15 +164,7 @@ async fn handle_silent_speakers<'a>(
 			}
 		};
 		let Some(old_stream) = maybe_old_stream else {
-			warn!(%ssrc, "no stream found for ssrc");
-			let mut executor = ExecuteWebhook::new().content(format!(
-				"no stream found for user (likely a bug): SSRC {}",
-				ssrc
-			));
-			if let Some(thread_id) = thread_id {
-				executor = executor.in_thread(thread_id);
-			}
-			hooks.push((executor, ssrc));
+			debug!(%ssrc, "no stream found for ssrc");
 			continue;
 		};
 
