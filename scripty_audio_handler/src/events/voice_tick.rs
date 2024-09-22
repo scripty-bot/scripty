@@ -380,12 +380,14 @@ async fn handle_speakers(ssrc_state: Arc<SsrcMaps>, metrics: Arc<Metrics>, voice
 
 		if let Some(audio) = data.decoded_voice {
 			trace!(%ssrc, "got {} bytes of audio", audio.len() * SIZE_OF_I16);
-			metrics.ms_transcribed.inc_by(20);
 			metrics
 				.audio_bytes_processed
 				.inc_by((audio.len() * SIZE_OF_I16) as _);
 
 			let audio = scripty_stt::process_audio(audio, 48_000.0, 16_000.0, 2);
+			// output is mono at 16 kHz,
+			// dividing num samples by 16 gives you milliseconds of audio in the entire audio packet
+			metrics.ms_transcribed.inc_by((audio.len() / 16) as u64);
 
 			// check voice ingest state
 			match ssrc_state.ssrc_voice_ingest_map.get(&ssrc) {
