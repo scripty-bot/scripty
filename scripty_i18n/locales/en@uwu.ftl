@@ -40,16 +40,6 @@ context-menu-command-message =
 # Help menu translation strings
 no-help-found = no hewp found fow command `{ $commandName }`. >_<
 # join command
-# This message is shown on successfuly joining a voice channel.
-# { $targetMention } is the mention of the channel the bot joined.
-join-success =
-    successfuwwy joined { $voiceTargetMention }, nyaa~~ and s-sending twanscwiption o-output to { $outputChannelMention }. /(^•ω•^)
-    { "" }
-    n-nyote: youw cuwwent p-pwemium tiew i-is { $tier }. rawr t-this awwows fow { $maxUsers } usews t-to be twanscwipted a-at once. OwO awong with this, (U ﹏ U) the bot wiww automaticawwy weave aftew { $leaveDuration } s-seconds, >_< wegawdwess of how many usews a-awe in the channew. rawr x3 this is to p-pwevent abuse of ouw systems. mya
-    if you wouwd wike mowe usews, nyaa~~ a wongew d-duwation of usage, (⑅˘꒳˘) and wouwd w-wike to awso s-suppowt the bot, rawr x3 considew subscwibing to ouw pwemium: <https://dash.scripty.org/premium>
-    if you know you awe a pwemium s-subscwibew awweady, (✿oωo) pwease dm the bot that way we can weinstate youw pwemium. (ˆ ﻌ ˆ)♡
-    { $freeTrialUpsell }
-# join command
 # This message is shown when the bot does not have permissions for the voice channel it is trying to join.
 join-no-permission = i don't have pewmission to join { $targetMention }. (U ᵕ U❁) p-pwease give me t-the view channew a-and join pewmissions, (⑅˘꒳˘) o-ow join a-a diffewent voice c-chat whewe i d-do have pewmissions. ( ͡o ω ͡o )
 # join command

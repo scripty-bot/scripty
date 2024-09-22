@@ -420,13 +420,3 @@ delete-data-description =
     Jeśli w dowolnym momencie po tej czynności chciałbyś być odbanowany, możesz skontaktować się z serwerem wsparcia i poprosić o ręczne odbanowanie.
 
     Czy na pewno chcesz usunąć wszystkie swoje dane?
-# join command
-# This message is shown on successfuly joining a voice channel.
-# { $targetMention } is the mention of the channel the bot joined.
-join-success =
-    Pomyślnie dołączono do { $voiceTargetMention } i przesyłanie transkrypcji do { $outputChannelMention }.
-    { "" }
-    Uwaga: twój obecny poziom Premium to { $tier }. Pozwala to na przeprowadzenie transkrypcji jednocześnie dla { $maxUsers } użytkowników. Wraz z tym bot automatycznie opuści kanał po { $leaveDuration } sekundach, niezależnie od liczby użytkowników na kanale. Ma to na celu zapobieżenie nadużyciom naszych systemów.
-    Jeśli chcesz więcej użytkowników, dłuższy czas użytkowania i chcesz również wesprzeć bota, rozważ subskrypcję naszego Premium: <https://dash.scripty.org/premium>
-    Jeśli wiesz, że jesteś już subskrybentem Premium, proszę wyślij botowi wiadomość prywatną, abyśmy mogli przywrócić twoje Premium.
-    { $freeTrialUpsell }

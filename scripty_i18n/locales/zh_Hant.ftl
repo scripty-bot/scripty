@@ -33,9 +33,6 @@ root-command-invoked-description = 請僅使用此指令的子指令。請參閱
 root-command-invoked-title = 這是一個頂層指令！
 # This message is shown when the user is not in a voice channel, nor was a voice channel specified.
 no-channel-specified = 你不在語音頻道中，也沒有指定要加入的頻道。用`{ $contextPrefix }join <channel>` 指定語音頻道，或自己進入語音頻道後重新使用此指令。
-# This message is shown on successfuly joining a voice channel.
-# {$targetMention} is the mention of the channel the bot joined.
-join-success = 成功加入 { $targetMention }。
 # This message is shown as the embed description when the database returns an error when setting the language for an entity.
 language-set-failure-description-db = 數據庫在嘗試設置你的語言時遇到錯誤。已報告此錯誤，我們將對其進行調查。請不要重複使用該指令。 (假如你好奇的話, 以下是該錯誤。{ $error })
 # This message is shown as the embed description when an entity tries to set their language to an invalid language.

@@ -368,16 +368,6 @@ transcription-info-transcription-ssrc = SSRC { $ssrc }
 # This message is shown when the user is not in a voice channel, nor was a voice channel specified.
 no-channel-specified = Je zit niet in een spraakchat en je hebt me ook geen kanaal opgegeven om naartoe te gaan. Probeer `{ $contextPrefix }join <kanaal>` om een spraakchat op te geven, of ga zelf naar een spraakchat en voer deze opdracht opnieuw uit.
 # join command
-# This message is shown on successfuly joining a voice channel.
-# { $targetMention } is the mention of the channel the bot joined.
-join-success =
-    Succesvol verbonden met { $voiceTargetMention }, en de transcriptie-uitvoer wordt verzonden naar { $outputChannelMention }.
-    { "" }
-    Opmerking: je huidige premiumniveau is { $tier }. Dit staat { $maxUsers } gebruikers toe om tegelijkertijd getranscribeerd te worden. Daarnaast zal de bot automatisch vertrekken na { $leaveDuration } seconden, ongeacht hoeveel gebruikers er in het kanaal zijn. Dit is om misbruik van onze systemen te voorkomen.
-    Als je meer gebruikers wilt, een langere gebruiksduur en de bot wilt ondersteunen, overweeg dan om je te abonneren op onze Premium: <https://dash.scripty.org/premium>
-    Als je al een Premium-abonnee bent, stuur dan een privébericht naar de bot zodat we je Premium kunnen herstellen.
-    { $freeTrialUpsell }
-# join command
 # This message is shown when the user attempts to make Scripty join a voice channel, but there is no one in the channel.
 join-no-one-in-channel = Er is niemand in { $targetMention }. Ik sluit me niet aan als er niemand is, omdat dat verspilling is van beperkte middelen.
 # Data deletion command

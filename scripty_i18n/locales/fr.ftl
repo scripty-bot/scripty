@@ -392,16 +392,6 @@ cmds_delete_all_data = delete_all_data
 # This message is shown when the user has told the bot to create a thread while in a thread.
 join-create-thread-in-thread = Je ne peux pas créer un fil dans un fil. Merci d'utiliser cette commande dans un salon normal, probablement { $parentChannelMention }.
 # join command
-# This message is shown on successfuly joining a voice channel.
-# { $targetMention } is the mention of the channel the bot joined.
-join-success =
-    J'ai rejoint { $voiceTargetMention } avec succès, et j'enverrais le résultat de la transcription dans { $outputChannelMention }.
-    { "" }
-    Note : Votre tier premium actuel est { $tier }. Cela vous autorise un maximum de { $maxUsers } utilisateurs à transcrire en simultané. Egalement, le bot quittera automatiquement après { $leaveDuration } secondes, peu importe le nombre d'utilisateurs dans le salon pour prévenir d'abus du service.
-    Si vous souhaitez plus d'utilisateurs, une plus longue durée d'utilisation, et voulez soutenir le bot, considérez vous abonner à notre version Premium : <https ://dash.scripty.org/premium>
-    Si vous savez que vous êtes déjà abonné à Premium, vous pouvez envoyer un message privé au bot pour que nous puissions re-activer votre Premium.
-    { $freeTrialUpsell }
-# join command
 # This message is shown when Discord tosses a Dropped or TimedOut error when trying to join a voice channel.
 join-failed-dropped = Discord semble avoir des problèmes, nous ne pouvons rien faire pour le moment, re-essayez plus tard.
 # data_storage command
