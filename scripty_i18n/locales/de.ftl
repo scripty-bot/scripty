@@ -112,15 +112,6 @@ root-command-invoked-title = Das ist ein Wurzelbefehl!
 root-command-invoked-description = Bitte verwende nur die Unterbefehle dieses Befehls. Siehe `{ $contextPrefix }help { $commandName }` für weitere Information.
 # This message is shown when the user is not in a voice channel, nor was a voice channel specified.
 no-channel-specified = Du bist weder in einem Sprachkanal, noch hast du mich einem Kanal hinzugefügt. Verwende `{ $contextPrefix }join <channel>` um mich einem Sprachkanal hinzuzufügen, oder tritt selbst einem Sprachkanal bei und wiederhole diesen Befehl.
-# This message is shown on successfuly joining a voice channel.
-# { $targetMention } is the mention of the channel the bot joined.
-join-success =
-    Erfolgreich { $voiceTargetMention } beigetreten und Transkriptionsausgabe an { $outputChannelMention } gesendet.
-    { "" }
-    Hinweis: Deine aktuelle Premiumstufe ist { $tier }. Damit können { $maxUsers } Benutzer auf einmal transkribiert werden. Außerdem verlässt der Bot den Kanal automatisch nach { $leaveDuration } Sekunden, unabhängig davon, wie viele Nutzer sich in dem Kanal befinden. Damit soll ein Missbrauch unseres Systems verhindert werden.
-    Wenn du mehr Nutzer und eine längere Nutzungsdauer möchtest und den Bot unterstützen willst, solltest du ein Premium-Abonnement abschließen: <https://dash.scripty.org/premium>
-    Wenn du weißt, dass du bereits ein Premium-Abonnent bist, schreibe dem Bot bitte eine DM, damit wir dein Premium-Abonnement wieder aktivieren können.
-    { $freeTrialUpsell }
 # This message is shown when the user requests latency information.
 # Note: the numbers here will be formatted according to the language set for the context.
 latency-description =

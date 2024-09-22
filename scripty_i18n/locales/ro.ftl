@@ -250,18 +250,6 @@ delete-data-description =
     Dacă în orice moment după această acțiune ați dori să fiți debanat, puteți contacta serverul de asistență și puteți solicita o debanare manuală.
 
     Sigur doriți să ștergeți toate datele dvs.?
-# join command
-# This message is shown on successfuly joining a voice channel.
-# { $targetMention } is the mention of the channel the bot joined.
-join-success =
-    S-a înscris cu succes la { $voiceTargetMention } și s-a trimis rezultatul transcripției către { $outputChannelMention }.
-    { "" }
-    Notă: nivelul dvs. premium actual este { $tier }. Acest lucru permite ca utilizatorii { $maxUsers } să fie transcriptați simultan. Împreună cu aceasta, botul va pleca automat după { $leaveDuration } secunde, indiferent de câți utilizatori sunt pe canal. Acest lucru este pentru a preveni abuzul asupra sistemelor noastre.
-    Dacă doriți mai mulți utilizatori, o durată mai lungă de utilizare și doriți să susțineți și botul, luați în considerare să vă abonați la Premium: <https://dash.scripty.org/premium>
-    Dacă știți că sunteți deja abonat Premium, vă rugăm să trimiteți un DM botului astfel încât să vă putem restabili Premium.
-    { $freeTrialUpsell }
-    { "" }
-    Dacă aveți nevoie de ajutor sau aveți întrebări, nu ezitați să vă alăturați serverului de asistență la { $supportServerInvite } sau să trimiteți DM botului. Cineva va fi bucuros să ajute.
 # Help menu translation strings
 command-not-found = Nu a fost găsită nicio comandă cu numele `{ $commandName }`.
 # Context menu command translation strings
