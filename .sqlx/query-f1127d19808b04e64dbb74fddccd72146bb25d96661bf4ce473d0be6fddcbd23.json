@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO guilds (premium_owner_id, guild_id) VALUES ($1, $2) ON CONFLICT ON CONSTRAINT guilds_pkey DO UPDATE SET premium_owner_id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bytea",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f1127d19808b04e64dbb74fddccd72146bb25d96661bf4ce473d0be6fddcbd23"
+}

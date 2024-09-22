@@ -1,10 +1,11 @@
 use std::{borrow::Cow, time::SystemTime};
 
 use humantime::format_rfc3339_seconds;
+use poise::CreateReply;
 use scripty_bot_utils::checks::is_guild;
 use serenity::{
 	all::{AutoArchiveDuration, ChannelFlags},
-	builder::{CreateForumPost, CreateMessage, CreateThread},
+	builder::{CreateEmbed, CreateEmbedFooter, CreateForumPost, CreateMessage, CreateThread},
 	model::channel::{ChannelType, GuildChannel},
 	prelude::Mentionable,
 };
@@ -270,40 +271,36 @@ pub async fn join(
 	)
 	.await;
 	match res {
-		Ok(_) => {
-			#[allow(clippy::wildcard_in_or_patterns)]
-			ctx.say(format_message!(
-				resolved_language,
-				"join-success",
-				voiceTargetMention: voice_channel.mention().to_string(),
-				outputChannelMention: output_channel_mention,
-				tier: premium_level,
-				maxUsers: match premium_level {
-					0 => 5,
-					1 => 10,
-					2 => 25,
-					3 => 50,
-					4 => 75,
-					5 | _ => 100,
-				},
-				leaveDuration: match premium_level {
-					0 => 10800,
-					1 => 21600,
-					2 => 43200,
-					3 => 86400,
-					4 => 259200,
-					5 => 604800,
-					6 => 1209600,
-					_ => 1800,
-				},
-				freeTrialUpsell: if trial_used {
-					Cow::Borrowed("")
-				} else {
-					Cow::Owned(format_message!(resolved_language, "free-trial-upsell"))
-				},
-				supportServerInvite: &*cfg.support_invite,
-			))
-			.await?;
+		Ok(()) => {
+			let mut embed = CreateEmbed::new()
+				.description(format_message!(
+					resolved_language,
+					"join-success-description",
+					voiceTargetMention: voice_channel.mention().to_string(),
+					outputChannelMention: output_channel_mention,
+				))
+				.field(
+					format_message!(resolved_language, "join-success-help-title"),
+					format_message!(
+						resolved_language,
+						"join-success-help-description",
+						supportServerInvite: &*cfg.support_invite,
+					),
+					false,
+				)
+				.field(
+					"​",
+					format_message!(resolved_language, "join-success-premium"),
+					false,
+				);
+			if !trial_used {
+				embed = embed.footer(CreateEmbedFooter::new(format_message!(
+					resolved_language,
+					"join-success-footer-free-trial-upsell"
+				)))
+			}
+
+			ctx.send(CreateReply::new().embed(embed)).await?;
 		}
 		Err(ref err @ scripty_audio_handler::Error { .. })
 			if err.is_dropped() || err.is_timed_out() =>

@@ -41,6 +41,7 @@ pub fn build_commands() -> Vec<poise::Command<Data, Error>> {
 			subcommands: vec![
 				cmds::premium::premium_remove(),
 				cmds::premium::premium_claim(),
+				cmds::premium::premium_info(),
 			],
 			..cmds::premium::premium()
 		},

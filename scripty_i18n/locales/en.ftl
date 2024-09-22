@@ -15,14 +15,11 @@ cmds_join = join
 no-channel-specified = You're not in a voice chat, nor did you tell me a channel to join. Try `{ $contextPrefix }join <channel>` to specify a voice chat, or join a voice chat yourself and re-run this command.
 # This message is shown on successfuly joining a voice channel.
 # { $targetMention } is the mention of the channel the bot joined.
-join-success = Successfully joined { $voiceTargetMention }, and sending transcription output to { $outputChannelMention }.
-    {""}
-    Note: your current premium tier is { $tier }. This allows for { $maxUsers } users to be transcripted at once. Along with this, the bot will automatically leave after { $leaveDuration } seconds, regardless of how many users are in the channel. This is to prevent abuse of our systems.
-    If you would like more users, a longer duration of usage, and would like to also support the bot, consider subscribing to our Premium: <https://dash.scripty.org/premium>
-    If you know you are a Premium subscriber already, please DM the bot that way we can reinstate your Premium.
-    { $freeTrialUpsell }
-    {""}
-    If you need any help or have any questions, feel free to either join the support server at { $supportServerInvite }, or DM the bot. Someone will be happy to help.
+join-success-description = Successfully joined { $voiceTargetMention }, and sending transcription output to { $outputChannelMention }.
+join-success-premium = You can check out this server's Premium status with `/premium info`.
+join-success-help-title = Need help?
+join-success-help-description = You can either join the support server at { $supportServerInvite }, or DM the bot.
+join-success-footer-free-trial-upsell = This server is eligible for a free trial of Premium. DM the bot to request one.
 # This message is shown when the user attempts to make Scripty join a voice channel, but there is no one in the channel.
 join-no-one-in-channel = There's no one in { $targetMention }. I'm not joining if there's no one there, as that's a waste of limited resources.
 # This message is shown when Discord tosses a Dropped or TimedOut error when trying to join a voice channel.
@@ -73,6 +70,8 @@ cmds_premium_claim = claim
 # This and all attributes show up exclusively in the slash command picker when `premium remove` is selected.
 cmds_premium_remove = remove
     .description = Remove your premium from the server where this command is executed.
+cmds_premium_info = info
+    .description = Get information on this server's Scripty Premium status.
 # This is shown to the user when they are not subscribed to premium.
 premium-not-premium = You are not a premium subscriber. Subscribe at https://scripty.org/premium. If you know you are one, please DM the bot that way we can reinstate your premium.
 # This is shown to the user when they have too many used servers to add more.
@@ -82,6 +81,18 @@ premium-claimed = You have successfully claimed premium on this server. If you w
 # This is shown when the user successfully removes their premium from this guild.
 premium-removed = If you are the user who had claimed Premium, you have now successfully removed your premium from this server. If you would like to upgrade, or purchase more slots, head to <https://dash.scripty.org/premium>.
 
+premium-info-embed-title = Premium Status
+premium-info-embed-description-no-subscription = You can subscribe to Premium at <https://dash.scripty.org/premium>. On top of the perks you get, you also help us in our goal to make Scripty the best bot out there for speech-to-text :)
+premium-info-embed-description-has-subscription = You can manage your subscription at <https://dash.scripty.org/premium>. Thanks for supporting Scripty!
+premium-info-embed-current-tier = Current tier
+premium-info-embed-max-users = Maximum concurrent users
+premium-info-embed-max-duration = Maximum session duration (seconds)
+premium-info-embed-max-audio-length = Maximum audio file length (seconds)
+premium-info-embed-max-video-length = Maximum video file length (seconds)
+premium-info-embed-trial-available-title = Want a free trial of Premium?
+premium-info-embed-trial-available-description = DM the bot to get started on setting up a 3 day trial of Premium.
+premium-info-embed-manage-subscription-user-has-unclaimed-title = Looks like you purchased Premium!
+premium-info-embed-manage-subscription-user-has-unclaimed-description = To claim it in this server, run { $claimCommand }.
 
 ## config - verbose command
 cmds_config_verbose = verbose

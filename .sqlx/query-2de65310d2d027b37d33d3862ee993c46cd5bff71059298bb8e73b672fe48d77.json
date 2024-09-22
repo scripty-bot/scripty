@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT trial_used, premium_owner_id IS NULL AS \"premium_owner_id_is_null!\" FROM \n\t\t\t guilds WHERE guild_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "trial_used",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 1,
+        "name": "premium_owner_id_is_null!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "2de65310d2d027b37d33d3862ee993c46cd5bff71059298bb8e73b672fe48d77"
+}

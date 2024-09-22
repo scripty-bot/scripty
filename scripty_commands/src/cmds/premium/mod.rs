@@ -4,9 +4,11 @@ use serenity::builder::CreateEmbed;
 use crate::{Context, Error};
 
 mod claim;
+mod info;
 mod remove;
 
 pub use claim::*;
+pub use info::*;
 pub use remove::*;
 
 /// Premium commands
