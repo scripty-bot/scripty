@@ -110,9 +110,9 @@ impl fmt::Display for PremiumTierList {
 	}
 }
 
-impl Into<Cow<'_, str>> for PremiumTierList {
-	fn into(self) -> Cow<'static, str> {
-		self.to_string().into()
+impl From<PremiumTierList> for Cow<'_, str> {
+	fn from(val: PremiumTierList) -> Self {
+		val.to_string().into()
 	}
 }
 
