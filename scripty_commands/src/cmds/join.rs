@@ -1,4 +1,4 @@
-use std::{borrow::Cow, time::SystemTime};
+use std::time::SystemTime;
 
 use humantime::format_rfc3339_seconds;
 use poise::CreateReply;
@@ -208,10 +208,6 @@ pub async fn join(
 		return Ok(());
 	}
 
-	let premium_level = scripty_premium::get_guild(guild_id.get())
-		.await
-		.map_or(0, |l| l as u8);
-
 	let (target_thread, target_channel) = if create_thread
 		&& target_channel.kind != ChannelType::Forum
 	{
@@ -289,7 +285,7 @@ pub async fn join(
 					false,
 				)
 				.field(
-					"​",
+					"\u{200B}",
 					format_message!(resolved_language, "join-success-premium"),
 					false,
 				);

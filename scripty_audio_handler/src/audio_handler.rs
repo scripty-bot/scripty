@@ -137,7 +137,7 @@ impl AudioHandler {
 			loop {
 				tokio::select! {
 					val = rx.recv() => {
-						let Ok(val) = val else {
+						let Ok(()) = val else {
 							debug!(%guild_id, "all tx handlers for this call dropped");
 							return;
 						};
