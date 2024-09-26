@@ -298,7 +298,7 @@ voice-connection-error-msg-no-reconnect = He tenido un problema ({ $reason }) y 
 general-error-invalid-args-title = Argumentos no válidos mientras analizaba { $command }.
 general-error-invalid-args-description = Error al analizar `{ $input }` porque `{ $error }`
 general-error-user-missing-perms-description-known = Faltan permisos: { $perms }
-general-error-user-missing-perms-description-not-owner = No soy el propietario de este bot.
+general-error-user-missing-perms-description-not-owner = No propietario de este bot.
 transcription-info-transcription-ssrc = SSRC { $ssrc }
 general-error-command-process-description =
     ```
