@@ -263,7 +263,7 @@ data-storage-command-timed-out = Se acabó el tiempo. Vuelve a ejecutar este com
 cmds_automod = automoderacion
     .description = Gestiona la auto moderación de Scripty
 cmds_ping = ping
-    .description = Obtén la latencia del bot.
+    .description = Obtener la latencia del bot.
 config-auto-detect-lang-enabled = Ahora Scripty detectará automáticamente el idioma hablado.
 data-storage-opted-out-msgs = Ahora ya no puedes almacenar tus mensajes para el entrenamiento de evaluación.
 config-auto-detect-lang-disabled = Scripty ya no detectará automáticamente el idioma hablado.
@@ -313,7 +313,7 @@ voice-connection-error-ws-closed-no-reason = discord cerró la conexión sin mot
 voice-connection-error-ws-closed-unknown-opcode = discord cerró la conexión debido a un código de operación desconocido
 general-error-user-missing-perms-title = Te faltan permisos para ejecutar { $command }.
 general-error-user-missing-perms-description-unknown = No sé que permisos te faltan.
-cmds_delete_all_data = delete_all_data
+cmds_delete_all_data = eliminar_todos_datos
     .description = Elimina todos tus datos.
 delete-data-confirm-banned = Sí, eliminar todos los datos y prohíbeme a mí mismo
 automod-remove-rule-embed-success-title = ¡Regla eliminada!
@@ -347,80 +347,79 @@ transcription-info-transcript-count = Transcripción 1 de { $count }.
 transcription-info-transcription-title = Transcripción
 delete-data-title = Eliminar datos
 transcription-info-transcription-confidence = Fiabilidad
-blocked-entity-guild = Este servidor tiene bloqueado el uso de Scripty. { $reason } Puede intentar apelar este bloqueo en el servidor de soporte: { $supportServerInvite }.
-cmds_vote_reminder = vote_reminder
-    .description = Alternar si Scripty le recordará que vote por el bot una vez transcurrido el límite de tiempo.
+blocked-entity-guild = Han bloqueado este clan de usar Scripty. { $reason } Puedes intentar recurrir este bloqueo en el servidor de soporte: { $supportServerInvite }.
+cmds_vote_reminder = recordatorio_voto
+    .description = Alterna si Scripty te recordará votar para el voto después de que haya pasado el tiempo límite.
     .enabled = activado
-    .enabled-description = ¿Activar los recordatorios de voto?
+    .enabled-description = ¿Activar recordatorio de votos?
 general-error-invalid-structure-description =
     { $description }
 
-    { "**" }Note**: this is a Discord error.
-    The only fix for this is to wait for Discord to propagate slash commands, which can take up to one hour.
-    If you do not want to wait this hour, you should use the prefix commands: run this command with `~{ $qualifiedName } { $args }`.
-cmds_setup = configuración
-    .description = Empezar con el automod de Scripty.
-    .target_channel = canal_de_objetivo
-    .target_channel-description = El canal al que enviar los logs de automod.
-    .log_recording = log_recording
-    .log_recording-description = ¿Debe enviarse al canal de destino una grabación de la locución infractora? Por defecto es false.
-    .auto_join = auto_join
-    .auto_join-description = ¿Debe el bot unirse automáticamente a la voz si se une un usuario? Por defecto es true.
-cmds_add_rule = add_rule
-    .description = Añadir una regla automod.
+    { "**" }Nota**: este es un error de Discord.
+    La única solución para esto es esperar a que Discord difunda el uso de los comandos Slash, lo que puede llevar hasta una hora.
+    Si no quieres esperar esa hora, deberías usar los comando prefijo: ejecuta este comando con `~{ $qualifiedName } { $args }`.
+cmds_setup = configurar
+    .description = Comenzar con la auto moderación de Scripty.
+    .target_channel = canal_objetivo
+    .target_channel-description = El canal al que enviar los registros de auto moderación.
+    .log_recording = grabar_registro
+    .log_recording-description = ¿Debería enviarse una grabación de lenguaje inapropiado al canal objetivo? El valor predeterminado es falso.
+    .auto_join = auto_unir
+    .auto_join-description = ¿El bot debería unirse automáticamente a una canal de voz si un usuario se une? El valor predeterminado es verdadero.
+cmds_add_rule = añadir_regla
+    .description = Añadir una regla de auto moderación.
     .rule_type = tipo_regla
-    .rule_type-description = El tipo de regla a añadir. Vea `/automod rule_help` para más información.
-    .rule_type-choice-Regular = Regular
-    .content = Contenido
+    .rule_type-description = El tipo de regla a añadir. Revisa `/automod rule_help` para más información.
+    .rule_type-choice-Regular = General
+    .content = contenido
     .content-description = El contenido de la regla a añadir.
     .action = acción
-    .action-description = La acción a realizar cuando se activa la regla.
-    .action-choice-SilentDelete = Borrado silencioso
-    .action-choice-DeleteAndLog = Borrar y registrar
-    .action-choice-DeleteLogAndKick = Eliminar, registrar y quitar la voz del usuario
-    .action-choice-DeleteLogAndSilence = Borrar, registrar y silenciar al usuario
+    .action-description = La acción a tomar cuando se desencadene la regla.
+    .action-choice-SilentDelete = Eliminar en silencio
+    .action-choice-DeleteAndLog = Eliminar y registrar
+    .action-choice-DeleteLogAndKick = Eliminar, registrar y desconectar al usuario del canal de voz
+    .action-choice-DeleteLogAndSilence = Eliminar, registrar y silenciar al usuario
 transcription-info-transcription-error =
-    error interno: la ejecución del algoritmo stt falló con error: { $error }
+    error interno: ejecutar el algoritmo stt ha fallado con este error: { $error }
     SSRC: { $ssrc }
-    Esto ha sido registrado y será arreglado tan pronto como sea posible.
-    Si es posible, póngase en contacto con los desarrolladores del núcleo en el servidor de soporte: { $supportServerInvite }.
+    Esto se ha registrado y se arreglará tan pronto como sea posible.
+    Si es posible, por favor contacta con los desarrolladores principales en el servidor de soporte: { $supportServerInvite }.
     ¡Gracias!
 delete-data-description =
-    Esto borrará todos tus datos. Esta acción es permanente, irreversible y no puede deshacerse.
+    Esto eliminará todos tus datos. Esta acción es permanente, irreversible y no se puede deshacer.
 
-    Cuando decimos «todos tus datos» queremos decir *todos*. Esto incluye tus datos de voz y tu usuario en la base de datos.
-    Sin embargo, esto *no* incluye los mensajes que podamos haber almacenado de usted si optó por ello. No podemos borrar esos mensajes, simplemente porque no sabemos qué usuario envió qué mensaje.
+    Cuando decimos "todos tus datos" nos referimos a *todo* sobre tí. Esto incluye tus datos de voz, y tu usuario en la base de datos.
+    En cambio, esto *no* incluye los mensajes que hayamos guardado de tí si optaste por ello. No podemos eliminar esos mensajes, simplemente porque no sabemos que usuario envió qué mensaje.
 
-    Si también quieres que se te prohíba usar el bot después de esta acción, para no leerte a ti mismo accidentalmente, puedes hacer clic en el botón correspondiente más abajo.
-    Ten en cuenta que si lo haces, tendremos que almacenar tu ID de usuario para mantener un registro de los usuarios baneados.
-    Si en algún momento después de esta acción deseas ser desbaneado, puedes ponerte en contacto con el servidor de soporte y solicitar un desbaneo manual.
+    Si también quieres que te prohibamos usar el bot tras esta acción, de manera que no te vuelvas a añadir accidentalmente, puedes hacer clic en el botón apropiado a continuación.
+    Ten en cuenta que al hacerlo, nos obligará a guardar tu identificador de usuario para mantener un registro de los usuarios vetados.
+    Si en cualquier momento tras esta acción quieres que te eliminemos la prohibición, puedes contactar en el servidor de soporte y solicitar que te eliminen la prohibición de manera manual.
 
-    ¿Estás seguro de que quieres borrar todos tus datos?
+    ¿Estás seguro de que quieres eliminar todos tus datos?
 data-storage-embed-description =
-    { "**" }NOTA**: todo lo que sigue es **completamente opcional** y optar por no participar **no afectará**, de ninguna manera, su experiencia con Scripty.
+    { "**" }NOTA**: todo lo que sigue es **completamente opcional**, y no participando **no** afectará, de ninguna manera, a tu experiencia con Scripty.
     Dicho esto, allá vamos.
 
-    Scripty requiere una gran cantidad de datos de audio y texto para entrenar un modelo de voz a texto adecuado. No todos pueden donar o comprar una suscripción premium para ayudarnos, por lo que una forma importante en la que puedes ayudarnos es permitiéndonos almacenar tus datos, como audio y mensajes, para entrenar un modelo.
-    Entendemos que estos datos pueden ser extremadamente personales, por lo que esto es completamente opcional y no afectará su experiencia de ninguna manera.
+    Scripty necesita muchos datos de audio y texto para entrenar un modelo adecuado de conversión de voz a texto. No todos pueden permitirse donar o comprar la suscripción premium para ayudarnos, así que una buena manera de ayudarnos es permitiendo que almacenemos tus datos como audios y mensajes para entrenar un modelo.
+    Entendemos que estos datos pueden ser extremadamente personales, así que es totalmente opcional y no afectará tu experiencia de ninguna manera.
 
-    Esto es lo que haríamos con ello:
-    { "*" } Con los mensajes almacenados, los introduciríamos en un sistema de puntuación específico para su idioma. Este sistema de puntuación permitiría al algoritmo seleccionar las palabras más probables para un conjunto determinado de sonidos. Aunque es sumamente útil, esto no es tan importante como el audio. Tenga en cuenta que los datos de este mensaje están cifrados con cifrado AES de 256 bits.
-    { "*" } Con el audio almacenado, lo introduciríamos junto con su transcripción en un modelo para aumentar la precisión del modelo de conversión de voz a texto. Esto es increíblemente útil, incluso si tienes un micrófono deficiente y mucho ruido de fondo: de hecho, cuanto más ruido, mejor, siempre que un humano pueda entender lo que estás diciendo.
+    Esto es lo que haríamos con ellos:
+    { "*" } Con los mensajes guardados, alimentaríamos un evaluador dirigido a tu idioma. Este evaluador permitiría que el algoritmo seleccione las palabras más parecidas para una colección dada de sonidos. Aunque es inmensamente útil, esto no es tan importante como el audio. Ten en cuenta que estos datos de mensajes están encriptados con un cifrado AES 256-bit.
+    { "*" } Con el audio almacenado, lo alimentaríamos junto con su transcripción a un modelo para aumentar la precisión del modelo de conversión de voz a texto. Esto es increiblemente útil, incluso si tienes un micrófono de baja calidad y ruido de fondo: de hecho, contra más ruido, mejor, siempre que una persona pueda entender lo que dices.
 
-    Si ha optado por participar y luego decide no hacerlo, sus datos aún se almacenarán, pero puede solicitar la eliminación de sus datos de voz ejecutando `
-    { $contextPrefix } delete_all_data`. Sin embargo, es imposible eliminar los datos de sus mensajes. Esto se debe a que no almacenamos un enlace de qué usuario envió qué mensaje.
-    Sus datos se almacenan en servidores que están protegidos de forma estricta. Sería extremadamente difícil para cualquiera que intentara acceder a ellos con éxito.
+    Si participaste, y más tarde decides que ya no quieres participar, tus datos todavia se mantendrán guardados, pero puedes solicitar que eliminemos tus datos de voz ejecutando `{ $contextPrefix }delete_all_data`. Sin embargo, es imposible eliminar los datos de tus mensajes. Esto ocurre porque no guardamos un enlace de qué usuario dijo qué mensaje.
+    Tus datos se guardan en servidores protegidos a cal y canto. Sería extremadamente difícil que alguien que intentara acceder a ellos lo consiguiera.
 
-    Puede alternar sus opciones utilizando los botones a continuación.
+    Puedes alternar tu elección utilizando los botones de abajo.
 cmds_data_storage = almacenamiento_datos
     .description = Configura los ajustes de almacenamiento para tus datos
-blocked-entity-user = Se le ha bloqueado el uso de Scripty. { $reason } Puede intentar apelar este bloqueo en el servidor de soporte: { $supportServerInvite }.
-automod-add-rule-embed-failure-description-free-locked-type = Los servidores gratuitos solo pueden utilizar reglas normales. Si desea utilizar otros tipos de reglas, consulte nuestra versión Premium en https://scripty.org/premium.
-cmds_remove_rule = remove_rule
-    .description = Eliminar una regla automod.
-    .rule_id = Id_regla
-    .rule_id-description = El ID de la regla a eliminar.
-cmds_list_rules = list_rules
-    .description = Lista todas las reglas automod.
-    .filter_by = filter_by
-    .filter_by-description = Filtra las reglas por su contenido. Dejar vacío para mostrar todas las reglas.
+blocked-entity-user = Te han bloqueado para usar Scripty. { $reason } Puedes intentar recurrir este bloqueo en el servidor de soporte: { $supportServerInvite }.
+automod-add-rule-embed-failure-description-free-locked-type = Los servidores gratuitos sólo pueden usar reglas generales. Si quieres usar otro tipo de reglas, echa un vistazo a nuestro Premium en https://scripty.org/premium.
+cmds_remove_rule = eliminar_regla
+    .description = Eliminar una regla de auto moderación.
+    .rule_id = ID_regla
+    .rule_id-description = El identificador de la regla a eliminar.
+cmds_list_rules = enumerar_reglas
+    .description = Enumera todas las reglas de auto moderación.
+    .filter_by = filtrar_por
+    .filter_by-description = Filtrar reglas por su contenido. Dejar vacío para mostrar todas las reglas.
