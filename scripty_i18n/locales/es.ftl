@@ -413,7 +413,7 @@ data-storage-embed-description =
 
     Puede alternar sus opciones utilizando los botones a continuación.
 cmds_data_storage = almacenamiento_datos
-    .description = Configurar el almacenamiento de sus datos
+    .description = Configura los ajustes de almacenamiento para tus datos
 blocked-entity-user = Se le ha bloqueado el uso de Scripty. { $reason } Puede intentar apelar este bloqueo en el servidor de soporte: { $supportServerInvite }.
 automod-add-rule-embed-failure-description-free-locked-type = Los servidores gratuitos solo pueden utilizar reglas normales. Si desea utilizar otros tipos de reglas, consulte nuestra versión Premium en https://scripty.org/premium.
 cmds_remove_rule = remove_rule
