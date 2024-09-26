@@ -347,3 +347,80 @@ transcription-info-transcript-count = Transcripción 1 de { $count }.
 transcription-info-transcription-title = Transcripción
 delete-data-title = Eliminar datos
 transcription-info-transcription-confidence = Fiabilidad
+blocked-entity-guild = Este servidor tiene bloqueado el uso de Scripty. { $reason } Puede intentar apelar este bloqueo en el servidor de soporte: { $supportServerInvite }.
+cmds_vote_reminder = vote_reminder
+    .description = Alternar si Scripty le recordará que vote por el bot una vez transcurrido el límite de tiempo.
+    .enabled = activado
+    .enabled-description = ¿Activar los recordatorios de voto?
+general-error-invalid-structure-description =
+    { $description }
+
+    { "**" }Note**: this is a Discord error.
+    The only fix for this is to wait for Discord to propagate slash commands, which can take up to one hour.
+    If you do not want to wait this hour, you should use the prefix commands: run this command with `~{ $qualifiedName } { $args }`.
+cmds_setup = configuración
+    .description = Empezar con el automod de Scripty.
+    .target_channel = canal_de_objetivo
+    .target_channel-description = El canal al que enviar los logs de automod.
+    .log_recording = log_recording
+    .log_recording-description = ¿Debe enviarse al canal de destino una grabación de la locución infractora? Por defecto es false.
+    .auto_join = auto_join
+    .auto_join-description = ¿Debe el bot unirse automáticamente a la voz si se une un usuario? Por defecto es true.
+cmds_add_rule = add_rule
+    .description = Añadir una regla automod.
+    .rule_type = tipo_regla
+    .rule_type-description = El tipo de regla a añadir. Vea `/automod rule_help` para más información.
+    .rule_type-choice-Regular = Regular
+    .content = Contenido
+    .content-description = El contenido de la regla a añadir.
+    .action = acción
+    .action-description = La acción a realizar cuando se activa la regla.
+    .action-choice-SilentDelete = Borrado silencioso
+    .action-choice-DeleteAndLog = Borrar y registrar
+    .action-choice-DeleteLogAndKick = Eliminar, registrar y quitar la voz del usuario
+    .action-choice-DeleteLogAndSilence = Borrar, registrar y silenciar al usuario
+transcription-info-transcription-error =
+    error interno: la ejecución del algoritmo stt falló con error: { $error }
+    SSRC: { $ssrc }
+    Esto ha sido registrado y será arreglado tan pronto como sea posible.
+    Si es posible, póngase en contacto con los desarrolladores del núcleo en el servidor de soporte: { $supportServerInvite }.
+    ¡Gracias!
+delete-data-description =
+    Esto borrará todos tus datos. Esta acción es permanente, irreversible y no puede deshacerse.
+
+    Cuando decimos «todos tus datos» queremos decir *todos*. Esto incluye tus datos de voz y tu usuario en la base de datos.
+    Sin embargo, esto *no* incluye los mensajes que podamos haber almacenado de usted si optó por ello. No podemos borrar esos mensajes, simplemente porque no sabemos qué usuario envió qué mensaje.
+
+    Si también quieres que se te prohíba usar el bot después de esta acción, para no leerte a ti mismo accidentalmente, puedes hacer clic en el botón correspondiente más abajo.
+    Ten en cuenta que si lo haces, tendremos que almacenar tu ID de usuario para mantener un registro de los usuarios baneados.
+    Si en algún momento después de esta acción deseas ser desbaneado, puedes ponerte en contacto con el servidor de soporte y solicitar un desbaneo manual.
+
+    ¿Estás seguro de que quieres borrar todos tus datos?
+data-storage-embed-description =
+    { "**" }NOTA**: todo lo que sigue es **completamente opcional** y optar por no participar **no afectará**, de ninguna manera, su experiencia con Scripty.
+    Dicho esto, allá vamos.
+
+    Scripty requiere una gran cantidad de datos de audio y texto para entrenar un modelo de voz a texto adecuado. No todos pueden donar o comprar una suscripción premium para ayudarnos, por lo que una forma importante en la que puedes ayudarnos es permitiéndonos almacenar tus datos, como audio y mensajes, para entrenar un modelo.
+    Entendemos que estos datos pueden ser extremadamente personales, por lo que esto es completamente opcional y no afectará su experiencia de ninguna manera.
+
+    Esto es lo que haríamos con ello:
+    { "*" } Con los mensajes almacenados, los introduciríamos en un sistema de puntuación específico para su idioma. Este sistema de puntuación permitiría al algoritmo seleccionar las palabras más probables para un conjunto determinado de sonidos. Aunque es sumamente útil, esto no es tan importante como el audio. Tenga en cuenta que los datos de este mensaje están cifrados con cifrado AES de 256 bits.
+    { "*" } Con el audio almacenado, lo introduciríamos junto con su transcripción en un modelo para aumentar la precisión del modelo de conversión de voz a texto. Esto es increíblemente útil, incluso si tienes un micrófono deficiente y mucho ruido de fondo: de hecho, cuanto más ruido, mejor, siempre que un humano pueda entender lo que estás diciendo.
+
+    Si ha optado por participar y luego decide no hacerlo, sus datos aún se almacenarán, pero puede solicitar la eliminación de sus datos de voz ejecutando `
+    { $contextPrefix } delete_all_data`. Sin embargo, es imposible eliminar los datos de sus mensajes. Esto se debe a que no almacenamos un enlace de qué usuario envió qué mensaje.
+    Sus datos se almacenan en servidores que están protegidos de forma estricta. Sería extremadamente difícil para cualquiera que intentara acceder a ellos con éxito.
+
+    Puede alternar sus opciones utilizando los botones a continuación.
+cmds_data_storage = almacenamiento_datos
+    .description = Configurar el almacenamiento de sus datos
+blocked-entity-user = Se le ha bloqueado el uso de Scripty. { $reason } Puede intentar apelar este bloqueo en el servidor de soporte: { $supportServerInvite }.
+automod-add-rule-embed-failure-description-free-locked-type = Los servidores gratuitos solo pueden utilizar reglas normales. Si desea utilizar otros tipos de reglas, consulte nuestra versión Premium en https://scripty.org/premium.
+cmds_remove_rule = remove_rule
+    .description = Eliminar una regla automod.
+    .rule_id = Id_regla
+    .rule_id-description = El ID de la regla a eliminar.
+cmds_list_rules = list_rules
+    .description = Lista todas las reglas automod.
+    .filter_by = filter_by
+    .filter_by-description = Filtra las reglas por su contenido. Dejar vacío para mostrar todas las reglas.
