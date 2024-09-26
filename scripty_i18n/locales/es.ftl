@@ -304,7 +304,7 @@ general-error-command-process-description =
     ```
     { $errorFmt }
     ```
-    Esto ha sido reportado automáticamente. Por favor, no intente utilizar este comando repetidamente.
+    Esto se ha informado automáticamente. Por favor, no intentes usar este comando en repetidas ocasiones.
 delete-data-confirm = Sí, elimina todos los datos
 automod-add-rule-embed-failure-description-invalid-type = Tipo de regla no válido. Revisa `{ $contextPrefix }automod rule_help` para más información.
 automod-list-rules-embed-description = Te quedan { $rulesLeft } reglas de { $maxRules }.
