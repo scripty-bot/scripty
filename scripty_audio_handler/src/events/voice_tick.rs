@@ -472,21 +472,23 @@ async fn finalize_stream<'a>(
 		)
 		.await;
 	let res_et = Instant::now();
-	metrics
-		.stt_time
-		.observe(res_et.duration_since(res_st).as_secs_f64());
+	let stt_time = res_et.duration_since(res_st);
+	metrics.stt_time.observe(stt_time.as_secs_f64());
 
 	let (mut webhook_executor, final_transcript) = match res {
-		Ok(res) if !res.is_empty() => (ExecuteWebhook::new().content(Cow::Owned(res.clone())), res),
-		Ok(_) => return None,
+		Ok(res) if !res.is_empty() => {
+			debug!(%ssrc, "got string for final result, took {:?}", stt_time);
+			(ExecuteWebhook::new().content(Cow::Owned(res.clone())), res)
+		}
+		Ok(_) => {
+			debug!(%ssrc, "empty final result, took {:?}", stt_time);
+			return None;
+		}
 		Err(e) => {
-			error!(%ssrc, "failed to get stream result: {}", e);
+			error!(%ssrc, "failed to get final result: {}", e);
 			return None;
 		}
 	};
-
-	debug!(%ssrc, "got stream results");
-
 	let Some((user_details, avatar_url)) = user_data_map
 		.get(&ssrc)
 		.map(|x| (x.value().0.to_owned(), x.value().1.to_owned()))
