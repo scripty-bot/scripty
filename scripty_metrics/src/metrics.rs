@@ -306,7 +306,8 @@ impl Metrics {
 		let stt_time = Histogram::with_opts(
 			HistogramOpts::new("stt_time", "Time to transcribe audio from STT server").buckets(
 				vec![
-					0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0,
+					0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0,
+					25.0, 50.0,
 				],
 			),
 		)
