@@ -76,22 +76,22 @@ cmds_premium = premium
     .description = Comandos premium
 # Leave command
 # This and all attributes show up exclusively in the slash command picker when `leave` is selected.
-cmds_leave = abandonar
+cmds_leave = leave
     .description = Abandonar cualquier llamada de voz en curso.
 # Help command
 # This and all attributes show up exclusively in the slash command picker when `help` is selected.
-cmds_help = ayuda
+cmds_help = help
     .description = Mostrar este menú de ayuda
     .command = comando
     .command-description = Comando específico para mostrar ayuda
 # premium command
 # This and all attributes show up exclusively in the slash command picker when `premium claim` is selected.
-cmds_premium_claim = reclamar
-    .description = Reclama tu premium dentro del servidor donde se ejecuta este comando.
+cmds_premium_claim = claim
+    .description = Reclamar tu premium dentro del servidor donde se ejecuta este comando.
 # premium command
 # This and all attributes show up exclusively in the slash command picker when `premium remove` is selected.
-cmds_premium_remove = eliminar
-    .description = Elimina tu premium del servidor donde se ejecuta este comando.
+cmds_premium_remove = remove
+    .description = Eliminar tu premium del servidor donde se ejecuta este comando.
 # premium command
 # This is shown to the user when they are not subscribed to premium.
 premium-not-premium = No eres un suscriptor premium. Suscríbete en https://scripty.org/premium. Si sabes que eres uno de ellos, envía un mensaje directo al bot de manera que podamos restablecer su premium.
@@ -103,8 +103,8 @@ leave-success = Canal de voz abandonado con éxito.
 join-forum-requires-tags = El canal del foro que intentaste que usara requiere etiquetas. No tengo forma de saber qué etiquetas usar, por lo que no puedo unirme a ese canal. Utiliza un canal diferente, o pídele a un administrador que elimine el requisito de etiqueta.
 # join command
 # This and all attributes show up exclusively in the slash command picker when `join` is selected.
-cmds_join = unirse
-    .description = Únete a un chat de voz. Las transcripciones se registrarán en el canal en el que ejecute este comando.
+cmds_join = join
+    .description = Unirse a un chat de voz. Las transcripciones se registrarán en el canal en el que ejecute este comando.
     .voice_channel = canal_de_voz
     .voice_channel-description = Chat de voz al que vincularse.
     .record_transcriptions = registrar_transcripciones
@@ -117,12 +117,12 @@ cmds_join = unirse
 # This message is shown when the user has told the bot to send transcripts to a non-text-based channel (ie category). `target_channel` should be translated, as slash command arguments are localized.
 join-target-not-text-based = El canal al que me dijiste que enviara las transcripciones a ({ $targetMention }) no es un canal de texto. Por favor, utiliza un canal de texto o elige un canal diferente en el argumento `target_channel`.
 premium-removed = Si tú eres el usuario que ha reclamado Premium, has eliminado tu premium de este servido con éxito. Si quieres actualizarlo, u obtener más espacio, dirígete <https://dash.scripty.org/premium>.
-cmds_config_verbose = locuaz
-    .description = Alterna si Scripty es locuaz durante las transcripciones.
+cmds_config_verbose = verbose
+    .description = Cambiar si Scripty es locuaz durante las transcripciones.
     .verbose = locuaz
     .verbose-description = El valor predeterminado es falso
 config-verbose-disabled = Scripty ya no será locuaz durante las transcripciones.
-config_translate = traducir
+config_translate = translate
     .description = ¿Traducir transcripciones automáticamente a inglés?
     .translate = traducir
     .translate-description = El valor predeterminado es falso
@@ -161,10 +161,10 @@ join-no-one-in-channel = No hay nadie en { $targetMention }. No me uno si no hay
 join-success-help-description = Puedes unirte al servidor de soporte en { $supportServerInvite }, o puedes enviar un mensaje directo al bot.
 join-thread-title = Transcripción desde { $timestamp }
 join-forum-thread-content = { $authorMention } inició una transcripción a las { $timestamp }.
-cmds_transcribe_message = transcribir_mensaje
-    .description = Transcribe un mensaje. Responde a un mensaje para transcribirlo.
+cmds_transcribe_message = transcribe_message
+    .description = Transcribir un mensaje. Responde a un mensaje para transcribirlo.
 cmds_premium_info = info
-    .description = Consigue información sobre el estado Premium de Scripty de este servidor.
+    .description = Conseguir información sobre el estado Premium de Scripty de este servidor.
 premium-info-embed-title = Estado Premium
 premium-info-embed-description-has-subscription = Puedes gestionar tu suscripción en <https://dash.scripty.org/premium>. ¡Gracias por apoyar a Scripty!
 premium-info-embed-max-users = Máximo de usuarios simultáneos
@@ -176,8 +176,8 @@ premium-info-embed-trial-available-description = Envía un mensaje directo al bo
 premium-info-embed-manage-subscription-user-has-unclaimed-title = ¡Parece que compraste Premium!
 config-verbose-enabled = Ahora Scripty será locuaz durante las transcripciones.
 premium-info-embed-description-no-subscription = Puedes suscribirte a Premium en <https://dash.scripty.org/premium>. Además de las ventajas que obtienes, también puedes ayudarnos en nuestro objetivo de hacer Scripty el mejor bot de conversión de voz a texto que existe :)
-config_transcribe_audio = transcribir_audio
-    .description = Alterna si Scripty transcribe archivos de audio arbitrarios. Premium obligatorio.
+config_transcribe_audio = transcribe_audio
+    .description = Cambiar si Scripty transcribe archivos de audio arbitrarios. Premium obligatorio.
     .transcribe_audio = transcribir_audio
     .transcribe_audio-description = El valor predeterminado es falso
 config-transcribe-audio-requires-premium =
@@ -185,15 +185,15 @@ config-transcribe-audio-requires-premium =
     Si quieres mejorar a Premium, dirígete a https://dash.scripty.org/premium. También puedes solicitar una prueba gratuita de Premium enviándole un mensaje directo al bot.
     Si esta función estaba activada antes, ahora está desactivada.
 config-transcribe-video-disabled = Scripty ya no transcribirá archivos de video.
-config_auto_detect_lang = detectar_idioma_automático
-    .description = ¿Intenta detectar automáticamente el idioma hablado? Muy impreciso comparado a establecer un idioma.
+config_auto_detect_lang = auto_detect_lang
+    .description = ¿Detectar automáticamente el idioma hablado? Muy impreciso comparado a establecer un idioma.
     .auto_detect_lang = detectar_idioma_automático
     .auto_detect_lang-description = El valor predeterminado es falso
 config-transcribe-only-role-disabled = Ahora Scripty transcribirá a todos los usuarios, independientemente del rol.
 join-ephemeral-not-thread = Para usar el parámetro efímero, debes seleccionar un hilo como destino, o estableciendo `create_thread` a verdadero o dirigiendo a un hilo con `target_channel`.
 premium-too-many-guilds = Has reclamado { $totalServers } claves premium. No puedes añadir ninguna más, salvo que mejores tu suscripción premium en <https://dash.scripty.org/premium>, o elimines algunas con el comando `{ $commandPrefix }premium remove`.
-config_transcribe_video = transcribir_video
-    .description = Alterna si Scripty transcribe archivos de video arbitrarios. Requiere premium de nivel 2.
+config_transcribe_video = transcribe_video
+    .description = Cambiar si Scripty transcribe archivos de video arbitrarios. Requiere premium de nivel 2.
     .transcribe_video = transcribir_video
     .transcribe_video-description = El valor predeterminado es falso
 config-translate-enabled = Ahora Scripty traducirá las transcripciones a inglés.
@@ -211,8 +211,8 @@ context-menu-command-user =
 guild-language-set-success = Idioma de clan establecido a `{ $language }`.
 language-set-failure-title-db = Error de base de datos.
 root-command-invoked-title = ¡Es un comando raíz!
-automod-setup-embed-complete-title = ¡Configuración de auto moderación completada!
-automod-setup-embed-complete-description = Ahora puedes usar `{ $contextPrefix }automod rule add` para añadir una regla de auto moderación. { $extraDetails }
+automod-setup-embed-complete-title = ¡Configuración de Automod completada!
+automod-setup-embed-complete-description = Ahora puedes usar `{ $contextPrefix }automod rule add` para añadir una regla de moderación automática. { $extraDetails }
 premium-claimed = Has reclamado con éxito premium en este servidor. Si quieres actualizarlo, u obtener más espacio, dirígete a <https://dash.scripty.org/premium>. Si quieres eliminar tu premium de este clan, ejecuta `{ $commandPrefix }premium remove`.
 join-failed-dropped = Parece que Discord está teniendo problemas, no podemos hacer nada al respecto. Por favor, inténtalo más tarde.
 config-translate-not-english = Debes establecer tu idioma a inglés para activar la traducción. Hazlo con `{ $contextPrefix }config language en`.
@@ -227,16 +227,16 @@ context-menu-command-unknown =
 more-info-on-command =
     Para más información sobre un comando específico, escribe `{ $contextPrefix }help <name>`
     ```
-cmds_user_language = usuario
-    .description = Establece tu idioma de usuario con uno de los idiomas disponibles.
+cmds_user_language = user
+    .description = Establecer tu idioma de usuario con uno de los idiomas disponibles.
     .language = idioma
     .language-description = El idioma que quieres establecer para tu usuario.
 automod-root-response = Este es el comando raíz, debido a limitaciones de Discord no hace nada. Para más información, echa un vistazo a `{ $contextPrefix }help automod`.
 no-channel-specified = No te encuentras en un chat de voz, ni me has dicho un canal al que unirme. Prueba `{ $contextPrefix }join <channel>` para especificar un chat de voz, o únete tú mismo a un canal de voz y vuelve a ejecutar este comando.
 user-language-set-success = Idioma de usuario establecido a `{ $language }`.
 join-no-permission = No tengo permiso para unirme a { $targetMention }. Por favor, concédeme los permisos Ver canal y Conectar, o únete a un chat de voz distinto donde yo tenga permisos.
-config_transcribe_voice_messages = transcribir_mensajes_voz
-    .description = Alterna si Scripty transcribe mensajes de voz.
+config_transcribe_voice_messages = transcribe_voice_messages
+    .description = Cambiar si Scripty transcribe mensajes de voz.
     .transcribe_voice_messages = transcribir_mensajes_voz
     .transcribe_voice_messages-description = El valor predeterminado es verdadero
 config-auto-detect-lang-requires-premium =
@@ -244,8 +244,8 @@ config-auto-detect-lang-requires-premium =
     Si quieres mejorar a Premium, dirígete a https://dash.scripty.org/premium. También puedes solicitar una prueba gratuita de Premium enviándole un mensaje directo al bot.
     Si esta función estaba activada antes, ahora está desactivada.
 config-transcribe-only-role-enabled = Ahora Scripty sólo transcribirá mensajes de usuarios en { $roleId }.
-cmds_config_server_language = clan
-    .description = Establece el idioma de este servidor con uno de los idiomas disponibles.
+cmds_config_server_language = guild
+    .description = Establecer el idioma de este servidor con uno de los idiomas disponibles.
     .language = idioma
     .language-description = El idioma que quieres establecer para tu clan.
 guild-language-set-success-description = Para volver a inglés, escribe `{ $contextPrefix }language guild_language en`.
@@ -256,18 +256,18 @@ latency-description =
 
     Nota: si cualquier latencia es igual a 0ms, significa que esa latencia en particular no se pudo calcular en este momento.
     Inténtalo de nuevo más tarde.
-data-storage-toggle-audio-btn = Alterna almacenamiento de audio
-data-storage-toggle-msgs-btn = Alterna almacenamiento de mensajes
+data-storage-toggle-audio-btn = Cambiar almacenamiento de audio
+data-storage-toggle-msgs-btn = Cambiar almacenamiento de mensajes
 data-storage-opted-in-audio = Ahora has optado por almacenar tu audio para el entrenamiento del modelo.
 data-storage-command-timed-out = Se acabó el tiempo. Vuelve a ejecutar este comando si todavía quieres gestionar tus ajustes.
-cmds_automod = automoderacion
-    .description = Gestiona la auto moderación de Scripty
+cmds_automod = automod
+    .description = Gestionar la moderación automática de Scripty
 cmds_ping = ping
     .description = Obtener la latencia del bot.
 config-auto-detect-lang-enabled = Ahora Scripty detectará automáticamente el idioma hablado.
 data-storage-opted-out-msgs = Ahora ya no puedes almacenar tus mensajes para el entrenamiento de evaluación.
 config-auto-detect-lang-disabled = Scripty ya no detectará automáticamente el idioma hablado.
-config_transcribe_only_role = transcribir_solo_rol
+config_transcribe_only_role = transcribe_only_role
     .description = Limitar las transcripciones de Scripty solamente a usuarios en una canal de voz con este rol.
     .transcribe_only_role = transcribir_solo_rol
     .transcribe_only_role-description = Rol al que limitar: dejar vacío para desactivar.
@@ -290,7 +290,7 @@ automod-setup-embed-not-setup-description = Hazlo primero ejecutando `{ $context
 general-error-invalid-structure-title = Estructura no válida desde Discord al intentar analizar { $command }.
 general-error-cooldown-hit-title = Tiempo de espera alcanzado en { $command }
 automod-add-rule-embed-extra-details-free-limit = Los servidores gratuitos están limitados a 25 reglas generales. Si quieres aumentar este límite, echa un vistazo a nuestro Premium en https://scripty.org/premium.
-automod-list-rules-embed-title = Reglas de auto moderación
+automod-list-rules-embed-title = Reglas de moderación automática
 automod-list-rules-footer = Página { $page } de { $maxPage }
 automod-list-rules-no-rules = ¡No tienes ninguna regla!
 voice-connection-error-ws-closed-unknown-encryption-mode = discord no reconoció el esquema de encriptado
@@ -298,7 +298,7 @@ voice-connection-error-msg-no-reconnect = He tenido un problema ({ $reason }) y 
 general-error-invalid-args-title = Argumentos no válidos mientras analizaba { $command }.
 general-error-invalid-args-description = Error al analizar `{ $input }` porque `{ $error }`
 general-error-user-missing-perms-description-known = Faltan permisos: { $perms }
-general-error-user-missing-perms-description-not-owner = No propietario de este bot.
+general-error-user-missing-perms-description-not-owner = No eres propietario de este bot.
 transcription-info-transcription-ssrc = SSRC { $ssrc }
 general-error-command-process-description =
     ```
@@ -313,12 +313,12 @@ voice-connection-error-ws-closed-no-reason = discord cerró la conexión sin mot
 voice-connection-error-ws-closed-unknown-opcode = discord cerró la conexión debido a un código de operación desconocido
 general-error-user-missing-perms-title = Te faltan permisos para ejecutar { $command }.
 general-error-user-missing-perms-description-unknown = No sé que permisos te faltan.
-cmds_delete_all_data = eliminar_todos_datos
-    .description = Elimina todos tus datos.
+cmds_delete_all_data = delete_all_data
+    .description = Eliminar todos tus datos.
 delete-data-confirm-banned = Sí, eliminar todos los datos y prohíbeme a mí mismo
 automod-remove-rule-embed-success-title = ¡Regla eliminada!
 voice-connection-error-ws-closed-already-authenticated = discord cerró la conexión debido a que ya estaba autenticado
-general-error-command-check-failed-title = Ha fallado una condición previa para { $command }.
+general-error-command-check-failed-title = Ha fallado una precondición para { $command }.
 automod-add-rule-embed-failure-title = ¡Error al añadir la regla!
 automod-remove-rule-embed-failure-description-invalid-id = Identificador de regla no válido. Revisa `{ $contextPrefix }automod list` para más información.
 automod-add-rule-embed-success-description = Te quedan { $rulesLeft } reglas de { $maxRules }. { $extraDetails }
@@ -348,8 +348,8 @@ transcription-info-transcription-title = Transcripción
 delete-data-title = Eliminar datos
 transcription-info-transcription-confidence = Fiabilidad
 blocked-entity-guild = Han bloqueado este clan de usar Scripty. { $reason } Puedes intentar recurrir este bloqueo en el servidor de soporte: { $supportServerInvite }.
-cmds_vote_reminder = recordatorio_voto
-    .description = Alterna si Scripty te recordará votar para el voto después de que haya pasado el tiempo límite.
+cmds_vote_reminder = vote_reminder
+    .description = Cambiar si Scripty te recordará votar para el voto después de que haya pasado el tiempo límite.
     .enabled = activado
     .enabled-description = ¿Activar recordatorio de votos?
 general-error-invalid-structure-description =
@@ -358,16 +358,16 @@ general-error-invalid-structure-description =
     { "**" }Nota**: este es un error de Discord.
     La única solución para esto es esperar a que Discord difunda el uso de los comandos Slash, lo que puede llevar hasta una hora.
     Si no quieres esperar esa hora, deberías usar los comando prefijo: ejecuta este comando con `~{ $qualifiedName } { $args }`.
-cmds_setup = configurar
-    .description = Comenzar con la auto moderación de Scripty.
+cmds_setup = setup
+    .description = Comenzar con la moderación automática de Scripty.
     .target_channel = canal_objetivo
-    .target_channel-description = El canal al que enviar los registros de auto moderación.
+    .target_channel-description = El canal al que enviar los registros de moderación automática.
     .log_recording = grabar_registro
     .log_recording-description = ¿Debería enviarse una grabación de lenguaje inapropiado al canal objetivo? El valor predeterminado es falso.
     .auto_join = auto_unir
     .auto_join-description = ¿El bot debería unirse automáticamente a una canal de voz si un usuario se une? El valor predeterminado es verdadero.
-cmds_add_rule = añadir_regla
-    .description = Añadir una regla de auto moderación.
+cmds_add_rule = add_rule
+    .description = Añadir una regla de moderación automática.
     .rule_type = tipo_regla
     .rule_type-description = El tipo de regla a añadir. Revisa `/automod rule_help` para más información.
     .rule_type-choice-Regular = General
@@ -410,16 +410,16 @@ data-storage-embed-description =
     Si participaste, y más tarde decides que ya no quieres participar, tus datos todavia se mantendrán guardados, pero puedes solicitar que eliminemos tus datos de voz ejecutando `{ $contextPrefix }delete_all_data`. Sin embargo, es imposible eliminar los datos de tus mensajes. Esto ocurre porque no guardamos un enlace de qué usuario dijo qué mensaje.
     Tus datos se guardan en servidores protegidos a cal y canto. Sería extremadamente difícil que alguien que intentara acceder a ellos lo consiguiera.
 
-    Puedes alternar tu elección utilizando los botones de abajo.
-cmds_data_storage = almacenamiento_datos
-    .description = Configura los ajustes de almacenamiento para tus datos
+    Puedes cambiar tu elección utilizando los botones de abajo.
+cmds_data_storage = data_storage
+    .description = Configurar los ajustes de almacenamiento para tus datos
 blocked-entity-user = Te han bloqueado para usar Scripty. { $reason } Puedes intentar recurrir este bloqueo en el servidor de soporte: { $supportServerInvite }.
 automod-add-rule-embed-failure-description-free-locked-type = Los servidores gratuitos solo pueden utilizar reglas básicas. Si deseas utilizar más tipos de reglas, consulta nuestra versión Premium en https://scripty.org/premium.
-cmds_remove_rule = eliminar_regla
-    .description = Eliminar una regla de auto moderación.
-    .rule_id = ID_regla
+cmds_remove_rule = remove_rule
+    .description = Eliminar una regla de moderación automática.
+    .rule_id = identificador_regla
     .rule_id-description = El identificador de la regla a eliminar.
-cmds_list_rules = enumerar_reglas
-    .description = Enumera todas las reglas de auto moderación.
+cmds_list_rules = list_rules
+    .description = Enumerar todas las reglas de moderación automática.
     .filter_by = filtrar_por
     .filter_by-description = Filtrar reglas por su contenido. Dejar vacío para mostrar todas las reglas.
