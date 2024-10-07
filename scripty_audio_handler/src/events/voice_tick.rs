@@ -19,7 +19,7 @@ use serenity::{
 	builder::{CreateEmbed, CreateMessage, EditMember, ExecuteWebhook},
 	gateway::client::Context,
 };
-use songbird::events::context_data::VoiceTick;
+use songbird::events::context_data::{VoiceData, VoiceTick};
 
 use crate::{
 	audio_handler::SsrcMaps,
@@ -66,6 +66,8 @@ pub async fn voice_tick(
 		kiai_client,
 	}: VoiceTickContext,
 ) {
+	debug_log_audio_data(&voice_data, guild_id);
+
 	let metrics = scripty_metrics::get_metrics();
 	let tick_start_time = Instant::now();
 
@@ -113,6 +115,38 @@ pub async fn voice_tick(
 	let tick_end_time = Instant::now();
 	let total_tick_time = tick_end_time.duration_since(tick_start_time).as_secs_f64();
 	metrics.audio_tick_time.observe(total_tick_time);
+}
+
+fn debug_log_audio_data(VoiceTick { speaking, .. }: &VoiceTick, guild_id: GuildId) {
+	for (
+		ssrc,
+		VoiceData {
+			packet,
+			decoded_voice,
+			..
+		},
+	) in speaking.iter()
+	{
+		let voice_is_empty = if let Some(decoded_voice) = decoded_voice {
+			decoded_voice.iter().all(|x| *x == 0)
+		} else {
+			warn!(%guild_id, %ssrc, "debug_log_audio_data: packet for this voice tick lost");
+			true
+		};
+		if let Some(packet) = packet {
+			let rtp = packet.rtp();
+			trace!(
+				%guild_id,
+				%ssrc,
+				"debug_log_audio_data: RTP packet data: sequence {}, timestamp {}, voice_is_empty {}",
+				rtp.get_sequence().0,
+				rtp.get_timestamp().0,
+				voice_is_empty
+			);
+		} else {
+			trace!(%guild_id, %ssrc, "debug_log_audio_data: no RTP packet for this tick: voice_is_empty {}", voice_is_empty);
+		}
+	}
 }
 
 struct SilentSpeakersContext {
