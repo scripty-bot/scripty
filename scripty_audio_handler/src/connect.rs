@@ -152,7 +152,8 @@ pub async fn connect_to_vc(
 	call.add_global_event(Event::Core(CoreEvent::ClientDisconnect), handler.clone());
 	call.add_global_event(Event::Core(CoreEvent::DriverConnect), handler.clone());
 	call.add_global_event(Event::Core(CoreEvent::DriverDisconnect), handler.clone());
-	call.add_global_event(Event::Core(CoreEvent::DriverReconnect), handler);
+	call.add_global_event(Event::Core(CoreEvent::DriverReconnect), handler.clone());
+	call.add_global_event(Event::Core(CoreEvent::RtpPacket), handler);
 
 	// spawn background tasks to automatically leave the call after the specified time period
 	let (tx, rx) = tokio::sync::oneshot::channel::<()>();
