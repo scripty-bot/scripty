@@ -276,6 +276,11 @@ impl EventHandler for AudioHandler {
 				self.seen_users.clone(),
 				self.ephemeral,
 			)),
+			EventContext::RtpPacket(rtp_data) => {
+				rtp_packet(rtp_data, self.guild_id);
+				return None;
+			}
+
 			_ => return None,
 		};
 		None
