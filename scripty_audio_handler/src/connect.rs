@@ -27,7 +27,7 @@ pub async fn connect_to_vc(
 	let ctx_data = get_data(&ctx);
 
 	debug!(%guild_id, "checking if call already exists");
-	if let Some(existing) = ctx_data.existing_calls.insert(guild_id, voice_channel_id) {
+	if let Some(existing) = ctx_data.existing_calls.get(&guild_id) {
 		// call already exists, if channel ID != current one continue as we need to switch VCs
 		if existing == voice_channel_id {
 			// attempting to rejoin the same channel, so return early
@@ -195,6 +195,8 @@ pub async fn connect_to_vc(
 			error!(%guild_id, "failed to send message: {}", e);
 		}
 	});
+
+	ctx_data.existing_calls.insert(guild_id, voice_channel_id);
 
 	Ok(())
 }
