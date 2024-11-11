@@ -295,3 +295,5 @@ cmds_add_rule = add_rule
     .action-choice-DeleteAndLog = Delete and log
     .action-choice-DeleteLogAndKick = Delete, log, and remove user from voice
     .action-choice-DeleteLogAndSilence = Delete, log, and mute user
+cmds_ping = ping
+    .description = Получите задержку бота.
