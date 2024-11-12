@@ -23,6 +23,7 @@ pub async fn send_err_msg<'a>(
 		warn!("failed to send message while handling error: {}", e);
 		let response = ctx
 			.author()
+			.id
 			.direct_message(ctx.http(), CreateMessage::default().embed(embed))
 			.await;
 		if let Err(e) = response {

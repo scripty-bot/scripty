@@ -149,22 +149,16 @@ pub async fn driver_disconnect(
 	// send all users the results of their transcriptions
 	if let (Some(transcript_results), Some(seen_users)) = (transcript_results, seen_users) {
 		let final_text_output = transcript_results.read().join("\n");
-		let attachment =
-			CreateAttachment::bytes(Cow::Owned(final_text_output.into_bytes()), "transcript.txt");
+		let attachment = CreateAttachment::bytes(final_text_output.into_bytes(), "transcript.txt");
 		let message = CreateMessage::new().add_file(attachment.clone()).content(
 			"This transcript was automatically sent to all users who spoke in the voice chat.",
 		);
 		for user in seen_users.iter() {
-			match UserId::new(*user).create_dm_channel(&ctx.http).await {
-				Ok(user_channel) => {
-					if let Err(e) = user_channel.send_message(&ctx.http, message.clone()).await {
-						debug!(?guild_id, "failed to send transcript to {}: {}", *user, e);
-					}
-				}
-				Err(e) => {
-					warn!(?guild_id, "failed to get user {}: {}", *user, e);
-					continue;
-				}
+			if let Err(e) = UserId::new(*user)
+				.direct_message(&ctx.http, message.clone())
+				.await
+			{
+				debug!(?guild_id, "failed to send transcript to {}: {}", *user, e);
 			}
 		}
 

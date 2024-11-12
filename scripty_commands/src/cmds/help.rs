@@ -3,6 +3,7 @@ use std::{borrow::Cow, fmt::Write};
 use indexmap::IndexMap;
 use poise::CreateReply;
 use scripty_i18n::LanguageIdentifier;
+use serenity::all::{AutocompleteChoice, CreateAutocompleteResponse};
 
 use crate::{Context, Error};
 
@@ -169,13 +170,20 @@ async fn help_global(ctx: Context<'_>, resolved_language: LanguageIdentifier) ->
 
 /// A function to autocomplete help command suggestions for slash commands
 async fn autocomplete_command<'a>(
-	ctx: Context<'a>,
-	partial: &'a str,
-) -> impl Iterator<Item = String> + 'a {
-	ctx.framework()
-		.options()
-		.commands
-		.iter()
-		.filter(move |cmd| cmd.name.starts_with(partial))
-		.map(|cmd| cmd.name.to_string())
+	ctx: Context<'_>,
+	partial: &'_ str,
+) -> CreateAutocompleteResponse<'a> {
+	CreateAutocompleteResponse::new().set_choices(
+		ctx.framework()
+			.options()
+			.commands
+			.iter()
+			.filter(move |cmd| cmd.name.starts_with(partial))
+			.map(|cmd| AutocompleteChoice {
+				name:               cmd.name.clone().into(),
+				name_localizations: None,
+				value:              cmd.name.clone().into(),
+			})
+			.collect::<Vec<_>>(),
+	)
 }

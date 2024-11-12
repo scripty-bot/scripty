@@ -178,21 +178,24 @@ fn format_embed_from_page<'a>(
 }
 
 fn build_components<'a>() -> Vec<CreateActionRow<'a>> {
-	vec![CreateActionRow::Buttons(vec![
-		CreateButton::new("first_page")
-			.style(ButtonStyle::Primary)
-			.emoji('⏮'),
-		CreateButton::new("previous_page")
-			.style(ButtonStyle::Primary)
-			.emoji('⬅'),
-		CreateButton::new("next_page")
-			.style(ButtonStyle::Primary)
-			.emoji('➡'),
-		CreateButton::new("last_page")
-			.style(ButtonStyle::Primary)
-			.emoji('⏭'),
-		CreateButton::new("pick_page")
-			.style(ButtonStyle::Primary)
-			.emoji('🔢'),
-	])]
+	vec![CreateActionRow::Buttons(
+		vec![
+			CreateButton::new("first_page")
+				.style(ButtonStyle::Primary)
+				.emoji('⏮'),
+			CreateButton::new("previous_page")
+				.style(ButtonStyle::Primary)
+				.emoji('⬅'),
+			CreateButton::new("next_page")
+				.style(ButtonStyle::Primary)
+				.emoji('➡'),
+			CreateButton::new("last_page")
+				.style(ButtonStyle::Primary)
+				.emoji('⏭'),
+			CreateButton::new("pick_page")
+				.style(ButtonStyle::Primary)
+				.emoji('🔢'),
+		]
+		.into(),
+	)]
 }

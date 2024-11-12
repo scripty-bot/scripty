@@ -161,20 +161,10 @@ impl DmSupportStatus {
 			.title("Support Response")
 			.description(message.content);
 
-		let resp = {
-			let user = match UserId::new(user_id).to_user(&ctx).await {
-				Ok(user) => user,
-				Err(e) => {
-					warn!("failed to get user from user id: {}", e);
-					return;
-				}
-			};
-
-			user.direct_message(&ctx.http, CreateMessage::default().embed(embed_builder))
-				.await
-		};
-
-		if let Err(e) = resp {
+		if let Err(e) = UserId::new(user_id)
+			.direct_message(&ctx.http, CreateMessage::default().embed(embed_builder))
+			.await
+		{
 			let _ = message_channel
 				.send_message(
 					&ctx.http,
@@ -184,7 +174,7 @@ impl DmSupportStatus {
 		}
 	}
 
-	async fn get_or_create_channel<'a>(&self, ctx: &Context, user: &User) -> GuildChannel {
+	async fn get_or_create_channel(&self, ctx: &Context, user: &User) -> GuildChannel {
 		let config = scripty_config::get_config();
 		let category = get_forwarding_category(ctx).await;
 		let guild_id = GuildId::new(config.dm_support.guild_id);
@@ -232,7 +222,7 @@ impl DmSupportStatus {
 			.expect("failed to create webhook");
 		self.webhook_cache.insert(channel.id, hook);
 
-		if let Err(e) = self.handle_opening(ctx, user).await {
+		if let Err(e) = self.handle_opening(ctx, user.id).await {
 			warn!("failed to handle opening: {}", e);
 			channel
 				.send_message(
@@ -246,7 +236,7 @@ impl DmSupportStatus {
 		channel
 	}
 
-	async fn handle_opening(&self, ctx: &Context, user: &User) -> serenity::Result<()> {
+	async fn handle_opening(&self, ctx: &Context, user: UserId) -> serenity::Result<()> {
 		user.direct_message(
 			&ctx.http,
 			CreateMessage::default().embed(
@@ -297,37 +287,27 @@ impl DmSupportStatus {
 		}
 
 		let user_id = match channel.name.parse::<u64>() {
-			Ok(id) => id,
+			Ok(id) => UserId::new(id),
 			Err(e) => {
 				warn!("failed to parse user id from channel name: {:?}", e);
 				return;
 			}
 		};
 
-		{
-			let user = match UserId::new(user_id).to_user(&ctx).await {
-				Ok(user) => user,
-				Err(e) => {
-					warn!("failed to get user from user id: {}", e);
-					return;
-				}
-			};
-
-			let _ = user
-				.direct_message(
-					&ctx.http,
-					CreateMessage::default().embed(
-						CreateEmbed::default()
-							.title("Closed Support Ticket")
-							.description(
-								"This support ticket has now been closed. Thank you for using \
-								 Scripty's support system. If you require more assistance, simply \
-								 send another message here to reopen a new ticket.",
-							),
-					),
-				)
-				.await;
-		}
+		let _ = user_id
+			.direct_message(
+				&ctx.http,
+				CreateMessage::default().embed(
+					CreateEmbed::default()
+						.title("Closed Support Ticket")
+						.description(
+							"This support ticket has now been closed. Thank you for using \
+							 Scripty's support system. If you require more assistance, simply \
+							 send another message here to reopen a new ticket.",
+						),
+				),
+			)
+			.await;
 
 		self.webhook_cache.remove(&channel.id);
 

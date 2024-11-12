@@ -15,7 +15,6 @@ pub struct PostStats {
 
 #[derive(Deserialize, Serialize, Debug, Copy, Clone)]
 #[serde(transparent)]
-
 pub struct UserId(
 	#[serde(deserialize_with = "serde_aux::field_attributes::deserialize_number_from_string")]
 	pub  u64,

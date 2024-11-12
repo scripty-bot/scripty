@@ -148,20 +148,23 @@ pub async fn delete_all_data(ctx: Context<'_>) -> Result<(), Error> {
 						))
 						.color((255, 0, 0)),
 				)
-				.components(vec![CreateActionRow::Buttons(vec![
-					CreateButton::new("delete_data_confirm")
-						.style(ButtonStyle::Danger)
-						.label(format_message!(resolved_language, "delete-data-confirm")),
-					CreateButton::new("delete_data_confirm_with_ban")
-						.style(ButtonStyle::Danger)
-						.label(format_message!(
-							resolved_language,
-							"delete-data-confirm-banned"
-						)),
-					CreateButton::new("delete_data_cancel")
-						.style(ButtonStyle::Success)
-						.label(format_message!(resolved_language, "delete-data-cancel")),
-				])]),
+				.components(vec![CreateActionRow::Buttons(
+					vec![
+						CreateButton::new("delete_data_confirm")
+							.style(ButtonStyle::Danger)
+							.label(format_message!(resolved_language, "delete-data-confirm")),
+						CreateButton::new("delete_data_confirm_with_ban")
+							.style(ButtonStyle::Danger)
+							.label(format_message!(
+								resolved_language,
+								"delete-data-confirm-banned"
+							)),
+						CreateButton::new("delete_data_cancel")
+							.style(ButtonStyle::Success)
+							.label(format_message!(resolved_language, "delete-data-cancel")),
+					]
+					.into(),
+				)]),
 		)
 		.await?
 		.into_message()
@@ -263,20 +266,23 @@ fn build_components(
 	disabled: bool,
 	resolved_language: &LanguageIdentifier,
 ) -> Vec<CreateActionRow> {
-	vec![CreateActionRow::Buttons(vec![
-		CreateButton::new("toggle_audio_storage")
-			.style(ButtonStyle::Primary)
-			.label(format_message!(
-				resolved_language,
-				"data-storage-toggle-audio-btn"
-			))
-			.disabled(disabled),
-		CreateButton::new("toggle_msg_storage")
-			.style(ButtonStyle::Primary)
-			.label(format_message!(
-				resolved_language,
-				"data-storage-toggle-msgs-btn"
-			))
-			.disabled(disabled),
-	])]
+	vec![CreateActionRow::Buttons(
+		vec![
+			CreateButton::new("toggle_audio_storage")
+				.style(ButtonStyle::Primary)
+				.label(format_message!(
+					resolved_language,
+					"data-storage-toggle-audio-btn"
+				))
+				.disabled(disabled),
+			CreateButton::new("toggle_msg_storage")
+				.style(ButtonStyle::Primary)
+				.label(format_message!(
+					resolved_language,
+					"data-storage-toggle-msgs-btn"
+				))
+				.disabled(disabled),
+		]
+		.into(),
+	)]
 }

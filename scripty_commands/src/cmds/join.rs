@@ -215,6 +215,7 @@ pub async fn join(
 		(
 			Some(
 				target_channel
+					.id
 					.create_thread(
 						ctx.http(),
 						CreateThread::new(
@@ -231,7 +232,7 @@ pub async fn join(
 	} else if create_thread && target_channel.kind == ChannelType::Forum {
 		let timestamp = format_rfc3339_seconds(SystemTime::now()).to_string();
 		(
-			Some(target_channel.create_forum_post(
+			Some(target_channel.id.create_forum_post(
 				ctx.http(),
 				CreateForumPost::new(
 					format_message!(resolved_language, "join-thread-title", timestamp: &*timestamp),
