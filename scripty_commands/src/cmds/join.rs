@@ -181,8 +181,9 @@ pub async fn join(
 	let permissions = {
 		let bot_id = ctx.framework().bot_id();
 		let bot_member = ctx
-			.http()
-			.get_member(ctx.guild_id().expect("asserted in guild"), bot_id)
+			.guild_id()
+			.expect("asserted in guild")
+			.member(&ctx, bot_id)
 			.await?;
 		ctx.guild()
 			.expect("asserted in guild")
