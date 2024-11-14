@@ -413,6 +413,29 @@ async fn _on_error(error: FrameworkError<'_, Data, Error>) {
 		FrameworkError::NonCommandMessage { error, .. } => {
 			error!("Error in non-command message handler: {:?}", error);
 		}
+		FrameworkError::PermissionFetchFailed { ctx, .. } => {
+			if ctx
+				.reply(
+					"Couldn't fetch user permissions, this is a Discord problem likely. Try again \
+					 later.",
+				)
+				.await
+				.is_err()
+			{
+				let _ = ctx
+					.author()
+					.id
+					.direct_message(
+						&ctx,
+						CreateMessage::default().content(
+							"Couldn't send a message in the channel where you invoked me, so \
+							 DMing you instead. I couldn't fetch your user permissions for that \
+							 channel. This is likely a Discord problem. Try again later.",
+						),
+					)
+					.await;
+			}
+		}
 		FrameworkError::__NonExhaustive(_) => {
 			unreachable!("__NonExhaustive is not supposed to be used")
 		}

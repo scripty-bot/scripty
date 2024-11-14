@@ -20,12 +20,12 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 
 		// translation key is "cmds_{function_name}"
 		let key = format!("cmds_{}", cmd.identifying_name);
-		let command_name = cmd.name.as_str();
+		let command_name = &cmd.name;
 
 		for language in languages.iter() {
 			// we filter to only discord supported locales
-			let language_fmt = language.to_string();
-			if !DISCORD_SUPPORTED_LOCALES.contains(&language_fmt.as_str()) {
+			let language_fmt: Cow<str> = Cow::Owned(language.to_string());
+			if !DISCORD_SUPPORTED_LOCALES.contains(&language_fmt.as_ref()) {
 				continue;
 			}
 
@@ -35,7 +35,8 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 				continue;
 			};
 			cmd.name_localizations
-				.insert(language_fmt.clone(), formatted_command_name);
+				.to_mut()
+				.push((language_fmt.clone(), formatted_command_name.into()));
 
 			let Some(formatted_command_description) =
 				get_fmt_msg(language, &key, Some("description"), command_name, false)
@@ -43,8 +44,10 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 				continue;
 			};
 			if formatted_command_description.len() <= 100 {
-				cmd.description_localizations
-					.insert(language_fmt.clone(), formatted_command_description);
+				cmd.description_localizations.to_mut().push((
+					language_fmt.clone(),
+					Cow::Owned(formatted_command_description),
+				));
 			}
 
 			for parameter in cmd.parameters.iter_mut() {
@@ -55,7 +58,8 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 				};
 				parameter
 					.name_localizations
-					.insert(language_fmt.clone(), formatted_parameter_name);
+					.to_mut()
+					.push((language_fmt.clone(), Cow::Owned(formatted_parameter_name)));
 
 				let Some(formatted_parameter_description) = get_fmt_msg(
 					language,
@@ -67,12 +71,13 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 					continue;
 				};
 				if formatted_parameter_description.len() <= 100 {
-					parameter
-						.description_localizations
-						.insert(language_fmt.clone(), formatted_parameter_description);
+					parameter.description_localizations.to_mut().push((
+						language_fmt.clone(),
+						Cow::Owned(formatted_parameter_description),
+					));
 				}
 
-				for choice in parameter.choices.iter_mut() {
+				for choice in parameter.choices.to_mut().iter_mut() {
 					let Some(formatted_choice_name) = get_fmt_msg(
 						language,
 						&key,
@@ -82,10 +87,10 @@ pub fn localize_commands(cmds: &mut Vec<Command<Data, Error>>) {
 					) else {
 						continue;
 					};
-					choice.localizations.insert(
-						Cow::Owned(language_fmt.clone()),
-						Cow::Owned(formatted_choice_name),
-					);
+					choice
+						.localizations
+						.to_mut()
+						.push((language_fmt.clone(), Cow::Owned(formatted_choice_name)));
 				}
 			}
 		}

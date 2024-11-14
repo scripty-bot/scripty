@@ -48,7 +48,7 @@ async fn help_single_command(
 
 	let reply = if let Some(command) = command {
 		match &command.help_text {
-			Some(f) => Cow::from(f),
+			Some(f) => f.clone(),
 			None => Cow::from(
 				format_message!(resolved_language, "no-help-found", commandName: command.name.clone()),
 			),
@@ -81,7 +81,7 @@ async fn help_global(ctx: Context<'_>, resolved_language: LanguageIdentifier) ->
 			.as_ref()
 			.map_or_else(
 				|| Cow::Owned(format_message!(resolved_language, "default-category-name")),
-				Cow::from,
+				|x| x.clone(),
 			)
 			.as_ref();
 		menu += ":\n";
@@ -134,26 +134,22 @@ async fn help_global(ctx: Context<'_>, resolved_language: LanguageIdentifier) ->
 	menu += format_message!(resolved_language, "context-menu-command-title").as_str();
 
 	for command in &ctx.framework().options().commands {
-		let name = command
-			.context_menu_name
-			.as_ref()
-			.unwrap_or(&command.name)
-			.as_str();
+		let name = command.context_menu_name.as_ref().unwrap_or(&command.name);
 		menu += match command.context_menu_action {
 			Some(poise::ContextMenuCommandAction::User(_)) => format_message!(
 				resolved_language,
 				"context-menu-command-user",
-				commandName: name
+				commandName: name.as_ref()
 			),
 			Some(poise::ContextMenuCommandAction::Message(_)) => format_message!(
 				resolved_language,
 				"context-menu-command-message",
-				commandName: name
+				commandName: name.as_ref()
 			),
 			Some(_) => format_message!(
 				resolved_language,
 				"context-menu-command-unknown",
-				commandName: name
+				commandName: name.as_ref()
 			),
 			None => continue,
 		}
@@ -180,7 +176,7 @@ async fn autocomplete_command<'a>(
 			.iter()
 			.filter(move |cmd| cmd.name.starts_with(partial))
 			.map(|cmd| AutocompleteChoice {
-				name:               cmd.name.clone().into(),
+				name:               cmd.name.clone(),
 				name_localizations: None,
 				value:              cmd.name.clone().into(),
 			})

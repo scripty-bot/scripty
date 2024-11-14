@@ -4,7 +4,6 @@ use ahash::RandomState;
 use dashmap::DashMap;
 use scripty_data_type::get_data;
 use scripty_premium::PremiumTierList;
-use secrecy::ExposeSecret;
 use serenity::{
 	builder::{CreateWebhook, ExecuteWebhook},
 	model::id::{ChannelId, GuildId},

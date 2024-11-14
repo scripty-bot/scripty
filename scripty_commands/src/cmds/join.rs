@@ -178,7 +178,16 @@ pub async fn join(
 	}
 
 	// resolve our permissions in the channel
-	let permissions = voice_channel.permissions_for_user(ctx.cache(), ctx.framework().bot_id())?;
+	let permissions = {
+		let bot_id = ctx.framework().bot_id();
+		let bot_member = ctx
+			.http()
+			.get_member(ctx.guild_id().expect("asserted in guild"), bot_id)
+			.await?;
+		ctx.guild()
+			.expect("asserted in guild")
+			.user_permissions_in(&voice_channel, &bot_member)
+	};
 	// do we have permission to view and connect to the channel?
 	if !permissions.connect() || !permissions.view_channel() {
 		ctx.say(

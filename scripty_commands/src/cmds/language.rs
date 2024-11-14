@@ -1,5 +1,3 @@
-use std::borrow::Cow;
-
 use poise::CreateReply;
 use scripty_bot_utils::available_language_autocomplete;
 use scripty_i18n::InvalidLanguageError;

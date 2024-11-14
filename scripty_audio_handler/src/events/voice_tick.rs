@@ -19,7 +19,7 @@ use serenity::{
 	builder::{CreateEmbed, CreateMessage, EditMember, ExecuteWebhook},
 	gateway::client::Context,
 };
-use songbird::events::context_data::{VoiceData, VoiceTick};
+use songbird::events::context_data::VoiceTick;
 
 use crate::{
 	audio_handler::SsrcMaps,

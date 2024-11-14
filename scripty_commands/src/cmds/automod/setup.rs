@@ -38,8 +38,16 @@ pub async fn automod_setup(
 		scripty_i18n::get_resolved_language(ctx.author().id.get(), Some(guild_id)).await;
 
 	// filter and see if we have permissions to send messages, embed links, and attach files
-	let target_permissions =
-		target_channel.permissions_for_user(ctx.cache(), ctx.framework().bot_id())?;
+	let target_permissions = {
+		let bot_id = ctx.framework().bot_id();
+		let bot_member = ctx
+			.http()
+			.get_member(ctx.guild_id().expect("asserted in guild"), bot_id)
+			.await?;
+		ctx.guild()
+			.expect("asserted in guild")
+			.user_permissions_in(&target_channel, &bot_member)
+	};
 	let required_permissions =
 		Permissions::SEND_MESSAGES | Permissions::EMBED_LINKS | Permissions::ATTACH_FILES;
 	if !target_permissions.contains(required_permissions) {

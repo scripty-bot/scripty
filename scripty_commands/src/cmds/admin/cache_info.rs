@@ -1,5 +1,3 @@
-use std::borrow::Cow;
-
 use num_format::{Locale, ToFormattedString};
 use poise::CreateReply;
 use serenity::builder::CreateEmbed;
