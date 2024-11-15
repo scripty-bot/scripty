@@ -568,12 +568,13 @@ fn handle_error<'a>(error: ModelError, ssrc: u32) -> ExecuteWebhook<'a> {
 	ExecuteWebhook::new().content(user_error)
 }
 
-const PROFANITY_REPLACEMENTS: [(&str, &str); 5] = [
+const PROFANITY_REPLACEMENTS: [(&str, &str); 6] = [
 	("f*ck", "fuck"),
 	("f**k", "fuck"),
 	("f***", "fuck"),
 	("f---", "fuck"),
 	("f***er", "fucker"),
+	("f&&&&&b", "fuck"),
 ];
 
 fn add_profanity(s: &mut String) {
