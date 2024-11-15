@@ -568,17 +568,100 @@ fn handle_error<'a>(error: ModelError, ssrc: u32) -> ExecuteWebhook<'a> {
 	ExecuteWebhook::new().content(user_error)
 }
 
-const PROFANITY_REPLACEMENTS: [(&str, &str); 6] = [
+const PROFANITY_REPLACEMENTS: [(&str, &str); 5] = [
 	("f*ck", "fuck"),
 	("f**k", "fuck"),
 	("f***", "fuck"),
 	("f---", "fuck"),
 	("f***er", "fucker"),
-	("f&&&&&b", "fuck"),
 ];
 
 fn add_profanity(s: &mut String) {
 	for (censored, replacement) in PROFANITY_REPLACEMENTS {
 		*s = s.replace(censored, replacement);
+	}
+
+	// known weird edge case
+	// where whisper will add an increasing number of ampersands to the end of the word
+	// when censoring it
+	if s.len() != usize::MAX {
+		// algorithm fails with strings of usize::MAX as that is a reserved idx
+
+		let mut to_replace = vec![];
+
+		let mut match_length = 0;
+		let mut matching_start_idx = usize::MAX;
+		let mut ampersand_seen = false;
+		for (idx, char) in s.chars().enumerate() {
+			if matching_start_idx == usize::MAX {
+				// not currently in a match
+				if char == 'f' {
+					// found a new match
+					matching_start_idx = idx;
+					match_length = 1;
+				}
+			} else {
+				// currently in a match as the start idx is not the maximum
+				if char == 'b' || char == 'p' {
+					// still part of a substring
+					match_length += 1;
+				} else if char == '&' {
+					// special case required for a match to succeed
+					ampersand_seen = true;
+					match_length += 1;
+				} else {
+					// ran out of matches, collect what our results are
+					if ampersand_seen {
+						to_replace.push((matching_start_idx, match_length));
+					} else {
+						// we never saw an ampersand
+						// (can imply this was a single character match but that needn't be noted),
+						// reset the searcher state and ignore it
+					}
+
+					matching_start_idx = usize::MAX;
+					match_length = 0;
+					ampersand_seen = false;
+				}
+			}
+		}
+
+		// actually run the replacement
+		for (match_idx, match_len) in to_replace {
+			s.replace_range(match_idx..match_idx + match_len, "fuck");
+		}
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::add_profanity;
+
+	#[test]
+	fn test_profanity_replacement_1() {
+		let mut s = String::from("oh come on why the f*ck do you have to censor shit");
+		add_profanity(&mut s);
+		assert_eq!("oh come on why the fuck do you have to censor shit", &s);
+	}
+
+	#[test]
+	fn test_profanity_replacement_searcher_1() {
+		let mut s = String::from("oh this is going to be real f&&&b good");
+		add_profanity(&mut s);
+		assert_eq!("oh this is going to be real fuck good", &s);
+	}
+
+	#[test]
+	fn test_profanity_replacement_searcher_2() {
+		let mut s = String::from("hopefully this doesn't break");
+		add_profanity(&mut s);
+		assert_eq!("hopefully this doesn't break", &s);
+	}
+
+	#[test]
+	fn test_profanity_replacement_searcher_3() {
+		let mut s = String::from("f&&&&s sakes");
+		add_profanity(&mut s);
+		assert_eq!("fucks sakes", &s);
 	}
 }
