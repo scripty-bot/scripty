@@ -14,7 +14,7 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
 	let mut error_count: u32 = 0;
 
 	// guilds should be categorized by the number of members in them
-	const GROUPS: [Range<u64>; 18] = [
+	const GROUPS: [Range<u64>; 19] = [
 		0..2,
 		2..5,
 		5..10,
@@ -32,6 +32,7 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
 		50000..99999,
 		100000..250000,
 		250000..500000,
+		500000..999999,
 		1000000..u64::MAX,
 	];
 
