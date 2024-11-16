@@ -170,7 +170,7 @@ config_enable_kiai = enable_kiai
     .enable_kiai-description = Defaults to false
 config-kiai-enabled = Scripty will now send any voice XP gained to Kiai. Disable Kiai's voice XP leveling to prevent users getting double XP.
 config-kiai-disabled = Scripty will no longer send any voice XP gained to Kiai's API.
-config-kiai-info = You can find more info about Kiai at [https://www.kiai.app/](https://www.kiai.app/?utm_source=scripty_info).
+config-kiai-info = You can find more info about Kiai at (https://www.kiai.app/)[https://www.kiai.app/?utm_source=scripty_info].
     {""}
     If you use this integration, be sure to disable Kiai's voice XP module as they will conflict.
 config-kiai-missing-perms = Scripty is missing permissions to work in this server. Authorize it with the `/application authorize` command, using an application ID of `811652199100317726`, and giving Scripty the "view and edit all levels and XP" permission. 
