@@ -46,7 +46,7 @@ impl CallDeath {
 			if v.0 != channel_id {
 				return None;
 			} else {
-				assert_ne!(v.1.fetch_add(1, Ordering::SeqCst), 0);
+				v.1.fetch_add(1, Ordering::SeqCst);
 			}
 		}
 		fence(Ordering::SeqCst);
@@ -70,7 +70,11 @@ impl Drop for CallDeath {
 		}
 		if last {
 			if let Some(v) = self.inner.0.remove(&self.guild_id) {
-				assert_eq!(v.1 .1.load(Ordering::SeqCst), 0);
+				assert_eq!(
+					v.1 .1.load(Ordering::SeqCst),
+					0,
+					"we should be the final instance of this call"
+				);
 			} else {
 				unreachable!("someone else beat us to deleting ourselves")
 			}
@@ -85,7 +89,11 @@ impl Clone for CallDeath {
 			unreachable!("if we're cloning ourselves, we should exist")
 		};
 
-		assert_ne!(inner.value().1.fetch_add(1, Ordering::SeqCst), 0);
+		assert_ne!(
+			inner.value().1.fetch_add(1, Ordering::SeqCst),
+			0,
+			"at least one instance of ourselves already exists, the inner value should not be zero"
+		);
 
 		Self {
 			guild_id: self.guild_id,
