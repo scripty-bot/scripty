@@ -10,7 +10,7 @@ use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
 use parking_lot::RwLock;
 use scripty_automod::types::AutomodServerConfig;
-use scripty_data_type::get_data;
+use scripty_data_type::{get_data, CallDeath};
 use scripty_integrations::kiai::KiaiApiClient;
 use serenity::{
 	all::RoleId,
@@ -72,6 +72,7 @@ pub struct AudioHandler {
 	kiai_enabled:         Arc<AtomicBool>,
 	pub kiai_client:      KiaiApiClient,
 	ephemeral:            bool,
+	alive_call:           CallDeath,
 }
 
 impl AudioHandler {
@@ -97,6 +98,12 @@ impl AudioHandler {
 			active_user_set:       DashSet::with_capacity_and_hasher(10, RandomState::new()),
 			next_user_list:        RwLock::new(VecDeque::with_capacity(10)),
 		};
+		let alive_call = CallDeath::new(
+			get_data(&context).existing_calls.clone(),
+			guild_id,
+			voice_channel_id,
+		)
+		.ok_or_else(Error::already_exists)?;
 
 		let this = Self {
 			ssrc_state: Arc::new(maps),
@@ -119,6 +126,7 @@ impl AudioHandler {
 			kiai_enabled: Arc::new(AtomicBool::new(false)),
 			kiai_client,
 			ephemeral,
+			alive_call,
 		};
 		this.reload_config().await?;
 
@@ -287,25 +295,6 @@ impl EventHandler for AudioHandler {
 	}
 }
 
-impl Drop for AudioHandler {
-	fn drop(&mut self) {
-		let remaining = Arc::<_>::strong_count(&self.verbose);
-		trace!(
-			%self.guild_id,
-			"{} references to AudioHandler {{ guild_id: {} }} left",
-			remaining,
-			self.guild_id
-		);
-
-		if remaining == 1 {
-			// this is the final reference, clear ourselves from the map
-			get_data(&self.context)
-				.existing_calls
-				.remove(&self.guild_id);
-		}
-	}
-}
-
 impl Clone for AudioHandler {
 	fn clone(&self) -> Self {
 		let verbose = self.verbose.clone();
@@ -337,6 +326,7 @@ impl Clone for AudioHandler {
 			kiai_enabled: self.kiai_enabled.clone(),
 			kiai_client: self.kiai_client.clone(),
 			ephemeral: self.ephemeral,
+			alive_call: self.alive_call.clone(),
 		}
 	}
 }

@@ -30,9 +30,9 @@ pub async fn entrypoint() {
 		.options(framework_opts::get_framework_opts())
 		.build();
 	let data = Arc::new(Data::new());
-	CLIENT_DATA
-		.set(data.clone())
-		.expect("user data setup called more than once: bug?");
+	let Ok(_) = CLIENT_DATA.set(data.clone()) else {
+		panic!("client data set more than once: bug?")
+	};
 
 	let songbird = scripty_audio_handler::Songbird::serenity_from_config(
 		scripty_audio_handler::get_songbird_config(),

@@ -26,9 +26,12 @@ pub async fn connect_to_vc(
 	let ctx_data = get_data(&ctx);
 
 	debug!(%guild_id, "checking if call already exists");
-	if let Some(existing) = ctx_data.existing_calls.get(&guild_id) {
+	if let Some(existing_id) = ctx_data
+		.existing_calls
+		.existing_channel_for_guild(&guild_id)
+	{
 		// call already exists, if channel ID != current one continue as we need to switch VCs
-		if existing.value() == &voice_channel_id {
+		if existing_id == voice_channel_id {
 			// attempting to rejoin the same channel, so return early
 			debug!(%voice_channel_id, %guild_id, "attempting to rejoin the same channel that we were already in, refusing to do so");
 			return Err(Error::already_exists());
@@ -131,7 +134,7 @@ pub async fn connect_to_vc(
 	.await?;
 
 	debug!(%guild_id, "initializing audio handler");
-	let handler = crate::AudioHandler::new(
+	let handler = match crate::AudioHandler::new(
 		guild_id,
 		webhook.clone(),
 		ctx.clone(),
@@ -143,7 +146,21 @@ pub async fn connect_to_vc(
 		scripty_integrations::kiai::get_kiai_api_client().clone(),
 		ephemeral,
 	)
-	.await?;
+	.await
+	{
+		Ok(r) => r,
+		Err(e) => {
+			if let Err(e) = sb.remove(guild_id).await {
+				match e {
+					JoinError::NoCall => {}
+					e => {
+						error!("failed to leave call after failure to join: {}", e)
+					}
+				}
+			};
+			return Err(e);
+		}
+	};
 
 	debug!(%guild_id, "adding global events");
 	call.add_global_event(Event::Core(CoreEvent::SpeakingStateUpdate), handler.clone());
@@ -194,8 +211,6 @@ pub async fn connect_to_vc(
 			error!(%guild_id, "failed to send message: {}", e);
 		}
 	});
-
-	ctx_data.existing_calls.insert(guild_id, voice_channel_id);
 
 	Ok(())
 }
