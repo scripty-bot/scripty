@@ -27,6 +27,7 @@ pub async fn available_language_autocomplete<'a>(
 					None
 				}
 			})
+			.take(25) // arbitrary new discord limitation
 			.collect::<Vec<_>>(),
 	)
 }
