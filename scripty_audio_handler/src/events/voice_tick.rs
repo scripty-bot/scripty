@@ -188,80 +188,105 @@ async fn handle_silent_speakers<'a>(
 			None => continue,
 		};
 
-		// skip garbage strings
-		if ["[BLANK_AUDIO]"].contains(&final_result.as_str()) {
-			continue;
-		}
-
-		// re-add profanity
-		add_profanity(&mut final_result);
-
-		// run automod
-		if !automod_server_cfg.enabled {
-			trace!("automod disabled, skipping");
-		} else if let Some(res) = automod_server_cfg.get_action(&final_result) {
-			trace!(?res, ?ssrc, "automod action taken on rule match");
-			// user did something bad
-			let Some(user_id) = ssrc_state
-				.ssrc_user_id_map
-				.get(&ssrc)
-				.map(|x| UserId::new(*x.value()))
-			else {
-				warn!(?ssrc, "no user ID found for ssrc");
+		if let Some(final_result) = final_result {
+			// skip garbage strings
+			if ["[BLANK_AUDIO]"].contains(&final_result.as_str()) {
 				continue;
-			};
+			}
 
-			match res {
-				AutomodRuleAction::SilentDelete => continue, // don't need to do anything more
-				// we'll handle logging after each branch falls through
-				AutomodRuleAction::DeleteAndLog => {}
-				AutomodRuleAction::DeleteLogAndKick => {
-					// remove the user from the voice channel
-					if let Err(e) = guild_id.disconnect_member(&ctx.http, user_id).await {
-						error!("failed to remove user from VC: {}", e);
+			// re-add profanity
+			add_profanity(&mut final_result);
+
+			// run automod
+			if !automod_server_cfg.enabled {
+				trace!("automod disabled, skipping");
+			} else if let Some(res) = automod_server_cfg.get_action(&final_result) {
+				trace!(?res, ?ssrc, "automod action taken on rule match");
+				// user did something bad
+				let Some(user_id) = ssrc_state
+					.ssrc_user_id_map
+					.get(&ssrc)
+					.map(|x| UserId::new(*x.value()))
+				else {
+					warn!(?ssrc, "no user ID found for ssrc");
+					continue;
+				};
+
+				match res {
+					AutomodRuleAction::SilentDelete => continue, // don't need to do anything more
+					// we'll handle logging after each branch falls through
+					AutomodRuleAction::DeleteAndLog => {}
+					AutomodRuleAction::DeleteLogAndKick => {
+						// remove the user from the voice channel
+						if let Err(e) = guild_id.disconnect_member(&ctx.http, user_id).await {
+							error!("failed to remove user from VC: {}", e);
+						}
+					}
+					AutomodRuleAction::DeleteLogAndSilence => {
+						// mute the user
+						if let Err(e) = guild_id
+							.edit_member(&ctx.http, user_id, EditMember::new().mute(true))
+							.await
+						{
+							error!("failed to mute user: {}", e);
+						}
 					}
 				}
-				AutomodRuleAction::DeleteLogAndSilence => {
-					// mute the user
-					if let Err(e) = guild_id
-						.edit_member(&ctx.http, user_id, EditMember::new().mute(true))
-						.await
-					{
-						error!("failed to mute user: {}", e);
-					}
+
+				if let Err(e) = SerenityChannelId::from(automod_server_cfg.log_channel_id)
+					.send_message(
+						&ctx.http,
+						CreateMessage::new().embed(
+							CreateEmbed::new()
+								.title("User said a forbidden word")
+								.description(format!(
+									"{}\nUser: <@{}>\nDetected word: {}",
+									match res {
+										AutomodRuleAction::SilentDelete => unreachable!(),
+										AutomodRuleAction::DeleteAndLog => "Deleted message",
+										AutomodRuleAction::DeleteLogAndKick =>
+											"Deleted message and kicked user from the VC",
+										AutomodRuleAction::DeleteLogAndSilence => {
+											"Deleted message and muted user"
+										}
+									},
+									user_id,
+									final_result
+								)),
+						),
+					)
+					.await
+				{
+					error!("failed to send log message: {}", e);
+				};
+
+				continue;
+			} else {
+				trace!(?ssrc, "no automod action taken");
+			}
+
+			if let Some((_, x)) = ssrc_state.ssrc_voice_ingest_map.remove(&ssrc) {
+				// we've already checked if the user is opted in or not
+				if let Some(ingest) = x {
+					trace!(?ssrc, "user has opted in, finalizing audio");
+					tokio::spawn(ingest.destroy(final_result.clone()));
+				} else {
+					trace!(?ssrc, "user has opted out, not attempting to finalize");
 				}
 			}
 
-			if let Err(e) = SerenityChannelId::from(automod_server_cfg.log_channel_id)
-				.send_message(
-					&ctx.http,
-					CreateMessage::new().embed(
-						CreateEmbed::new()
-							.title("User said a forbidden word")
-							.description(format!(
-								"{}\nUser: <@{}>\nDetected word: {}",
-								match res {
-									AutomodRuleAction::SilentDelete => unreachable!(),
-									AutomodRuleAction::DeleteAndLog => "Deleted message",
-									AutomodRuleAction::DeleteLogAndKick =>
-										"Deleted message and kicked user from the VC",
-									AutomodRuleAction::DeleteLogAndSilence => {
-										"Deleted message and muted user"
-									}
-								},
-								user_id,
-								final_result
-							)),
-					),
-				)
-				.await
-			{
-				error!("failed to send log message: {}", e);
-			};
-
-			continue;
-		} else {
-			trace!(?ssrc, "no automod action taken");
+			if let Some(transcript_results) = &transcript_results {
+				// place this in a block that way we don't try holding two locks at once
+				let fmt_transcript = {
+					// fetch user data
+					let Some(user_details) = ssrc_state.ssrc_user_data_map.get(&ssrc) else {
+						continue;
+					};
+					let username = &user_details.0;
+					format!("[{}]: {}", username, final_result)
+				};
+				transcript_results.write().push(fmt_transcript);
+			}
 		}
 
 		hooks.push((hook, ssrc));
@@ -308,29 +333,6 @@ async fn handle_silent_speakers<'a>(
 					}
 				}
 			});
-		}
-
-		if let Some((_, x)) = ssrc_state.ssrc_voice_ingest_map.remove(&ssrc) {
-			// we've already checked if the user is opted in or not
-			if let Some(ingest) = x {
-				trace!(?ssrc, "user has opted in, finalizing audio");
-				tokio::spawn(ingest.destroy(final_result.clone()));
-			} else {
-				trace!(?ssrc, "user has opted out, not attempting to finalize");
-			}
-		}
-
-		if let Some(transcript_results) = &transcript_results {
-			// place this in a block that way we don't try holding two locks at once
-			let fmt_transcript = {
-				// fetch user data
-				let Some(user_details) = ssrc_state.ssrc_user_data_map.get(&ssrc) else {
-					continue;
-				};
-				let username = &user_details.0;
-				format!("[{}]: {}", username, final_result)
-			};
-			transcript_results.write().push(fmt_transcript);
 		}
 	}
 
@@ -458,7 +460,7 @@ async fn finalize_stream<'a>(
 	language: String,
 	verbose: &Arc<AtomicBool>,
 	translate: &Arc<AtomicBool>,
-) -> Option<(String, ExecuteWebhook<'a>)> {
+) -> Option<(Option<String>, ExecuteWebhook<'a>)> {
 	let metrics = scripty_metrics::get_metrics();
 	debug!(%ssrc, "finalizing stream");
 
@@ -486,7 +488,7 @@ async fn finalize_stream<'a>(
 		}
 		Err(e) => {
 			error!(%ssrc, "failed to get final result: {}", e);
-			return None;
+			return Some((None, handle_error(e, ssrc)));
 		}
 	};
 	let Some((user_details, avatar_url)) = user_data_map
@@ -503,14 +505,13 @@ async fn finalize_stream<'a>(
 	}
 
 	Some((
-		final_transcript,
+		Some(final_transcript),
 		webhook_executor
 			.avatar_url(Cow::Owned(avatar_url))
 			.username(Cow::Owned(user_details)),
 	))
 }
 
-#[allow(dead_code)] // may be used in the future
 fn handle_error<'a>(error: ModelError, ssrc: u32) -> ExecuteWebhook<'a> {
 	let user_error = match error {
 		ModelError::Io(io_err) => {
