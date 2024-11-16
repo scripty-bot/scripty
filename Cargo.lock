@@ -3904,7 +3904,7 @@ dependencies = [
 [[package]]
 name = "songbird"
 version = "0.4.4"
-source = "git+https://github.com/serenity-rs/songbird?branch=serenity-next#e234172413932e8003e92077b8c684cdce275d08"
+source = "git+https://github.com/serenity-rs/songbird?branch=serenity-next-rxfix#4663580e00079eab722e3a403f18a699bfa9e717"
 dependencies = [
  "aead",
  "aes-gcm",
