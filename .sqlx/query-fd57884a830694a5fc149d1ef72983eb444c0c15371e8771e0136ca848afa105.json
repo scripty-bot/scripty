@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO guilds (guild_id, kiai_enabled) VALUES ($1, $2) ON CONFLICT (guild_id) DO UPDATE SET kiai_enabled = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "fd57884a830694a5fc149d1ef72983eb444c0c15371e8771e0136ca848afa105"
+}
