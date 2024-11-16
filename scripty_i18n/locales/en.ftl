@@ -163,6 +163,18 @@ config-translate-enabled = Scripty will now translate transcriptions to English.
 config-translate-disabled = Scripty will now attempt to match the phrases being spoken to English words, but will not translate.
 config-translate-not-english = You must set your language to English to enable translation. Do so with `{ $contextPrefix }config language en`.
 
+## config - enable_kiai command
+config_enable_kiai = enable_kiai
+    .description = Enable Scripty's Kiai integration. Run this command with no arguments to get info on Kiai.
+    .enable_kiai = enable_kiai
+    .enable_kiai-description = Defaults to false
+config-kiai-enabled = Scripty will now send any voice XP gained to Kiai. Disable Kiai's voice XP leveling to prevent users getting double XP.
+config-kiai-disabled = Scripty will no longer send any voice XP gained to Kiai's API.
+config-kiai-info = You can find more info about Kiai at [https://www.kiai.app/](https://www.kiai.app/?utm_source=scripty_info).
+    {""}
+    If you use this integration, be sure to disable Kiai's voice XP module as they will conflict.
+config-kiai-missing-perms = Scripty is missing permissions to work in this server. Authorize it with the `/application authorize` command, using an application ID of `811652199100317726`, and giving Scripty the "view and edit all levels and XP" permission. 
+
 ## Help menu translation strings
 
 command-not-found = No command with name `{ $commandName }` found.

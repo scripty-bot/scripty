@@ -1,4 +1,5 @@
 mod auto_detect_lang;
+mod kiai_enabled;
 mod language;
 mod transcribe_audio;
 mod transcribe_only_role;
@@ -8,6 +9,7 @@ mod translate;
 mod verbose;
 
 pub use auto_detect_lang::config_auto_detect_lang;
+pub use kiai_enabled::config_enable_kiai;
 pub use language::config_server_language;
 use poise::CreateReply;
 use scripty_bot_utils::{checks::is_guild, Context, Error};

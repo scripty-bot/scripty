@@ -1,4 +1,4 @@
-use std::fmt;
+use std::{fmt, num::ParseIntError};
 
 use serde::{Deserialize, Serialize};
 
@@ -15,7 +15,10 @@ pub enum KiaiApiError {
 		status: reqwest::StatusCode,
 		body:   String,
 	},
+	BadInteger(ParseIntError),
 }
+
+impl std::error::Error for KiaiApiError {}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct BadRequestPayload {
@@ -56,7 +59,14 @@ impl fmt::Display for KiaiApiError {
 			Self::Unauthorized(msg) => write!(f, "Unauthorized: {}", msg),
 			Self::TooManyRequests(payload) => write!(f, "TooManyRequests: {}", payload.message),
 			Self::Unknown { status, body } => write!(f, "Unknown: {} {}", status, body),
+			Self::BadInteger(e) => write!(f, "Invalid integer received: {}", e),
 		}?;
 		f.write_str(" }")
+	}
+}
+
+impl From<ParseIntError> for KiaiApiError {
+	fn from(value: ParseIntError) -> Self {
+		Self::BadInteger(value)
 	}
 }

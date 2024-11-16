@@ -1,6 +1,6 @@
 use reqwest::{Client as ReqwestClient, StatusCode};
 
-use crate::kiai::{KiaiApiError, KiaiApiResult, KiaiPostVirtualMessage};
+use crate::kiai::{KiaiApiError, KiaiApiResult, KiaiPostVirtualMessage, Permissions};
 
 #[derive(Debug)]
 pub struct KiaiHttpClient {
@@ -31,6 +31,21 @@ impl KiaiHttpClient {
 			.send()
 			.await?;
 		self.decode_response(res).await
+	}
+
+	pub async fn get_permissions(&self, guild_id: u64) -> KiaiApiResult<Permissions> {
+		let url = format!("https://api.kiaibot.com/v1/guild/{}/permissions", guild_id);
+
+		let res = self
+			.client
+			.get(&url)
+			.header(reqwest::header::AUTHORIZATION, &self.token)
+			.send()
+			.await?;
+
+		Ok(Permissions::from_bits_retain(
+			res.text().await?.trim().parse()?,
+		))
 	}
 
 	async fn decode_response<T>(&self, res: reqwest::Response) -> KiaiApiResult<T>

@@ -22,6 +22,7 @@ scripty_automod = { path = "../scripty_automod" }
 scripty_premium = { path = "../scripty_premium" }
 scripty_bot_utils = { path = "../scripty_bot_utils" }
 scripty_data_storage = { path = "../scripty_data_storage" }
+scripty_integrations = { path = "../scripty_integrations" }
 scripty_audio_handler = { path = "../scripty_audio_handler" }
 tokio = { version = "1", features = ["parking_lot", "signal"] }
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [

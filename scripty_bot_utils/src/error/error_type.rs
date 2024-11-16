@@ -40,6 +40,7 @@ pub enum ErrorEnum {
 	ExpectedPremiumValue,
 	AudioTranscription(GenericMessageError),
 	CallAlreadyExists,
+	KiaiError(scripty_integrations::kiai::KiaiApiError),
 	Custom(String),
 }
 
@@ -230,6 +231,7 @@ impl Display for Error {
 			}
 			Custom(e) => format!("Custom error: {}", e).into(),
 			AudioTranscription(e) => format!("Failed to transcribe audio message: {}", e).into(),
+			KiaiError(e) => format!("Kiai API error: {}", e).into(),
 			CallAlreadyExists => "a call for this channel already exists - not trying to rejoin \
 			                      the same channel"
 				.into(),
@@ -254,6 +256,7 @@ impl StdError for Error {
 			Transcription(e) => Some(e),
 			ExpectedPremiumValue => None,
 			AudioTranscription(e) => Some(e),
+			KiaiError(e) => Some(e),
 			CallAlreadyExists => None,
 			Custom(_) => None,
 		}
@@ -379,6 +382,15 @@ impl From<scripty_redis::TransactionError> for Error {
 		match e {
 			scripty_redis::TransactionError::Deadpool(e) => Self::from(e),
 			scripty_redis::TransactionError::Redis(e) => Self::from(e),
+		}
+	}
+}
+
+impl From<scripty_integrations::kiai::KiaiApiError> for Error {
+	fn from(e: scripty_integrations::kiai::KiaiApiError) -> Self {
+		Self {
+			err: ErrorEnum::KiaiError(e),
+			bt:  Backtrace::new(),
 		}
 	}
 }
