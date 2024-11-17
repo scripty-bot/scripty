@@ -16,8 +16,9 @@ pub async fn change_text_state(user_id: u64, state: bool) -> Result<(), sqlx::Er
 	.await?;
 
 	// set cache value
-	let _ = scripty_redis::run_transaction::<Option<String>>("SET", |con| {
+	let _ = scripty_redis::run_transaction::<Option<String>>("SETEX", |con| {
 		con.arg(format!("user:{{{}}}:store_msgs", hex::encode(user_id)))
+			.arg(60 * 60 * 24)
 			.arg(state);
 	})
 	.await;
@@ -61,11 +62,12 @@ pub async fn get_text_state(raw_user_id: u64) -> bool {
 	match state {
 		Ok(Some(state)) => {
 			// cache value
-			let _ = scripty_redis::run_transaction::<Option<String>>("SET", |con| {
+			let _ = scripty_redis::run_transaction::<Option<String>>("SETEX", |con| {
 				con.arg(format!(
 					"user:{{{}}}:store_msgs",
 					hex::encode(user_id.clone())
 				))
+				.arg(60 * 60 * 24)
 				.arg(state.store_msgs);
 			})
 			.await;
@@ -73,11 +75,12 @@ pub async fn get_text_state(raw_user_id: u64) -> bool {
 		}
 		Ok(None) => {
 			// user not found, cache false
-			let _ = scripty_redis::run_transaction::<Option<String>>("SET", |con| {
+			let _ = scripty_redis::run_transaction::<Option<String>>("SETEX", |con| {
 				con.arg(format!(
 					"user:{{{}}}:store_msgs",
 					hex::encode(user_id.clone())
 				))
+				.arg(60 * 60 * 24)
 				.arg(false);
 			})
 			.await;
