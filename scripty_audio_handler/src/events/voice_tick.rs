@@ -386,6 +386,12 @@ async fn handle_speakers(ssrc_state: Arc<SsrcMaps>, metrics: Arc<Metrics>, voice
 				.audio_bytes_processed
 				.inc_by((audio.len() * SIZE_OF_I16) as _);
 
+			// incredibly useful for figuring out whether we're logging empty audio streams
+			let rms = ((audio.iter().map(|x| x.pow(2) as i32).sum::<i32>() as f64)
+				/ audio.len() as f64)
+				.sqrt();
+			trace!(%ssrc, "RMS of audio stream: {}", rms);
+
 			let audio = scripty_stt::process_audio(audio, 48_000.0, 16_000.0, 2);
 			// output is mono at 16 kHz,
 			// dividing num samples by 16 gives you milliseconds of audio in the entire audio packet
