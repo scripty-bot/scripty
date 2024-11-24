@@ -103,7 +103,11 @@ pub fn get_internal_state(guild_id: &GuildId) -> Option<InternalSsrcStateDetails
 		seen_users: v.ssrc_user_id_map.iter().map(|x| *x.key()).collect(),
 		ssrcs_with_stream: v.ssrc_stream_map.iter().map(|x| *x.key()).collect(),
 		ssrcs_with_attached_data: v.ssrc_user_data_map.iter().map(|x| *x.key()).collect(),
-		ignored_ssrcs: v.ssrc_ignored_map.iter().map(|x| *x.key()).collect(),
+		ignored_ssrcs: v
+			.ssrc_ignored_map
+			.iter()
+			.filter_map(|x| x.value().then(|| *x.key()))
+			.collect(),
 		ssrcs_actively_speaking_this_tick: v.ssrc_speaking_set.iter().map(|x| *x).collect(),
 		actively_transcribed_ssrcs: v.active_user_set.iter().map(|x| *x).collect(),
 		next_ssrcs: v.next_user_list.read().iter().map(|x| *x).collect(),
