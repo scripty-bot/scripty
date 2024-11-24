@@ -15,7 +15,7 @@ pub async fn debug(ctx: Context<'_>) -> Result<(), Error> {
 			CreateReply::new()
 				.content(format_message!(resolved_language, "debug-info-message"))
 				.attachment(CreateAttachment::bytes(
-					format!("{:?}", state),
+					format!("{:#?}", state),
 					Cow::Borrowed("debug_info.txt"),
 				)),
 		)
