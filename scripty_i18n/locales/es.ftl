@@ -423,3 +423,7 @@ cmds_list_rules = list_rules
     .description = Enumerar todas las reglas de moderación automática.
     .filter_by = filtrar_por
     .filter_by-description = Filtrar reglas por su contenido. Dejar vacío para mostrar todas las reglas.
+debug-not-in-call = Este comando es inútil si Scripty no está en una VC.
+debug-info-message = Reenvía este mensaje a quien te lo pida en el servidor de soporte de Scripty.
+cmds_debug = depurar
+    .description = Salida de depuración de la información sobre el funcionamiento interno de Scripty.
