@@ -43,14 +43,14 @@ pub async fn speaking_state_update(
 	if !ssrc_state.ssrc_ignored_map.contains_key(&ssrc)
 		|| !ssrc_state.ssrc_user_data_map.contains_key(&ssrc)
 	{
-		debug!("either does not contain key, updating data");
+		debug!(%ssrc, "either does not contain key, updating data");
 		let user = match serenity::model::id::UserId::new(user_id)
 			.to_user(&ctx)
 			.await
 		{
 			Ok(u) => u,
 			Err(e) => {
-				error!("failed to fetch user: {}", e);
+				error!(%ssrc, "failed to fetch user: {}", e);
 				return;
 			}
 		};
@@ -68,7 +68,7 @@ pub async fn speaking_state_update(
 
 		ssrc_state.ssrc_ignored_map.insert(ssrc, ignored);
 		ssrc_state.ssrc_user_data_map.insert(ssrc, user_data);
-		debug!("updated data");
+		debug!(%ssrc, "updated data");
 	}
 
 	if let Some(old_user_id) = ssrc_state
