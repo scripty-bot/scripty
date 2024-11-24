@@ -2,6 +2,7 @@ mod admin;
 pub mod automod;
 pub mod config;
 mod data_storage;
+mod debug;
 pub mod dm_support;
 mod entity_block;
 mod help;
@@ -17,6 +18,7 @@ mod vote_reminders;
 
 pub use admin::*;
 pub use data_storage::*;
+pub use debug::debug;
 pub use dm_support::*;
 pub use entity_block::*;
 pub use help::help;

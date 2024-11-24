@@ -88,7 +88,7 @@ impl AudioHandler {
 		kiai_client: KiaiApiClient,
 		ephemeral: bool,
 	) -> Result<Self, Error> {
-		let maps = SsrcMaps {
+		let ssrc_state = Arc::new(SsrcMaps {
 			ssrc_user_id_map:      DashMap::with_capacity_and_hasher(10, RandomState::new()),
 			ssrc_stream_map:       DashMap::with_capacity_and_hasher(10, RandomState::new()),
 			ssrc_user_data_map:    DashMap::with_capacity_and_hasher(10, RandomState::new()),
@@ -97,7 +97,10 @@ impl AudioHandler {
 			ssrc_speaking_set:     DashSet::with_capacity_and_hasher(10, RandomState::new()),
 			active_user_set:       DashSet::with_capacity_and_hasher(10, RandomState::new()),
 			next_user_list:        RwLock::new(VecDeque::with_capacity(10)),
-		};
+		});
+		crate::INTERNAL_SSRC_MAPS
+			.get_or_init(|| DashMap::with_hasher(RandomState::new()))
+			.insert(guild_id, ssrc_state.clone());
 		let alive_call = CallDeath::new(
 			get_data(&context).existing_calls.clone(),
 			guild_id,
@@ -106,7 +109,7 @@ impl AudioHandler {
 		.ok_or_else(Error::already_exists)?;
 
 		let this = Self {
-			ssrc_state: Arc::new(maps),
+			ssrc_state,
 			guild_id,
 			channel_id,
 			voice_channel_id,
@@ -177,6 +180,9 @@ impl AudioHandler {
 					}
 
 					crate::VOICE_HANDLER_UPDATES
+						.get_or_init(|| DashMap::with_hasher(RandomState::new()))
+						.remove(&guild_id);
+					crate::INTERNAL_SSRC_MAPS
 						.get_or_init(|| DashMap::with_hasher(RandomState::new()))
 						.remove(&guild_id);
 

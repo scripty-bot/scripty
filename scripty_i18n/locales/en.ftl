@@ -175,6 +175,12 @@ config-kiai-info = You can find more info about Kiai at [kiai.app](https://www.k
     If you use this integration, be sure to disable Kiai's voice XP module as they will conflict.
 config-kiai-missing-perms = Scripty is missing permissions to work in this server. Authorize it with the `/application authorize` command, using an application ID of `811652199100317726`, and giving Scripty the "view and edit all levels and XP" permission. 
 
+## debug command
+cmds_debug = debug
+    .description = Output debugging information about Scripty internal state.
+debug-info-message = Forward this message to whoever in the Scripty support server is asking you for it.
+debug-not-in-call = This command is useless if Scripty isn't in a VC.
+
 ## Help menu translation strings
 
 command-not-found = No command with name `{ $commandName }` found.

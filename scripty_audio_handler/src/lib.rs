@@ -23,6 +23,8 @@ use songbird::{driver::DecodeMode, Config};
 pub use songbird::{error::JoinError, Songbird};
 use tokio::sync::{broadcast, oneshot::Sender};
 
+use crate::audio_handler::SsrcMaps;
+
 pub fn get_songbird_config() -> Config {
 	Config::default().decode_mode(DecodeMode::Decode)
 }
@@ -52,6 +54,8 @@ static AUTO_LEAVE_TASKS: OnceCell<DashMap<GuildId, Sender<()>, ahash::RandomStat
 static VOICE_HANDLER_UPDATES: OnceCell<
 	DashMap<GuildId, broadcast::Sender<()>, ahash::RandomState>,
 > = OnceCell::new();
+static INTERNAL_SSRC_MAPS: OnceCell<DashMap<GuildId, Arc<SsrcMaps>, ahash::RandomState>> =
+	OnceCell::new();
 
 /// Asynchronously force a handler update. If the bot has left the VC, this will run cleanup
 /// tasks.
@@ -67,4 +71,43 @@ pub fn force_handler_update(guild_id: &GuildId) {
 		}
 		None => debug!(%guild_id, "not actively in call for this server"),
 	}
+}
+
+#[derive(Debug)]
+pub struct InternalSsrcStateDetails {
+	/// All seen SSRCs
+	seen_users: Vec<u32>,
+	/// List of SSRCs who have an active stream pending
+	ssrcs_with_stream: Vec<u32>,
+	/// All SSRCs that have a user details tuple attached
+	ssrcs_with_attached_data: Vec<u32>,
+	/// List of SSRCs that are currently being ignored by the bot
+	ignored_ssrcs: Vec<u32>,
+	/// All actively speaking SSRCs
+	ssrcs_actively_speaking_this_tick: Vec<u32>,
+	/// All SSRCs currently being transcribed
+	actively_transcribed_ssrcs: Vec<u32>,
+	/// Next SSRCs to be pushed to actively_transcribed_ssrcs when it drops below the required threshold
+	next_ssrcs: Vec<u32>,
+}
+
+/// Get details about internal state of Scripty
+pub fn get_internal_state(guild_id: &GuildId) -> Option<InternalSsrcStateDetails> {
+	let maps = INTERNAL_SSRC_MAPS.get_or_init(|| DashMap::with_hasher(ahash::RandomState::new()));
+
+	let internal_maps = maps.get(guild_id)?;
+	let v = internal_maps.value();
+
+	// go ahead and try getting rid of this binding i dare you :)
+	let ret = Some(InternalSsrcStateDetails {
+		seen_users: v.ssrc_user_id_map.iter().map(|x| *x.key()).collect(),
+		ssrcs_with_stream: v.ssrc_stream_map.iter().map(|x| *x.key()).collect(),
+		ssrcs_with_attached_data: v.ssrc_user_data_map.iter().map(|x| *x.key()).collect(),
+		ignored_ssrcs: v.ssrc_ignored_map.iter().map(|x| *x.key()).collect(),
+		ssrcs_actively_speaking_this_tick: v.ssrc_speaking_set.iter().map(|x| *x).collect(),
+		actively_transcribed_ssrcs: v.active_user_set.iter().map(|x| *x).collect(),
+		next_ssrcs: v.next_user_list.read().iter().map(|x| *x).collect(),
+	});
+
+	ret
 }
