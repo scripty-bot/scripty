@@ -98,7 +98,6 @@ premium-info-embed-description-has-subscription = Вы можете управл
 premium-info-embed-current-tier = Текущий уровень
 premium-info-embed-max-users = Максимальное количество одновременных пользователей
 premium-info-embed-max-duration = Максимальная продолжительность сеанса (секунды)
-premium-info-embed-max-audio-length = Максимальная длина аудиофайла (секунды)
 premium-info-embed-trial-available-title = Хотите бесплатную пробную версию Premium?
 premium-info-embed-trial-available-description = Напишите боту личное сообщение, чтобы начать настройку 3-дневной пробной версии Premium.
 premium-info-embed-manage-subscription-user-has-unclaimed-title = Вы приобрели Premium!
@@ -186,7 +185,6 @@ no-channel-specified = Вы не в голосовом чате и не указ
 automod-setup-embed-complete-description = You can now use `{ $contextPrefix }automod rule add` to add an automod rule. { $extraDetails }
 automod-list-rules-footer = Страница { $page } из { $maxPage }
 voice-connection-error-ws-closed-session-timeout = сеанс истек
-premium-info-embed-max-video-length = Максимальная длина видеофайла (секунды)
 join-success-help-description = Вы можете либо присоединиться к серверу поддержки по адресу { $supportServerInvite }, либо написать боту личное сообщение.
 config-auto-detect-lang-requires-premium =
     Автоматическое определение языка — это премиум-функция, поскольку повторное выполнение модели дважды для определения языка требует чрезвычайно больших вычислительных затрат.
