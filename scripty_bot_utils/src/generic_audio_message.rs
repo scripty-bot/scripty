@@ -441,6 +441,12 @@ async fn handle_transcripts(
 		// not sure why
 		let transcribe_timeout = file_length * 10.0;
 
+		let metrics = scripty_metrics::get_metrics();
+		metrics.ms_transcribed.inc_by((file_length * 1000.0) as u64);
+		metrics
+			.audio_bytes_processed
+			.inc_by((i16_audio.len() * std::mem::size_of::<i16>()) as u64);
+
 		stream.feed_audio(i16_audio)?;
 		let transcript_start = tokio::time::Instant::now();
 		let transcript = stream

@@ -123,6 +123,15 @@ async fn internal_handle_message(
 			)),
 		)
 		.await?;
+
+	let metrics = scripty_metrics::get_metrics();
+	metrics
+		.ms_transcribed
+		.inc_by((output_length_secs * 1000.0) as u64);
+	metrics
+		.audio_bytes_processed
+		.inc_by((output.len() * std::mem::size_of::<i16>()) as u64);
+
 	let stream = scripty_stt::get_stream().await?;
 	stream.feed_audio(output)?;
 	debug!(%msg.id, "fed audio to speech-to-text, waiting up to {} seconds for result", max_duration);
