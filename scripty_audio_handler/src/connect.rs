@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use ahash::RandomState;
 use dashmap::DashMap;
 use scripty_data_type::get_data;
@@ -9,11 +7,7 @@ use serenity::{
 	model::id::{ChannelId, GuildId},
 	prelude::Context,
 };
-use songbird::{
-	error::{JoinError, JoinResult},
-	events::Event,
-	CoreEvent,
-};
+use songbird::{error::JoinError, events::Event, CoreEvent};
 
 use crate::Error;
 

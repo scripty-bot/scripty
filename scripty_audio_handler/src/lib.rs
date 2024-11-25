@@ -74,6 +74,7 @@ pub fn force_handler_update(guild_id: &GuildId) {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)] // debug impl is ignored during DCA
 pub struct InternalSsrcStateDetails {
 	/// All seen SSRCs
 	seen_users: Vec<u32>,
@@ -110,7 +111,7 @@ pub fn get_internal_state(guild_id: &GuildId) -> Option<InternalSsrcStateDetails
 			.collect(),
 		ssrcs_actively_speaking_this_tick: v.ssrc_speaking_set.iter().map(|x| *x).collect(),
 		actively_transcribed_ssrcs: v.active_user_set.iter().map(|x| *x).collect(),
-		next_ssrcs: v.next_user_list.read().iter().map(|x| *x).collect(),
+		next_ssrcs: v.next_user_list.read().iter().copied().collect(),
 	});
 
 	ret
