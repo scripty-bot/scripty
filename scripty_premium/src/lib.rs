@@ -49,27 +49,15 @@ impl PremiumTierList {
 		}
 	}
 
-	pub fn max_video_length(&self) -> f64 {
+	pub fn max_file_length(&self) -> f64 {
 		match self {
-			Self::None => 0.0,
-			Self::Tier1 => 0.0,
-			Self::Tier2 => 900.0,
-			Self::Tier3 => 1800.0,
-			Self::Tier4 => 3600.0,
-			Self::Tier5 => 7200.0,
-			Self::Tier6 => 14400.0,
-		}
-	}
-
-	pub fn max_audio_length(&self) -> f64 {
-		match self {
-			Self::None => 0.0,
-			Self::Tier1 => 900.0,
-			Self::Tier2 => 1800.0,
-			Self::Tier3 => 3600.0,
-			Self::Tier4 => 7200.0,
-			Self::Tier5 => 14400.0,
-			Self::Tier6 => 28800.0,
+			Self::None => 900.0,
+			Self::Tier1 => 1800.0,
+			Self::Tier2 => 3600.0,
+			Self::Tier3 => 7200.0,
+			Self::Tier4 => 14400.0,
+			Self::Tier5 => 28800.0,
+			Self::Tier6 => 57600.0,
 		}
 	}
 }

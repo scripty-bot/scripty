@@ -165,14 +165,6 @@ pub async fn handle_message(ctx: &Context, msg: Message) -> Result<(), GenericMe
 	let premium_tier = scripty_premium::get_guild(guild_id.get())
 		.await
 		.unwrap_or(PremiumTierList::None);
-	if premium_tier == PremiumTierList::None {
-		debug!(%msg.id, "no premium tier, ignoring");
-		return Ok(());
-	}
-	if video_files_found && premium_tier < PremiumTierList::Tier2 {
-		debug!(%msg.id, "video files found but not enough premium");
-		return Ok(());
-	}
 
 	// if we've gotten here then we have at least one file to transcribe
 	// so notify the user that we're working on it
@@ -283,37 +275,16 @@ pub async fn handle_message(ctx: &Context, msg: Message) -> Result<(), GenericMe
 					 much noise in the file.",
 				)
 			}
-			TranscriptResult::VideoNeedsPremium => {
-				msg_builder = msg_builder.content(
-					"Transcribing video files requires at least Tier 2 Premium. You shouldn't be \
-					 seeing this message if you only have one file in your message.",
-				)
-			}
-			TranscriptResult::AudioTooLong {
-				audio_length,
-				max_audio_length,
+			TranscriptResult::FileTooLong {
+				file_length,
+				max_file_length,
 				..
 			} => {
 				msg_builder = msg_builder.content(format!(
-					"With Tier {} Premium, you can transcribe audio files at most {} seconds \
-					 long. This file is {} seconds long.",
-					premium_tier, max_audio_length, audio_length
+					"With Tier {} Premium, you can transcribe files at most {} seconds long. This \
+					 file is {} seconds long.",
+					premium_tier, max_file_length, file_length
 				))
-			}
-			TranscriptResult::VideoTooLong {
-				video_length,
-				max_video_length,
-				..
-			} => {
-				msg_builder = msg_builder.content(format!(
-					"With Tier {} Premium, you can transcribe video files at most {} seconds \
-					 long. This file is {} seconds long.",
-					premium_tier, max_video_length, video_length
-				))
-			}
-			TranscriptResult::NoExtension => {
-				msg_builder = msg_builder
-					.content("No file extension detected. You shouldn't be seeing this message.")
 			}
 			TranscriptResult::DurationParseFailure => {
 				msg_builder = msg_builder.content(
@@ -347,33 +318,17 @@ pub async fn handle_message(ctx: &Context, msg: Message) -> Result<(), GenericMe
 						format!("transcript_{}.txt", file_name),
 					))
 				}
-				TranscriptResult::VideoNeedsPremium => total_content
-					.push_str("Transcribing video files requires at least Tier 2 Premium.\n"),
-				TranscriptResult::AudioTooLong {
-					audio_length,
-					max_audio_length,
+				TranscriptResult::FileTooLong {
+					file_length,
+					max_file_length,
 					file_name,
 				} => writeln!(
 					total_content,
-					"With Tier {0} Premium, you can transcribe audio files at most {1} \
-					 seconds.`{3}` is {2} seconds.",
-					premium_tier, max_audio_length, audio_length, file_name
+					"With Tier {0} Premium, you can transcribe files at most {1} seconds.`{3}` is \
+					 {2} seconds.",
+					premium_tier, max_file_length, file_length, file_name
 				)
 				.expect("writing to string should be infallible"),
-				TranscriptResult::VideoTooLong {
-					video_length,
-					max_video_length,
-					file_name,
-				} => writeln!(
-					total_content,
-					"With Tier {0} Premium, you can transcribe video files at most {1} seconds. \
-					 `{3}` is {2} seconds.",
-					premium_tier, max_video_length, video_length, file_name
-				)
-				.expect("writing to string should be infallible"),
-				TranscriptResult::NoExtension => total_content.push_str(
-					"No file extension detected. You shouldn't be seeing this message.\n",
-				),
 				TranscriptResult::DurationParseFailure => total_content.push_str(
 					"Failed to parse duration. Your file is likely malformed. Re-encode it and \
 					 try again.\n",
@@ -403,18 +358,11 @@ enum TranscriptResult {
 	EmptyTranscript {
 		file_name: String,
 	},
-	VideoNeedsPremium,
-	AudioTooLong {
-		audio_length:     f64,
-		max_audio_length: f64,
-		file_name:        String,
+	FileTooLong {
+		file_length:     f64,
+		max_file_length: f64,
+		file_name:       String,
 	},
-	VideoTooLong {
-		video_length:     f64,
-		max_video_length: f64,
-		file_name:        String,
-	},
-	NoExtension,
 	DurationParseFailure,
 }
 
@@ -428,22 +376,6 @@ async fn handle_transcripts(
 ) -> Result<Vec<TranscriptResult>, GenericMessageError> {
 	let mut output = Vec::with_capacity(files.len());
 	for file in files {
-		debug!(%file.id, "processing file");
-		// check the file extension to see if it's a video
-		if let Some(ext) = file.filename.split('.').last() {
-			if VIDEO_EXTENSIONS.contains(&ext) {
-				// need at least tier 2 for video
-				if premium_tier < PremiumTierList::Tier2 {
-					output.push(TranscriptResult::VideoNeedsPremium);
-					continue;
-				}
-			}
-		} else {
-			// no extension, skip
-			output.push(TranscriptResult::NoExtension);
-			continue;
-		};
-
 		debug!(%file.id, "fetching file to transcribe");
 		msg.edit(
 			ctx,
@@ -470,7 +402,6 @@ async fn handle_transcripts(
 		)
 		.await?;
 		let probe = scripty_stt::file_info(path).await?;
-		let is_video = probe.streams.iter().any(|x| x.is_video());
 		let file_length = match probe.format.duration.parse::<f64>() {
 			Ok(length) => length,
 			Err(e) => {
@@ -479,33 +410,15 @@ async fn handle_transcripts(
 				continue;
 			}
 		};
-		debug!(%file.id, "is video: {}", is_video);
 		debug!(%file.id, "file length: {}", file_length);
-		if is_video {
-			// need at least tier 2 for video
-			if premium_tier < PremiumTierList::Tier2 {
-				output.push(TranscriptResult::VideoNeedsPremium);
-				continue;
-			}
-			let max_video_length = premium_tier.max_video_length();
-			if file_length > max_video_length {
-				output.push(TranscriptResult::VideoTooLong {
-					max_video_length,
-					video_length: file_length,
-					file_name: file.filename.to_string(),
-				});
-				continue;
-			}
-		} else {
-			let max_audio_length = premium_tier.max_audio_length();
-			if file_length > max_audio_length {
-				output.push(TranscriptResult::AudioTooLong {
-					max_audio_length,
-					audio_length: file_length,
-					file_name: file.filename.to_string(),
-				});
-				continue;
-			}
+		let max_file_length = premium_tier.max_file_length();
+		if file_length > max_file_length {
+			output.push(TranscriptResult::FileTooLong {
+				max_file_length,
+				file_length,
+				file_name: file.filename.to_string(),
+			});
+			continue;
 		}
 
 		// feed to ffmpeg

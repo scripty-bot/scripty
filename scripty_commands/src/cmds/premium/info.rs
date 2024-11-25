@@ -39,13 +39,8 @@ pub async fn premium_info(ctx: Context<'_>) -> Result<(), Error> {
 			false,
 		)
 		.field(
-			format_message!(resolved_language, "premium-info-embed-max-audio-length"),
-			premium_level.max_audio_length().to_string(),
-			false,
-		)
-		.field(
-			format_message!(resolved_language, "premium-info-embed-max-video-length"),
-			premium_level.max_video_length().to_string(),
+			format_message!(resolved_language, "premium-info-embed-max-file-length"),
+			premium_level.max_file_length().to_string(),
 			false,
 		);
 
