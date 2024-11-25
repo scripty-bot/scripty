@@ -9,7 +9,11 @@ use serenity::{
 	model::id::{ChannelId, GuildId},
 	prelude::Context,
 };
-use songbird::{error::JoinError, events::Event, CoreEvent};
+use songbird::{
+	error::{JoinError, JoinResult},
+	events::Event,
+	CoreEvent,
+};
 
 use crate::Error;
 
@@ -100,38 +104,6 @@ pub async fn connect_to_vc(
 
 	debug!(%guild_id, "fetching songbird");
 	let sb = crate::get_songbird();
-	debug!(%guild_id, "leaving old call");
-	match sb.remove(guild_id).await {
-		Ok(()) => {
-			tokio::time::sleep(Duration::from_secs(1)).await;
-		}
-		Err(JoinError::NoCall) => {}
-		Err(e) => return Err(e.into()),
-	};
-	debug!(%guild_id, "joining new call");
-	let call_lock = sb.join(guild_id, voice_channel_id).await?;
-
-	debug!(%guild_id, "locking call");
-	let mut call = call_lock.lock().await;
-
-	debug!(%guild_id, "muting call");
-	call.mute(true).await?;
-
-	debug!(%guild_id, "placing info into redis");
-	scripty_redis::run_transaction("SET", |f| {
-		f.arg(format!("voice:{{{}}}:webhook_token", guild_id))
-			.arg(webhook_token.expose_secret())
-			.arg("EX")
-			.arg(leave_delta + 5);
-	})
-	.await?;
-	scripty_redis::run_transaction("SET", |f| {
-		f.arg(format!("voice:{{{}}}:webhook_id", guild_id))
-			.arg(webhook_id.get())
-			.arg("EX")
-			.arg(leave_delta + 5);
-	})
-	.await?;
 
 	debug!(%guild_id, "initializing audio handler");
 	let handler = match crate::AudioHandler::new(
@@ -162,14 +134,55 @@ pub async fn connect_to_vc(
 		}
 	};
 
-	debug!(%guild_id, "adding global events");
-	call.add_global_event(Event::Core(CoreEvent::SpeakingStateUpdate), handler.clone());
-	call.add_global_event(Event::Core(CoreEvent::VoiceTick), handler.clone());
-	call.add_global_event(Event::Core(CoreEvent::ClientDisconnect), handler.clone());
-	call.add_global_event(Event::Core(CoreEvent::DriverConnect), handler.clone());
-	call.add_global_event(Event::Core(CoreEvent::DriverDisconnect), handler.clone());
-	call.add_global_event(Event::Core(CoreEvent::DriverReconnect), handler.clone());
-	call.add_global_event(Event::Core(CoreEvent::RtpPacket), handler);
+	debug!(%guild_id, "fetching call");
+	let call = sb.get_or_insert(guild_id);
+
+	let call_connection_attempt_fut = {
+		debug!(%guild_id, "locking call");
+		let mut call = call.lock().await;
+
+		debug!(%guild_id, "leaving existing call if any");
+		match call.leave().await {
+			Ok(_) | Err(JoinError::NoCall) => {}
+			Err(e) => return Err(e.into()),
+		};
+
+		debug!(%guild_id, "adding global events");
+		call.remove_all_global_events();
+		call.add_global_event(Event::Core(CoreEvent::SpeakingStateUpdate), handler.clone());
+		call.add_global_event(Event::Core(CoreEvent::VoiceTick), handler.clone());
+		call.add_global_event(Event::Core(CoreEvent::ClientDisconnect), handler.clone());
+		call.add_global_event(Event::Core(CoreEvent::DriverConnect), handler.clone());
+		call.add_global_event(Event::Core(CoreEvent::DriverDisconnect), handler.clone());
+		call.add_global_event(Event::Core(CoreEvent::DriverReconnect), handler.clone());
+		call.add_global_event(Event::Core(CoreEvent::RtpPacket), handler);
+
+		debug!(%guild_id, "joining new call");
+		let call_connection_attempt_fut = call.join(voice_channel_id).await?;
+
+		debug!(%guild_id, "muting call");
+		call.mute(true).await?;
+
+		call_connection_attempt_fut
+	};
+	debug!(%guild_id, "attempting final join");
+	call_connection_attempt_fut.await?;
+
+	debug!(%guild_id, "placing info into redis");
+	scripty_redis::run_transaction("SET", |f| {
+		f.arg(format!("voice:{{{}}}:webhook_token", guild_id))
+			.arg(webhook_token.expose_secret())
+			.arg("EX")
+			.arg(leave_delta + 5);
+	})
+	.await?;
+	scripty_redis::run_transaction("SET", |f| {
+		f.arg(format!("voice:{{{}}}:webhook_id", guild_id))
+			.arg(webhook_id.get())
+			.arg("EX")
+			.arg(leave_delta + 5);
+	})
+	.await?;
 
 	// spawn background tasks to automatically leave the call after the specified time period
 	let (tx, rx) = tokio::sync::oneshot::channel::<()>();
