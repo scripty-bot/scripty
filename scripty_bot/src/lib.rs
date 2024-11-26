@@ -6,13 +6,14 @@ mod framework_opts;
 #[macro_use]
 extern crate tracing;
 
-use std::sync::Arc;
+use std::{str::FromStr, sync::Arc};
 
 use poise::FrameworkBuilder;
 use scripty_bot_utils::{globals::CLIENT_DATA, handler, Data};
 use serenity::{
-	gateway::{client::ClientBuilder, ActivityData},
+	gateway::{client::ClientBuilder, ActivityData, TransportCompression},
 	model::user::OnlineStatus,
+	secrets::Token,
 };
 
 pub async fn entrypoint() {
@@ -39,7 +40,9 @@ pub async fn entrypoint() {
 	);
 	scripty_audio_handler::set_songbird(songbird.clone());
 
-	let mut http = serenity::http::HttpBuilder::new(&cfg.tokens.discord);
+	let token = Token::from_str(&cfg.tokens.discord).expect("failed to parse token");
+
+	let mut http = serenity::http::HttpBuilder::new(token.clone());
 	if let Some(proxy) = &cfg.proxy {
 		http = http.proxy(proxy).ratelimiter_disabled(true);
 	}
@@ -49,7 +52,8 @@ pub async fn entrypoint() {
 	}
 
 	let mut client =
-		ClientBuilder::new_with_http(Arc::new(http), framework_opts::get_gateway_intents())
+		ClientBuilder::new_with_http(token, Arc::new(http), framework_opts::get_gateway_intents())
+			.compression(TransportCompression::Zstd)
 			.data(data.clone())
 			.framework(framework)
 			.voice_manager::<scripty_audio_handler::Songbird>(songbird)
