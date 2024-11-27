@@ -53,7 +53,7 @@ pub async fn entrypoint() {
 
 	let mut client =
 		ClientBuilder::new_with_http(token, Arc::new(http), framework_opts::get_gateway_intents())
-			.compression(TransportCompression::None)
+			.compression(TransportCompression::Zstd)
 			.data(data.clone())
 			.framework(framework)
 			.voice_manager::<scripty_audio_handler::Songbird>(songbird)
