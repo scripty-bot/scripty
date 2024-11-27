@@ -71,6 +71,7 @@ pub async fn speaking_state_update(
 		debug!(%ssrc, "updated data");
 	}
 
+	debug!(%ssrc, %user_id, "adding ssrc-userID mapping");
 	if let Some(old_user_id) = ssrc_state
 		.ssrc_user_id_map
 		.insert(state_update.ssrc, user_id)
