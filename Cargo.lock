@@ -1619,7 +1619,7 @@ dependencies = [
  "http 1.1.0",
  "hyper 1.5.1",
  "hyper-util",
- "rustls 0.23.18",
+ "rustls 0.23.19",
  "rustls-pki-types",
  "tokio",
  "tokio-rustls 0.26.0",
@@ -1913,9 +1913,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.165"
+version = "0.2.166"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fcb4d3d38eab6c5239a362fa8bae48c03baf980a6e7079f063942d563ef3533e"
+checksum = "c2ccc108bbc0b1331bd061864e7cd823c0cab660bbe6970e66e2c0614decde36"
 
 [[package]]
 name = "libm"
@@ -2629,7 +2629,7 @@ dependencies = [
  "quinn-proto",
  "quinn-udp",
  "rustc-hash 2.0.0",
- "rustls 0.23.18",
+ "rustls 0.23.19",
  "socket2",
  "thiserror 2.0.3",
  "tokio",
@@ -2647,7 +2647,7 @@ dependencies = [
  "rand",
  "ring 0.17.8",
  "rustc-hash 2.0.0",
- "rustls 0.23.18",
+ "rustls 0.23.19",
  "rustls-pki-types",
  "slab",
  "thiserror 2.0.3",
@@ -2854,7 +2854,7 @@ dependencies = [
  "percent-encoding",
  "pin-project-lite",
  "quinn",
- "rustls 0.23.18",
+ "rustls 0.23.19",
  "rustls-pemfile 2.2.0",
  "rustls-pki-types",
  "serde",
@@ -3071,9 +3071,9 @@ dependencies = [
 
 [[package]]
 name = "rustls"
-version = "0.23.18"
+version = "0.23.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c9cc1d47e243d655ace55ed38201c19ae02c148ae56412ab8750e8f0166ab7f"
+checksum = "934b404430bb06b3fae2cba809eb45a1ab1aecd64491213d7c3301b88393f8d1"
 dependencies = [
  "once_cell",
  "ring 0.17.8",
@@ -3752,7 +3752,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.12.4"
-source = "git+https://github.com/serenity-rs/serenity?branch=next#276901f707087ee237ad55fafb3ef26b8c8a5238"
+source = "git+https://github.com/serenity-rs/serenity?branch=next#fbeda94a0dfd029d2281e636537b067764a01ac9"
 dependencies = [
  "aformat",
  "arrayvec",
@@ -3917,8 +3917,8 @@ dependencies = [
 
 [[package]]
 name = "songbird"
-version = "0.4.4"
-source = "git+https://github.com/serenity-rs/songbird?branch=serenity-next-rxfix#a6adc9b941c1cdc7c7aa0b7288c0b5f63c321b58"
+version = "0.4.5"
+source = "git+https://github.com/serenity-rs/songbird?branch=serenity-next#35e453919768df2df5f65db23cffe26b5195ae3a"
 dependencies = [
  "aead",
  "aes-gcm",
@@ -3954,7 +3954,7 @@ dependencies = [
  "symphonia",
  "symphonia-core",
  "tokio",
- "tokio-tungstenite 0.21.0",
+ "tokio-tungstenite 0.24.0",
  "tokio-util",
  "tokio-websockets",
  "tracing",
@@ -4689,7 +4689,7 @@ version = "0.26.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0c7bc40d0e5a97695bb96e27995cd3a08538541b0a846f65bba7a359f36700d4"
 dependencies = [
- "rustls 0.23.18",
+ "rustls 0.23.19",
  "rustls-pki-types",
  "tokio",
 ]
@@ -4723,29 +4723,13 @@ dependencies = [
 
 [[package]]
 name = "tokio-tungstenite"
-version = "0.21.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c83b561d025642014097b66e6c1bb422783339e0909e4429cde4749d1990bc38"
-dependencies = [
- "futures-util",
- "log",
- "rustls 0.22.4",
- "rustls-pki-types",
- "tokio",
- "tokio-rustls 0.25.0",
- "tungstenite 0.21.0",
- "webpki-roots 0.26.7",
-]
-
-[[package]]
-name = "tokio-tungstenite"
 version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "edc5f74e248dc973e0dbb7b74c7e0d6fcc301c694ff50049504004ef4d0cdcd9"
 dependencies = [
  "futures-util",
  "log",
- "rustls 0.23.18",
+ "rustls 0.23.19",
  "rustls-pki-types",
  "tokio",
  "tokio-rustls 0.26.0",
@@ -4841,9 +4825,9 @@ dependencies = [
 
 [[package]]
 name = "tracing-attributes"
-version = "0.1.27"
+version = "0.1.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34704c8d6ebcbc939824180af020566b01a7c01f80641264eba0999f6c2b6be7"
+checksum = "395ae124c09f9e6918a2310af6038fba074bcf474ac352496d5910dd59a2226d"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4944,27 +4928,6 @@ dependencies = [
 
 [[package]]
 name = "tungstenite"
-version = "0.21.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9ef1a641ea34f399a848dea702823bbecfb4c486f911735368f1f137cb8257e1"
-dependencies = [
- "byteorder",
- "bytes",
- "data-encoding",
- "http 1.1.0",
- "httparse",
- "log",
- "rand",
- "rustls 0.22.4",
- "rustls-pki-types",
- "sha1",
- "thiserror 1.0.69",
- "url",
- "utf-8",
-]
-
-[[package]]
-name = "tungstenite"
 version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "18e5b8366ee7a95b16d32197d0b2604b43a0be89dc5fac9f8e96ccafbaedda8a"
@@ -4976,7 +4939,7 @@ dependencies = [
  "httparse",
  "log",
  "rand",
- "rustls 0.23.18",
+ "rustls 0.23.19",
  "rustls-pki-types",
  "sha1",
  "thiserror 1.0.69",

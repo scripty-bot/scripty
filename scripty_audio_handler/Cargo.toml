@@ -27,7 +27,7 @@ audiopus_sys = { version = "0.2", features = ["static"] }
 scripty_integrations = { path = "../scripty_integrations" }
 tokio = { version = "1", features = ["parking_lot"] }
 scripty_data_storage = { path = "../scripty_data_storage" }
-songbird = { git = "https://github.com/serenity-rs/songbird", branch = "serenity-next-rxfix", features = [
+songbird = { git = "https://github.com/serenity-rs/songbird", branch = "serenity-next", features = [
 	"receive",
 	"rustls",
 	"serenity"
