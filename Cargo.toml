@@ -16,36 +16,33 @@ debug = true
 
 [workspace]
 members = [
-	"scripty_config",
-	"scripty_webserver",
-	"scripty_core",
-	"scripty_premium",
-	"scripty_stt",
-	"scripty_audio_handler",
-	"scripty_commands",
-	"scripty_i18n",
-	"scripty_db",
-	"scripty_metrics",
-	"scripty_utils",
-	"scripty_data_storage",
-	"scripty_redis",
-	"scripty_bot",
-	"scripty_bot_utils",
-	"scripty_automod",
-	"scripty_botlists",
-	"scripty_error",
-	"scripty_tts",
-	"scripty_integrations",
-	"scripty_build_checks",
-	"scripty_data_type",
+    "scripty_config",
+    "scripty_webserver",
+    "scripty_core",
+    "scripty_premium",
+    "scripty_stt",
+    "scripty_audio_handler",
+    "scripty_commands",
+    "scripty_i18n",
+    "scripty_db",
+    "scripty_metrics",
+    "scripty_utils",
+    "scripty_data_storage",
+    "scripty_redis",
+    "scripty_bot",
+    "scripty_bot_utils",
+    "scripty_automod",
+    "scripty_botlists",
+    "scripty_error",
+    "scripty_tts",
+    "scripty_integrations",
+    "scripty_build_checks",
+    "scripty_data_type",
 ]
 
 [dependencies]
 scripty_core = { path = "scripty_core" }
 scripty_build_checks = { path = "scripty_build_checks" }
-
-[target.'cfg(target_arch = "x86_64")'.dependencies]
-tikv-jemallocator = "0.5"
 
 [patch.crates-io]
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next" }
