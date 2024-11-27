@@ -8,7 +8,6 @@ license = "EUPL-1.2"
 
 [dependencies]
 url = "2"
-libc = "0.2"
 rlimit = "0.10"
 num_cpus = "1"
 humantime = "2"
@@ -26,5 +25,3 @@ tokio = { version = "1", features = ["parking_lot", "rt-multi-thread"] }
 scripty_data_storage = { path = "../scripty_data_storage" }
 fenrir-rs = { git = "https://github.com/tazz4843/fenrir-rs", branch = "json-logs", features = ["reqwest-async", "json-log-fmt"] }
 
-[target.'cfg(target_arch = "x86_64")'.dependencies]
-tikv-jemalloc-ctl = "0.5"
