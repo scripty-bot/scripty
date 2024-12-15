@@ -387,8 +387,11 @@ async fn handle_speakers(ssrc_state: Arc<SsrcMaps>, metrics: Arc<Metrics>, voice
 				.inc_by((audio.len() * SIZE_OF_I16) as _);
 
 			// incredibly useful for figuring out whether we're logging empty audio streams
-			let rms = ((audio.iter().map(|x| x.pow(2) as i64).sum::<i64>() / audio.len() as i64)
-				as f64)
+			let rms = ((audio
+				.iter()
+				.map(|x| (x.unsigned_abs() as u64).pow(2))
+				.sum::<u64>()
+				/ audio.len() as u64) as f64)
 				.sqrt();
 			trace!(%ssrc, "RMS of audio stream: {}", rms);
 
