@@ -52,16 +52,17 @@ impl InvalidLanguageError {
 	/// * Return `Ok(LanguageIdentifier)` if all checks pass, where `LanguageIdentifier` is the parsed language code.
 	pub(crate) fn check_validity(language: &str) -> Result<LanguageIdentifier, Self> {
 		// check if the language code is valid
-		let lang_id = LanguageIdentifier::from_str(language)?;
+		let full_language_id = LanguageIdentifier::from_str(language)?;
+		let language_only_language_part = full_language_id.language;
 
 		// check if the language is supported by the bot in its translation files
 		crate::get_all_bundle_languages()
 			.into_iter()
-			.find(|lang| lang == &lang_id)
+			.find(|lang| lang.language == language_only_language_part)
 			.ok_or(Self::Unsupported)?;
 
 		// all checks passed, return the language code
-		Ok(lang_id)
+		Ok(full_language_id)
 	}
 }
 
