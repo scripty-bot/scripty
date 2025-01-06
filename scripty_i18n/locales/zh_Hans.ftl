@@ -63,3 +63,11 @@ language-set-failure-title-db = 数据库返回了一个错误。
 
 # This is shown when the algorithm encounters an error
 
+join-success-premium = 您可以使用 `/premium info`指令查看该服务器的高级订阅状态哦。
+join-create-thread-in-thread = 我不能在子频道中创建子频道。请在普通频道中运行此命令，可能是 { $parentChannelMention }。
+join-create-thread-in-unsupported = Discord 不支持在 { $targetMention } 中创建子频道。请使用其他频道，或者不要创建子频道。
+join-success-footer-free-trial-upsell = 这个服务器可免费试用高级版。请DM机器人来提出申请试用。
+join-target-not-text-based = 你让我发送转录的频道,也就是： ({ $targetMention }) 不是文字频道。请尝试使用文字频道，或者在 `目标频道` 参数中选择其他类别的频道。
+join-success-help-title = 需要帮助吗？
+join-success-help-description = 你可以通过{ $supportServerInvite }加入官方服务器，你也可以私信这个bot。
+join-forum-requires-tags = 你尝试让我使用的论坛频道需要标签。我不知道应该使用什么标签，所以无法加入该频道。请尝试其他频道，或者请管理员移除标签要求吧.
