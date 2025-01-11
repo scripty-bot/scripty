@@ -92,3 +92,4 @@ join-failed-dropped = Discord似乎出现了一些问题，我们无法解决，
 no-channel-specified = 您不在任何语音聊天中，也没有告诉我要加入哪个频道。可以尝试使用 { $contextPrefix }join <channel> 来指定一个语音频道，或者自己加入一个语音频道后再重新运行此命令。
 language-set-partially-translated-help = 想要帮助我们将Scripty翻译成您的语言吗？ 请登录「https://hosted.weblate.org/engage/scripty-bot/.」查看机器人的翻译项目。
 join-no-one-in-channel = { $targetMention }里面一个人都没有，如果没人，我是不会加入的，那是浪费计算资源.
+premium-not-premium = 您不是高级用户，请您前往「 https://scripty.org/premium」订阅高级套餐；如果您是已订阅了高级套餐，请您私信bot，这样我们就可以恢复您的订阅状态。
