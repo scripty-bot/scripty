@@ -93,3 +93,11 @@ no-channel-specified = 您不在任何语音聊天中，也没有告诉我要加
 language-set-partially-translated-help = 想要帮助我们将Scripty翻译成您的语言吗？ 请登录「https://hosted.weblate.org/engage/scripty-bot/.」查看机器人的翻译项目。
 join-no-one-in-channel = { $targetMention }里面一个人都没有，如果没人，我是不会加入的，那是浪费计算资源.
 premium-not-premium = 您不是高级用户，请您前往「 https://scripty.org/premium」订阅高级套餐；如果您是已订阅了高级套餐，请您私信bot，这样我们就可以恢复您的订阅状态。
+config-verbose-enabled = Scripty 现在在转录过程中会提供详细信息。
+config-transcribe-voice-messages-disabled = Scripty 现在将停止转录语音消息。
+config-transcribe-audio-requires-premium =
+    转录音频文件是一项高级功能，因为转码音频所需要的算力较高。
+    如果你想升级到高级版，可以前往 「https://dash.scripty.org/premium」你也可以通过私信bot来申请免费试用高级版。
+    如果此前已启用此功能，那么现在则已禁用。
+config-transcribe-voice-messages-enabled = Scripty 现在将转录语音消息。
+config-verbose-disabled = Scripty 在转录过程中不再提供详细信息。
