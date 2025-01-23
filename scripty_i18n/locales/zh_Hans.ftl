@@ -101,3 +101,5 @@ config-transcribe-audio-requires-premium =
     如果此前已启用此功能，那么现在则已禁用。
 config-transcribe-voice-messages-enabled = Scripty 现在将转录语音消息。
 config-verbose-disabled = Scripty 在转录过程中不再提供详细信息。
+premium-info-embed-description-no-subscription = 您可以在<https://dash.scripty.org/premium>订阅高级版。除了你得到的好处，您还帮助我们更进一步让Scripty成为最好的语音转文本机器人：)
+premium-info-embed-manage-subscription-user-has-unclaimed-title = 看起来你购买了高级版！
