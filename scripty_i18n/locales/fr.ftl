@@ -93,7 +93,7 @@ general-error-user-missing-perms-description-unknown = Je ne suis pas sûr de la
 transcription-info-transcript-count = Transcript 1 sur { $count }.
 # transcription info - verbose mode
 # This is shown as the title of the transcript
-transcription-info-transcription-title = Transcript
+transcription-info-transcription-title = Transcription
 # transcription info - verbose mode
 # This is shown as the percent accuracy of the transcription (roughly)
 transcription-info-transcription-confidence = Confiance
@@ -116,7 +116,7 @@ data-storage-embed-title = Stockage de données
 # blocked entities description
 blocked-entity-no-reason-given = Aucune raison n'a été donnée pour le bloquage.
 # blocked entities description
-blocked-entity-reason-given = Raison donnée pour le bloquage: { $reason }.
+blocked-entity-reason-given = Raison donnée pour le blocage : { $reason }.
 # voice connection errors
 voice-connection-error-ws-closed-no-reason = Discord a terminé la connexion sans raison
 # voice connection errors
@@ -146,7 +146,7 @@ data-storage-opted-in-audio = Vous avez choisi de nous autoriser à stocker vos 
 # automod setup command
 automod-setup-embed-complete-description = Vous pouvez maintenant utiliser `{ $contextPrefix }automod rule add` pour ajouter une règle automod. { $extraDetails }
 # automod setup command
-automod-setup-embed-complete-free-limit = Les serveurs gratuits sont limités à 25 règles, si vous souhaitez retirer cette limite, découvrez notre version Premium sur https://scripty.org/premium.
+automod-setup-embed-complete-free-limit = Veuillez noter que les serveurs gratuits sont limités à 25 règles. Si vous souhaitez supprimer cette limite, consultez notre Premium sur https://scripty.org/premium.
 # automod setup command
 automod-setup-embed-complete-title = Configuration de l'automod terminée !
 # automod setup command
@@ -358,7 +358,7 @@ voice-connection-error-ws-closed-unknown-opcode = Discord a fermé la connection
 # voice connection errors
 voice-connection-error-ws-closed-unknown-protocol = Discord n'a pas reconnu le protocole
 # voice connection errors
-voice-connection-error-proto-violation = library and discord disagreed on protocol
+voice-connection-error-proto-violation = la bibliothèque et Discord n'étaient pas d'accord sur le protocole
 # voice connection errors
 voice-connection-error-ws-closed-unknown-encryption-mode = Discord n'a pas reconnu le schema d'encryption
 # voice connection errors
@@ -489,3 +489,112 @@ context-menu-command-message =
     { "" }
     { $commandName } (sur un message)
     { "" }
+config-translate-enabled = Scripty traduira désormais les transcriptions en anglais.
+premium-info-embed-current-tier = Niveau actuel
+join-success-footer-free-trial-upsell = Ce serveur est éligible à un essai gratuit de Premium. Envoyez un DM au bot pour en demander un.
+config-kiai-info =
+    Vous pouvez trouver plus d'informations sur Kiai sur [kiai.app](https://www.kiai.app/?utm_source=scripty_info).
+    { "" }
+    Si vous utilisez cette intégration, assurez vous de désactiver le module XP vocal de Kiai car ils entreront en conflit.
+config-transcribe-only-role-enabled = Scripty transcrira désormais uniquement les messages des utilisateurs dans { $roleId }.
+join-success-help-description = Vous pouvez soit rejoindre le serveur de support à l'adresse { $supportServerInvite }, soit envoyer un DM au bot.
+join-success-premium = Vous pouvez vérifier le statut Premium de ce serveur avec `/premium info`.
+join-create-thread-in-unsupported = Discord ne prend pas en charge les canaux dans { $targetMention }. Veuillez utiliser un autre canal ou ne pas créer de canal.
+cmds_premium_info = info
+    .description = Obtenez des informations sur le statut Scripty Premium de ce serveur.
+premium-info-embed-title = Statut Premium
+premium-info-embed-description-has-subscription = Vous pouvez gérer votre abonnement sur <https://dash.scripty.org/premium>. Merci de soutenir Scripty !
+premium-info-embed-max-users = Nombre maximal d'utilisateurs simultanés
+premium-info-embed-trial-available-title = Vous souhaitez un essai gratuit de Premium ?
+premium-info-embed-trial-available-description = Envoyez un DM au bot pour commencer à configurer un essai de 3 jours de Premium.
+premium-info-embed-manage-subscription-user-has-unclaimed-title = Il semblerait que vous ayez acheté Premium !
+premium-info-embed-manage-subscription-user-has-unclaimed-description = Pour le réclamer sur ce serveur, exécutez { $claimCommand }.
+config-verbose-disabled = Scripty ne sera plus verbeux pendant les transcriptions.
+config-transcribe-voice-messages-enabled = Scripty va désormais transcrire les messages vocaux.
+config-transcribe-video-requires-premium =
+    La transcription de fichiers vidéo est une fonctionnalité Premium Tier 2, car le transcodage de fichiers vidéo est très coûteux en termes de calcul.
+    Si vous souhaitez passer au niveau Premium Tier 2, rendez-vous sur https://dash.scripty.org/premium.
+    Si cette fonctionnalité était activée auparavant, elle est désormais désactivée.
+config-auto-detect-lang-enabled = Scripty détectera désormais automatiquement la langue parlée.
+config-auto-detect-lang-disabled = Scripty ne détectera plus automatiquement la langue parlée.
+config_translate = traduire
+    .description = Traduire automatiquement les transcriptions en anglais ?
+    .translate = traduire
+    .translate-description = La valeur par défaut est faux
+config-translate-disabled = Scripty va maintenant tenter de faire correspondre les phrases prononcées aux mots anglais, mais ne traduira pas.
+config-translate-not-english = Vous devez définir votre langue sur l'anglais pour activer la traduction. Faites le avec `{ $contextPrefix }config language en`.
+config-transcribe-voice-messages-disabled = Scripty ne transcrira plus les messages vocaux.
+config_transcribe_audio = transcribe_audio
+    .description = Activer ou désactiver la transcription de fichiers audio arbitraires par Scripty. Nécessite une version premium.
+    .transcribe_audio = transcribe_audio
+    .transcribe_audio-description = La valeur par défaut est faux
+config-transcribe-video-enabled = Scripty va désormais transcrire les fichiers vidéo.
+language-set-partially-translated-help = Vous souhaitez aider à traduire Scripty dans votre langue ? Découvrez le projet de traduction sur https://hosted.weblate.org/engage/scripty-bot/.
+cmds_config_verbose = verbose
+    .description = Activer ou désactiver le mode verbeux de Scripty pendant les transcriptions.
+    .verbose = verbeux
+    .verbose-description = La valeur par défaut est false
+config-transcribe-audio-disabled = Scripty ne transcrira plus les fichiers audio.
+config-transcribe-video-disabled = Scripty ne transcrira plus les fichiers vidéo.
+guild-language-set-failure-translate-enabled = La traduction automatique est activée sur votre serveur. Cette fonction n'est prise en charge que lors de la traduction vers l'anglais. Désactivez cette fonctionnalité si vous souhaitez définir votre langue.
+premium-info-embed-max-duration = Durée maximale de la session (secondes)
+premium-info-embed-max-file-length = Longueur maximale du fichier (secondes)
+config_transcribe_only_role = transcribe_only_role
+    .description = Limitez les transcriptions de Scripty aux seuls utilisateurs ayant ce rôle dans un chat vocal.
+    .transcribe_only_role = transcribe_only_role
+    .transcribe_only_role-description = Rôle à limiter : laissez vide pour désactiver.
+config_transcribe_video = transcribe_video
+    .description = Activer ou désactiver la transcription de fichiers vidéo arbitraires par Scripty. Nécessite T2 Premium.
+    .transcribe_video = transcribe_video
+    .transcribe_video-description = La valeur par défaut est faux
+config-verbose-enabled = Scripty sera désormais verbeux pendant les transcriptions.
+config_auto_detect_lang = auto_detect_lang
+    .description = Essayer de détecter automatiquement la langue parlée ? Très imprécis par rapport à la définition d'une langue.
+    .auto_detect_lang = auto_detect_lang
+    .auto_detect_lang-description = La valeur par défaut est faux
+vote-reminders-enabled = Rappels de vote activés.
+vote-reminders-disabled = Rappels de vote désactivés.
+cmds_vote_reminder = vote_reminder
+    .description = Activer ou désactiver si Scripty vous rappellera de voter pour le bot une fois le délai écoulé.
+    .enabled = activé
+    .enabled-description = Activer les rappels de vote ?
+config-kiai-enabled = Scripty enverra désormais tout XP vocal gagné à Kiai. Désactivez la mise à niveau de l'XP vocale de Kiai pour empêcher les utilisateurs d'obtenir le double d'XP.
+config-kiai-disabled = Scripty n'enverra plus aucun XP de voix gagné à l'API de Kiai.
+config_enable_kiai = enable_kiai
+    .description = Activer l'intégration Kiai de Scripty. Exécutez cette commande sans argument pour obtenir des informations sur Kiai.
+    .enable_kiai = enable_kiai
+    .enable_kiai-description = La valeur par défaut est faux
+cmds_transcribe_message = transcribe_message
+    .description = Transcrire un message. Répondre à un message pour le transcrire.
+config-transcribe-audio-enabled = Scripty va désormais transcrire les fichiers audio.
+config-transcribe-only-role-disabled = Scripty transcrira désormais tous les utilisateurs, quel que soit leur rôle.
+cmds_debug = debug
+    .description = Affiche des informations de débogage sur l'état interne de Scripty.
+debug-info-message = Transférez ce message à la personne du serveur d'assistance Scripty qui vous le demande.
+debug-not-in-call = Cette commande est inutile si Scripty n'est pas dans un VC.
+premium-info-embed-description-no-subscription = Vous pouvez vous abonner à Premium sur <https://dash.scripty.org/premium>. En plus des avantages dont vous bénéficiez, vous nous aidez également à atteindre notre objectif de faire de Scripty le meilleur bot de conversion de la parole en texte :)
+join-ephemeral-not-thread = Pour utiliser le paramètre éphémère, vous devez sélectionner un canal comme cible, soit en définissant `create_thread` sur vrai, soit en ciblant un canal avec `target_channel`.
+context-menu-command-unknown =
+    { "" }
+    { $commandName } (sur inconnu)
+    { "" }
+join-success-help-title = Besoin d'aide ?
+join-target-not-text-based = Le canal auquel vous m'avez demandé d'envoyer des transcriptions ({ $targetMention }) n'est pas un canal textuel. Veuillez utiliser un canal textuel ou choisir un autre canal dans l'argument `target_channel`.
+config_transcribe_voice_messages = transcribe_voice_messages
+    .description = Activer ou désactiver la transcription des messages vocaux par Scripty.
+    .transcribe_voice_messages = transcribe_voice_messages
+    .transcribe_voice_messages-description = La valeur par défaut est vrai
+config-auto-detect-lang-requires-premium =
+    La détection automatique de la langue est une fonctionnalité Premium, car il est extrêmement coûteux en termes de calcul de réexécuter le modèle deux fois pour déterminer la langue.
+    Si vous souhaitez passer à Premium, rendez-vous sur https://dash.scripty.org/premium. Vous pouvez également demander un essai gratuit de Premium en envoyant un message privé au bot.
+    Si cette fonctionnalité était activée auparavant, elle est désormais désactivée.
+cmds_config_server_language = guilde
+    .description = Définissez la langue de ce serveur sur l'une des langues disponibles.
+    .language = langue
+    .language-description = La langue sur laquelle vous souhaitez définir la langue de votre guilde.
+config-transcribe-audio-requires-premium =
+    La transcription de fichiers audio est une fonctionnalité Premium, car le transcodage de fichiers audio est coûteux en termes de calcul.
+    Si vous souhaitez passer à la version Premium, rendez-vous sur https://dash.scripty.org/premium. Vous pouvez également demander un essai gratuit de la version Premium en envoyant un message privé au bot.
+    Si cette fonctionnalité était activée auparavant, elle est désormais désactivée.
+join-success-description = { $voiceTargetMention } a été rejoint avec succès et la sortie de transcription a été envoyée à { $outputChannelMention }.
+config-kiai-missing-perms = Il manque à Scripty les autorisations nécessaires pour fonctionner sur ce serveur. Autorisez le avec la commande `/application authorize`, en utilisant un ID d'application de `811652199100317726` et en donnant à Scripty l'autorisation « afficher et modifier tous les niveaux et XP ».
