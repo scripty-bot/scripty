@@ -103,3 +103,13 @@ config-transcribe-voice-messages-enabled = Scripty 现在将转录语音消息�
 config-verbose-disabled = Scripty 在转录过程中不再提供详细信息。
 premium-info-embed-description-no-subscription = 您可以在<https://dash.scripty.org/premium>订阅高级版。除了你得到的好处，您还帮助我们更进一步让Scripty成为最好的语音转文本机器人：)
 premium-info-embed-manage-subscription-user-has-unclaimed-title = 看起来你购买了高级版！
+join-thread-title = 转录自{ $timestamp }
+premium-info-embed-title = 订阅状态
+config-transcribe-video-requires-premium =
+    转录视频文件是tier2高级的功能，因为这样做所需要的算力非常高
+    如果您想要订阅Premium tier2，您可以访问「https://dash.scripty.org/premium.」
+    如果这个特性以前是启用的，现在是禁用的。
+config-auto-detect-lang-disabled = Scripty现在不会自动检测现在使用的语言。
+config-auto-detect-lang-enabled = Scripty现在会自动检测正在使用的语言.
+premium-removed = 如果您在之前购买了Premium，那么你现在已经成功的移除了Premium订阅，如果您想重新购买或升级，您可以访问<https://dash.scripty.org/premium>来重新购买。
+premium-info-embed-manage-subscription-user-has-unclaimed-description = 如果你要在这个服务器上声明，你需要运行{ $claimCommand }命令
