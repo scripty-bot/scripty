@@ -148,3 +148,34 @@ config-kiai-enabled = Scripty 现在会将获得的所有语音 XP 发送给 Kia
 config-kiai-disabled = Scripty 将不再将获得的任何语音 XP 发送到 Kiai 的 API。
 config-kiai-missing-perms = Scripty 无法在此服务器上工作，因为它缺少必要的权限。请使用 「`/application authorize` 」命令授权，指定应用程序 ID 为 「`811652199100317726`」，并授予 Scripty “查看和编辑所有等级与 XP” 的权限。
 debug-not-in-call = 如果Scripty不在「Visual C++」中，那么这条指令就是无用的
+voice-connection-error-internal-lib-error = 数据库内部错误
+automod-remove-rule-embed-success-title = 规则删除！
+automod-list-rules-embed-field-value =
+    类型：{ $ruleType }
+    内容：{ $ruleContent }
+    action：{ $ruleAction }
+blocked-entity-no-reason-given = 没有给出封禁原因。
+voice-connection-error-ws-closed-unknown-opcode = 由于未知操作码，Discord 关闭了连接
+automod-remove-rule-embed-failure-title = 规则删除失败！
+automod-list-rules-no-rules = 您没有添加任何规则！
+vote-reminders-enabled = 投票提醒已启用.
+voice-connection-error-proto-violation = 库与 Discord 在协议上存在分歧
+voice-connection-error-host-io-error = 主机 IO 错误
+automod-root-response = 这是根命令，由于Discord的限制，这条命令并没有实际的作用，相关信息可以通过{ $contextPrefix }help automod 进行了解.
+automod-add-rule-embed-failure-description-free-locked-type = 免费服务器只能使用常规规则类型，如果您想使用其他类型的规则，您可以访问「https://scripty.org/premium」来查看高级订阅选项.
+automod-add-rule-embed-failure-title = 添加规则失败！
+automod-add-rule-embed-failure-description-premium-limit-hard-cap = 您已达到规则的绝对最大数量（{ $hardCap }）。此限制的存在是为了确保单条消息不会过多增加延迟。
+data-storage-command-timed-out = 连接超时.如果您还需要进行管理，请再次尝试运行此命令.
+voice-connection-error-ws-closed-no-reason = Discord 无故关闭了连接
+automod-add-rule-embed-failure-description-premium-limit = 高级订阅服务器{ $tier }仅限于{ $maxRules }，如果您想要升级到{ $nextTier }，您可以添加{ $nextTierMaxRules }规则
+automod-add-rule-embed-failure-description-free-limit = 普通服务器的自定义规则上限为25条，如果您想要增加规则上限，您可以访问「https://scripty.org/premium」查看高级功能.
+automod-list-rules-embed-field-name = 规则{ $ruleId }
+automod-list-rules-embed-description = { $rulesLeft }中剩下的{ $maxRules }规则.
+automod-remove-rule-embed-failure-description-not-setup = 你在删除规则前，你必须运行{ $contextPrefix }命令.
+blocked-entity-guild = 这个服务器被禁止使用Scripty{ $reason }，您可以在Scripty的官方支持服务器进行上诉{ $supportServerInvite }.
+automod-add-rule-embed-failure-description-not-setup = 您在添加规则前，您必须先运行 `{ $contextPrefix }automod setup`.
+automod-add-rule-embed-failure-description-invalid-type = 无效的规则类型，更多详细信息请参考{ $contextPrefix }规则疑难帮助.
+automod-remove-rule-embed-failure-description-invalid-id = 无效的规则ID,更多详细信息请参阅`{ $contextPrefix }automod list`.
+vote-reminders-disabled = 投票提醒已禁用.
+blocked-entity-user = 您已经被禁止使用Scripty，{ $reason }您可以在Scripty官方服务器进行上诉{ $supportServerInvite }.
+voice-connection-error-ws-closed-invalid-payload = Discord 因无效的负载关闭了连接
