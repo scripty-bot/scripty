@@ -21,7 +21,7 @@ guild-language-set-success = 伺服器的语言改变到 `{ $language }`了。
 guild-language-set-success-description = 要返回语言到英文的话，请发送 `{ $contextPrefix }language guild_language en`.
 language-set-failure-title-unsupported = 机器人不支持您指定的语言.
 language-set-failure-title-invalid = 没有一个语言叫 `{ $language }`.
-language-set-failure-description-invalid = 你给我的语言不是一个真正的一个语言标识符。
+language-set-failure-description-invalid = 您指定的语言是一个无效的语言标识符。原因：{ $error }
 language-set-failure-title-db = 数据库返回了一个错误。
 
 # This message is shown as the embed title when a user tries to invoke the root command of a group.
