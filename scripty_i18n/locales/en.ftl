@@ -299,7 +299,6 @@ data-storage-command-timed-out = Timed out. Rerun this command if you still want
 # This and all attributes show up exclusively in the slash command picker when `automod` is selected.
 cmds_automod = automod
     .description = Manage Scripty's automod
-automod-root-response = This is the root command, due to Discord limitations it does nothing. See `{ $contextPrefix }help automod` for more info.
 
 ## automod setup command
 # This and all attributes show up exclusively in the slash command picker when `automod setup` is selected.

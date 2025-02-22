@@ -21,55 +21,12 @@ pub fn build_commands() -> Vec<poise::Command<Data, Error>> {
 		cmds::vote_reminder(),
 		cmds::transcribe_message(),
 		cmds::debug(),
-		poise::Command {
-			subcommands: vec![cmds::block_user(), cmds::block_guild()],
-			..cmds::block()
-		},
-		poise::Command {
-			subcommands: vec![
-				cmds::check_guilds(),
-				cmds::hash_user_id(),
-				cmds::cache_info(),
-				cmds::shutdown(),
-			],
-			..cmds::admin()
-		},
-		poise::Command {
-			subcommands: vec![cmds::ps_close()],
-			..cmds::ps()
-		},
-		poise::Command {
-			subcommands: vec![
-				cmds::premium::premium_remove(),
-				cmds::premium::premium_claim(),
-				cmds::premium::premium_info(),
-			],
-			..cmds::premium::premium()
-		},
-		poise::Command {
-			subcommands: vec![
-				cmds::automod::automod_setup(),
-				cmds::automod::automod_add_rule(),
-				cmds::automod::automod_list_rules(),
-				cmds::automod::automod_remove_rule(),
-			],
-			..cmds::automod::automod_root()
-		},
-		poise::Command {
-			subcommands: vec![
-				cmds::config::config_server_language(),
-				cmds::config::config_transcribe_audio(),
-				cmds::config::config_transcribe_video(),
-				cmds::config::config_transcribe_voice_messages(),
-				cmds::config::config_verbose(),
-				cmds::config::config_auto_detect_lang(),
-				cmds::config::config_transcribe_only_role(),
-				cmds::config::config_translate(),
-				cmds::config::config_enable_kiai(),
-			],
-			subcommand_required: true,
-			..cmds::config::config_root()
-		},
+		cmds::config::config_root(),
+		cmds::entity_block::block_root(),
+		cmds::admin::admin_root(),
+		cmds::dm_support::ps_root(),
+		cmds::premium::premium_root(),
+		cmds::automod::automod_root(),
 	];
 	i18n::localize_commands(&mut cmds);
 	cmds

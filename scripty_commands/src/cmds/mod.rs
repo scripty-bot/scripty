@@ -1,10 +1,10 @@
-mod admin;
+pub mod admin;
 pub mod automod;
 pub mod config;
 mod data_storage;
 mod debug;
 pub mod dm_support;
-mod entity_block;
+pub mod entity_block;
 mod help;
 mod join;
 mod language;
@@ -16,14 +16,11 @@ mod throw_error;
 mod transcribe_message;
 mod vote_reminders;
 
-pub use admin::*;
 pub use data_storage::*;
 pub use debug::debug;
-pub use dm_support::*;
-pub use entity_block::*;
 pub use help::help;
 pub use join::join;
-pub use language::*;
+pub use language::user_language;
 pub use leave::leave;
 pub use ping::ping;
 pub use register_cmds::register_cmds;

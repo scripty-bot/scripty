@@ -27,7 +27,18 @@ pub use verbose::config_verbose;
 	slash_command,
 	check = "is_guild",
 	required_permissions = "MANAGE_GUILD",
-	rename = "config"
+	rename = "config",
+	subcommands(
+		"auto_detect_lang::config_auto_detect_lang",
+		"kiai_enabled::config_enable_kiai",
+		"language::config_server_language",
+		"transcribe_audio::config_transcribe_audio",
+		"transcribe_only_role::config_transcribe_only_role",
+		"transcribe_video::config_transcribe_video",
+		"transcribe_voice_messages::config_transcribe_voice_messages",
+		"verbose::config_verbose"
+	),
+	subcommand_required
 )]
 pub async fn config_root(ctx: Context<'_>) -> Result<(), Error> {
 	let resolved_language =

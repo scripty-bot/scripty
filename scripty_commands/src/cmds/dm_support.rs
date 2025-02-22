@@ -2,8 +2,8 @@ use scripty_bot_utils::{checks::is_guild, globals::DM_SUPPORT_GLOBAL};
 
 use crate::{Context, Error};
 
-#[poise::command(prefix_command, hide_in_help)]
-pub async fn ps(ctx: Context<'_>) -> Result<(), Error> {
+#[poise::command(prefix_command, hide_in_help, rename = "ps", subcommands("ps_close"))]
+pub async fn ps_root(ctx: Context<'_>) -> Result<(), Error> {
 	ctx.say(format!("subcommands: `{}ps close`", ctx.prefix()))
 		.await?;
 	Ok(())

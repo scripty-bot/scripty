@@ -12,8 +12,14 @@ pub use info::*;
 pub use remove::*;
 
 /// Premium commands
-#[poise::command(prefix_command, slash_command)]
-pub async fn premium(ctx: Context<'_>) -> Result<(), Error> {
+#[poise::command(
+	prefix_command,
+	slash_command,
+	rename = "premium",
+	subcommands("claim::premium_claim", "info::premium_info", "remove::premium_remove"),
+	subcommand_required
+)]
+pub async fn premium_root(ctx: Context<'_>) -> Result<(), Error> {
 	let resolved_language =
 		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|g| g.get()))
 			.await;
