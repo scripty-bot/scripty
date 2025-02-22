@@ -141,8 +141,6 @@ cmds_list_rules = list_rules
     .filter_by-description = Filtruj reguły według ich treści. Pozostaw puste, aby pokazać wszystkie reguły.
 # automod list rules command
 automod-list-rules-embed-title = Reguły automatycznego moderowania
-# automod root command
-automod-root-response = To jest komenda główna, z powodu ograniczeń Discorda nie wykonuje żadnych działań. Zobacz `{ $contextPrefix }help automod` dla więcej informacji.
 # automod list rules command
 automod-list-rules-embed-description = Pozostało { $rulesLeft } reguł z { $maxRules }.
 # automod setup command

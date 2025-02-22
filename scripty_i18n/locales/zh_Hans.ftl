@@ -161,7 +161,6 @@ automod-list-rules-no-rules = 您没有添加任何规则！
 vote-reminders-enabled = 投票提醒已启用.
 voice-connection-error-proto-violation = 库与 Discord 在协议上存在分歧
 voice-connection-error-host-io-error = 主机 IO 错误
-automod-root-response = 这是根命令，由于Discord的限制，这条命令并没有实际的作用，相关信息可以通过{ $contextPrefix }help automod 进行了解.
 automod-add-rule-embed-failure-description-free-locked-type = 免费服务器只能使用常规规则类型，如果您想使用其他类型的规则，您可以访问「https://scripty.org/premium」来查看高级订阅选项.
 automod-add-rule-embed-failure-title = 添加规则失败！
 automod-add-rule-embed-failure-description-premium-limit-hard-cap = 您已达到规则的绝对最大数量（{ $hardCap }）。此限制的存在是为了确保单条消息不会过多增加延迟。

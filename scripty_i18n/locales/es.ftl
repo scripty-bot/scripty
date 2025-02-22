@@ -229,7 +229,6 @@ cmds_user_language = user
     .description = Establecer tu idioma de usuario con uno de los idiomas disponibles.
     .language = idioma
     .language-description = El idioma que quieres establecer para tu usuario.
-automod-root-response = Este es el comando raíz, debido a limitaciones de Discord no hace nada. Para más información, echa un vistazo a `{ $contextPrefix }help automod`.
 no-channel-specified = No te encuentras en un chat de voz, ni me has dicho un canal al que unirme. Prueba `{ $contextPrefix }join <channel>` para especificar un chat de voz, o únete tú mismo a un canal de voz y vuelve a ejecutar este comando.
 user-language-set-success = Idioma de usuario establecido a `{ $language }`.
 join-no-permission = No tengo permiso para unirme a { $targetMention }. Por favor, concédeme los permisos Ver canal y Conectar, o únete a un chat de voz distinto donde yo tenga permisos.
