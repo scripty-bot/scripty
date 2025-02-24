@@ -32,7 +32,7 @@ pub async fn config_default_settings_new_thread(
 	sqlx::query!(
 		"INSERT INTO default_join_settings (guild_id, new_thread)
 			VALUES ($1, $2)
-			ON CONFLICT ON CONSTRAINT default_join_settings_guild_id_fkey
+			ON CONFLICT ON CONSTRAINT default_join_settings_pkey
 			    DO UPDATE SET new_thread = $2",
 		guild_id.get() as i64,
 		new_thread

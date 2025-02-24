@@ -35,7 +35,7 @@ pub async fn config_default_settings_target_channel(
 	sqlx::query!(
 		"INSERT INTO default_join_settings (guild_id, target_channel)
 			VALUES ($1, $2)
-			ON CONFLICT ON CONSTRAINT default_join_settings_guild_id_fkey
+			ON CONFLICT ON CONSTRAINT default_join_settings_pkey
 			    DO UPDATE SET target_channel = $2",
 		guild_id.get() as i64,
 		target_channel.as_ref().map(|x| x.id.get() as i64),

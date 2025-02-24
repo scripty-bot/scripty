@@ -32,7 +32,7 @@ pub async fn config_default_settings_ephemeral(
 	sqlx::query!(
 		"INSERT INTO default_join_settings (guild_id, ephemeral)
 			VALUES ($1, $2)
-			ON CONFLICT ON CONSTRAINT default_join_settings_guild_id_fkey
+			ON CONFLICT ON CONSTRAINT default_join_settings_pkey
 			    DO UPDATE SET ephemeral = $2",
 		guild_id.get() as i64,
 		ephemeral
