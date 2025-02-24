@@ -49,7 +49,7 @@ pub async fn transcribe_message(ctx: Context<'_>) -> Result<(), Error> {
 
 	if target
 		.flags
-		.map_or(false, |f| f.contains(MessageFlags::IS_VOICE_MESSAGE))
+		.is_some_and(|f| f.contains(MessageFlags::IS_VOICE_MESSAGE))
 	{
 		scripty_bot_utils::voice_message::handle_message(ctx.serenity_context(), target).await;
 	} else {

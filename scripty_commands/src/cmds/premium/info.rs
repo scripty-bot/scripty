@@ -52,7 +52,7 @@ pub async fn premium_info(ctx: Context<'_>) -> Result<(), Error> {
 		)
 		.fetch_optional(db)
 		.await?;
-		let trial_used = res.as_ref().map_or(false, |row| row.trial_used);
+		let trial_used = res.as_ref().is_some_and(|row| row.trial_used);
 		if !trial_used {
 			embed_builder = embed_builder.field(
 				format_message!(
@@ -76,7 +76,7 @@ pub async fn premium_info(ctx: Context<'_>) -> Result<(), Error> {
 			)
 			.fetch_optional(db)
 			.await?
-			.map_or(false, |row| row.has_premium);
+			.is_some_and(|row| row.has_premium);
 			if user_has_premium {
 				let claim_command = "`/premium claim`";
 				embed_builder = embed_builder.field(

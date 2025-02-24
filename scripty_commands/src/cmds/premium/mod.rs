@@ -7,10 +7,6 @@ mod claim;
 mod info;
 mod remove;
 
-pub use claim::*;
-pub use info::*;
-pub use remove::*;
-
 /// Premium commands
 #[poise::command(
 	prefix_command,

@@ -101,9 +101,10 @@ pub async fn handle_message(ctx: &Context, msg: Message) -> Result<(), GenericMe
 	};
 
 	// does the message have the voice message flag?
-	if msg.flags.map_or(false, |flags| {
-		flags.contains(MessageFlags::IS_VOICE_MESSAGE)
-	}) {
+	if msg
+		.flags
+		.is_some_and(|flags| flags.contains(MessageFlags::IS_VOICE_MESSAGE))
+	{
 		debug!(%msg.id, "message is a voice message, ignoring");
 		return Ok(());
 	}

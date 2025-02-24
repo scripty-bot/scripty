@@ -363,7 +363,7 @@ async fn handle_speakers(ssrc_state: Arc<SsrcMaps>, metrics: Arc<Metrics>, voice
 		if ssrc_state
 			.ssrc_ignored_map
 			.get(&ssrc)
-			.map_or(false, |x| *x.value())
+			.is_some_and(|x| *x.value())
 		{
 			continue;
 		}
@@ -372,7 +372,7 @@ async fn handle_speakers(ssrc_state: Arc<SsrcMaps>, metrics: Arc<Metrics>, voice
 		if ssrc_state
 			.ssrc_user_data_map
 			.get(&ssrc)
-			.map_or(false, |x| !x.value().2)
+			.is_some_and(|x| !x.value().2)
 		{
 			continue;
 		}
