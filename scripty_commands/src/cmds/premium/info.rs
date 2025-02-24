@@ -74,9 +74,9 @@ pub async fn premium_info(ctx: Context<'_>) -> Result<(), Error> {
 				r#"SELECT coalesce(premium_level != 0, false) AS "has_premium!" FROM users WHERE user_id = $1"#,
 				hash_user_id(ctx.author().id.get())
 			)
-			.fetch_one(db)
+			.fetch_optional(db)
 			.await?
-			.has_premium;
+			.map_or(false, |row| row.has_premium);
 			if user_has_premium {
 				let claim_command = "`/premium claim`";
 				embed_builder = embed_builder.field(
