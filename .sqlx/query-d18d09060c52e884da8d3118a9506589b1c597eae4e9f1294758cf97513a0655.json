@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO default_join_settings (guild_id, ephemeral)\n\t\t\tVALUES ($1, $2)\n\t\t\tON CONFLICT ON CONSTRAINT default_join_settings_pkey\n\t\t\t    DO UPDATE SET ephemeral = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "d18d09060c52e884da8d3118a9506589b1c597eae4e9f1294758cf97513a0655"
+}

@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO default_join_settings (guild_id, new_thread)\n\t\t\tVALUES ($1, $2)\n\t\t\tON CONFLICT ON CONSTRAINT default_join_settings_pkey\n\t\t\t    DO UPDATE SET new_thread = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "eb1135121d7f409c041eff3645dec66471e99d4cc0c0e689fe137bad90ee70f0"
+}
