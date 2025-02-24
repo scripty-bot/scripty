@@ -179,3 +179,6 @@ vote-reminders-disabled = 投票提醒已禁用.
 blocked-entity-user = 您已经被禁止使用Scripty，{ $reason }您可以在Scripty官方服务器进行上诉{ $supportServerInvite }.
 voice-connection-error-ws-closed-invalid-payload = Discord 因无效的负载关闭了连接
 voice-connection-error-ws-closed-session-invalid = discord 无效会话
+data-storage-embed-title = 数据存储
+data-storage-toggle-msgs-btn = 切换到消息存储
+data-storage-toggle-audio-btn = 切换到音频存储
