@@ -246,7 +246,6 @@ latency-description =
 language-set-failure-title-invalid = Язык `{ $language }` не поддеривается.
 language-set-failure-description-db = база данных обнаружила ошибку при попытке установить ваш язык. Эта ошибка была сообщена, и мы рассмотрим ее. Пожалуйста, не спамьте этой командой. (Если вам интересно, вот ошибка: { $error })
 data-storage-toggle-audio-btn = Переключить аудиохранилище
-automod-root-response = Это корневая команда, из-за ограничений Discord она ничего не делает. Смотрите `{ $contextPrefix }help automod` для получения дополнительной информации.
 automod-add-rule-embed-failure-description-premium-limit = Премиум-серверы { $tier } ограничены правилами { $maxRules }. Если вы переходите на уровень { $nextTier }, вы можете добавить правила { $nextTierMaxRules }.
 blocked-entity-user = Вам запрещено использовать scripty. { $reason } вы можете попытаться обжаловать эту блокировку на сервере поддержки: { $supportServerInvite }.
 config_translate = translate

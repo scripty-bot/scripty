@@ -177,8 +177,6 @@ latency-description =
 
     Opmerking: als een latentie gelijk is aan 0 ms, betekent dit dat die specifieke latentie op dit moment niet berekend kan worden.
     Probeer later opnieuw.
-# automod root command
-automod-root-response = Dit is het hoofdcommando, vanwege Discord-beperkingen doet het niets. Bekijk `{ $contextPrefix }help automod` voor meer informatie.
 # automod setup command
 # This and all attributes show up exclusively in the slash command picker when `automod setup` is selected.
 cmds_setup = setup

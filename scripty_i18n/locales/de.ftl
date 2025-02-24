@@ -283,8 +283,6 @@ general-error-invalid-structure-description =
 # premium command
 # This is shown to the user when they are not subscribed to premium.
 premium-not-premium = Du bist kein Premium-Abonnent. Abonniere unter https://scripty.org/premium. Wenn du weißt, dass du ein Premium-Abonnent bist, sende bitte eine DM an den Bot, damit wir deinen Premium wiederherstellen können.
-# automod root command
-automod-root-response = Dies ist der Root-Befehl, der aufgrund von Discord-Einschränkungen nichts bewirkt. Siehe `{ $contextPrefix }help automod` für weitere Informationen.
 # automod setup command
 automod-setup-embed-complete-description = Du kannst jetzt `{ $contextPrefix }automod rule add` verwenden, um eine Automod-Regel hinzuzufügen. { $extraDetails }
 # automod setup command

@@ -512,8 +512,6 @@ data-storage-command-timed-out = A expirat. Reluați această comandă dacă tot
 # This and all attributes show up exclusively in the slash command picker when `automod` is selected.
 cmds_automod = automod
     .description = Gestionați automodul lui Scripty
-# automod root command
-automod-root-response = Aceasta este comanda root, din cauza limitărilor Discord, nu face nimic. Consultați `{ $contextPrefix }help automod` pentru mai multe informații.
 # automod setup command
 automod-setup-embed-not-setup-title = Încă nu ați fost de acord cu Termenii și condițiile și Politica de confidențialitate Scripty.
 # automod setup command

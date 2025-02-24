@@ -315,8 +315,6 @@ data-storage-embed-description =
     Vos données sont stockées sur des serveurs sécurisés, il serait extrêmement compliqué pour quelqu'un d'avoir accès à ces données. 
 
     Vous pouvez définir vos choix en utilisant les boutons ci-dessous.
-# automod root command
-automod-root-response = Ceci est la commande racine, à cause de certaines limitations de Discord, elle ne fait rien. Pour plus d'informations, tapez `{ $contextPrefix }help automod`.
 # automod setup command
 # This and all attributes show up exclusively in the slash command picker when `automod setup` is selected.
 cmds_setup = setup
