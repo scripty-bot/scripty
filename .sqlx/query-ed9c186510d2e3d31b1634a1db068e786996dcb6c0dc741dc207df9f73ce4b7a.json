@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO guilds (guild_id, auto_join) VALUES ($1, $2) ON CONFLICT ON CONSTRAINT guilds_pkey DO UPDATE SET auto_join = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ed9c186510d2e3d31b1634a1db068e786996dcb6c0dc741dc207df9f73ce4b7a"
+}

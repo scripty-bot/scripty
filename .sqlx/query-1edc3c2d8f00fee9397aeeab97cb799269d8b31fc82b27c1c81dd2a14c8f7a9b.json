@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT target_channel AS \"target_channel!\"\n\t\t\t\t\tFROM default_join_settings\n\t\t\t\t\tWHERE guild_id = $1 AND target_channel IS NOT NULL",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "target_channel!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      true
+    ]
+  },
+  "hash": "1edc3c2d8f00fee9397aeeab97cb799269d8b31fc82b27c1c81dd2a14c8f7a9b"
+}

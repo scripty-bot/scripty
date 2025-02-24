@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT new_thread, ephemeral FROM default_join_settings WHERE guild_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "new_thread",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 1,
+        "name": "ephemeral",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "da83b806c17fe16468b9c70136eaf3ded1d1079761919c7a9f2c9f8b53e72f0d"
+}

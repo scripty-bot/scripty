@@ -1,31 +1,26 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT * FROM automod_config WHERE guild_id = $1",
+  "query": "SELECT record_transcriptions, target_channel, new_thread, ephemeral FROM default_join_settings WHERE guild_id = $1",
   "describe": {
     "columns": [
       {
         "ordinal": 0,
-        "name": "item_id",
-        "type_info": "Int4"
+        "name": "record_transcriptions",
+        "type_info": "Bool"
       },
       {
         "ordinal": 1,
-        "name": "guild_id",
+        "name": "target_channel",
         "type_info": "Int8"
       },
       {
         "ordinal": 2,
-        "name": "enabled",
+        "name": "new_thread",
         "type_info": "Bool"
       },
       {
         "ordinal": 3,
-        "name": "log_channel_id",
-        "type_info": "Int8"
-      },
-      {
-        "ordinal": 4,
-        "name": "log_recording",
+        "name": "ephemeral",
         "type_info": "Bool"
       }
     ],
@@ -36,11 +31,10 @@
     },
     "nullable": [
       false,
-      false,
-      false,
+      true,
       false,
       false
     ]
   },
-  "hash": "2d2cb73ba3afc97d626f14bfe088d7d35359331378d0b93cf58aca1318ee5fb9"
+  "hash": "fe0b5b46dc49b47641b4c7811fc7bdf7966bad815cbf02d6f3c2e5721445f256"
 }
