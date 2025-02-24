@@ -32,6 +32,7 @@ join-create-thread-in-thread = I can't create a thread while in a thread. Please
 join-thread-title = Transcription from { $timestamp }
 # If the user specifies they would like to create a forum post, this is the contents of the initial message. { $timestamp } is the current timestamp, in ISO format, and { $authorMention } is the mention of the user who ran the command.
 join-forum-thread-content = { $authorMention } started a transcription at { $timestamp }.
+join-forum-thread-content-auto = An automatic transcript was started at { $timestamp }.
 # Message shown when a user tries to use an ephemeral thread but cannot do so as a thread was not selected
 join-ephemeral-not-thread = To use the ephemeral parameter, you must select a thread as the target, by either setting `create_thread` to true or by targeting a thread with `target_channel`.
 # This message is shown when the user has told a bot to join a forum channel, but the forum requires tags. This is not possible for the bot to work around as it has no way of knowing what tags to use.
@@ -143,6 +144,15 @@ config-auto-detect-lang-requires-premium = Automatically detecting the language 
   If you would like to upgrade to Premium, head to https://dash.scripty.org/premium. You can also request a free trial of Premium by DMing the bot.
   If this feature was enabled before, it is now disabled.
 
+## config - auto detect language command
+cmds_config_auto_join = auto_join
+    .description = Should Scripty automatically join a voice channel when someone joins it?
+    .auto_join = auto_join
+    .auto_join-description = Defaults to false
+config-auto-join-enabled = Scripty will now automatically join VCs when a user does.
+config-auto-join-disabled = Scripty will no longer automatically join VCs when a use does.
+config-auto-join-needs-target-channel = Enabling auto-join requires a default target channel be set. Do that with `{ $contextPrefix }config default target_channel`.
+
 ## config - transcribe only role command
 config_transcribe_only_role = transcribe_only_role
     .description = Limit Scripty's transcriptions to only users with this role in a voice chat.
@@ -173,6 +183,44 @@ config-kiai-info = You can find more info about Kiai at [kiai.app](https://www.k
     {""}
     If you use this integration, be sure to disable Kiai's voice XP module as they will conflict.
 config-kiai-missing-perms = Scripty is missing permissions to work in this server. Authorize it with the `/application authorize` command, using an application ID of `811652199100317726`, and giving Scripty the "view and edit all levels and XP" permission. 
+
+## config - default settings - ephemeral command
+cmds_config_default_settings_ephemeral = ephemeral
+    .description = Should Scripty, by default, create ephemeral transcripts that disappear when the last user has left?
+    .ephemeral = ephemeral
+    .ephemeral-description = Default value for ephemeral on the join command
+config-default-ephemeral-cant-target-thread = Setting ephemeral when targeting a thread will delete it as soon as the transcription is over, leaving an invalid default channel. Either change the default target channel to a place where threads can be created, or don't use ephemeral.
+config-default-ephemeral-cant-use-voice-channels = Voice channels don't support threads, so ephemeral transcripts are impossible. Either change the default target channel, or don't use ephemeral.
+config-default-ephemeral-enabled = Scripty will now make all transcripts ephemeral.
+config-default-ephemeral-disabled = Scripty will no longer make all transcripts ephemeral.
+
+## config - default settings - new_thread command
+cmds_config_default_settings_new_thread = new_thread
+    .description = Should Scripty, by default, create a new thread for all transcriptions?
+    .new_thread = new_thread
+    .new_thread-description = Default value for new_thread on the join command
+config-default-new-thread-cant-make-thread-in-thread = You can't make a thread in a thread. Either pick a different default target channel or don't enable new_thread.
+config-default-new-thread-cant-make-thread-in-vc = Voice channels can't have threads. Either pick a different default target channel or don't enable new_thread.
+config-default-new-thread-enabled = Scripty will now create a new thread for all transcriptions.
+config-default-new-thread-disabled = Scripty will no longer create a new thread for all transcriptions.
+
+## config - default settings - record_transcriptions command
+cmds_config_default_settings_record_transcriptions = record_transcriptions
+    .description = Should Scripty, by default, record all transcriptions to a text file?
+    .record_transcriptions = record_transcriptions
+    .record_transcriptions-description = Default value for record_transcriptions on the join command
+config-default-record-transcriptions-enabled = Scripty will now record all transcriptions to a text file.
+config-default-record-transcriptions-disabled = Scripty will no longer record all transcriptions to a text file.
+
+## config - default settings - target_channel command
+cmds_config_default_settings_target_channel = target_channel
+    .description = Set the default target channel where Scripty will output transcripts if none are specified.
+    .target_channel = target_channel
+    .target_channel-description = Default value for target_channel on the join command
+config-default-target-channel-enabled = Scripty will now, by default, send all transcripts to { $targetChannelMention }.
+config-default-target-channel-disabled = Scripty will now, by default, send all transcripts to the channel where `/join` is executed.
+config-default-target-channel-cant-disable-with-auto-join = You can't remove any default target channel if auto-join is enabled. Either disable auto-join or change the target channel instead of removing it.
+config-default-target-channel-need-permissions = Scripty needs Send Messages and Manage Webhooks in the target channel. Give it those permissions and try again.
 
 ## debug command
 cmds_debug = debug

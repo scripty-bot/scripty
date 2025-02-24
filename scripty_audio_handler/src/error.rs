@@ -19,6 +19,7 @@ pub enum ErrorKind {
 	Serenity(serenity::Error),
 	NoWebhookToken,
 	AlreadyExists,
+	BadDiscordState,
 }
 
 impl Error {
@@ -32,6 +33,13 @@ impl Error {
 	pub fn already_exists() -> Self {
 		Self {
 			kind:      ErrorKind::AlreadyExists,
+			backtrace: Backtrace::new_unresolved(),
+		}
+	}
+
+	pub fn bad_discord_state() -> Self {
+		Self {
+			kind:      ErrorKind::BadDiscordState,
 			backtrace: Backtrace::new_unresolved(),
 		}
 	}
@@ -94,6 +102,7 @@ impl Display for Error {
 			ErrorKind::NoWebhookToken => write!(f, "No webhook token found"),
 			ErrorKind::Redis(e) => write!(f, "RedisError: {}", e),
 			ErrorKind::AlreadyExists => write!(f, "Call for this channel already exists"),
+			ErrorKind::BadDiscordState => write!(f, "Discord returned bad data"),
 		}
 	}
 }

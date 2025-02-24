@@ -25,12 +25,8 @@ pub async fn automod_setup(
 	#[description = "Should a recording of offending speech be sent to the target channel? \
 	                 Defaults to false."]
 	log_recording: Option<bool>,
-
-	#[description = "Should the bot automatically join voice if a user joins? Defaults to false."]
-	auto_join: Option<bool>,
 ) -> Result<(), Error> {
 	let log_recording = log_recording.unwrap_or(false);
-	let auto_join = auto_join.unwrap_or(false);
 
 	let guild_id = ctx.guild_id().expect("asserted in guild").get();
 
@@ -74,18 +70,16 @@ pub async fn automod_setup(
 
 	match sqlx::query!(
 		"INSERT INTO automod_config 
-            (guild_id, enabled, log_channel_id, log_recording, auto_join_voice)
+            (guild_id, enabled, log_channel_id, log_recording)
         VALUES 
-            ($1, true, $2, $3, $4)
+            ($1, true, $2, $3)
 		ON CONFLICT (guild_id) DO UPDATE SET
 			log_channel_id = $2,
-			log_recording = $3,
-			auto_join_voice = $4
+			log_recording = $3
         ",
 		guild_id as i64,
 		target_channel.id.get() as i64,
 		log_recording,
-		auto_join
 	)
 	.execute(db)
 	.await

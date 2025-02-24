@@ -4,9 +4,11 @@ use humantime::format_rfc3339_seconds;
 use poise::CreateReply;
 use scripty_bot_utils::checks::is_guild;
 use serenity::{
-	all::{AutoArchiveDuration, ChannelFlags},
 	builder::{CreateEmbed, CreateEmbedFooter, CreateForumPost, CreateMessage, CreateThread},
-	model::channel::{ChannelType, GuildChannel},
+	model::{
+		channel::{AutoArchiveDuration, ChannelFlags, ChannelType, GuildChannel},
+		id::ChannelId,
+	},
 	prelude::Mentionable,
 };
 
@@ -45,26 +47,47 @@ pub async fn join(
 	#[description = "Delete the transcript after the last user has left? Defaults to false."]
 	ephemeral: Option<bool>,
 ) -> Result<(), Error> {
+	let guild_id = ctx.guild_id().ok_or_else(Error::expected_guild)?;
 	let resolved_language =
-		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|g| g.get()))
-			.await;
+		scripty_i18n::get_resolved_language(ctx.author().id.get(), Some(guild_id.get())).await;
 	ctx.defer().await?;
 	let db = scripty_db::get_db();
 	let cfg = scripty_config::get_config();
 
-	// validate arguments
-	let record_transcriptions = record_transcriptions.unwrap_or(false);
-	let mut create_thread = create_thread.unwrap_or(false);
-	let ephemeral = ephemeral.unwrap_or(false);
+	let defaults = sqlx::query!(
+		"SELECT record_transcriptions, target_channel, new_thread, ephemeral FROM \
+		 default_join_settings WHERE guild_id = $1",
+		guild_id.get() as i64
+	)
+	.fetch_optional(db)
+	.await?;
+
+	// coalesce the default settings with any optional values
 	let target_channel = match target_channel {
-		Some(c) => c,
-		None => ctx
-			.channel_id()
-			.to_channel(&ctx, ctx.guild_id())
-			.await?
-			.guild()
-			.ok_or_else(Error::expected_guild)?,
+		Some(target_channel) => target_channel,
+		None => {
+			defaults
+				.as_ref()
+				.and_then(|x| {
+					x.target_channel
+						.map(|target_channel| ChannelId::new(target_channel as u64))
+				})
+				.unwrap_or_else(|| ctx.channel_id())
+				.to_guild_channel(&ctx, Some(guild_id))
+				.await?
+		}
 	};
+	let record_transcriptions = record_transcriptions
+		.or_else(|| defaults.as_ref().map(|x| x.record_transcriptions))
+		.unwrap_or(false);
+	let ephemeral = ephemeral
+		.or_else(|| defaults.as_ref().map(|x| x.ephemeral))
+		.unwrap_or(false);
+	let mut create_thread = create_thread
+		.or_else(|| defaults.as_ref().map(|x| x.new_thread))
+		.unwrap_or(false);
+
+	// validate arguments
 	let target_is_thread =
 		target_channel.thread_metadata.is_some() && target_channel.parent_id.is_some();
 
@@ -149,7 +172,7 @@ pub async fn join(
 	)
 	.fetch_optional(db)
 	.await?;
-	let trial_used = res.as_ref().map_or(false, |row| row.trial_used);
+	let trial_used = res.as_ref().is_some_and(|row| row.trial_used);
 
 	let voice_channel = match voice_channel {
 		Ok(vc) => vc,
@@ -171,7 +194,7 @@ pub async fn join(
 		ChannelType::Voice | ChannelType::Stage => {}
 		_ => {
 			return Err(Error::invalid_channel_type(
-				ChannelType::Voice,
+				vec![ChannelType::Voice, ChannelType::Stage],
 				voice_channel.kind,
 			));
 		}

@@ -26,11 +26,12 @@ impl Debug for Error {
 pub enum ErrorEnum {
 	Serenity(serenity::Error),
 	InvalidChannelType {
-		expected: ChannelType,
+		expected: Vec<ChannelType>,
 		got:      ChannelType,
 	},
 	Db(sqlx::Error),
 	ExpectedGuild,
+	ExpectedChannel,
 	Join(scripty_audio_handler::JoinError),
 	ManualError,
 	Redis(scripty_redis::redis::RedisError),
@@ -41,6 +42,8 @@ pub enum ErrorEnum {
 	AudioTranscription(GenericMessageError),
 	CallAlreadyExists,
 	KiaiError(scripty_integrations::kiai::KiaiApiError),
+	NoGuildDefaults,
+	BadDiscordState,
 	Custom(String),
 }
 
@@ -55,7 +58,7 @@ impl Error {
 	}
 
 	#[inline]
-	pub fn invalid_channel_type(expected: ChannelType, got: ChannelType) -> Self {
+	pub fn invalid_channel_type(expected: Vec<ChannelType>, got: ChannelType) -> Self {
 		Error {
 			bt:  Backtrace::new_unresolved(),
 			err: ErrorEnum::InvalidChannelType { expected, got },
@@ -75,6 +78,14 @@ impl Error {
 		Error {
 			bt:  Backtrace::new_unresolved(),
 			err: ErrorEnum::ExpectedGuild,
+		}
+	}
+
+	#[inline]
+	pub fn expected_channel() -> Self {
+		Error {
+			bt:  Backtrace::new_unresolved(),
+			err: ErrorEnum::ExpectedChannel,
 		}
 	}
 
@@ -159,6 +170,14 @@ impl Error {
 	}
 
 	#[inline]
+	pub fn no_guild_defaults() -> Self {
+		Error {
+			bt:  Backtrace::new_unresolved(),
+			err: ErrorEnum::NoGuildDefaults,
+		}
+	}
+
+	#[inline]
 	pub fn backtrace(&mut self) -> &Backtrace {
 		self.bt.resolve();
 		&self.bt
@@ -212,8 +231,8 @@ impl Display for Error {
 			)
 			.into(),
 			Db(e) => format!("Database returned an error: {:?}", e).into(),
-			// _ => "an unknown error happened".into(),
 			ExpectedGuild => "expected this to be in a guild".into(),
+			ExpectedChannel => "expected this to be in a channel".into(),
 			Join(e) => format!("failed to join VC: {}", e).into(),
 			ManualError => "manual error".into(),
 			Redis(e) => format!("Redis returned an error: {}", e).into(),
@@ -235,6 +254,8 @@ impl Display for Error {
 			CallAlreadyExists => "a call for this channel already exists - not trying to rejoin \
 			                      the same channel"
 				.into(),
+			NoGuildDefaults => "no default configuration exists for this server".into(),
+			BadDiscordState => "Discord sent us bad data".into(),
 		};
 		f.write_str(res.as_ref())
 	}
@@ -248,6 +269,7 @@ impl StdError for Error {
 			InvalidChannelType { .. } => None,
 			Db(e) => Some(e),
 			ExpectedGuild => None,
+			ExpectedChannel => None,
 			Join(e) => Some(e),
 			ManualError => None,
 			Redis(e) => Some(e),
@@ -259,6 +281,8 @@ impl StdError for Error {
 			KiaiError(e) => Some(e),
 			CallAlreadyExists => None,
 			Custom(_) => None,
+			NoGuildDefaults => None,
+			BadDiscordState => None,
 		}
 	}
 }
@@ -285,24 +309,27 @@ impl From<sqlx::Error> for Error {
 
 impl From<scripty_audio_handler::Error> for Error {
 	#[inline]
-	fn from(e: scripty_audio_handler::Error) -> Self {
-		let mut err = match e.kind {
-			scripty_audio_handler::ErrorKind::Join(e) => Self::join(e),
-			scripty_audio_handler::ErrorKind::Database(e) => Self::db(e),
-			scripty_audio_handler::ErrorKind::Serenity(e) => Self::serenity(e),
+	fn from(
+		scripty_audio_handler::Error { kind, backtrace }: scripty_audio_handler::Error,
+	) -> Self {
+		let err = match kind {
+			scripty_audio_handler::ErrorKind::Join(e) => ErrorEnum::Join(e),
+			scripty_audio_handler::ErrorKind::Database(e) => ErrorEnum::Db(e),
+			scripty_audio_handler::ErrorKind::Serenity(e) => ErrorEnum::Serenity(e),
 			scripty_audio_handler::ErrorKind::Redis(scripty_redis::TransactionError::Redis(e)) => {
-				Self::redis(e)
+				ErrorEnum::Redis(e)
 			}
 			scripty_audio_handler::ErrorKind::Redis(scripty_redis::TransactionError::Deadpool(
 				e,
-			)) => Self::redis_pool(e),
+			)) => ErrorEnum::RedisPool(e),
 			scripty_audio_handler::ErrorKind::NoWebhookToken => {
-				Self::custom("No webhook token found".to_string())
+				ErrorEnum::Custom("No webhook token found".to_string())
 			}
-			scripty_audio_handler::ErrorKind::AlreadyExists => Self::call_already_exists(),
+			scripty_audio_handler::ErrorKind::AlreadyExists => ErrorEnum::CallAlreadyExists,
+			scripty_audio_handler::ErrorKind::BadDiscordState => ErrorEnum::BadDiscordState,
 		};
-		err.bt = e.backtrace;
-		err
+
+		Self { err, bt: backtrace }
 	}
 }
 

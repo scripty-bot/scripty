@@ -4,20 +4,34 @@ use scripty_data_type::get_data;
 use scripty_premium::PremiumTierList;
 use serenity::{
 	builder::{CreateWebhook, ExecuteWebhook},
-	model::id::{ChannelId, GuildId},
+	model::{
+		channel::ChannelType,
+		id::{ChannelId, GuildId},
+	},
 	prelude::Context,
 };
 use songbird::{error::JoinError, events::Event, CoreEvent};
 
 use crate::Error;
 
+/// Kick off the process of connecting Scripty to a voice channel.
+///
+/// # Arguments
+/// * `ctx`: Serenity context
+/// * `guild_id`: The guild we're trying to join in.
+/// * `transcript_target_channel`: Where transcripts should be sent to.
+/// * `voice_channel_id`: The target voice channel to join.
+/// * `transcript_thread_id`:
+///   A sub-thread of `transcript_target_channel` where transcripts should be sent.
+/// * `record_transcriptions`: Record transcriptions to a text file?
+/// * `ephemeral`: Delete transcripts after Scripty leaves?
 #[allow(clippy::let_unit_value)]
 pub async fn connect_to_vc(
 	ctx: Context,
 	guild_id: GuildId,
-	channel_id: ChannelId,
+	transcript_target_channel: ChannelId,
 	voice_channel_id: ChannelId,
-	thread_id: Option<ChannelId>,
+	transcript_thread_id: Option<ChannelId>,
 	record_transcriptions: bool,
 	ephemeral: bool,
 ) -> Result<(), Error> {
@@ -36,12 +50,42 @@ pub async fn connect_to_vc(
 		}
 	}
 
+	debug!(%guild_id, "checking type of target channel");
+	// if the target channel is a thread we have to take its parent as the true target
+	// and set the thread's ID to transcript_thread_id
+	let (transcript_target_channel, transcript_thread_id) = {
+		let transcript_target_model = transcript_target_channel
+			.to_guild_channel(&ctx, Some(guild_id))
+			.await?;
+		match (
+			transcript_target_model.kind,
+			transcript_target_model.parent_id,
+		) {
+			// caught a thread as the target channel, fix that problem by using the parent instead
+			(
+				ChannelType::NewsThread | ChannelType::PublicThread | ChannelType::PrivateThread,
+				Some(parent),
+			) => (parent, Some(transcript_target_channel)),
+
+			// a thread with no parent? i must inform my supervisor post-haste!
+			(
+				ChannelType::NewsThread | ChannelType::PublicThread | ChannelType::PrivateThread,
+				None,
+			) => {
+				return Err(Error::bad_discord_state());
+			}
+			_ => (transcript_target_channel, transcript_thread_id),
+		}
+	};
+
 	debug!(%guild_id, "fetching webhook");
 	// thanks to Discord undocumented breaking changes, we have to do this
 	// <3 shitcord
-	let hooks = channel_id.webhooks(ctx.http.as_ref()).await?;
+	let hooks = transcript_target_channel
+		.webhooks(ctx.http.as_ref())
+		.await?;
 	let webhook = if hooks.is_empty() {
-		channel_id
+		transcript_target_channel
 			.create_webhook(&ctx.http, CreateWebhook::new("Scripty Transcriptions"))
 			.await?
 	} else {
@@ -57,7 +101,7 @@ pub async fn connect_to_vc(
 		match found {
 			Some(hook) => hook,
 			None => {
-				channel_id
+				transcript_target_channel
 					.create_webhook(&ctx.http, CreateWebhook::new("Scripty Transcriptions"))
 					.await?
 			}
@@ -104,9 +148,9 @@ pub async fn connect_to_vc(
 		guild_id,
 		webhook.clone(),
 		ctx.clone(),
-		channel_id,
+		transcript_target_channel,
 		voice_channel_id,
-		thread_id,
+		transcript_thread_id,
 		record_transcriptions,
 		automod_server_cfg,
 		scripty_integrations::kiai::get_kiai_api_client().clone(),
@@ -193,7 +237,7 @@ pub async fn connect_to_vc(
 	Just run `/join` again to have me join. \
 	Check out Premium <https://scripty.org/premium> if you'd like to increase how long I stay for before leaving."
 	);
-	if let Some(thread_id) = thread_id {
+	if let Some(thread_id) = transcript_thread_id {
 		webhook_executor = webhook_executor.in_thread(thread_id);
 	}
 

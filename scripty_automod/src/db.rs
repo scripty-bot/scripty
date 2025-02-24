@@ -17,7 +17,6 @@ pub async fn get_guild_config(guild_id: u64) -> Result<Option<AutomodServerConfi
 			vec![],
 			row.log_channel_id as u64,
 			row.log_recording,
-			row.auto_join_voice,
 		)
 	}) {
 		Some(cfg) => cfg,

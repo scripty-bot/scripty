@@ -57,16 +57,15 @@ pub struct AutomodRuleGroup {
 
 #[derive(Debug, Clone, Default)]
 pub struct AutomodServerConfig {
-	pub guild_id:        u64,
-	pub internal_id:     i32,
-	pub enabled:         bool,
-	pub groups:          Vec<AutomodRuleGroup>,
-	rules:               Vec<AutomodRule>,
-	rule_action_map:     HashMap<String, AutomodRuleAction>,
-	rule_array:          Vec<String>,
-	pub log_channel_id:  u64,
-	pub log_recording:   bool,
-	pub auto_join_voice: bool,
+	pub guild_id:       u64,
+	pub internal_id:    i32,
+	pub enabled:        bool,
+	pub groups:         Vec<AutomodRuleGroup>,
+	rules:              Vec<AutomodRule>,
+	rule_action_map:    HashMap<String, AutomodRuleAction>,
+	rule_array:         Vec<String>,
+	pub log_channel_id: u64,
+	pub log_recording:  bool,
 }
 
 impl AutomodServerConfig {
@@ -78,7 +77,6 @@ impl AutomodServerConfig {
 		rules: Vec<AutomodRule>,
 		log_channel_id: u64,
 		log_recording: bool,
-		auto_join_voice: bool,
 	) -> Self {
 		let mut rule_action_map = HashMap::new();
 		for rule in &rules {
@@ -96,7 +94,6 @@ impl AutomodServerConfig {
 			rule_array,
 			log_channel_id,
 			log_recording,
-			auto_join_voice,
 		}
 	}
 
