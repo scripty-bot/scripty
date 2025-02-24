@@ -248,13 +248,20 @@ async fn maybe_create_thread(
 		.to_guild_channel(&ctx, Some(guild_id))
 		.await?;
 
-	let timestamp = format_rfc3339_seconds(SystemTime::now()).to_string();
+	let now = SystemTime::now();
+	let rfc_timestamp = format_rfc3339_seconds(now).to_string();
 	let resolved_language = scripty_i18n::get_guild_language(guild_id.get()).await;
 	let thread_title =
-		format_message!(resolved_language, "join-thread-title", timestamp: &timestamp);
+		format_message!(resolved_language, "join-thread-title", timestamp: rfc_timestamp);
 
 	let thread = if target_channel.kind == ChannelType::Forum {
-		let starter_message = format_message!(resolved_language, "join-forum-thread-content-auto", timestamp: timestamp);
+		let discord_timestamp = format!(
+			"<t:{}>",
+			now.duration_since(SystemTime::UNIX_EPOCH)
+				.expect("system clock shouldn't roll back")
+				.as_secs()
+		);
+		let starter_message = format_message!(resolved_language, "join-forum-thread-content-auto", timestamp: discord_timestamp);
 
 		target_channel
 			.id

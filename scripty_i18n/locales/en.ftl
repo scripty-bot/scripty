@@ -30,9 +30,10 @@ join-no-permission = I don't have permission to join { $targetMention }. Please 
 join-create-thread-in-thread = I can't create a thread while in a thread. Please run this command in a normal channel, likely { $parentChannelMention }.
 # If the user specifies they would like to create a thread, this is set as the thread name. { $timestamp } is the current timestamp, in ISO format.
 join-thread-title = Transcription from { $timestamp }
-# If the user specifies they would like to create a forum post, this is the contents of the initial message. { $timestamp } is the current timestamp, in ISO format, and { $authorMention } is the mention of the user who ran the command.
-join-forum-thread-content = { $authorMention } started a transcription at { $timestamp }.
-join-forum-thread-content-auto = An automatic transcript was started at { $timestamp }.
+# If the user specifies they would like to create a forum post, this is the contents of the initial message. { $timestamp } will be a Discord formatted timestamp (20 April 2021 at 16:20), and { $authorMention } is the mention of the user who ran the command.
+join-forum-thread-content = { $authorMention } started a transcription { $timestamp }.
+# When an automatic forum post is created by auto-join, this is the content of the initial message. { $timestamp } will be a Discord formatted timestamp (20 April 2021 at 16:20) rendered natively on the client side.
+join-forum-thread-content-auto = An automatic transcript was started { $timestamp }.
 # Message shown when a user tries to use an ephemeral thread but cannot do so as a thread was not selected
 join-ephemeral-not-thread = To use the ephemeral parameter, you must select a thread as the target, by either setting `create_thread` to true or by targeting a thread with `target_channel`.
 # This message is shown when the user has told a bot to join a forum channel, but the forum requires tags. This is not possible for the bot to work around as it has no way of knowing what tags to use.

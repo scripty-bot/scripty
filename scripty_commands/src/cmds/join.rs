@@ -241,67 +241,81 @@ pub async fn join(
 		return Ok(());
 	}
 
-	let (target_thread, target_channel) = if create_thread
-		&& target_channel.kind != ChannelType::Forum
-	{
-		let timestamp = format_rfc3339_seconds(SystemTime::now()).to_string();
-		(
-			Some(
-				target_channel
-					.id
-					.create_thread(
-						ctx.http(),
-						CreateThread::new(
-							format_message!(resolved_language, "join-thread-title", timestamp: timestamp),
-						)
+	let (target_thread, target_channel) = if create_thread {
+		let now = SystemTime::now();
+		let timestamp = format_rfc3339_seconds(now).to_string();
+		let thread_title =
+			format_message!(resolved_language, "join-thread-title", timestamp: &timestamp);
+
+		if target_channel.kind == ChannelType::Forum {
+			// creating a thread in a forum
+
+			let discord_timestamp = format!(
+				"<t:{}>",
+				now.duration_since(SystemTime::UNIX_EPOCH)
+					.expect("system clock shouldn't roll back")
+					.as_secs()
+			);
+			let author_mention = ctx.author().mention().to_string();
+			let starter_message = format_message!(resolved_language, "join-forum-thread-content", timestamp: discord_timestamp, authorMention: author_mention);
+
+			let thread = target_channel
+				.id
+				.create_forum_post(
+					ctx.http(),
+					CreateForumPost::new(
+						thread_title,
+						CreateMessage::new().content(starter_message),
+					),
+				)
+				.await?;
+
+			(Some(thread.id), target_channel.id)
+		} else {
+			// creating a thread outside a forum
+
+			let thread = target_channel
+				.id
+				.create_thread(
+					ctx.http(),
+					CreateThread::new(thread_title)
 						.invitable(true)
 						.auto_archive_duration(AutoArchiveDuration::OneHour)
 						.kind(ChannelType::PublicThread),
-					)
-					.await?,
-			),
-			target_channel.id,
-		)
-	} else if create_thread && target_channel.kind == ChannelType::Forum {
-		let timestamp = format_rfc3339_seconds(SystemTime::now()).to_string();
-		(
-			Some(target_channel.id.create_forum_post(
-				ctx.http(),
-				CreateForumPost::new(
-					format_message!(resolved_language, "join-thread-title", timestamp: &*timestamp),
-					CreateMessage::new().content(
-						format_message!(resolved_language, "join-forum-thread-content", timestamp: timestamp, authorMention: ctx.author().mention().to_string())
-					)
-				),
-			).await?),
-			target_channel.id,
-		)
+				)
+				.await?;
+
+			(Some(thread.id), target_channel.id)
+		}
 	} else if target_channel.thread_metadata.is_some() {
+		// this channel is a thread
+
 		let parent_id = target_channel
 			.parent_id
 			.ok_or(Error::custom("thread has no parent".to_string()))?;
-		(Some(target_channel), parent_id)
+		(Some(target_channel.id), parent_id)
 	} else {
+		// no threads here
 		(None, target_channel.id)
 	};
 
-	let output_channel_mention = if let Some(ref target_thread) = target_thread {
-		target_thread.mention().to_string()
-	} else {
-		target_channel.mention().to_string()
-	};
 	let res = scripty_audio_handler::connect_to_vc(
 		ctx.serenity_context().clone(),
 		guild_id,
 		target_channel,
 		voice_channel.id,
-		target_thread.map(|x| x.id),
+		target_thread,
 		record_transcriptions,
 		ephemeral,
 	)
 	.await;
 	match res {
 		Ok(()) => {
+			let output_channel_mention = target_thread
+				.unwrap_or(target_channel)
+				.mention()
+				.to_string();
+
 			let mut embed = CreateEmbed::new()
 				.description(format_message!(
 					resolved_language,
