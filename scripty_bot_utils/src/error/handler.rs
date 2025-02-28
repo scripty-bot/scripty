@@ -57,6 +57,21 @@ async fn _on_error(error: FrameworkError<'_, Data, Error>) {
 					)
 					.await;
 				}
+				ErrorEnum::Serenity(serenity::Error::Http(
+					http::HttpError::UnsuccessfulRequest(http::ErrorResponse {
+						status_code,
+						error: DiscordJsonError { code, message, .. },
+						..
+					}),
+				)) if status_code == http::StatusCode::BAD_GATEWAY => {
+					send_err_msg(
+						ctx,
+						"Discord broke!",
+						"There's nothing we can do about this. Try again in a few minutes. (502 \
+						 Bad Gateway)",
+					)
+					.await
+				}
 
 				_ if error.is_user_error() => {
 					send_err_msg(
