@@ -50,6 +50,9 @@ pub struct BotConfig {
 
 	/// Optional proxy URL
 	pub proxy: Option<String>,
+
+	/// Default prefix command prefix
+	pub prefix: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

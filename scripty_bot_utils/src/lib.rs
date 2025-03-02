@@ -17,6 +17,7 @@ pub mod extern_utils;
 pub mod generic_audio_message;
 pub mod globals;
 pub mod handler;
+pub mod prefix_handling;
 pub mod types;
 pub mod voice_message;
 

@@ -3,6 +3,7 @@ mod auto_join;
 mod default_settings;
 mod kiai_enabled;
 mod language;
+mod prefix;
 mod transcribe_audio;
 mod transcribe_only_role;
 mod transcribe_video;
@@ -27,6 +28,7 @@ use serenity::builder::CreateEmbed;
 		"default_settings::config_default_settings",
 		"kiai_enabled::config_enable_kiai",
 		"language::config_server_language",
+		"prefix::config_prefix",
 		"transcribe_audio::config_transcribe_audio",
 		"transcribe_only_role::config_transcribe_only_role",
 		"transcribe_video::config_transcribe_video",

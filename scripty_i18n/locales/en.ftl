@@ -185,6 +185,15 @@ config-kiai-info = You can find more info about Kiai at [kiai.app](https://www.k
     If you use this integration, be sure to disable Kiai's voice XP module as they will conflict.
 config-kiai-missing-perms = Scripty is missing permissions to work in this server. Authorize it with the `/application authorize` command, using an application ID of `811652199100317726`, and giving Scripty the "view and edit all levels and XP" permission. 
 
+# This and all attributes show up exclusively in the slash command picker when `guild_language` is selected.
+cmds_config_prefix = prefix
+    .description = Set this server's language to one of the available languages.
+    .language = language
+    .language-description = The language you want to set your guild language to.
+config-prefix-too-long = Prefixes must be at most eight characters. Try again with a shorter one.
+config-prefix-unset = The custom prefix for this guild has been cleared. The default prefix (`{ $updatedPrefix }`) will now be used.
+config-prefix-updated = Scripty will no longer respond to the default prefix in this guild, but only to `{ $updatedPrefix }`.
+
 ## config - default settings - ephemeral command
 cmds_config_default_settings_ephemeral = ephemeral
     .description = Should Scripty, by default, create ephemeral transcripts that disappear when the last user has left?

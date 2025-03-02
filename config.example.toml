@@ -3,8 +3,8 @@
 # supported by whisper: likely fine to leave as-is
 languages = [
 	"es", "it", "en", "pt", "de", "ja", "pl", "ru", "nl", "id", "ca", "fr", "tr", "sv", "uk", "ms", "no", "fi", "vi", "th",
-  "sk", "el", "cs", "hr", "tl", "da", "ko", "ro", "bg", "zh", "gl", "ar", "mk", "hu", "ta", "hi", "et", "ur", "sl", "lv",
-  "he", "lt", "fa", "cy", "sr", "af", "kn", "kk", "is", "mr", "mi", "sw", "hy", "be", "ne"
+	"sk", "el", "cs", "hr", "tl", "da", "ko", "ro", "bg", "zh", "gl", "ar", "mk", "hu", "ta", "hi", "et", "ur", "sl", "lv",
+	"he", "lt", "fa", "cy", "sr", "af", "kn", "kk", "is", "mr", "mi", "sw", "hy", "be", "ne"
 ]
 
 # You should change this to your own server,
@@ -43,13 +43,16 @@ redis_url = "redis://localhost:6379"
 # Target services: you usually only have one, and
 # it's usually on localhost port 7269
 stt_services = [
-  "localhost:7269",    # or:
-  ["127.0.0.1", 7269]
+	"localhost:7269", # or:
+	["127.0.0.1", 7269]
 ]
 
 # Twilight REST API proxy: https://github.com/twilight-rs/http-proxy
 # Recommended if you have more than 1 transcript per second
 #proxy = "http://localhost:4000"
+
+# Default prefix for all prefix commands unless otherwise set
+prefix = "~"
 
 [database]
 host = "/var/run/postgresql/"
@@ -69,7 +72,7 @@ guild_id = 942298454804271144
 # but they can be ignored
 url = "http://server.local:3100/"
 labels = { job = "scripty_node1", env = "dev" }
-extra_fields = {}
+extra_fields = { }
 
 [tokens]
 # Find in the Discord developer portal

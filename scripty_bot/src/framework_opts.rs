@@ -1,6 +1,6 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, sync::Arc, time::Duration};
 
-use poise::{FrameworkOptions, PrefixFrameworkOptions};
+use poise::{EditTracker, FrameworkOptions, PrefixFrameworkOptions};
 use scripty_bot_utils::{
 	error::handler::on_error,
 	handler::{post_command, pre_command},
@@ -24,10 +24,13 @@ pub fn get_framework_opts() -> FrameworkOptions<scripty_bot_utils::Data, scripty
 				.replied_user(true),
 		),
 		prefix_options: PrefixFrameworkOptions {
-			prefix: Some(Cow::Borrowed("~")),
+			dynamic_prefix: Some(scripty_bot_utils::prefix_handling::dynamic_prefix),
 			execute_self_messages: false,
 			execute_untracked_edits: true,
 			mention_as_prefix: true,
+			edit_tracker: Some(Arc::new(EditTracker::for_timespan(Duration::from_secs(
+				120,
+			)))),
 			..Default::default()
 		},
 		owners: scripty_config::get_config()
