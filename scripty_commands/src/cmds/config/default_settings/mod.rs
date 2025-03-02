@@ -1,6 +1,7 @@
 use poise::CreateReply;
 use scripty_bot_utils::{checks::is_guild, Context, Error};
-use serenity::builder::CreateEmbed;
+use serenity::{builder::CreateEmbed, model::id::GuildId};
+use sqlx::{Pool, Postgres};
 
 mod ephemeral;
 mod new_thread;
@@ -43,4 +44,19 @@ pub async fn config_default_settings(ctx: Context<'_>) -> Result<(), Error> {
 	.await?;
 
 	Ok(())
+}
+
+async fn ensure_guild_exists(guild_id: GuildId, db: &Pool<Postgres>) -> Result<(), sqlx::Error> {
+	sqlx::query!(
+		"INSERT INTO guilds
+    		(guild_id)
+			VALUES ($1)
+			ON CONFLICT
+			    ON CONSTRAINT guilds_pkey
+			    DO NOTHING",
+		guild_id.get() as i64
+	)
+	.execute(db)
+	.await
+	.map(|_| ())
 }

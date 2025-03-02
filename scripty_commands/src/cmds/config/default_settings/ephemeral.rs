@@ -29,6 +29,7 @@ pub async fn config_default_settings_ephemeral(
 		}
 	}
 
+	super::ensure_guild_exists(guild_id, db).await?;
 	sqlx::query!(
 		"INSERT INTO default_join_settings (guild_id, ephemeral)
 			VALUES ($1, $2)

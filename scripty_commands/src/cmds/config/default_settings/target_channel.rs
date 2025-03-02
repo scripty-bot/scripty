@@ -32,6 +32,7 @@ pub async fn config_default_settings_target_channel(
 		return Ok(());
 	}
 
+	super::ensure_guild_exists(guild_id, db).await?;
 	sqlx::query!(
 		"INSERT INTO default_join_settings (guild_id, target_channel)
 			VALUES ($1, $2)

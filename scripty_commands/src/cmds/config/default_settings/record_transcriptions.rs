@@ -17,6 +17,7 @@ pub async fn config_default_settings_record_transcriptions(
 		scripty_i18n::get_resolved_language(ctx.author().id.get(), Some(guild_id.get())).await;
 	let db = scripty_db::get_db();
 
+	super::ensure_guild_exists(guild_id, db).await?;
 	sqlx::query!(
 		"INSERT INTO default_join_settings (guild_id, record_transcriptions)
 			VALUES ($1, $2)
