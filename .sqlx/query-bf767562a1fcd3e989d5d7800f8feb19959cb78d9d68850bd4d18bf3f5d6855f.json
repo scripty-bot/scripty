@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT guild_id FROM prefixes LIMIT 1",
+  "query": "SELECT guild_id FROM guilds LIMIT 1",
   "describe": {
     "columns": [
       {
@@ -16,5 +16,5 @@
       false
     ]
   },
-  "hash": "f393e5d7b3793b4659c01a8e8e03401327102fc07499f598cc4db7cc9084a091"
+  "hash": "bf767562a1fcd3e989d5d7800f8feb19959cb78d9d68850bd4d18bf3f5d6855f"
 }

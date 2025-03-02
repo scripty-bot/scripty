@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO guilds\n    \t\t(guild_id, prefix)\n\t\t\tVALUES ($1, $2)\n\t\t\tON CONFLICT\n\t\t\t    ON CONSTRAINT guilds_pkey \n\t\t\t    DO UPDATE SET prefix = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Varchar"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "f4a7c95fdaba6a38ffe1bd3177687ff90e52c8592310914c876d668e8dd30ec1"
+}
