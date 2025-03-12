@@ -12,7 +12,7 @@ pub struct PremiumUserInfo {
 }
 
 #[repr(i16)]
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, PartialOrd)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum PremiumTierList {
 	None  = 0,
 	Tier1 = 1,
@@ -59,6 +59,10 @@ impl PremiumTierList {
 			Self::Tier5 => 28800.0,
 			Self::Tier6 => 57600.0,
 		}
+	}
+
+	pub fn can_transcribe_video(&self) -> bool {
+		!matches!(self, Self::None)
 	}
 }
 

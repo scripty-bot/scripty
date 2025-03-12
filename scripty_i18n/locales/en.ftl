@@ -118,9 +118,6 @@ config_transcribe_audio = transcribe_audio
     .transcribe_audio-description = Defaults to false
 config-transcribe-audio-enabled = Scripty will now transcribe audio files.
 config-transcribe-audio-disabled = Scripty will no longer transcribe audio files.
-config-transcribe-audio-requires-premium = Transcribing audio files is a Premium feature, as it is computationally expensive to transcode audio files.
-  If you would like to upgrade to Premium, head to https://dash.scripty.org/premium. You can also request a free trial of Premium by DMing the bot.
-  If this feature was enabled before, it is now disabled.
 
 ## config - transcribe video command
 config_transcribe_video = transcribe_video
@@ -129,8 +126,8 @@ config_transcribe_video = transcribe_video
     .transcribe_video-description = Defaults to false
 config-transcribe-video-enabled = Scripty will now transcribe video files.
 config-transcribe-video-disabled = Scripty will no longer transcribe video files.
-config-transcribe-video-requires-premium = Transcribing video files is a Premium Tier 2 feature, as it is very computationally expensive to transcode video files.
-  If you would like to upgrade to Premium Tier 2, head to https://dash.scripty.org/premium.
+config-transcribe-video-requires-premium = Transcribing video files is a Premium feature, as it is very computationally expensive to transcode video files.
+  If you would like to upgrade to Premium, head to https://dash.scripty.org/premium.
   If this feature was enabled before, it is now disabled.
 
 ## config - auto detect language command

@@ -23,7 +23,7 @@ pub async fn config_transcribe_video(
 	let premium_tier = scripty_premium::get_guild(guild_id)
 		.await
 		.ok_or_else(Error::expected_premium_value)?;
-	if premium_tier < scripty_premium::PremiumTierList::Tier2 {
+	if premium_tier == scripty_premium::PremiumTierList::None {
 		ctx.say(format_message!(
 			resolved_language,
 			"config-transcribe-video-requires-premium"
