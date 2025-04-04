@@ -8,7 +8,7 @@ use backtrace::Backtrace;
 use scripty_stt::{ModelError, OpusSourceError};
 use serenity::{http::JsonErrorCode, model::channel::ChannelType, prelude::SerenityError};
 
-use crate::generic_audio_message::GenericMessageError;
+use crate::file_transcripts::FileTranscriptError;
 
 pub struct Error {
 	bt:             Backtrace,
@@ -39,11 +39,12 @@ pub enum ErrorEnum {
 	VoiceMessageDecode(OpusSourceError),
 	Transcription(ModelError),
 	ExpectedPremiumValue,
-	AudioTranscription(GenericMessageError),
+	AudioTranscription(FileTranscriptError),
 	CallAlreadyExists,
 	KiaiError(scripty_integrations::kiai::KiaiApiError),
 	NoGuildDefaults,
 	BadDiscordState,
+	BackgroundTaskFailure(tokio::task::JoinError),
 	Custom(String),
 }
 
@@ -146,7 +147,7 @@ impl Error {
 	}
 
 	#[inline]
-	pub fn audio_transcription(err: GenericMessageError) -> Self {
+	pub fn audio_transcription(err: FileTranscriptError) -> Self {
 		Error {
 			bt:  Backtrace::new_unresolved(),
 			err: ErrorEnum::AudioTranscription(err),
@@ -174,6 +175,14 @@ impl Error {
 		Error {
 			bt:  Backtrace::new_unresolved(),
 			err: ErrorEnum::NoGuildDefaults,
+		}
+	}
+
+	#[inline]
+	pub fn background_task(err: tokio::task::JoinError) -> Self {
+		Error {
+			bt:  Backtrace::new_unresolved(),
+			err: ErrorEnum::BackgroundTaskFailure(err),
 		}
 	}
 
@@ -256,6 +265,7 @@ impl Display for Error {
 				.into(),
 			NoGuildDefaults => "no default configuration exists for this server".into(),
 			BadDiscordState => "Discord sent us bad data".into(),
+			BackgroundTaskFailure(e) => format!("Background thread panicked: {}", e).into(),
 		};
 		f.write_str(res.as_ref())
 	}
@@ -283,6 +293,7 @@ impl StdError for Error {
 			Custom(_) => None,
 			NoGuildDefaults => None,
 			BadDiscordState => None,
+			BackgroundTaskFailure(e) => Some(e),
 		}
 	}
 }
@@ -393,9 +404,9 @@ impl From<ModelError> for Error {
 	}
 }
 
-impl From<GenericMessageError> for Error {
+impl From<FileTranscriptError> for Error {
 	#[inline]
-	fn from(e: GenericMessageError) -> Self {
+	fn from(e: FileTranscriptError) -> Self {
 		Self {
 			err: ErrorEnum::AudioTranscription(e),
 			bt:  Backtrace::new(),
@@ -418,6 +429,15 @@ impl From<scripty_integrations::kiai::KiaiApiError> for Error {
 		Self {
 			err: ErrorEnum::KiaiError(e),
 			bt:  Backtrace::new(),
+		}
+	}
+}
+
+impl From<tokio::task::JoinError> for Error {
+	fn from(e: tokio::task::JoinError) -> Self {
+		Self {
+			err: ErrorEnum::BackgroundTaskFailure(e),
+			bt:  Backtrace::new_unresolved(),
 		}
 	}
 }

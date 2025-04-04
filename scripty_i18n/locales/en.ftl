@@ -61,6 +61,24 @@ cmds_help = help
 # This and all attributes show up exclusively in the slash command picker when `transcribe_message` is selected.
 cmds_transcribe_message = transcribe_message
     .description = Transcribe a message. Reply to a message to transcribe it.
+transcribe-message-initial-reply = Loading...
+transcribe-message-not-slash-command = Due to Discord limitations, this command is not available as a slash command. Use the prefix or context menu versions.
+transcribe-message-needs-reply = You must reply to the message you want to transcribe.
+transcribe-message-timed-out-after-reply = A fatal internal error occured. This should never happen, and is a bug. (timed out waiting for final result after stream disappeared, ID { $msgId })
+transcribe-message-downloading-file = Downloading file `{ $filename }`... (size { $fileSize } bytes)
+transcribe-message-probing-file = Probing file `{ $filename }`...
+transcribe-message-transcoding-file = Transcoding file `{ $filename }`... ({ $fileLength } seconds long)
+transcribe-message-transcribing-file = Transcribing file `{ $filename }`... ({ $fileLength } seconds long)
+transcribe-message-no-results = No transcripts returned. Either the linked message has no attachments, or no attachments are supported (video only with Premium 1 or above)
+transcribe-message-inline-header = Transcript:
+transcribe-message-time-taken-single-file = Took { $timeTaken } seconds to transcribe { $fileLength } second file.
+transcribe-message-time-taken-named-file = File `{ $filename }` took { $timeTaken } seconds to transcribe ({ $fileLength } seconds long)
+transcribe-message-unusually-long = This shouldn't take so long. If you're willing to share the content with us, please let us know in our support server.
+transcribe-message-no-transcript = No transcript returned for file `{ $filename }` in { $took } ({ $fileLength } second file)
+transcribe-message-too-long = With your current Premium status, you can transcribe files at most { $maxFileLength } seconds long. `{ $filename }` is { $fileLength } seconds long, and has been ignored.
+transcribe-message-video-needs-premium = Videos are more computationally expensive to transcode, and require Premium. { $filename } has been detected as a video, and has been ignored.
+transcribe-message-result-error = An error was encountered while processing `{ $filename }`: `{ $error }`. Please report this in our support server.
+transcribe-message-malformed-input = Malformed input was detected while processing `{ $filename }`. Fix it and try again. `{ $error }`
 
 ## premium command
 # This and all attributes show up exclusively in the slash command picker when `premium` is selected.
