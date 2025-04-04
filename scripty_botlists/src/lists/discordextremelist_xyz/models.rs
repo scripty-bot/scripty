@@ -6,6 +6,7 @@ pub struct PostStats {
 }
 
 #[derive(Deserialize, Debug, Clone)]
+#[allow(dead_code)]
 pub struct PostStatsResponse {
 	pub error:  bool,
 	pub status: u16,

@@ -4,6 +4,7 @@ pub struct PostStats {
 }
 
 #[derive(Deserialize, Debug, Clone)]
+#[allow(dead_code)]
 pub struct PostStatsResponse {
 	pub status:  String,
 	pub message: String,

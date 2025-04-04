@@ -207,14 +207,14 @@ pub async fn connect_to_vc(
 	call_connection_attempt_fut.await?;
 
 	debug!(%guild_id, "placing info into redis");
-	scripty_redis::run_transaction("SET", |f| {
+	scripty_redis::run_transaction::<()>("SET", |f| {
 		f.arg(format!("voice:{{{}}}:webhook_token", guild_id))
 			.arg(webhook_token.expose_secret())
 			.arg("EX")
 			.arg(leave_delta + 5);
 	})
 	.await?;
-	scripty_redis::run_transaction("SET", |f| {
+	scripty_redis::run_transaction::<()>("SET", |f| {
 		f.arg(format!("voice:{{{}}}:webhook_id", guild_id))
 			.arg(webhook_id.get())
 			.arg("EX")

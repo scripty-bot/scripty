@@ -7,6 +7,7 @@ use crate::errors::WebServerError;
 /// Set it as the type of an argument to a server endpoint handler to enable authentication for that endpoint.
 pub struct Authentication {
 	/// The token used for auth.
+	#[allow(dead_code)]
 	pub token:   String,
 	/// The user ID that was authenticated.
 	///

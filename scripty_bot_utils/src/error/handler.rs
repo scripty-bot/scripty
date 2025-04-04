@@ -60,7 +60,7 @@ async fn _on_error(error: FrameworkError<'_, Data, Error>) {
 				ErrorEnum::Serenity(serenity::Error::Http(
 					http::HttpError::UnsuccessfulRequest(http::ErrorResponse {
 						status_code,
-						error: DiscordJsonError { code, message, .. },
+						error: DiscordJsonError { .. },
 						..
 					}),
 				)) if status_code == http::StatusCode::BAD_GATEWAY => {

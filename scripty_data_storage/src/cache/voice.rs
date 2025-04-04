@@ -1,32 +1,3 @@
-/// Pre-populate the cache with voice state data.
-pub async fn init_voice_cache_async() -> Result<(), scripty_redis::redis::RedisError> {
-	let mut pipe = scripty_redis::redis::pipe();
-
-	// users is a Vec<adhoc struct>
-	// each adhoc struct has a user_id and a store_audio field
-	let users = sqlx::query!("SELECT user_id, store_audio FROM users")
-		.fetch_all(scripty_db::get_db())
-		.await
-		.expect("failed to run sql query");
-
-	for user in users {
-		pipe.set(
-			format!("user:{{{}}}:store_audio", hex::encode(user.user_id)),
-			user.store_audio,
-		);
-	}
-	pipe.ignore()
-		.query_async(
-			&mut scripty_redis::get_pool()
-				.get()
-				.await
-				.expect("failed to fetch pool"),
-		)
-		.await?;
-
-	Ok(())
-}
-
 /// Change a user's voice storage state
 ///
 /// # Returns

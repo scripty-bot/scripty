@@ -1,4 +1,4 @@
-use std::{borrow::Cow, sync::Arc, time::Duration};
+use std::{sync::Arc, time::Duration};
 
 use poise::{EditTracker, FrameworkOptions, PrefixFrameworkOptions};
 use scripty_bot_utils::{
