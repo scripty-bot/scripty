@@ -12,7 +12,7 @@ pub struct PremiumUserInfo {
 }
 
 #[repr(i16)]
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, PartialOrd)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum PremiumTierList {
 	None  = 0,
 	Tier1 = 1,
@@ -60,6 +60,10 @@ impl PremiumTierList {
 			Self::Tier6 => 57600.0,
 		}
 	}
+
+	pub fn can_transcribe_video(&self) -> bool {
+		!matches!(self, Self::None)
+	}
 }
 
 impl From<i16> for PremiumTierList {
@@ -104,12 +108,12 @@ impl From<PremiumTierList> for Cow<'_, str> {
 	}
 }
 
-pub async fn get_user(user_id: NonZeroU64) -> Option<PremiumUserInfo> {
+pub async fn get_user(user_id: u64) -> Option<PremiumUserInfo> {
 	let db = scripty_db::get_db();
 
 	let res = sqlx::query!(
 		"SELECT premium_level, premium_expiry, is_trialing FROM users WHERE user_id = $1",
-		user_id.get() as i64
+		scripty_utils::hash_user_id(user_id)
 	)
 	.fetch_optional(db)
 	.await;
@@ -130,7 +134,7 @@ pub async fn get_user(user_id: NonZeroU64) -> Option<PremiumUserInfo> {
 					sqlx::query!(
 						"UPDATE users SET premium_level = 0, premium_expiry = NULL WHERE user_id \
 						 = $1",
-						user_id.get() as i64
+						user_id as i64
 					)
 					.execute(db)
 					.await

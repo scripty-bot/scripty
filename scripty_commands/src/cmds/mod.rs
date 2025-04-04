@@ -25,5 +25,5 @@ pub use leave::leave;
 pub use ping::ping;
 pub use register_cmds::register_cmds;
 pub use throw_error::throw_error;
-pub use transcribe_message::transcribe_message;
+pub use transcribe_message::{transcribe_message, transcribe_message_ctx_menu};
 pub use vote_reminders::vote_reminder;

@@ -20,6 +20,7 @@ pub fn build_commands() -> Vec<poise::Command<Data, Error>> {
 		cmds::user_language(),
 		cmds::vote_reminder(),
 		cmds::transcribe_message(),
+		cmds::transcribe_message_ctx_menu(),
 		cmds::debug(),
 		cmds::config::config_root(),
 		cmds::entity_block::block_root(),

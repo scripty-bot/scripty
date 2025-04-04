@@ -1,21 +1,28 @@
 use poise::CreateReply;
-use scripty_bot_utils::checks::is_guild;
-use serenity::all::MessageFlags;
+use scripty_bot_utils::{checks::is_guild, file_transcripts::transcribe_generic_message};
+use serenity::{
+	builder::{CreateAllowedMentions, CreateMessage},
+	model::channel::Message,
+};
 
 use crate::{Context, Error};
 
 /// Transcribe the replied message.
 #[poise::command(prefix_command, check = "is_guild")]
 pub async fn transcribe_message(ctx: Context<'_>) -> Result<(), Error> {
+	let resolved_language =
+		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|x| x.get()))
+			.await;
+
 	let ctx = match ctx {
 		Context::Prefix(pctx) => pctx,
 		Context::Application(actx) => {
 			actx.send(
 				CreateReply::default()
-					.content(
-						"This command is not available as a slash command. Use the prefix version \
-						 instead",
-					)
+					.content(format_message!(
+						resolved_language,
+						"transcribe-message-not-slash-command"
+					))
 					.ephemeral(true),
 			)
 			.await?;
@@ -24,41 +31,75 @@ pub async fn transcribe_message(ctx: Context<'_>) -> Result<(), Error> {
 	};
 
 	let Some(target) = ctx.msg.referenced_message.to_owned() else {
-		ctx.send(
-			CreateReply::default()
-				.reply(true)
-				.content("You must reply to a message to transcribe it."),
-		)
+		ctx.send(CreateReply::default().reply(true).content(format_message!(
+			resolved_language,
+			"transcribe-message-needs-reply"
+		)))
 		.await?;
 		return Ok(());
 	};
-	let mut target = *target;
+	let mut target_msg = *target;
 	// thanks discord
 	// message reference guild ID is always None,
 	// so we have to snipe it from the real message
-	target.guild_id = ctx.msg.guild_id;
-	if target.guild_id.is_none() {
-		ctx.send(
-			CreateReply::default()
-				.reply(true)
-				.content("You can only transcribe messages in servers."),
+	target_msg.guild_id = ctx.msg.guild_id;
+
+	let reply_msg = ctx
+		.channel_id()
+		.send_message(
+			ctx.http(),
+			CreateMessage::new()
+				.content(format_message!(
+					resolved_language,
+					"transcribe-message-initial-reply"
+				))
+				.reference_message(&target_msg)
+				.allowed_mentions(
+					CreateAllowedMentions::new()
+						.everyone(false)
+						.replied_user(false),
+				),
 		)
 		.await?;
-		return Ok(());
-	}
-
-	if target
-		.flags
-		.is_some_and(|f| f.contains(MessageFlags::IS_VOICE_MESSAGE))
-	{
-		scripty_bot_utils::voice_message::handle_message(ctx.serenity_context(), target).await;
-	} else {
-		scripty_bot_utils::generic_audio_message::handle_message(ctx.serenity_context(), target)
-			.await?;
-	}
-
 	ctx.msg.delete(ctx.http(), None).await?;
 
-	// the message gets sent in the above functions
+	transcribe_generic_message(
+		target_msg,
+		(ctx.serenity_context().clone(), reply_msg).into(),
+		Some(ctx.author().id),
+		resolved_language,
+	)
+	.await?;
+
 	Ok(())
+}
+
+#[poise::command(
+	context_menu_command = "Transcribe Message",
+	install_context = "Guild|User",
+	interaction_context = "Guild|BotDm|PrivateChannel",
+	user_cooldown = 15
+)]
+pub async fn transcribe_message_ctx_menu(
+	ctx: Context<'_>,
+	target_msg: Message,
+) -> Result<(), Error> {
+	let resolved_language =
+		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|x| x.get()))
+			.await;
+
+	let reply_msg = ctx
+		.reply(format_message!(
+			resolved_language,
+			"transcribe-message-initial-reply"
+		))
+		.await?;
+
+	transcribe_generic_message(
+		target_msg,
+		(ctx, reply_msg).into(),
+		Some(ctx.author().id),
+		resolved_language,
+	)
+	.await
 }
