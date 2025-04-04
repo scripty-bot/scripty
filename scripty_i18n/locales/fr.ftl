@@ -590,9 +590,5 @@ cmds_config_server_language = guilde
     .description = Définissez la langue de ce serveur sur l'une des langues disponibles.
     .language = langue
     .language-description = La langue sur laquelle vous souhaitez définir la langue de votre guilde.
-config-transcribe-audio-requires-premium =
-    La transcription de fichiers audio est une fonctionnalité Premium, car le transcodage de fichiers audio est coûteux en termes de calcul.
-    Si vous souhaitez passer à la version Premium, rendez-vous sur https://dash.scripty.org/premium. Vous pouvez également demander un essai gratuit de la version Premium en envoyant un message privé au bot.
-    Si cette fonctionnalité était activée auparavant, elle est désormais désactivée.
 join-success-description = { $voiceTargetMention } a été rejoint avec succès et la sortie de transcription a été envoyée à { $outputChannelMention }.
 config-kiai-missing-perms = Il manque à Scripty les autorisations nécessaires pour fonctionner sur ce serveur. Autorisez le avec la commande `/application authorize`, en utilisant un ID d'application de `811652199100317726` et en donnant à Scripty l'autorisation « afficher et modifier tous les niveaux et XP ».

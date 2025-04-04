@@ -178,10 +178,6 @@ config_transcribe_audio = transcribe_audio
     .description = Cambiar si Scripty transcribe archivos de audio arbitrarios. Premium obligatorio.
     .transcribe_audio = transcribir_audio
     .transcribe_audio-description = El valor predeterminado es falso
-config-transcribe-audio-requires-premium =
-    Transcribir archivos de audio es una función Premium, ya que transcodificar archivos de audio es costoso computacionalmente.
-    Si quieres mejorar a Premium, dirígete a https://dash.scripty.org/premium. También puedes solicitar una prueba gratuita de Premium enviándole un mensaje directo al bot.
-    Si esta función estaba activada antes, ahora está desactivada.
 config-transcribe-video-disabled = Scripty ya no transcribirá archivos de video.
 config_auto_detect_lang = auto_detect_lang
     .description = ¿Detectar automáticamente el idioma hablado? Muy impreciso comparado a establecer un idioma.

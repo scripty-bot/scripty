@@ -274,10 +274,6 @@ premium-too-many-guilds = You have claimed { $totalServers } premium keys. You c
 premium-claimed = You have successfully claimed premium on this server. If you would like to upgrade, or purchase more slots, head to <https://dash.scripty.org/premium>. If you would like to remove your premium from this guild, run `{ $commandPrefix }premium remove`.
 premium-info-embed-trial-available-title = பிரீமியத்தின் இலவச சோதனை வேண்டுமா?
 premium-info-embed-trial-available-description = பிரீமியத்தின் 3 நாள் சோதனையை அமைப்பதில் தொடங்குவதற்கு டி.எம்.
-config-transcribe-audio-requires-premium =
-    ஆடியோ கோப்புகளை டிரான்ச்கோட் செய்வதற்கு கணக்கீட்டு ரீதியாக விலை உயர்ந்தது என்பதால் ஆடியோ கோப்புகளை படியெடுப்பது காப்பீடு அம்சமாகும்.
-     நீங்கள் பிரீமியத்திற்கு மேம்படுத்த விரும்பினால், https://dash.scripty.org/premium க்குச் செல்லுங்கள். போட் டிமிங் செய்வதன் மூலம் பிரீமியத்தின் இலவச சோதனையையும் நீங்கள் கோரலாம்.
-     இந்த நற்பொருத்தம் இதற்கு முன்பு இயக்கப்பட்டிருந்தால், அது இப்போது முடக்கப்பட்டுள்ளது.
 config_transcribe_video = transcribe_video
     .description = Toggle whether Scripty transcribes arbitrary video files. Requires T2 premium.
     .transcribe_video = transcribe_video

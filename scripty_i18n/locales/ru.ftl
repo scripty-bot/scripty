@@ -166,10 +166,6 @@ voice-connection-error-ws-closed-invalid-payload = Discord закрыл соед
 voice-connection-error-ws-closed-not-authenticated = Discord закрыл соединение из-за отсутствия аутентификации
 voice-connection-error-ws-closed-session-invalid = Дискорд аннулировал сессию
 voice-connection-error-ws-closed-authentication-failed = Discord закрыл соединение из-за сбоя аутентификации
-config-transcribe-audio-requires-premium =
-    Транскрибирование аудиофайлов — это премиум-функция, поскольку перекодирование аудиофайлов требует больших вычислительных затрат.
-    Если вы хотите перейти на премиум-версию, перейдите на https://dash.scripty.org/premium. Вы также можете запросить бесплатную пробную версию Premium, отправив личное сообщение боту.
-    Если эта функция была включена ранее, теперь она отключена.
 data-storage-embed-title = Хранение данных
 data-storage-opted-out-msgs = Теперь вы отказались от сохранения сообщений для обучения подсчету очков.
 automod-add-rule-embed-success-title = Правило { $ruleId } добавлено!

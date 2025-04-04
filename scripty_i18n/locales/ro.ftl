@@ -478,11 +478,6 @@ config_transcribe_audio = transcrie_audio
 config-transcribe-audio-enabled = Scripty va transcrie acum fișierele audio.
 # config - transcribe audio command
 config-transcribe-audio-disabled = Scripty nu va mai transcrie fișierele audio.
-# config - transcribe audio command
-config-transcribe-audio-requires-premium =
-    Transcrierea fișierelor audio este o caracteristică Premium, deoarece este costisitoare din punct de vedere computațional pentru a transcoda fișierele audio.
-    Dacă doriți să faceți upgrade la Premium, accesați https://dash.scripty.org/premium. De asemenea, puteți solicita o încercare gratuită a Premium prin DM la bot.
-    Dacă această caracteristică a fost activată înainte, acum este dezactivată.
 # config - transcribe video command
 config_transcribe_video = transcrie_video
     .description = Comută dacă Scripty transcrie fișiere video arbitrare. Necesită T2 premium.
