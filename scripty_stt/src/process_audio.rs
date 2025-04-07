@@ -23,10 +23,7 @@ pub fn process_audio(
 		let conv = Converter::from_hz_to_hz(source, interpolator, src_sample_rate, dst_sample_rate);
 
 		// finally, perform the actual conversion
-		conv.until_exhausted()
-			// an array of [i16; 1] is always safe to get the 0th index
-			.map(|v| unsafe { *v.get_unchecked(0) })
-			.collect()
+		conv.until_exhausted().map(|[v]| v).collect()
 	} else {
 		src
 	};
