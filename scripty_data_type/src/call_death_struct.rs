@@ -21,6 +21,10 @@ impl CallLivenessMap {
 	pub fn existing_channel_for_guild(&self, guild_id: &GuildId) -> Option<ChannelId> {
 		Some(self.0.get(guild_id)?.value().0)
 	}
+
+	pub fn force_remove_guild(&self, guild_id: &GuildId) -> bool {
+		self.0.remove(guild_id).is_some()
+	}
 }
 
 impl Default for CallLivenessMap {
@@ -66,7 +70,8 @@ impl Drop for CallDeath {
 				last = true;
 			}
 		} else {
-			unreachable!("should be impossible to delete without the atomic value at 0");
+			// FIXME: log this
+			//  "should be impossible to delete without the atomic value at 0"
 		}
 		if last {
 			if let Some(v) = self.inner.0.remove(&self.guild_id) {

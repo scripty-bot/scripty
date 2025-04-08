@@ -261,7 +261,7 @@ impl Display for Error {
 			AudioTranscription(e) => format!("Failed to transcribe audio message: {}", e).into(),
 			KiaiError(e) => format!("Kiai API error: {}", e).into(),
 			CallAlreadyExists => "a call for this channel already exists - not trying to rejoin \
-			                      the same channel"
+			                      the same channel - run `/leave` if this is wrong"
 				.into(),
 			NoGuildDefaults => "no default configuration exists for this server".into(),
 			BadDiscordState => "Discord sent us bad data".into(),
