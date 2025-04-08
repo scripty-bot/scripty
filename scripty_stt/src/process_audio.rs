@@ -20,6 +20,7 @@ pub fn process_audio(
 		let second = source.next();
 
 		// start off by preparing a linear interpolator for the model
+		// TODO: look into whether this could be better as a `Sinc` interpolator?
 		let interpolator = Linear::new(first, second);
 
 		// then make a converter that takes this interpolator and converts it
