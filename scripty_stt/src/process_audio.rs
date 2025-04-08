@@ -13,6 +13,9 @@ pub fn process_audio(
 	let src = if src_sample_rate != dst_sample_rate {
 		// convert src into an iterator
 		let mut source = from_iter(src.into_iter().map(|v| [v]));
+		// FIXME: this is completely wrong:
+		//  the N in [i16; N] is the number of channels this should have,
+		//  so this whole time we've been mixing the left and right channels!
 		let first: [i16; 1] = source.next();
 		let second = source.next();
 
