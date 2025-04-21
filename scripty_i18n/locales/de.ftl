@@ -424,3 +424,4 @@ cmds_user_language = Nutzer
     .description = Setze deine Benutzersprache auf eine der verfügbaren Sprachen.
     .language = Sprache
     .language-description = Die Sprache, auf die du deine Benutzersprache einstellen willst.
+join-success-help-title = Hilfe benötigt?
