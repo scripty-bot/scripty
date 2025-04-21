@@ -7,7 +7,7 @@ use serenity::{
 	gateway::client::Context as SerenityContext,
 	model::{
 		channel::{Message, MessageReference, MessageReferenceKind},
-		id::{ChannelId, MessageId},
+		id::{GenericChannelId, MessageId},
 	},
 };
 
@@ -102,7 +102,7 @@ impl<T: Into<MessageEditInternal>> From<(SerenityContext, T)> for MessageUpdater
 pub enum MessageEditInternal {
 	AlreadyExists(Box<Message>),
 	NeedsSending {
-		target_channel:    ChannelId,
+		target_channel:    GenericChannelId,
 		message_reference: MessageId,
 	},
 }
@@ -111,8 +111,8 @@ impl From<Message> for MessageEditInternal {
 		Self::AlreadyExists(Box::new(msg))
 	}
 }
-impl From<(ChannelId, MessageId)> for MessageEditInternal {
-	fn from((target_channel, message_reference): (ChannelId, MessageId)) -> Self {
+impl From<(GenericChannelId, MessageId)> for MessageEditInternal {
+	fn from((target_channel, message_reference): (GenericChannelId, MessageId)) -> Self {
 		Self::NeedsSending {
 			target_channel,
 			message_reference,

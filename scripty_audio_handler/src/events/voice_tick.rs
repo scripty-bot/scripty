@@ -1,8 +1,8 @@
 use std::{
 	borrow::Cow,
 	sync::{
-		atomic::{AtomicBool, Ordering},
 		Arc,
+		atomic::{AtomicBool, Ordering},
 	},
 	time::Instant,
 };
@@ -15,9 +15,12 @@ use scripty_integrations::kiai::{KiaiApiClient, KiaiPostVirtualMessage};
 use scripty_metrics::Metrics;
 use scripty_stt::{ModelError, Stream};
 use serenity::{
-	all::{ChannelId as SerenityChannelId, ChannelId, GuildId, UserId, Webhook},
 	builder::{CreateEmbed, CreateMessage, EditMember, ExecuteWebhook},
 	gateway::client::Context,
+	model::{
+		id::{ChannelId, GenericChannelId, GuildId, ThreadId, UserId},
+		webhook::Webhook,
+	},
 };
 use songbird::events::context_data::VoiceTick;
 
@@ -37,7 +40,7 @@ pub struct VoiceTickContext {
 	pub ctx:                Context,
 	pub webhook:            Arc<Webhook>,
 	pub channel_id:         ChannelId,
-	pub thread_id:          Option<ChannelId>,
+	pub thread_id:          Option<ThreadId>,
 	pub transcript_results: Option<Arc<RwLock<Vec<String>>>>,
 	pub automod_server_cfg: Arc<AutomodServerConfig>,
 	pub auto_detect_lang:   Arc<AtomicBool>,
@@ -122,7 +125,7 @@ struct SilentSpeakersContext {
 	verbose:            Arc<AtomicBool>,
 	guild_id:           GuildId,
 	channel_id:         ChannelId,
-	thread_id:          Option<ChannelId>,
+	thread_id:          Option<ThreadId>,
 	automod_server_cfg: Arc<AutomodServerConfig>,
 	transcript_results: TranscriptResults,
 	ctx:                Context,
@@ -171,7 +174,7 @@ async fn handle_silent_speakers<'a>(
 		// finalize the stream
 		let lang = language.read().clone();
 		let _typing = thread_id
-			.unwrap_or(channel_id)
+			.map_or_else(|| channel_id.widen(), ThreadId::widen)
 			.start_typing(ctx.http.clone());
 		let (final_result, hook) = match finalize_stream(
 			old_stream,
@@ -233,7 +236,7 @@ async fn handle_silent_speakers<'a>(
 					}
 				}
 
-				if let Err(e) = SerenityChannelId::from(automod_server_cfg.log_channel_id)
+				if let Err(e) = GenericChannelId::from(automod_server_cfg.log_channel_id)
 					.send_message(
 						&ctx.http,
 						CreateMessage::new().embed(
@@ -464,7 +467,7 @@ async fn handle_speakers(ssrc_state: Arc<SsrcMaps>, metrics: Arc<Metrics>, voice
 async fn finalize_stream<'a>(
 	stream: Stream,
 	user_data_map: SsrcUserDataMap,
-	thread_id: Option<ChannelId>,
+	thread_id: Option<ThreadId>,
 	ssrc: u32,
 	language: String,
 	verbose: &Arc<AtomicBool>,

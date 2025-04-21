@@ -1,10 +1,10 @@
-use scripty_bot_utils::{checks::is_guild, Context, Error};
+use scripty_bot_utils::{Context, Error};
 
 /// Set a new prefix for prefix commands for this server. Overrides the built in prefix.
 #[poise::command(
 	prefix_command,
 	slash_command,
-	check = "is_guild",
+	guild_only,
 	required_permissions = "MANAGE_GUILD",
 	rename = "prefix"
 )]

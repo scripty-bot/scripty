@@ -1,12 +1,12 @@
 use poise::CreateReply;
-use scripty_bot_utils::{checks::is_guild, Context, Error};
+use scripty_bot_utils::{Context, Error};
 use serenity::{all::RoleId, builder::CreateAllowedMentions, prelude::Mentionable};
 
 /// Limit Scripty's transcriptions to only users with this role in a voice chat.
 #[poise::command(
 	prefix_command,
 	slash_command,
-	check = "is_guild",
+	guild_only,
 	required_permissions = "MANAGE_GUILD",
 	rename = "transcribe_only_role"
 )]

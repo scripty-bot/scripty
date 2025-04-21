@@ -9,9 +9,9 @@ extern crate tracing;
 use std::{str::FromStr, sync::Arc};
 
 use poise::FrameworkBuilder;
-use scripty_bot_utils::{globals::CLIENT_DATA, handler, Data};
+use scripty_bot_utils::{Data, globals::CLIENT_DATA, handler};
 use serenity::{
-	gateway::{client::ClientBuilder, ActivityData, TransportCompression},
+	gateway::{ActivityData, TransportCompression, client::ClientBuilder},
 	model::user::OnlineStatus,
 	secrets::Token,
 };
@@ -64,8 +64,8 @@ pub async fn entrypoint() {
 			.await
 			.expect("failed to create serenity client");
 
-	data.shard_manager
-		.set(client.shard_manager.clone())
+	data.shard_runners
+		.set(client.shard_manager.runners.clone())
 		.expect("no other task should set shard manager");
 
 	client.start_autosharded().await.expect("failed to run bot");

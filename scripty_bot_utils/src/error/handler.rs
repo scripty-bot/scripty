@@ -1,11 +1,11 @@
 use std::{borrow::Cow, fmt::Write};
 
 use poise::{
-	serenity_prelude::StatusCode,
 	BoxFuture,
 	CreateReply,
 	FrameworkError,
 	MessageDispatchTrigger,
+	serenity_prelude::StatusCode,
 };
 use serenity::{
 	all::{DiscordJsonError, InteractionResponseFlags},
@@ -19,10 +19,10 @@ use serenity::{
 };
 
 use crate::{
-	error::{error_type::ErrorEnum, log_error_message, message::send_err_msg},
-	types::InvocationData,
 	Data,
 	Error,
+	error::{error_type::ErrorEnum, log_error_message, message::send_err_msg},
+	types::InvocationData,
 };
 
 async fn _on_error(error: FrameworkError<'_, Data, Error>) {
@@ -240,9 +240,6 @@ async fn _on_error(error: FrameworkError<'_, Data, Error>) {
 				},
 			)
 			.await;
-		}
-		FrameworkError::EventHandler { error, event, .. } => {
-			error!(?event, "Error in event handler: {:?}", error);
 		}
 		FrameworkError::SubcommandRequired { ctx } => {
 			let resolved_language = scripty_i18n::get_resolved_language(

@@ -2,21 +2,20 @@ use std::time::Duration;
 
 use serenity::{
 	all::{ActivityType, OnlineStatus},
-	gateway::{client::Context as SerenityContext, ActivityData},
+	gateway::{ActivityData, ShardRunnerMessage, client::Context as SerenityContext},
 	small_fixed_array::FixedString,
 };
 
-use crate::{background_tasks::core::BackgroundTask, Data, Error};
+use crate::{Error, background_tasks::core::BackgroundTask};
 
 /// Updates the bot status every minute.
 pub struct StatusUpdater {
-	ctx:        SerenityContext,
-	run_number: u32,
+	ctx: SerenityContext,
 }
 
 impl BackgroundTask for StatusUpdater {
 	async fn init(ctx: SerenityContext) -> Result<Self, Error> {
-		Ok(Self { ctx, run_number: 0 })
+		Ok(Self { ctx })
 	}
 
 	fn interval(&mut self) -> Duration {
@@ -24,28 +23,20 @@ impl BackgroundTask for StatusUpdater {
 	}
 
 	async fn run(&mut self) {
-		self.run_number += 1;
-
-		// if it's the first two runs skip updating the status to allow shard latency to be calculated
-		if self.run_number <= 2 {
-			return;
-		}
-
-		let ctx_data = self.ctx.data::<Data>();
-		let Some(shard_manager) = ctx_data.shard_manager.get() else {
-			return;
-		};
-
 		let guild_count = self.ctx.cache.guild_count();
 		let mut guild_count_fmt = num_format::Buffer::new();
 		guild_count_fmt.write_formatted(&guild_count, &num_format::Locale::en);
 
-		let runners = shard_manager.runners.lock().await;
-		for (shard_id, shard_info) in runners.iter() {
-			let shard_latency = shard_info
-				.latency
-				.unwrap_or_else(|| Duration::from_nanos(0))
-				.as_millis();
+		for shard_data in self.ctx.runners.iter() {
+			let shard_id = shard_data.key();
+			let (shard_info, runner_tx) = shard_data.value();
+			let shard_latency = match shard_info.latency {
+				Some(l) => l.as_millis(),
+				None => {
+					info!(%shard_id, "no latency for shard {} yet, sleeping another cycle", shard_id);
+					continue;
+				}
+			};
 
 			let mut shard_latency_fmt = num_format::Buffer::new();
 			shard_latency_fmt.write_formatted(&shard_latency, &num_format::Locale::en);
@@ -60,16 +51,19 @@ impl BackgroundTask for StatusUpdater {
 
 			// create activity
 			let activity = ActivityData {
-				name:  FixedString::from_str_trunc("UwU~"),
+				name:  FixedString::from_static_trunc("UwU~"),
 				kind:  ActivityType::Custom,
 				state: Some(FixedString::from_string_trunc(shard_status)),
 				url:   None,
 			};
 
 			// set activity
-			shard_info
-				.runner_tx
-				.set_presence(Some(activity), OnlineStatus::Online);
+			if let Err(e) = runner_tx.unbounded_send(ShardRunnerMessage::SetPresence {
+				status:   Some(OnlineStatus::Online),
+				activity: Some(Some(activity)),
+			}) {
+				warn!(%shard_id, "failed to send presence update to shard {}: {}", shard_id, e.into_send_error())
+			}
 		}
 	}
 

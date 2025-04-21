@@ -1,7 +1,7 @@
 [package]
 name = "scripty_v2"
 version = "1.0.0"
-edition = "2021"
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -16,28 +16,28 @@ debug = true
 
 [workspace]
 members = [
-    "scripty_config",
-    "scripty_webserver",
-    "scripty_core",
-    "scripty_premium",
-    "scripty_stt",
-    "scripty_audio_handler",
-    "scripty_commands",
-    "scripty_i18n",
-    "scripty_db",
-    "scripty_metrics",
-    "scripty_utils",
-    "scripty_data_storage",
-    "scripty_redis",
-    "scripty_bot",
-    "scripty_bot_utils",
-    "scripty_automod",
-    "scripty_botlists",
-    "scripty_error",
-    "scripty_tts",
-    "scripty_integrations",
-    "scripty_build_checks",
-    "scripty_data_type",
+	"scripty_config",
+	"scripty_webserver",
+	"scripty_core",
+	"scripty_premium",
+	"scripty_stt",
+	"scripty_audio_handler",
+	"scripty_commands",
+	"scripty_i18n",
+	"scripty_db",
+	"scripty_metrics",
+	"scripty_utils",
+	"scripty_data_storage",
+	"scripty_redis",
+	"scripty_bot",
+	"scripty_bot_utils",
+	"scripty_automod",
+	"scripty_botlists",
+	"scripty_error",
+	"scripty_tts",
+	"scripty_integrations",
+	"scripty_build_checks",
+	"scripty_data_type",
 ]
 
 [dependencies]

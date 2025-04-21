@@ -52,7 +52,7 @@ VALUES ($1)
 	.execute(db)
 	.await?;
 
-	let mut collector = ComponentInteractionCollector::new(ctx.serenity_context().shard.clone())
+	let mut collector = ComponentInteractionCollector::new(ctx.serenity_context())
 		.message_id(msg.message().await?.id)
 		.author_id(author_id)
 		.timeout(Duration::from_secs(120))
@@ -174,7 +174,7 @@ pub async fn delete_all_data(ctx: Context<'_>) -> Result<(), Error> {
 	let hashed_author_id = scripty_utils::hash_user_id(author_id.get());
 	let db = scripty_db::get_db();
 
-	let one = ComponentInteractionCollector::new(ctx.serenity_context().shard.clone())
+	let one = ComponentInteractionCollector::new(ctx.serenity_context())
 		.author_id(author_id)
 		.message_id(msg.id)
 		.timeout(Duration::from_secs(120))

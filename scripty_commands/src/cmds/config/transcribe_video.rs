@@ -1,10 +1,10 @@
-use scripty_bot_utils::{checks::is_guild, Context, Error};
+use scripty_bot_utils::{Context, Error};
 
 /// Toggle whether Scripty transcribes arbitrary video files posted. Requires Premium, tier 2.
 #[poise::command(
 	prefix_command,
 	slash_command,
-	check = "is_guild",
+	guild_only,
 	required_permissions = "MANAGE_GUILD",
 	rename = "transcribe_video"
 )]

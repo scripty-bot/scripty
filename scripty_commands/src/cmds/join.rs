@@ -6,8 +6,8 @@ use scripty_bot_utils::checks::is_guild;
 use serenity::{
 	builder::{CreateEmbed, CreateEmbedFooter, CreateForumPost, CreateMessage, CreateThread},
 	model::{
-		channel::{AutoArchiveDuration, ChannelFlags, ChannelType, GuildChannel},
-		id::ChannelId,
+		channel::{AutoArchiveDuration, Channel, ChannelFlags, ChannelType, GuildChannel},
+		id::{GenericChannelId, ThreadId},
 	},
 	prelude::Mentionable,
 };
@@ -39,7 +39,7 @@ pub async fn join(
 		"PrivateThread",
 		"NewsThread"
 	)]
-	target_channel: Option<GuildChannel>,
+	target_channel: Option<Channel>,
 
 	#[description = "Create a new thread for this transcription? Defaults to false."]
 	create_thread: Option<bool>,
@@ -70,10 +70,10 @@ pub async fn join(
 				.as_ref()
 				.and_then(|x| {
 					x.target_channel
-						.map(|target_channel| ChannelId::new(target_channel as u64))
+						.map(|target_channel| GenericChannelId::new(target_channel as u64))
 				})
 				.unwrap_or_else(|| ctx.channel_id())
-				.to_guild_channel(&ctx, Some(guild_id))
+				.to_channel(&ctx, Some(guild_id))
 				.await?
 		}
 	};
@@ -88,10 +88,17 @@ pub async fn join(
 		.unwrap_or(false);
 
 	// validate arguments
-	let target_is_thread =
-		target_channel.thread_metadata.is_some() && target_channel.parent_id.is_some();
+	let (target_channel, target_thread) = match target_channel {
+		Channel::Guild(g) => (g, None),
+		Channel::GuildThread(t) => (
+			t.parent_id.to_guild_channel(ctx, Some(guild_id)).await?,
+			Some(t),
+		),
+		Channel::Private(_) => return Err(Error::expected_guild()),
+		_ => return Err(Error::expected_guild()),
+	};
 
-	if !(create_thread || target_is_thread) && ephemeral {
+	if !(create_thread || target_thread.is_none()) && ephemeral {
 		ctx.say(format_message!(
 			resolved_language,
 			"join-ephemeral-not-thread",
@@ -100,12 +107,12 @@ pub async fn join(
 		return Ok(());
 	}
 
-	if target_channel.kind == ChannelType::Forum {
+	if target_channel.base.kind == ChannelType::Forum {
 		// we do this before the thread check just as a double check, even though that should never happen
 		create_thread = true;
 	}
 
-	if create_thread && target_is_thread {
+	if create_thread && target_thread.is_some() {
 		let parent_id = target_channel
 			.parent_id
 			.expect("target_is_thread should be true only if target_channel.parent_id is Some");
@@ -117,7 +124,7 @@ pub async fn join(
 		.await?;
 		return Ok(());
 	} else if create_thread
-		&& [ChannelType::Voice, ChannelType::Stage].contains(&target_channel.kind)
+		&& [ChannelType::Voice, ChannelType::Stage].contains(&target_channel.base.kind)
 	{
 		ctx.say(
 			format_message!(resolved_language, "join-create-thread-in-unsupported", targetMention: target_channel.mention().to_string()),
@@ -127,7 +134,7 @@ pub async fn join(
 	}
 
 	let is_text_based = matches!(
-		(target_channel.is_text_based(), target_channel.kind),
+		(target_channel.is_text_based(), target_channel.base.kind),
 		(true, _)
 			| (
 				_,
@@ -138,7 +145,7 @@ pub async fn join(
 			)
 	);
 
-	if target_channel.kind == ChannelType::Forum
+	if target_channel.base.kind == ChannelType::Forum
 		&& target_channel.flags.contains(ChannelFlags::REQUIRE_TAG)
 	{
 		ctx.say(
@@ -176,11 +183,7 @@ pub async fn join(
 
 	let voice_channel = match voice_channel {
 		Ok(vc) => vc,
-		Err(Some(state)) => state
-			.to_channel(&ctx, ctx.guild_id())
-			.await?
-			.guild()
-			.expect("asserted we are already in guild"),
+		Err(Some(state)) => state.to_guild_channel(&ctx, ctx.guild_id()).await?,
 		Err(None) => {
 			ctx.say(
 				format_message!(resolved_language, "no-channel-specified", contextPrefix: ctx.prefix()),
@@ -190,12 +193,12 @@ pub async fn join(
 		}
 	};
 
-	match voice_channel.kind {
+	match voice_channel.base.kind {
 		ChannelType::Voice | ChannelType::Stage => {}
 		_ => {
 			return Err(Error::invalid_channel_type(
 				vec![ChannelType::Voice, ChannelType::Stage],
-				voice_channel.kind,
+				voice_channel.base.kind,
 			));
 		}
 	}
@@ -224,6 +227,7 @@ pub async fn join(
 	// check if there are any users in the channel
 	// prevents Join(Dropped) errors being thrown, as this would be confusing to the user
 	if voice_channel
+		.base
 		.guild(ctx.cache())
 		.ok_or(Error::custom(
 			"the current server was not found in the cache (Discord didn't send data)".to_string(),
@@ -247,7 +251,7 @@ pub async fn join(
 		let thread_title =
 			format_message!(resolved_language, "join-thread-title", timestamp: &timestamp);
 
-		if target_channel.kind == ChannelType::Forum {
+		if target_channel.base.kind == ChannelType::Forum {
 			// creating a thread in a forum
 
 			let discord_timestamp = format!(
@@ -270,7 +274,7 @@ pub async fn join(
 				)
 				.await?;
 
-			(Some(thread.id), target_channel.id)
+			(Some(ThreadId::new(thread.id.get())), target_channel.id)
 		} else {
 			// creating a thread outside a forum
 
@@ -285,15 +289,15 @@ pub async fn join(
 				)
 				.await?;
 
-			(Some(thread.id), target_channel.id)
+			(Some(ThreadId::new(thread.id.get())), target_channel.id)
 		}
-	} else if target_channel.thread_metadata.is_some() {
+	} else if let Some(target_thread) = target_thread {
 		// this channel is a thread
 
 		let parent_id = target_channel
 			.parent_id
 			.ok_or(Error::custom("thread has no parent".to_string()))?;
-		(Some(target_channel.id), parent_id)
+		(Some(target_thread.id), parent_id)
 	} else {
 		// no threads here
 		(None, target_channel.id)
@@ -312,7 +316,7 @@ pub async fn join(
 	match res {
 		Ok(()) => {
 			let output_channel_mention = target_thread
-				.unwrap_or(target_channel)
+				.map_or_else(|| target_channel.widen(), |tid| tid.widen())
 				.mention()
 				.to_string();
 

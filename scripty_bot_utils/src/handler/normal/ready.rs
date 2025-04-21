@@ -7,14 +7,14 @@ use crate::{
 };
 
 pub async fn ready(
-	ctx: Context,
+	ctx: &Context,
 	Ready {
 		version,
 		user,
 		guilds,
 		shard,
 		..
-	}: Ready,
+	}: &Ready,
 ) {
 	set_cache_http(ctx.http.clone(), ctx.cache.clone());
 
@@ -22,8 +22,6 @@ pub async fn ready(
 
 	let dm_support = DmSupportStatus::new();
 	let _ = DM_SUPPORT_GLOBAL.set(dm_support);
-
-	crate::background_tasks::init_background_tasks(ctx);
 
 	if let Some(ShardInfo { id, total }) = shard {
 		info!(

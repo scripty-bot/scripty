@@ -6,11 +6,11 @@ use serenity::{
 	builder::{CreateWebhook, ExecuteWebhook},
 	model::{
 		channel::ChannelType,
-		id::{ChannelId, GuildId},
+		id::{ChannelId, GuildId, ThreadId},
 	},
 	prelude::Context,
 };
-use songbird::{error::JoinError, events::Event, CoreEvent};
+use songbird::{CoreEvent, error::JoinError, events::Event};
 
 use crate::Error;
 
@@ -31,7 +31,7 @@ pub async fn connect_to_vc(
 	guild_id: GuildId,
 	transcript_target_channel: ChannelId,
 	voice_channel_id: ChannelId,
-	transcript_thread_id: Option<ChannelId>,
+	transcript_thread_id: Option<ThreadId>,
 	record_transcriptions: bool,
 	ephemeral: bool,
 ) -> Result<(), Error> {
@@ -53,19 +53,19 @@ pub async fn connect_to_vc(
 	debug!(%guild_id, "checking type of target channel");
 	// if the target channel is a thread we have to take its parent as the true target
 	// and set the thread's ID to transcript_thread_id
-	let (transcript_target_channel, transcript_thread_id) = {
+	let (transcript_target_channel, transcript_thread_id): (ChannelId, Option<ThreadId>) = {
 		let transcript_target_model = transcript_target_channel
 			.to_guild_channel(&ctx, Some(guild_id))
 			.await?;
 		match (
-			transcript_target_model.kind,
+			transcript_target_model.base.kind,
 			transcript_target_model.parent_id,
 		) {
 			// caught a thread as the target channel, fix that problem by using the parent instead
 			(
 				ChannelType::NewsThread | ChannelType::PublicThread | ChannelType::PrivateThread,
 				Some(parent),
-			) => (parent, Some(transcript_target_channel)),
+			) => (parent, Some(ThreadId::new(transcript_target_channel.get()))),
 
 			// a thread with no parent? i must inform my supervisor post-haste!
 			(

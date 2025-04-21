@@ -19,8 +19,8 @@ pub use disconnect::disconnect_from_vc;
 pub use error::{Error, ErrorKind};
 pub use scripty_stt::{check_model_language, get_model_languages};
 use serenity::all::{ChannelId, GuildId};
-use songbird::{driver::DecodeMode, Config};
-pub use songbird::{error::JoinError, Songbird};
+use songbird::{Config, driver::DecodeMode};
+pub use songbird::{Songbird, error::JoinError};
 use tokio::sync::{broadcast, oneshot::Sender};
 
 use crate::audio_handler::SsrcMaps;
@@ -99,8 +99,7 @@ pub fn get_internal_state(guild_id: &GuildId) -> Option<InternalSsrcStateDetails
 	let internal_maps = maps.get(guild_id)?;
 	let v = internal_maps.value();
 
-	// go ahead and try getting rid of this binding i dare you :)
-	let ret = Some(InternalSsrcStateDetails {
+	Some(InternalSsrcStateDetails {
 		seen_users: v.ssrc_user_id_map.iter().map(|x| *x.key()).collect(),
 		ssrcs_with_stream: v.ssrc_stream_map.iter().map(|x| *x.key()).collect(),
 		ssrcs_with_attached_data: v.ssrc_user_data_map.iter().map(|x| *x.key()).collect(),
@@ -112,7 +111,5 @@ pub fn get_internal_state(guild_id: &GuildId) -> Option<InternalSsrcStateDetails
 		ssrcs_actively_speaking_this_tick: v.ssrc_speaking_set.iter().map(|x| *x).collect(),
 		actively_transcribed_ssrcs: v.active_user_set.iter().map(|x| *x).collect(),
 		next_ssrcs: v.next_user_list.read().iter().copied().collect(),
-	});
-
-	ret
+	})
 }

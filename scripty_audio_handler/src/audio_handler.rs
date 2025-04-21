@@ -1,8 +1,8 @@
 use std::{
 	collections::VecDeque,
 	sync::{
-		atomic::{AtomicBool, AtomicU8, Ordering},
 		Arc,
+		atomic::{AtomicBool, AtomicU8, Ordering},
 	},
 };
 
@@ -10,14 +10,13 @@ use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
 use parking_lot::RwLock;
 use scripty_automod::types::AutomodServerConfig;
-use scripty_data_type::{get_data, CallDeath};
+use scripty_data_type::{CallDeath, get_data};
 use scripty_integrations::kiai::KiaiApiClient;
 use serenity::{
-	all::RoleId,
 	builder::ExecuteWebhook,
 	gateway::client::Context,
 	model::{
-		id::{ChannelId, GuildId},
+		id::{ChannelId, GuildId, RoleId, ThreadId},
 		webhook::Webhook,
 	},
 };
@@ -57,7 +56,7 @@ pub struct AudioHandler {
 	guild_id:             GuildId,
 	channel_id:           ChannelId,
 	voice_channel_id:     ChannelId,
-	thread_id:            Option<ChannelId>,
+	thread_id:            Option<ThreadId>,
 	webhook:              Arc<Webhook>,
 	context:              Context,
 	premium_level:        Arc<AtomicU8>,
@@ -82,7 +81,7 @@ impl AudioHandler {
 		context: Context,
 		channel_id: ChannelId,
 		voice_channel_id: ChannelId,
-		thread_id: Option<ChannelId>,
+		thread_id: Option<ThreadId>,
 		record_transcriptions: bool,
 		automod_server_cfg: AutomodServerConfig,
 		kiai_client: KiaiApiClient,
@@ -165,7 +164,7 @@ impl AudioHandler {
 					// run cleanup tasks
 					if ephemeral && let Some(thread_id) = t2.thread_id {
 						let http = &t2.context.http;
-						if let Err(e) = thread_id.delete(http, None).await {
+						if let Err(e) = thread_id.widen().delete(http, None).await {
 							let _ = t2
 								.webhook
 								.execute(
@@ -308,8 +307,7 @@ impl Clone for AudioHandler {
 		let remaining = Arc::<_>::strong_count(&self.verbose);
 		trace!(
 			"{} references to AudioHandler {{ guild_id: {} }} left",
-			remaining,
-			self.guild_id
+			remaining, self.guild_id
 		);
 
 		Self {

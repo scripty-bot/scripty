@@ -1,10 +1,10 @@
-use scripty_bot_utils::{checks::is_guild, Context, Error};
+use scripty_bot_utils::{Context, Error};
 
 /// Should Scripty, by default, record all transcriptions to a text file?
 #[poise::command(
 	prefix_command,
 	slash_command,
-	check = "is_guild",
+	guild_only,
 	required_permissions = "MANAGE_GUILD",
 	rename = "record_transcriptions"
 )]

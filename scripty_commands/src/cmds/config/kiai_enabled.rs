@@ -1,11 +1,11 @@
-use scripty_bot_utils::{checks::is_guild, Context, Error};
-use scripty_integrations::kiai::{get_kiai_api_client, Permissions as KiaiPermissions};
+use scripty_bot_utils::{Context, Error};
+use scripty_integrations::kiai::{Permissions as KiaiPermissions, get_kiai_api_client};
 
 /// Enable Scripty's Kiai integration. You should disable Kiai's voice XP levelling if you use this.
 #[poise::command(
 	prefix_command,
 	slash_command,
-	check = "is_guild",
+	guild_only,
 	required_permissions = "MANAGE_GUILD",
 	rename = "enable_kiai"
 )]

@@ -1,11 +1,12 @@
 use std::sync::{
-	atomic::{AtomicU8, Ordering},
 	Arc,
+	atomic::{AtomicU8, Ordering},
 };
 
 use serenity::{
-	all::{ChannelId, Context, Webhook},
 	builder::ExecuteWebhook,
+	gateway::client::Context,
+	model::{id::ThreadId, webhook::Webhook},
 };
 use songbird::model::payload::ClientDisconnect;
 
@@ -17,7 +18,7 @@ pub async fn client_disconnect(
 	premium_level: Arc<AtomicU8>,
 	ctx: Context,
 	webhook: Arc<Webhook>,
-	thread_id: Option<ChannelId>,
+	thread_id: Option<ThreadId>,
 	transcript_results: TranscriptResults,
 ) {
 	let user_id = client_disconnect_data.user_id;

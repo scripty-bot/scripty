@@ -1,10 +1,10 @@
-use scripty_bot_utils::{checks::is_guild, Context, Error};
+use scripty_bot_utils::{Context, Error};
 
 /// Should Scripty automatically join a voice channel when someone joins it?
 #[poise::command(
 	prefix_command,
 	slash_command,
-	check = "is_guild",
+	guild_only,
 	required_permissions = "MANAGE_GUILD",
 	rename = "auto_join"
 )]

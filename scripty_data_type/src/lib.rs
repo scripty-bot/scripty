@@ -3,17 +3,22 @@ mod call_death_struct;
 use std::sync::{Arc, OnceLock};
 
 pub use call_death_struct::{CallDeath, CallLivenessMap};
-use serenity::gateway::sharding::ShardManager;
+use dashmap::DashMap;
+use futures_channel::mpsc::UnboundedSender;
+use serenity::all::{ShardId, ShardRunnerInfo, ShardRunnerMessage};
+
+pub type ShardRunnerMap =
+	Arc<DashMap<ShardId, (ShardRunnerInfo, UnboundedSender<ShardRunnerMessage>)>>;
 
 pub struct Data {
-	pub shard_manager:  OnceLock<Arc<ShardManager>>,
+	pub shard_runners:  OnceLock<ShardRunnerMap>,
 	pub existing_calls: CallLivenessMap,
 }
 
 impl Data {
 	pub fn new() -> Self {
 		Self {
-			shard_manager:  OnceLock::new(),
+			shard_runners:  OnceLock::new(),
 			existing_calls: CallLivenessMap::new(),
 		}
 	}

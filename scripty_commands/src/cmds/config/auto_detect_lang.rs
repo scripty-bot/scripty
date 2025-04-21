@@ -1,4 +1,4 @@
-use scripty_bot_utils::{checks::is_guild, Context, Error};
+use scripty_bot_utils::{Context, Error};
 
 /// Try to automatically detect the language being spoken?
 /// Very inaccurate vs setting a language.
@@ -7,7 +7,7 @@ use scripty_bot_utils::{checks::is_guild, Context, Error};
 #[poise::command(
 	prefix_command,
 	slash_command,
-	check = "is_guild",
+	guild_only,
 	required_permissions = "MANAGE_GUILD",
 	rename = "auto_detect_lang"
 )]

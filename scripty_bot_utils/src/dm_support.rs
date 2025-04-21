@@ -1,7 +1,8 @@
-use std::{borrow::Cow, cmp::Ordering};
-
+use base64::{Engine, prelude::BASE64_STANDARD};
 use dashmap::DashMap;
+use reqwest::header::CONTENT_TYPE;
 use serenity::{
+	all::ImageData,
 	builder::{
 		CreateAllowedMentions,
 		CreateAttachment,
@@ -122,7 +123,7 @@ impl DmSupportStatus {
 			return;
 		}
 
-		let user_id = match message_channel.name.parse::<u64>() {
+		let user_id = match message_channel.base.name.parse::<u64>() {
 			Ok(id) => id,
 			Err(e) => {
 				warn!("failed to parse user id from channel name: {:?}", e);
@@ -132,25 +133,15 @@ impl DmSupportStatus {
 
 		let mut embed_builder = CreateEmbed::default();
 
-		match message.attachments.len().cmp(&1) {
-			Ordering::Less => {}
-			Ordering::Equal => {
-				let attachment = message
-					.attachments
-					.first()
-					.expect("asserted one element already exists");
-				if message_channel.nsfw {
-					embed_builder =
-						embed_builder.field("Attached", attachment.url.to_string(), true);
-				} else {
-					embed_builder = embed_builder.image(attachment.url.to_string());
-				}
-			}
-			Ordering::Greater => {
-				for attached_file in message.attachments.iter() {
-					embed_builder =
-						embed_builder.field("Attached", attached_file.url.to_string(), true);
-				}
+		if !message_channel.nsfw
+			&& message.attachments.len() == 1
+			&& let Some(attachment) = message.attachments.first()
+		{
+			embed_builder = embed_builder.image(attachment.url.to_string());
+		} else if message.attachments.len() > 1 {
+			for attached_file in message.attachments.iter() {
+				embed_builder =
+					embed_builder.field("Attached", attached_file.url.to_string(), true);
 			}
 		}
 
@@ -187,7 +178,7 @@ impl DmSupportStatus {
 				.expect("failed to get guild")
 				.channels
 				.iter()
-				.find(|c| c.parent_id == Some(category.id) && c.name == user_id_str)
+				.find(|c| c.parent_id == Some(category.id) && c.base.name == user_id_str)
 				.cloned()
 		};
 
@@ -205,17 +196,28 @@ impl DmSupportStatus {
 			.await
 			.expect("failed to create channel");
 
+		let user_face_url = user.face();
+		let resp = reqwest::get(user_face_url)
+			.await
+			.expect("failed to fetch url");
+		let content_type = resp
+			.headers()
+			.get(CONTENT_TYPE)
+			.expect("expected Content-Type header")
+			.to_str()
+			.expect("not ASCII string");
+
 		let hook = channel
 			.create_webhook(
 				&ctx.http,
 				CreateWebhook::new(user.tag()).avatar(
-					&CreateAttachment::url(
-						&ctx.http,
-						user.face().as_str(),
-						Cow::<'static, str>::Borrowed("avatar.png"),
-					)
-					.await
-					.expect("failed to handle message attachments"),
+					ImageData::from_base64(format!(
+						"data:{};base64,{}",
+						content_type.to_ascii_lowercase(),
+						BASE64_STANDARD
+							.encode(resp.bytes().await.expect("failed to download image bytes"))
+					))
+					.expect("should always be valid image data"),
 				),
 			)
 			.await
@@ -277,7 +279,7 @@ impl DmSupportStatus {
 
 	pub async fn close_ticket(&self, ctx: &Context, channel: GuildChannel) {
 		let config = scripty_config::get_config();
-		if channel.guild_id != GuildId::new(config.dm_support.guild_id) {
+		if channel.base.guild_id != GuildId::new(config.dm_support.guild_id) {
 			return;
 		}
 
@@ -286,7 +288,7 @@ impl DmSupportStatus {
 			return;
 		}
 
-		let user_id = match channel.name.parse::<u64>() {
+		let user_id = match channel.base.name.parse::<u64>() {
 			Ok(id) => UserId::new(id),
 			Err(e) => {
 				warn!("failed to parse user id from channel name: {:?}", e);
@@ -319,9 +321,7 @@ impl DmSupportStatus {
 
 async fn get_forwarding_category(ctx: &Context) -> GuildChannel {
 	ChannelId::new(scripty_config::get_config().dm_support.forwarding_category)
-		.to_channel(&ctx, None)
+		.to_guild_channel(&ctx, None)
 		.await
 		.expect("failed to get forwarding category")
-		.guild()
-		.expect("forwarding category is not a guild channel")
 }

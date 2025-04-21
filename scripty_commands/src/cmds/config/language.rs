@@ -1,5 +1,5 @@
 use poise::CreateReply;
-use scripty_bot_utils::{available_language_autocomplete, checks::is_guild, Context, Error};
+use scripty_bot_utils::{Context, Error, available_language_autocomplete};
 use scripty_i18n::InvalidLanguageError;
 use serenity::builder::CreateEmbed;
 
@@ -10,7 +10,7 @@ use serenity::builder::CreateEmbed;
 #[poise::command(
 	prefix_command,
 	slash_command,
-	check = "is_guild",
+	guild_only,
 	required_permissions = "MANAGE_GUILD",
 	rename = "language"
 )]

@@ -3,10 +3,9 @@ use std::fmt::{Display, Formatter};
 use serenity::{
 	async_trait,
 	http::CacheHttp,
-	model::id::{ChannelId, GuildId},
+	model::id::{GenericChannelId, GuildId},
 	utils::ArgumentConvert,
 };
-
 ///////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug)]
@@ -19,7 +18,7 @@ impl ArgumentConvert for Language {
 	async fn convert(
 		_: impl CacheHttp,
 		_: Option<GuildId>,
-		_: Option<ChannelId>,
+		_: Option<GenericChannelId>,
 		s: &str,
 	) -> Result<Self, Self::Err> {
 		scripty_audio_handler::check_model_language(s)

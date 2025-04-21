@@ -18,14 +18,14 @@ use serenity::{
 		CreateInteractionResponseMessage,
 		CreateMessage,
 	},
-	collector::ComponentInteractionCollector,
+	collector::{ComponentInteractionCollector, QuickModal},
 	futures::StreamExt,
-	model::id::{ChannelId, UserId},
+	model::id::{GenericChannelId, UserId},
 };
 
 pub async fn do_paginate(
 	ctx: &serenity::gateway::client::Context,
-	target_channel: ChannelId,
+	target_channel: GenericChannelId,
 	items: Vec<(String, String)>,
 	title: String,
 	footer_additional: Option<String>,
@@ -54,7 +54,7 @@ pub async fn do_paginate(
 			.await?
 			.id
 	};
-	let mut collector = ComponentInteractionCollector::new(ctx.shard.clone())
+	let mut collector = ComponentInteractionCollector::new(ctx)
 		.message_id(msg_id)
 		.timeout(Duration::from_secs(120));
 	if let Some(user) = allowed_user {

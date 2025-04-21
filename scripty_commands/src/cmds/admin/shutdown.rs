@@ -85,12 +85,7 @@ pub async fn shutdown(ctx: Context<'_>) -> Result<(), Error> {
 		CreateReply::new().content("done shutting down voice connections, shutting down bot now"),
 	)
 	.await?;
-	ctx.data()
-		.shard_manager
-		.get()
-		.ok_or_else(|| Error::custom("shard manager not found".to_string()))?
-		.shutdown_all()
-		.await;
+	ctx.serenity_context().shutdown_all();
 
 	Ok(())
 }

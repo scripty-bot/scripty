@@ -1,10 +1,12 @@
 use std::{borrow::Cow, sync::Arc};
 
 use serenity::{
-	all::UserId,
 	builder::{CreateAttachment, CreateMessage, ExecuteWebhook},
 	gateway::client::Context,
-	model::{id::ChannelId, webhook::Webhook},
+	model::{
+		id::{ChannelId, ThreadId, UserId},
+		webhook::Webhook,
+	},
 };
 use songbird::{events::context_data::DisconnectReason, id::GuildId, model::CloseCode};
 
@@ -21,7 +23,7 @@ pub async fn driver_disconnect(
 	webhook: Arc<Webhook>,
 	channel_id: ChannelId,
 	voice_channel_id: ChannelId,
-	thread_id: Option<ChannelId>,
+	thread_id: Option<ThreadId>,
 	transcript_results: TranscriptResults,
 	seen_users: SeenUsers,
 	ephemeral: bool,

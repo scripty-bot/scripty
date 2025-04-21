@@ -12,14 +12,14 @@ mod translate;
 mod verbose;
 
 use poise::CreateReply;
-use scripty_bot_utils::{checks::is_guild, Context, Error};
+use scripty_bot_utils::{Context, Error};
 use serenity::builder::CreateEmbed;
 
 /// Configure Scripty's settings
 #[poise::command(
 	prefix_command,
 	slash_command,
-	check = "is_guild",
+	guild_only,
 	required_permissions = "MANAGE_GUILD",
 	rename = "config",
 	subcommands(

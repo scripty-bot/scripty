@@ -3,9 +3,9 @@ use std::{collections::HashMap, sync::Arc, time::Instant};
 use once_cell::sync::OnceCell;
 use parking_lot::Mutex;
 pub use serenity::{
+	Error as SerenityError,
 	builder::{CreateEmbed, CreateEmbedFooter, CreateMessage},
 	model::id::UserId,
-	Error as SerenityError,
 };
 use serenity::{
 	cache::Cache,
@@ -92,7 +92,7 @@ pub fn get_voice_channel_count() -> Result<usize, CacheNotInitializedError> {
 			cache.guild(g).map(|x| {
 				x.channels
 					.iter()
-					.filter_map(|x| match x.kind {
+					.filter_map(|x| match x.base.kind {
 						ChannelType::Voice | ChannelType::Stage => Some(()),
 						_ => None,
 					})
@@ -151,10 +151,10 @@ pub async fn get_shard_info() -> Result<HashMap<u16, ShardInfo>, CacheNotInitial
 		}
 	};
 
-	let shard_manager = data.shard_manager.get().ok_or(CacheNotInitializedError)?;
+	let shard_runners = data.shard_runners.get().ok_or(CacheNotInitializedError)?;
 
 	if should_update {
-		let shard_count = shard_manager.runners.lock().await.len() as u64;
+		let shard_count = shard_runners.len() as u64;
 
 		let mut shard_guild_count = HashMap::new();
 		for guild in cache.guilds() {
@@ -188,32 +188,32 @@ pub async fn get_shard_info() -> Result<HashMap<u16, ShardInfo>, CacheNotInitial
 		data.0.clone()
 	};
 
-	let runners = shard_manager.runners.lock().await;
-	let mut shard_list = HashMap::new();
+	Ok(shard_runners
+		.iter()
+		.map(|shard_details| {
+			let shard_id = *shard_details.key();
+			let shard_info = &shard_details.value().0;
+			let connection_status = match shard_info.stage {
+				ConnectionStage::Connected => 0,
+				ConnectionStage::Connecting => 1,
+				ConnectionStage::Disconnected => 2,
+				ConnectionStage::Handshake => 3,
+				ConnectionStage::Identifying => 4,
+				ConnectionStage::Resuming => 5,
+				_ => 255,
+			};
+			let latency = shard_info.latency.map(|l| l.as_nanos());
 
-	for (shard_id, shard_info) in runners.iter() {
-		let connection_status = match shard_info.stage {
-			ConnectionStage::Connected => 0,
-			ConnectionStage::Connecting => 1,
-			ConnectionStage::Disconnected => 2,
-			ConnectionStage::Handshake => 3,
-			ConnectionStage::Identifying => 4,
-			ConnectionStage::Resuming => 5,
-			_ => 255,
-		};
-		let latency = shard_info.latency.map(|l| l.as_nanos());
-
-		shard_list.insert(
-			shard_id.0,
-			ShardInfo {
-				latency,
-				connection_status,
-				guild_count: shard_guild_count.get(&shard_id.0).map_or(0, |x| *x),
-			},
-		);
-	}
-
-	Ok(shard_list)
+			(
+				shard_id.0,
+				ShardInfo {
+					latency,
+					connection_status,
+					guild_count: shard_guild_count.get(&shard_id.0).map_or(0, |x| *x),
+				},
+			)
+		})
+		.collect::<HashMap<_, _>>())
 }
 
 static HTTP_CLIENT: OnceCell<CacheHttpWrapper> = OnceCell::new();

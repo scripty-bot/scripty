@@ -1,7 +1,7 @@
-use std::{collections::HashMap, fmt::Write, num::NonZeroU16, ops::Range};
+use std::{collections::HashMap, fmt::Write, ops::Range};
 
 use poise::CreateReply;
-use serenity::{all::ShardId, gateway::ChunkGuildFilter};
+use serenity::gateway::ChunkGuildFilter;
 
 use crate::{Context, Error};
 
@@ -42,14 +42,6 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
 	// fields of the tuple are, respectively, the guild name, the guild id, and the ratio (bot count / user count)
 	let mut guild_warnings: Vec<(String, u64, f64)> = Vec::new();
 
-	let ctx_data = ctx.data();
-	let shard_manager = ctx_data
-		.shard_manager
-		.get()
-		.ok_or(Error::custom("shard manager not initialized".to_string()))?;
-	let shard_count = NonZeroU16::new(shard_manager.runners.lock().await.len() as u16)
-		.ok_or(Error::custom("shard count is zero".to_string()))?;
-
 	for guild in ctx.serenity_context().cache.guilds() {
 		let g = match guild.to_guild_cached(ctx.cache()) {
 			Some(g) => g,
@@ -65,18 +57,8 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
 		if (member_count as usize) < g.members.len() {
 			debug!(?g.id, "chunking guild");
 			let guild_id = g.id;
-			let shard_manager2 = shard_manager.clone();
-			tokio::spawn(async move {
-				// calculate the shard this guild is on
-				let shard_id = serenity::utils::shard_id(guild_id, shard_count);
-
-				let runner_guard = shard_manager2.runners.lock().await;
-				runner_guard
-					.get(&ShardId(shard_id))
-					.expect("shard should exist")
-					.runner_tx
-					.chunk_guild(guild_id, None, false, ChunkGuildFilter::None, None);
-			});
+			ctx.serenity_context()
+				.chunk_guild(guild_id, None, false, ChunkGuildFilter::None, None);
 		}
 
 		for group in GROUPS {

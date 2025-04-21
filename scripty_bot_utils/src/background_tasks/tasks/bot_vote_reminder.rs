@@ -6,7 +6,7 @@ use serenity::{
 	gateway::client::Context as SerenityContext,
 };
 
-use crate::{background_tasks::core::BackgroundTask, Error};
+use crate::{Error, background_tasks::core::BackgroundTask};
 
 /// Sends vote reminders to users every minute.
 pub struct VoteReminderTask {
@@ -55,7 +55,12 @@ impl BackgroundTask for VoteReminderTask {
 			let ctx2 = self.ctx.clone();
 			tokio::spawn(async move {
 				let res = match UserId::new(user_id).create_dm_channel(&ctx2.http).await {
-					Ok(channel) => channel.id.send_message(&ctx2.http, msg).await.map(|_| ()),
+					Ok(channel) => channel
+						.id
+						.widen()
+						.send_message(&ctx2.http, msg)
+						.await
+						.map(|_| ()),
 					Err(e) => Err(e),
 				};
 				if let Err(e) = res {

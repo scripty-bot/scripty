@@ -1,4 +1,4 @@
-use scripty_bot_utils::{checks::is_guild, Context, Error};
+use scripty_bot_utils::{Context, Error};
 use serenity::model::{
 	channel::ChannelType,
 	id::{ChannelId, GuildId},
@@ -8,7 +8,7 @@ use serenity::model::{
 #[poise::command(
 	prefix_command,
 	slash_command,
-	check = "is_guild",
+	guild_only,
 	required_permissions = "MANAGE_GUILD",
 	rename = "new_thread"
 )]
@@ -79,12 +79,12 @@ async fn do_preflight_new_thread(
 			.get(&target_channel)
 			.ok_or_else(Error::expected_channel)?;
 
-		match target_channel.kind {
+		match target_channel.base.kind {
 			ChannelType::PrivateThread | ChannelType::PublicThread | ChannelType::NewsThread => {
 				return Ok(Some("config-default-new-thread-cant-make-thread-in-thread"));
 			}
 			ChannelType::Voice | ChannelType::Stage => {
-				return Ok(Some("config-default-new-thread-cant-make-thread-in-vc"))
+				return Ok(Some("config-default-new-thread-cant-make-thread-in-vc"));
 			}
 			_ => {}
 		}

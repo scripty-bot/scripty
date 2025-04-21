@@ -1,4 +1,4 @@
-use scripty_bot_utils::{checks::is_guild, Context, Error};
+use scripty_bot_utils::{Context, Error};
 use serenity::model::{
 	channel::{ChannelType, GuildChannel},
 	id::GuildId,
@@ -9,7 +9,7 @@ use serenity::model::{
 #[poise::command(
 	prefix_command,
 	slash_command,
-	check = "is_guild",
+	guild_only,
 	required_permissions = "MANAGE_GUILD",
 	rename = "target_channel"
 )]
@@ -71,26 +71,26 @@ async fn do_preflight_target_channel(
 		.map_or((false, false), |x| (x.ephemeral, x.new_thread));
 
 		if ephemeral {
-			match target_channel.kind {
+			match target_channel.base.kind {
 				ChannelType::PrivateThread
 				| ChannelType::PublicThread
 				| ChannelType::NewsThread => return Ok(Some("config-default-ephemeral-cant-target-thread")),
 				ChannelType::Voice | ChannelType::Stage => {
-					return Ok(Some("config-default-ephemeral-cant-use-voice-channels"))
+					return Ok(Some("config-default-ephemeral-cant-use-voice-channels"));
 				}
 				_ => {}
 			}
 		}
 
 		if new_thread {
-			match target_channel.kind {
+			match target_channel.base.kind {
 				ChannelType::PrivateThread
 				| ChannelType::PublicThread
 				| ChannelType::NewsThread => {
 					return Ok(Some("config-default-new-thread-cant-make-thread-in-thread"));
 				}
 				ChannelType::Voice | ChannelType::Stage => {
-					return Ok(Some("config-default-new-thread-cant-make-thread-in-vc"))
+					return Ok(Some("config-default-new-thread-cant-make-thread-in-vc"));
 				}
 				_ => {}
 			}

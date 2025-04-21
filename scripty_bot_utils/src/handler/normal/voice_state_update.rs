@@ -7,12 +7,12 @@ use serenity::{
 	gateway::client::Context,
 	model::{
 		channel::{AutoArchiveDuration, ChannelType},
-		id::{ChannelId, GuildId},
+		id::{ChannelId, GuildId, ThreadId},
 		voice::VoiceState,
 	},
 };
 
-pub async fn voice_state_update(ctx: Context, new: VoiceState) {
+pub async fn voice_state_update(ctx: &Context, new: &VoiceState) {
 	let Some(guild_id) = new.guild_id else {
 		warn!("no guild id in voice_state_update");
 		return;
@@ -59,7 +59,7 @@ pub async fn voice_state_update(ctx: Context, new: VoiceState) {
 		// if we get here, we are the only one in the channel
 		// so we should leave
 		debug!(%guild_id, "leaving voice channel {} in guild {} (we're last user)", cid, guild_id);
-		if let Err(e) = scripty_audio_handler::disconnect_from_vc(&ctx, guild_id).await {
+		if let Err(e) = scripty_audio_handler::disconnect_from_vc(ctx, guild_id).await {
 			error!("error disconnecting from voice channel: {:?}", e);
 		};
 	} else {
@@ -173,7 +173,7 @@ pub async fn voice_state_update(ctx: Context, new: VoiceState) {
 		let create_thread = defaults.new_thread;
 
 		let (target_channel_id, target_thread_id) =
-			match maybe_create_thread(&ctx, create_thread, target_channel_id, guild_id).await {
+			match maybe_create_thread(ctx, create_thread, target_channel_id, guild_id).await {
 				Ok(res) => res,
 				Err(e) => {
 					error!(%guild_id, "failed to create thread for auto join: {}", e);
@@ -218,6 +218,7 @@ pub async fn voice_state_update(ctx: Context, new: VoiceState) {
 
 			// fire a message to the log channel
 			let _ = target_channel
+				.widen()
 				.say(
 					&ctx.http,
 					format!(
@@ -239,7 +240,7 @@ async fn maybe_create_thread(
 	create_thread: bool,
 	target_channel_id: ChannelId,
 	guild_id: GuildId,
-) -> Result<(ChannelId, Option<ChannelId>), serenity::Error> {
+) -> Result<(ChannelId, Option<ThreadId>), serenity::Error> {
 	if !create_thread {
 		return Ok((target_channel_id, None));
 	}
@@ -254,7 +255,7 @@ async fn maybe_create_thread(
 	let thread_title =
 		format_message!(resolved_language, "join-thread-title", timestamp: rfc_timestamp);
 
-	let thread = if target_channel.kind == ChannelType::Forum {
+	let thread = if target_channel.base.kind == ChannelType::Forum {
 		let discord_timestamp = format!(
 			"<t:{}>",
 			now.duration_since(SystemTime::UNIX_EPOCH)
@@ -283,5 +284,8 @@ async fn maybe_create_thread(
 			.await?
 	};
 
-	Ok((target_channel_id, Some(thread.id)))
+	Ok((
+		target_channel_id,
+		Some(ThreadId::new(thread.id.widen().get())),
+	))
 }

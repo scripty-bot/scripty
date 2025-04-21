@@ -1,4 +1,5 @@
 #![feature(let_chains)]
+#![feature(duration_millis_float)]
 #[macro_use]
 extern crate scripty_i18n;
 #[macro_use]
