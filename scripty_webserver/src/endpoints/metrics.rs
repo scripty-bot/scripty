@@ -3,7 +3,7 @@
 //! Returns Prometheus compatible metrics.
 
 use axum::{
-	http::{header::CONTENT_TYPE, HeaderMap, HeaderValue},
+	http::{HeaderMap, HeaderValue, header::CONTENT_TYPE},
 	routing::get,
 };
 

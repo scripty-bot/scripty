@@ -1,6 +1,6 @@
 use poise::BoxFuture;
 
-use crate::{types::InvocationData, Context};
+use crate::{Context, types::InvocationData};
 
 async fn _pre_command(ctx: Context<'_>) {
 	scripty_metrics::measure_end_latency(ctx.id());

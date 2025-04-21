@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use serenity::gateway::client::Context;
 
-use crate::{background_tasks::core::BackgroundTask, Error};
+use crate::{Error, background_tasks::core::BackgroundTask};
 
 /// Clears stale latency metrics every 2 minutes to free up memory.
 pub struct CommandLatencyClearer;

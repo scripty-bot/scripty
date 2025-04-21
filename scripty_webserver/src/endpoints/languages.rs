@@ -2,7 +2,7 @@
 //!
 //! Returns the list of languages supported by the bot.
 
-use axum::{routing::get, Json};
+use axum::{Json, routing::get};
 use scripty_i18n::LanguageMapValue;
 
 pub async fn get_languages() -> Json<Vec<LanguageMapValue>> {

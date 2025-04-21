@@ -7,7 +7,7 @@
 
 use std::collections::HashMap;
 
-use axum::{routing::get, Json};
+use axum::{Json, routing::get};
 use scripty_bot_utils::extern_utils::{
 	get_channel_count,
 	get_guild_count,

@@ -10,4 +10,4 @@ pub use driver_connect::driver_connect;
 pub use driver_disconnect::driver_disconnect;
 pub use rtp_packet::rtp_packet;
 pub use speaking_state_update::speaking_state_update;
-pub use voice_tick::{voice_tick, VoiceTickContext};
+pub use voice_tick::{VoiceTickContext, voice_tick};

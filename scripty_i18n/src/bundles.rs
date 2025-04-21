@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use dashmap::mapref::one::Ref;
-use fluent::{bundle::FluentBundle, FluentResource};
+use fluent::{FluentResource, bundle::FluentBundle};
 use intl_memoizer::concurrent::IntlLangMemoizer;
 use unic_langid::LanguageIdentifier;
 

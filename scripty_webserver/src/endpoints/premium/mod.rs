@@ -1,4 +1,4 @@
-use axum::{routing::post, Json};
+use axum::{Json, routing::post};
 use scripty_bot_utils::extern_utils::{CreateEmbed, CreateEmbedFooter, CreateMessage, UserId};
 use sqlx::types::time::OffsetDateTime;
 

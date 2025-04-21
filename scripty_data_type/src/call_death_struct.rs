@@ -1,6 +1,6 @@
 use std::sync::{
-	atomic::{fence, AtomicU8, Ordering},
 	Arc,
+	atomic::{AtomicU8, Ordering, fence},
 };
 
 use dashmap::DashMap;
@@ -76,7 +76,7 @@ impl Drop for CallDeath {
 		if last {
 			if let Some(v) = self.inner.0.remove(&self.guild_id) {
 				assert_eq!(
-					v.1 .1.load(Ordering::SeqCst),
+					v.1.1.load(Ordering::SeqCst),
 					0,
 					"we should be the final instance of this call"
 				);

@@ -5,8 +5,8 @@ use std::{fs::OpenOptions, time::SystemTime};
 
 use fenrir_rs::{NetworkingBackend, SerializationFormat};
 use fern::{
-	colors::{Color, ColoredLevelConfig},
 	Dispatch,
+	colors::{Color, ColoredLevelConfig},
 };
 use rlimit::Resource;
 use url::Url;

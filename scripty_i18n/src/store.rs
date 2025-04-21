@@ -1,5 +1,5 @@
 use dashmap::DashMap;
-use fluent::{bundle::FluentBundle, FluentResource};
+use fluent::{FluentResource, bundle::FluentBundle};
 use intl_memoizer::concurrent::IntlLangMemoizer;
 use once_cell::sync::OnceCell;
 use unic_langid::LanguageIdentifier;

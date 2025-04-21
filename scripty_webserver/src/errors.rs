@@ -1,7 +1,7 @@
 use std::fmt::{Display, Formatter};
 
 use axum::{
-	http::{header::CONTENT_TYPE, HeaderValue, StatusCode},
+	http::{HeaderValue, StatusCode, header::CONTENT_TYPE},
 	response::{IntoResponse, Response},
 };
 use serde::Serialize;

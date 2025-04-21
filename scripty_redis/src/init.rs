@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use deadpool_redis::{redis::cmd, Config, PoolConfig, Runtime, Timeouts};
+use deadpool_redis::{Config, PoolConfig, Runtime, Timeouts, redis::cmd};
 
 pub async fn init_redis() {
 	info!("configuring redis pool");

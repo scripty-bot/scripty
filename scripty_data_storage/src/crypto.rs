@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use aes_gcm::{aead, aead::Aead, Aes256Gcm, Key, KeyInit, Nonce};
+use aes_gcm::{Aes256Gcm, Key, KeyInit, Nonce, aead, aead::Aead};
 use once_cell::sync::OnceCell;
 use rand::RngCore;
 

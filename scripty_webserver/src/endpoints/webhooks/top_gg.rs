@@ -1,8 +1,8 @@
 use axum::{
+	Json,
 	async_trait,
 	extract::FromRequestParts,
-	http::{request::Parts, StatusCode},
-	Json,
+	http::{StatusCode, request::Parts},
 };
 use scripty_bot_utils::extern_utils::{CreateEmbed, CreateEmbedFooter, CreateMessage, UserId};
 use scripty_botlists::top_gg::IncomingWebhook;

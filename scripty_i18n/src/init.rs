@@ -1,7 +1,7 @@
 use std::{ffi::OsStr, fs::read_dir};
 
 use dashmap::DashMap;
-use fluent::{bundle::FluentBundle, FluentResource};
+use fluent::{FluentResource, bundle::FluentBundle};
 use unic_langid::LanguageIdentifier;
 
 use crate::{init_cache, set_i18n_store};

@@ -1,7 +1,7 @@
 use std::simd::i16x64;
 
 use dasp_interpolate::linear::Linear;
-use dasp_signal::{from_iter, interpolate::Converter, Signal};
+use dasp_signal::{Signal, from_iter, interpolate::Converter};
 
 #[inline]
 pub fn process_audio(

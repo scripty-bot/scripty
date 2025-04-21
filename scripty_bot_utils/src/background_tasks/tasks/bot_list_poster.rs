@@ -2,6 +2,8 @@ use std::{sync::Arc, time::Duration};
 
 use reqwest::Client;
 use scripty_botlists::{
+	PostStats,
+	StatPoster,
 	botlist_me::BotListMe,
 	discord_bots_gg::DiscordBotsGG,
 	discordbotlist_com::DiscordBotListCom,
@@ -12,13 +14,11 @@ use scripty_botlists::{
 	infinitybots_gg::InfinityBotsGG,
 	top_gg::TopGG,
 	voidbots_net::VoidBotsNet,
-	PostStats,
-	StatPoster,
 };
 use scripty_config::BotListsConfig;
 use serenity::gateway::client::Context;
 
-use crate::{background_tasks::core::BackgroundTask, Error};
+use crate::{Error, background_tasks::core::BackgroundTask};
 
 pub struct BotListUpdater {
 	ctx:       Context,

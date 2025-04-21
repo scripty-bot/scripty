@@ -2,8 +2,8 @@ use std::{
 	collections::VecDeque,
 	net::SocketAddr,
 	sync::{
-		atomic::{AtomicBool, AtomicUsize, Ordering},
 		Arc,
+		atomic::{AtomicBool, AtomicUsize, Ordering},
 	},
 	time::Duration,
 };
@@ -22,14 +22,14 @@ use scripty_config::SttServiceDefinition;
 use tokio::{
 	io::{AsyncReadExt, AsyncWriteExt},
 	net::{
+		TcpStream,
 		lookup_host,
 		tcp::{OwnedReadHalf, OwnedWriteHalf},
-		TcpStream,
 	},
 	sync::broadcast::{Receiver, Sender},
 };
 
-use crate::{ModelError, Stream, NUM_STT_SERVICE_TRIES};
+use crate::{ModelError, NUM_STT_SERVICE_TRIES, Stream};
 
 /// Maximum number of workers to queue up.
 ///
