@@ -43,7 +43,7 @@ pub fn get_formatted_message<'l>(
 	Some((res, errors))
 }
 
-/// Macro that expands to a valid call of get_formatted_message.
+/// Macro that expands to a valid call of [`get_formatted_message`].
 /// First argument is language ID, second is message ID, and all remaining arguments are collected into a `FluentArgs` bundle.
 ///
 /// # Examples

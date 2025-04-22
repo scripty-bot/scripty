@@ -24,7 +24,15 @@ use songbird::{Event, EventContext, EventHandler};
 
 use crate::{
 	error::Error,
-	events::*,
+	events::{
+		VoiceTickContext,
+		client_disconnect,
+		driver_connect,
+		driver_disconnect,
+		rtp_packet,
+		speaking_state_update,
+		voice_tick,
+	},
 	types::{
 		ActiveUserSet,
 		NextUserList,
@@ -117,7 +125,7 @@ impl AudioHandler {
 			context,
 			premium_level: Arc::new(AtomicU8::new(0)),
 			verbose: Arc::new(AtomicBool::new(false)),
-			language: Arc::new(Default::default()),
+			language: Arc::new(RwLock::new(String::new())),
 			transcript_results: record_transcriptions.then(|| Arc::new(RwLock::new(Vec::new()))),
 			seen_users: record_transcriptions
 				.then(|| Arc::new(DashSet::with_hasher(RandomState::new()))),
@@ -153,7 +161,7 @@ impl AudioHandler {
 						}
 						debug!(%guild_id, "got request to reload config for this call");
 					}
-					_ = tokio::time::sleep(RELOAD_TIME) => {}
+					() = tokio::time::sleep(RELOAD_TIME) => {}
 				}
 				if let Err(e) = t2.reload_config().await {
 					error!("failed to reload config: {:?}", e);

@@ -9,8 +9,6 @@ struct Audio {
 	audio_data:   Vec<u8>,
 	#[borrows(mut audio_data)]
 	#[not_covariant]
-	// IDEs will complain here about an undeclared lifetime
-	// ignore it
 	audio_writer: Mutex<WavWriter<Cursor<&'this mut Vec<u8>>>>,
 }
 
@@ -68,7 +66,7 @@ impl VoiceIngest {
 					error!("failed to write audio sample: {}", e);
 				}
 			}
-		})
+		});
 	}
 
 	/// Completes the audio ingest and adds the audio to the database.

@@ -177,13 +177,13 @@ pub async fn automod_add_rule(
 	.await?
 	.item_id;
 
-	let extra_details = if !is_not_none {
+	let extra_details = if is_not_none {
+		String::new()
+	} else {
 		format_message!(
 			resolved_language,
 			"automod-add-rule-embed-extra-details-free-limit"
 		)
-	} else {
-		"".to_string()
 	};
 
 	ctx.send(

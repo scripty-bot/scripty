@@ -2,7 +2,7 @@ use crate::types::{AutomodRule, AutomodServerConfig};
 
 pub async fn get_guild_config(guild_id: u64) -> Result<Option<AutomodServerConfig>, sqlx::Error> {
 	let db = scripty_db::get_db();
-	let mut cfg = match sqlx::query!(
+	let Some(mut cfg) = sqlx::query!(
 		"SELECT * FROM automod_config WHERE guild_id = $1",
 		guild_id as i64
 	)
@@ -18,9 +18,8 @@ pub async fn get_guild_config(guild_id: u64) -> Result<Option<AutomodServerConfi
 			row.log_channel_id as u64,
 			row.log_recording,
 		)
-	}) {
-		Some(cfg) => cfg,
-		None => return Ok(None),
+	}) else {
+		return Ok(None);
 	};
 
 	// fetch rules

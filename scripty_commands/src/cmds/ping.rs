@@ -1,17 +1,19 @@
 use std::time::Duration;
 
 use poise::CreateReply;
-use scripty_utils::latency::*;
-use serenity::builder::CreateEmbed;
+use scripty_utils::latency::{get_db_latency, get_http_latency};
+use serenity::{builder::CreateEmbed, model::id::GuildId};
 
 use crate::{Context, Error};
 
 /// Get the bot latency
 #[poise::command(prefix_command, slash_command)]
 pub async fn ping(ctx: Context<'_>) -> Result<(), Error> {
-	let resolved_language =
-		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|g| g.get()))
-			.await;
+	let resolved_language = scripty_i18n::get_resolved_language(
+		ctx.author().id.get(),
+		ctx.guild_id().map(GuildId::get),
+	)
+	.await;
 
 	let ctx_data = ctx.data();
 	let shard_manager = ctx_data

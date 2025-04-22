@@ -21,7 +21,7 @@ pub async fn user_language(
 		.unwrap_or_else(|| "en".parse().expect("en invalid language?"));
 
 	match scripty_i18n::set_user_language(ctx.author().id.get(), language.as_str()).await {
-		Ok(_) => {
+		Ok(()) => {
 			ctx.send(
 				CreateReply::default().ephemeral(true).embed(
 					CreateEmbed::default()

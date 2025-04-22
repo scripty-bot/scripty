@@ -24,6 +24,7 @@ pub enum PremiumTierList {
 }
 
 impl PremiumTierList {
+	#[must_use]
 	pub fn max_users(&self) -> i16 {
 		match self {
 			Self::None => 5,
@@ -37,30 +38,33 @@ impl PremiumTierList {
 	}
 
 	/// Return maximum session duration in seconds
+	#[must_use]
 	pub fn max_duration(&self) -> u64 {
 		match self {
-			Self::None => 10800,
-			Self::Tier1 => 21600,
-			Self::Tier2 => 43200,
-			Self::Tier3 => 86400,
-			Self::Tier4 => 259200,
-			Self::Tier5 => 604800,
-			Self::Tier6 => 1209600,
+			Self::None => 10_800,
+			Self::Tier1 => 21_600,
+			Self::Tier2 => 43_200,
+			Self::Tier3 => 86_400,
+			Self::Tier4 => 259_200,
+			Self::Tier5 => 604_800,
+			Self::Tier6 => 1_209_600,
 		}
 	}
 
+	#[must_use]
 	pub fn max_file_length(&self) -> f64 {
 		match self {
 			Self::None => 900.0,
-			Self::Tier1 => 1800.0,
-			Self::Tier2 => 3600.0,
-			Self::Tier3 => 7200.0,
-			Self::Tier4 => 14400.0,
-			Self::Tier5 => 28800.0,
-			Self::Tier6 => 57600.0,
+			Self::Tier1 => 1_800.0,
+			Self::Tier2 => 3_600.0,
+			Self::Tier3 => 7_200.0,
+			Self::Tier4 => 14_400.0,
+			Self::Tier5 => 28_800.0,
+			Self::Tier6 => 57_600.0,
 		}
 	}
 
+	#[must_use]
 	pub fn can_transcribe_video(&self) -> bool {
 		!matches!(self, Self::None)
 	}

@@ -84,7 +84,7 @@ pub async fn automod_remove_rule(
 		.await?;
 
 		return Ok(());
-	};
+	}
 
 	let premium_tier = scripty_premium::get_guild(gid).await.unwrap_or_default();
 

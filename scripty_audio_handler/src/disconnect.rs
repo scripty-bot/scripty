@@ -15,7 +15,7 @@ pub async fn disconnect_from_vc(ctx: &Context, guild_id: GuildId) -> Result<bool
 		Err(e) => Err(e.into()),
 	};
 
-	get_data(ctx).existing_calls.force_remove_guild(&guild_id);
+	let _ = get_data(ctx).existing_calls.force_remove_guild(&guild_id);
 
 	let existing = super::AUTO_LEAVE_TASKS
 		.get_or_init(|| DashMap::with_hasher(ahash::RandomState::default()))

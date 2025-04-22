@@ -48,7 +48,7 @@ pub async fn config_server_language(
 	}
 
 	match scripty_i18n::set_guild_language(guild_id, language.as_str()).await {
-		Ok(_) => {
+		Ok(()) => {
 			ctx.send(
 				CreateReply::default().embed(
 					CreateEmbed::default()

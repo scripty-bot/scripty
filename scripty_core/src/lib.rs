@@ -139,10 +139,6 @@ async fn async_init() {
 	scripty_stt::init_stt().await;
 
 	scripty_db::init_db().await;
-
-	scripty_data_storage::init_cache_async()
-		.await
-		.expect("failed to init cache");
 }
 
 fn get_tokio_rt() -> tokio::runtime::Runtime {
@@ -156,7 +152,7 @@ fn get_tokio_rt() -> tokio::runtime::Runtime {
 		.expect("failed to build new tokio rt");
 
 	// register runtime metrics
-	scripty_metrics::register_metrics(rt.handle().clone());
+	scripty_metrics::register_metrics(rt.handle());
 
 	rt
 }

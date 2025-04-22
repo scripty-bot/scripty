@@ -49,14 +49,12 @@ pub async fn config_prefix(
 	})
 	.await?;
 
-	let i18n_string = if prefix.is_some() {
-		"config-prefix-updated"
+	let formatted_msg = if let Some(prefix) = prefix {
+		format_message!(resolved_language, "config-prefix-updated", updatedPrefix: prefix)
 	} else {
-		"config-prefix-unset"
+		format_message!(resolved_language, "config-prefix-unset")
 	};
-	let updated_prefix = prefix.unwrap_or_else(|| scripty_config::get_config().prefix.to_owned());
-	ctx.say(format_message!(resolved_language, i18n_string, updatedPrefix: updated_prefix))
-		.await?;
+	ctx.say(formatted_msg).await?;
 
 	Ok(())
 }

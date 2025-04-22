@@ -17,7 +17,9 @@ pub struct Error {
 
 impl Debug for Error {
 	fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-		f.debug_struct("Error").field("err", &self.err).finish()
+		f.debug_struct("Error")
+			.field("err", &self.err)
+			.finish_non_exhaustive()
 	}
 }
 

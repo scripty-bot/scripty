@@ -31,9 +31,9 @@ pub async fn entrypoint() {
 		.options(framework_opts::get_framework_opts())
 		.build();
 	let data = Arc::new(Data::new());
-	let Ok(_) = CLIENT_DATA.set(data.clone()) else {
-		panic!("client data set more than once: bug?")
-	};
+	if CLIENT_DATA.set(data.clone()).is_err() {
+		unreachable!("client data set more than once: bug?")
+	}
 
 	let songbird = scripty_audio_handler::Songbird::serenity_from_config(
 		scripty_audio_handler::get_songbird_config(),
@@ -48,7 +48,7 @@ pub async fn entrypoint() {
 	}
 	let http = http.build();
 	if let Some(ratelimiter) = &http.ratelimiter {
-		ratelimiter.set_ratelimit_callback(Box::new(handler::ratelimit))
+		ratelimiter.set_ratelimit_callback(Box::new(handler::ratelimit));
 	}
 
 	let mut client =

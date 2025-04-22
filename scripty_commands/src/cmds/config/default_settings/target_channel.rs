@@ -25,7 +25,7 @@ pub async fn config_default_settings_target_channel(
 	let db = scripty_db::get_db();
 
 	if let Some(error_translation_key) =
-		do_preflight_target_channel(&ctx, guild_id, &target_channel).await?
+		do_preflight_target_channel(&ctx, guild_id, target_channel.as_ref()).await?
 	{
 		ctx.say(format_message!(resolved_language, error_translation_key))
 			.await?;
@@ -57,7 +57,7 @@ pub async fn config_default_settings_target_channel(
 async fn do_preflight_target_channel(
 	_ctx: &Context<'_>,
 	guild_id: GuildId,
-	target_channel: &Option<GuildChannel>,
+	target_channel: Option<&GuildChannel>,
 ) -> Result<Option<&'static str>, Error> {
 	let db = scripty_db::get_db();
 
