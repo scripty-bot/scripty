@@ -221,8 +221,25 @@ impl Metrics {
 			HistogramOpts::new("audio_tick_time", "Time to process a full audio tick")
 				// these buckets should be very small, as it could take less than 250 microseconds to process a tick
 				.buckets(vec![
-					0.000001, 0.0000025, 0.000005, 0.00001, 0.000025, 0.00005, 0.0001, 0.00025,
-					0.0005, 0.001, 0.0025, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0,
+					0.000_001,
+					0.000_002_5,
+					0.000_005,
+					0.000_01,
+					0.000_025,
+					0.000_05,
+					0.000_1,
+					0.000_25,
+					0.000_5,
+					0.001,
+					0.002_5,
+					0.005,
+					0.01,
+					0.02,
+					0.05,
+					0.1,
+					0.2,
+					0.5,
+					1.0,
 				]),
 		)
 		.unwrap();
@@ -238,8 +255,23 @@ impl Metrics {
 			// these buckets should be even smaller, as processing a single user's audio data should be on the order
 			// of hundreds of nanoseconds to tens of microseconds
 			.buckets(vec![
-				0.0000001, 0.00000025, 0.0000005, 0.000001, 0.0000025, 0.000005, 0.00001, 0.000025,
-				0.00005, 0.0001, 0.00025, 0.0005, 0.001, 0.0025, 0.005, 0.01, 0.02,
+				0.000_000_1,
+				0.000_000_25,
+				0.000_000_5,
+				0.000_001,
+				0.000_002_5,
+				0.000_005,
+				0.00001,
+				0.000_025,
+				0.00005,
+				0.0001,
+				0.00025,
+				0.0005,
+				0.001,
+				0.0025,
+				0.005,
+				0.01,
+				0.02,
 			]),
 		)
 		.unwrap();

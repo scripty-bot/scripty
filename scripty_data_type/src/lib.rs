@@ -16,6 +16,7 @@ pub struct Data {
 }
 
 impl Data {
+	#[must_use]
 	pub fn new() -> Self {
 		Self {
 			shard_runners:  OnceLock::new(),
@@ -30,6 +31,7 @@ impl Default for Data {
 	}
 }
 
+#[must_use]
 pub fn get_data(ctx: &serenity::gateway::client::Context) -> Arc<Data> {
 	ctx.data()
 }

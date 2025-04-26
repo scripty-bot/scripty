@@ -26,7 +26,7 @@ pub fn init_i18n() {
 				warn!("no extension for file {:?}", f);
 				continue;
 			}
-		};
+		}
 		let stem = match path.file_stem() {
 			Some(s) => s,
 			None => {

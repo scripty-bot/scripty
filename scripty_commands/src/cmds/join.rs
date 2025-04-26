@@ -345,7 +345,7 @@ pub async fn join(
 				embed = embed.footer(CreateEmbedFooter::new(format_message!(
 					resolved_language,
 					"join-success-footer-free-trial-upsell"
-				)))
+				)));
 			}
 
 			ctx.send(CreateReply::new().embed(embed)).await?;
@@ -359,7 +359,7 @@ pub async fn join(
 			.await?;
 		}
 		Err(e) => return Err(e.into()),
-	};
+	}
 
 	Ok(())
 }

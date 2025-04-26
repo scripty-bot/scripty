@@ -65,7 +65,7 @@ pub async fn automod_setup(
 	let extra = if let Some(PremiumTierList::None) = premium_tier {
 		format_message!(resolved_language, "automod-setup-embed-complete-free-limit")
 	} else {
-		"".to_string()
+		String::new()
 	};
 
 	match sqlx::query!(

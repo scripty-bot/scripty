@@ -440,8 +440,8 @@ async fn handle_speakers(ssrc_state: Arc<SsrcMaps>, metrics: Arc<Metrics>, voice
 			// feed audio to transcription stream
 			if let Some(stream) = ssrc_state.ssrc_stream_map.get(&ssrc) {
 				if let Err(e) = stream.feed_audio(audio) {
-					warn!("failed to feed audio packet: {}", e)
-				};
+					warn!("failed to feed audio packet: {}", e);
+				}
 				trace!(?ssrc, "done processing pkt");
 			} else {
 				warn!(?ssrc, "no stream found for ssrc");
@@ -505,7 +505,7 @@ async fn finalize_stream<'a>(
 	};
 	let Some((user_details, avatar_url)) = user_data_map
 		.get(&ssrc)
-		.map(|x| (x.value().0.to_owned(), x.value().1.to_owned()))
+		.map(|x| (x.value().0.clone(), x.value().1.clone()))
 	else {
 		warn!("no user details for ssrc {}", ssrc);
 		return None;

@@ -12,5 +12,5 @@ pub fn get_db() -> &'static Pool<Postgres> {
 pub fn set_db(db: Pool<Postgres>) {
 	DATABASE_POOL
 		.set(db)
-		.unwrap_or_else(|_| panic!("called `set_db()` more than once"))
+		.unwrap_or_else(|_| panic!("called `set_db()` more than once"));
 }

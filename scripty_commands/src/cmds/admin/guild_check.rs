@@ -43,12 +43,9 @@ pub async fn check_guilds(ctx: Context<'_>, specified_ratio: f64) -> Result<(), 
 	let mut guild_warnings: Vec<(String, u64, f64)> = Vec::new();
 
 	for guild in ctx.serenity_context().cache.guilds() {
-		let g = match guild.to_guild_cached(ctx.cache()) {
-			Some(g) => g,
-			None => {
-				error_count += 1;
-				continue;
-			}
+		let Some(g) = guild.to_guild_cached(ctx.cache()) else {
+			error_count += 1;
+			continue;
 		};
 
 		let member_count = g.member_count;

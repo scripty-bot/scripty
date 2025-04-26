@@ -66,8 +66,7 @@ async fn do_preflight_ephemeral(
 	)
 	.fetch_optional(db)
 	.await?
-	.map(|row| row.target_channel.map(|id| ChannelId::new(id as u64)))
-	.unwrap_or_else(|| None);
+	.and_then(|row| row.target_channel.map(|id| ChannelId::new(id as u64)));
 
 	if let Some(target_channel) = target_channel {
 		let target_guild = ctx

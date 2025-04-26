@@ -1,7 +1,7 @@
 /// Change a user's voice storage state
 ///
 /// # Returns
-/// Returns Ok(()) if changing state was successful, Err(sqlx::Error) if not
+/// Returns `Ok(())` if changing state was successful, `Err(sqlx::Error)` if not
 pub async fn change_voice_state(user_id: u64, state: bool) -> Result<(), sqlx::Error> {
 	let user_id = scripty_utils::hash_user_id(user_id);
 
@@ -51,7 +51,7 @@ pub async fn get_voice_state(raw_user_id: u64) -> bool {
 		Err(e) => {
 			error!("error getting voice state from cache: {}", e);
 		}
-	};
+	}
 
 	// not cached, fall back to db
 	let state = sqlx::query!("SELECT store_audio FROM users WHERE user_id = $1", user_id)

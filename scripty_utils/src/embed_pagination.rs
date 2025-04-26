@@ -39,7 +39,7 @@ pub async fn do_paginate(
 	// split items into pages
 	let pages = items
 		.chunks(max_per_page)
-		.map(|x| x.to_owned())
+		.map(ToOwned::to_owned)
 		.collect::<Vec<_>>();
 
 	let mut current_page: usize = 0;
@@ -106,7 +106,7 @@ pub async fn do_paginate(
 						if page > 0 && page <= pages.len() {
 							current_page = page - 1;
 						}
-					};
+					}
 				}
 				true
 			}
@@ -169,9 +169,7 @@ fn format_embed_from_page<'a>(
 					"Page {} of {}{}",
 					page + 1,
 					pages.len(),
-					footer_additional
-						.map(|s| format!(" | {}", s))
-						.unwrap_or("".to_owned())
+					footer_additional.map_or_else(String::new, |s| format!(" | {}", s))
 				),
 			))),
 	)

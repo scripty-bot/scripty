@@ -30,7 +30,7 @@ pub async fn transcribe_message(ctx: Context<'_>) -> Result<(), Error> {
 		}
 	};
 
-	let Some(target) = ctx.msg.referenced_message.to_owned() else {
+	let Some(target) = ctx.msg.referenced_message.clone() else {
 		ctx.send(CreateReply::default().reply(true).content(format_message!(
 			resolved_language,
 			"transcribe-message-needs-reply"

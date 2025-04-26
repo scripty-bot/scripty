@@ -52,7 +52,7 @@ pub async fn get_text_state(raw_user_id: u64) -> bool {
 		Err(e) => {
 			error!("error getting text state from cache: {}", e);
 		}
-	};
+	}
 
 	// not cached, fall back to db
 	let state = sqlx::query!("SELECT store_msgs FROM users WHERE user_id = $1", user_id)

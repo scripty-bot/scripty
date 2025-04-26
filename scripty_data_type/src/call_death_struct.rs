@@ -10,18 +10,22 @@ use serenity::all::{ChannelId, GuildId};
 pub struct CallLivenessMap(Arc<DashMap<GuildId, (ChannelId, AtomicU8)>>);
 
 impl CallLivenessMap {
+	#[must_use]
 	pub fn new() -> Self {
 		Self(Arc::new(DashMap::new()))
 	}
 
+	#[must_use]
 	pub fn does_guild_exist(&self, guild_id: &GuildId) -> bool {
 		self.0.contains_key(guild_id)
 	}
 
+	#[must_use]
 	pub fn existing_channel_for_guild(&self, guild_id: &GuildId) -> Option<ChannelId> {
 		Some(self.0.get(guild_id)?.value().0)
 	}
 
+	#[must_use]
 	pub fn force_remove_guild(&self, guild_id: &GuildId) -> bool {
 		self.0.remove(guild_id).is_some()
 	}
@@ -40,6 +44,7 @@ pub struct CallDeath {
 
 impl CallDeath {
 	/// Returns none if a call for this guild already exists
+	#[must_use]
 	pub fn new(inner: CallLivenessMap, guild_id: GuildId, channel_id: ChannelId) -> Option<Self> {
 		fence(Ordering::SeqCst);
 		{
@@ -49,9 +54,8 @@ impl CallDeath {
 				.or_insert_with(|| (channel_id, AtomicU8::new(0)));
 			if v.0 != channel_id {
 				return None;
-			} else {
-				v.1.fetch_add(1, Ordering::SeqCst);
 			}
+			v.1.fetch_add(1, Ordering::SeqCst);
 		}
 		fence(Ordering::SeqCst);
 		Some(Self { inner, guild_id })

@@ -88,7 +88,7 @@ pub struct LokiConfig {
 	/// Loki ingest URL
 	pub url: String,
 
-	/// HashMap of labels
+	/// [`HashMap`] of labels
 	pub labels: HashMap<String, String>,
 
 	/// Maximum size of one message before being dropped. Defaults to infinite.

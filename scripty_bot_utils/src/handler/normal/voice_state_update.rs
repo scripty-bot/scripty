@@ -28,12 +28,9 @@ pub async fn voice_state_update(ctx: &Context, new: &VoiceState) {
 	if let Some(cid) = get_voice_channel_id(guild_id).await {
 		// GuildRef forces a block here to prevent hold over await
 		{
-			let guild = match guild_id.to_guild_cached(&ctx.cache) {
-				Some(g) => g,
-				None => {
-					warn!("guild id {} not found in cache", guild_id);
-					return;
-				}
+			let Some(guild) = guild_id.to_guild_cached(&ctx.cache) else {
+				warn!("guild id {} not found in cache", guild_id);
+				return;
 			};
 
 			// iterate through voice states in the guild
@@ -81,7 +78,7 @@ pub async fn voice_state_update(ctx: &Context, new: &VoiceState) {
 		.map(|x| x.map(|y| y.auto_join))
 		{
 			Ok(Some(true)) => {
-				debug!(%guild_id, "guild has auto join enabled, proceeding with join")
+				debug!(%guild_id, "guild has auto join enabled, proceeding with join");
 			}
 			Ok(Some(false)) => {
 				// auto join is not enabled, so we don't need to do anything
@@ -111,17 +108,14 @@ pub async fn voice_state_update(ctx: &Context, new: &VoiceState) {
 		if target_user.bot() {
 			debug!(%guild_id, "user {} is a bot, not continuing with join", target_user.id);
 			return;
-		};
+		}
 
 		// now we need to check the voice channel the user is joining
 		// discord doesn't give us the channel id, so we need to get it from the guild's voice states
 		let vs = {
-			let guild = match guild_id.to_guild_cached(&ctx.cache) {
-				Some(g) => g,
-				None => {
-					warn!(%guild_id, "guild not found in cache");
-					return;
-				}
+			let Some(guild) = guild_id.to_guild_cached(&ctx.cache) else {
+				warn!(%guild_id, "guild not found in cache");
+				return;
 			};
 
 			// fetch the user's voice state

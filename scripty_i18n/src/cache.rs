@@ -150,8 +150,7 @@ pub async fn get_guild_language(guild_id: u64) -> LanguageIdentifier {
 	})
 	.ok()
 	.flatten()
-	.map(|r| r.language)
-	.unwrap_or_else(|| "en".to_string());
+	.map_or_else(|| "en".to_string(), |r| r.language);
 	let lang = LanguageIdentifier::from_str(&guild_language).expect("invalid language");
 
 	cache.insert(guild_id, lang.clone());

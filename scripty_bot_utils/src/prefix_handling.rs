@@ -44,7 +44,7 @@ async fn _dynamic_prefix(
 			Some(prefix)
 		}
 	})
-	.unwrap_or_else(|| scripty_config::get_config().prefix.to_owned());
+	.unwrap_or_else(|| scripty_config::get_config().prefix.clone());
 
 	scripty_redis::run_transaction::<()>("SETEX", |cmd| {
 		cmd.arg(format!("prefix_{{{}}}", guild_id.get()))

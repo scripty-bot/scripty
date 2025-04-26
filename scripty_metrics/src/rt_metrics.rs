@@ -11,9 +11,9 @@ use crate::metrics::Metrics;
 
 const ONE_SECOND: Duration = Duration::from_secs(1);
 
-pub fn register_metrics(handle: tokio::runtime::Handle) {
+pub fn register_metrics(handle: &tokio::runtime::Handle) {
 	info!("injecting runtime metrics monitor");
-	let monitor = tokio_metrics::RuntimeMonitor::new(&handle);
+	let monitor = tokio_metrics::RuntimeMonitor::new(handle);
 	info!("injected runtime metrics monitor, spawning thread");
 	std::thread::spawn(move || {
 		let m = crate::METRICS.get_or_init(Metrics::new).clone();

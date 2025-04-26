@@ -45,7 +45,7 @@ pub async fn cache_info(ctx: Context<'_>) -> Result<(), Error> {
 				is_collection: false,
 				value: format!("Size: `{size}b`"),
 			});
-		};
+		}
 	}
 
 	fields.sort_by_key(|field| field.size);
