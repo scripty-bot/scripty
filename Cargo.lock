@@ -3321,6 +3321,7 @@ dependencies = [
  "base64 0.22.1",
  "dashmap",
  "futures-util",
+ "http 1.3.1",
  "humantime",
  "num-format",
  "once_cell",

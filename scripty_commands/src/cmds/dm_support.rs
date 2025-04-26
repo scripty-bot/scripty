@@ -20,7 +20,7 @@ pub async fn ps_close(ctx: Context<'_>) -> Result<(), Error> {
 				.guild()
 				.expect("should be in guild"),
 		)
-		.await;
+		.await?;
 	} else {
 		ctx.say("error").await?;
 	}

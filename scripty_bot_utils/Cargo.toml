@@ -8,6 +8,7 @@ license = "EUPL-1.2"
 
 [dependencies]
 uuid = { version = "1", features = ["rand"] }
+http = "1"
 time = "0.3"
 dashmap = "6"
 base64 = "0.22"
