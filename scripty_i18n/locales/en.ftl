@@ -79,6 +79,7 @@ transcribe-message-too-long = With your current Premium status, you can transcri
 transcribe-message-video-needs-premium = Videos are more computationally expensive to transcode, and require Premium. { $filename } has been detected as a video, and has been ignored.
 transcribe-message-result-error = An error was encountered while processing `{ $filename }`: `{ $error }`. Please report this in our support server.
 transcribe-message-malformed-input = Malformed input was detected while processing `{ $filename }`. Fix it and try again. `{ $error }`
+transcribe-message-discord-error = Discord broke while processing `{ $filename }`! There's likely nothing we can do about this, read the error and check permissions if necessary. `{ $error }`
 
 ## premium command
 # This and all attributes show up exclusively in the slash command picker when `premium` is selected.
