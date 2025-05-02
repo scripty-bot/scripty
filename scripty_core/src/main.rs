@@ -11,7 +11,7 @@ use fern::{
 use rlimit::Resource;
 use url::Url;
 
-pub fn start() {
+fn main() {
 	load_config();
 
 	let rt = get_tokio_rt();

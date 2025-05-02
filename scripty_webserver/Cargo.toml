@@ -1,15 +1,20 @@
 [package]
 name = "scripty_webserver"
-version = "1.0.0"
-edition = "2024"
-license = "EUPL-1.2"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
 
 [dependencies]
-time = "0.3"
-tracing = "0.1"
-serde_json = "1"
+time.workspace = true
+tracing.workspace = true
+serde_json.workspace = true
+serde.workspace = true
+tokio.workspace = true
+axum.workspace = true
+sqlx.workspace = true
+
 scripty_db = { path = "../scripty_db" }
 scripty_i18n = { path = "../scripty_i18n" }
 scripty_utils = { path = "../scripty_utils" }
@@ -17,7 +22,3 @@ scripty_config = { path = "../scripty_config" }
 scripty_metrics = { path = "../scripty_metrics" }
 scripty_botlists = { path = "../scripty_botlists" }
 scripty_bot_utils = { path = "../scripty_bot_utils" }
-serde = { version = "1", features = ["derive"] }
-tokio = { version = "1", features = ["parking_lot"] }
-axum = { version = "0.7", features = ["json"] }
-sqlx = { version = "0.7", features = ["postgres", "macros", "migrate", "runtime-tokio-rustls"] }

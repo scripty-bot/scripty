@@ -1,9 +1,12 @@
 [package]
 name = "scripty_data_type"
-version = "0.1.0"
-edition = "2024"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
 
 [dependencies]
-dashmap = "6"
-futures-channel = "0.3"
-serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = ["gateway", "utils"] }
+dashmap.workspace = true
+serenity.workspace = true
+futures-channel.workspace = true

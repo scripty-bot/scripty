@@ -1,21 +1,21 @@
 [package]
 name = "scripty_metrics"
-version = "1.0.0"
-edition = "2024"
-license = "EUPL-1.2"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
 
 [dependencies]
-chrono = "0.4"
-dashmap = "6"
-tracing = "0.1"
-once_cell = "1"
-systemstat = "0.2"
-prometheus-static-metric = "0.5"
-tokio-metrics = { version = "0.3", features = ["rt"] }
-prometheus = { version = "0.13", features = ["process"] }
-tokio = { version = "1", features = ["parking_lot", "signal"] }
+tokio.workspace = true
+chrono.workspace = true
+dashmap.workspace = true
+tracing.workspace = true
+once_cell.workspace = true
+systemstat.workspace = true
+prometheus.workspace = true
+tokio-metrics.workspace = true
+prometheus-static-metric.workspace = true
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(tokio_unstable)'] }

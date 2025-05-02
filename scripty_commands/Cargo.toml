@@ -1,18 +1,24 @@
 [package]
 name = "scripty_commands"
-version = "1.0.0"
-edition = "2024"
-license = "EUPL-1.2"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
 
 [dependencies]
-hex = "0.4"
-tracing = "0.1"
-indexmap = "2"
-humantime = "2"
-typesize = { version = "0.1", features = ["details"] }
-num-format = "0.4"
+hex.workspace = true
+rand.workspace = true
+sqlx.workspace = true
+tokio.workspace = true
+poise.workspace = true
+tracing.workspace = true
+indexmap.workspace = true
+serenity.workspace = true
+humantime.workspace = true
+typesize.workspace = true
+num-format.workspace = true
+
 scripty_db = { path = "../scripty_db" }
 scripty_i18n = { path = "../scripty_i18n" }
 scripty_utils = { path = "../scripty_utils" }
@@ -24,20 +30,3 @@ scripty_bot_utils = { path = "../scripty_bot_utils" }
 scripty_data_storage = { path = "../scripty_data_storage" }
 scripty_integrations = { path = "../scripty_integrations" }
 scripty_audio_handler = { path = "../scripty_audio_handler" }
-tokio = { version = "1", features = ["parking_lot", "signal"] }
-serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [
-	"voice",
-	"dashmap",
-	"rustls_backend",
-	"model",
-	"gateway",
-	"cache",
-	"builder",
-	"collector",
-	"utils",
-	"typesize",
-	"transport_compression_zstd"
-] }
-sqlx = { version = "0.7", features = ["postgres", "macros", "migrate", "runtime-tokio-rustls", "time"] }
-poise = { git = "https://github.com/serenity-rs/poise", branch = "serenity-next", features = ["cache", "collector"] }
-rand = "0.8.5"

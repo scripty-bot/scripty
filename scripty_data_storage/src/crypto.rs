@@ -11,7 +11,7 @@ static CRYPTO_CIPHER: OnceCell<Aes256Gcm> = OnceCell::new();
 #[must_use]
 pub fn generate_nonce() -> [u8; 12] {
 	let mut nonce = [0u8; 12];
-	rand::thread_rng().fill_bytes(&mut nonce);
+	rand::rng().fill_bytes(&mut nonce);
 	nonce
 }
 

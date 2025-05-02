@@ -1,10 +1,3 @@
-[package]
-name = "scripty_v2"
-version = "1.0.0"
-edition = "2024"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [profile.release-full]
 inherits = "release"
 incremental = false
@@ -15,34 +8,130 @@ lto = "fat"
 debug = "line-tables-only"
 
 [workspace]
+resolver = "3"
 members = [
-	"scripty_config",
-	"scripty_webserver",
-	"scripty_core",
-	"scripty_premium",
-	"scripty_stt",
-	"scripty_audio_handler",
-	"scripty_commands",
-	"scripty_i18n",
-	"scripty_db",
-	"scripty_metrics",
-	"scripty_utils",
-	"scripty_data_storage",
-	"scripty_redis",
-	"scripty_bot",
-	"scripty_bot_utils",
-	"scripty_automod",
-	"scripty_botlists",
-	"scripty_error",
-	"scripty_tts",
-	"scripty_integrations",
-	"scripty_build_checks",
-	"scripty_data_type",
+    "scripty_config",
+    "scripty_webserver",
+    "scripty_core",
+    "scripty_premium",
+    "scripty_stt",
+    "scripty_audio_handler",
+    "scripty_commands",
+    "scripty_i18n",
+    "scripty_db",
+    "scripty_metrics",
+    "scripty_utils",
+    "scripty_data_storage",
+    "scripty_redis",
+    "scripty_bot",
+    "scripty_bot_utils",
+    "scripty_automod",
+    "scripty_botlists",
+    "scripty_error",
+    "scripty_tts",
+    "scripty_integrations",
+    "scripty_build_checks",
+    "scripty_data_type",
 ]
+default-members = ["scripty_core"]
 
-[dependencies]
-scripty_core = { path = "scripty_core" }
-scripty_build_checks = { path = "scripty_build_checks" }
+[workspace.package]
+version = "1.0.0"
+edition = "2024"
+license = "EUPL-1.2"
+homepage = "https://scripty.org"
+repository = "https://github.com/scripty-bot/scripty"
+
+[workspace.dependencies]
+# basic version deps
+csv = "1"
+url = "2"
+num = "0.4"
+hex = "0.4"
+stfu = "0.1"
+time = "0.3"
+rand = "0.9"
+toml = "0.8"
+sha2 = "0.10"
+hound = "3"
+ahash = "0.8"
+flume = "0.11"
+magnum = "1"
+chrono = "0.4"
+rlimit = "0.10"
+fluent = "0.16"
+base64 = "0.22"
+dashmap = "6"
+futures = "0.3"
+secrecy = "0.8"
+num_cpus = "1"
+indexmap = "2"
+bitflags = "2"
+deadpool = "0.11"
+once_cell = "1"
+byteorder = "1"
+rmp-serde = "1"
+humantime = "2"
+serde-aux = "4"
+thousands = "0.2"
+backtrace = "0.3"
+ouroboros = "0.18"
+serde_json = "1"
+systemstat = "0.2"
+num-format = "0.4"
+async-trait = "0.1"
+parking_lot = "0.12"
+unic-langid = "0.9"
+dasp_signal = "0.11"
+serde_derive = "1"
+futures-util = "0.3"
+intl-memoizer = "0.5"
+deadpool-redis = "0.15"
+futures-channel = "0.3"
+small-fixed-array = "0.4"
+prometheus-static-metric = "0.5"
+
+# additional config deps
+axum = { version = "0.7", features = ["json"] }
+uuid = { version = "1", features = ["rand", "v4"] }
+fern = { version = "0.6", features = ["colored"] }
+serde = { version = "1", features = ["derive"] }
+redis = { version = "0.25", features = ["tokio-rustls"] }
+tracing = { version = "0.1", features = ["log"] }
+aes-gcm = { version = "0.10", features = ["std"] }
+typesize = { version = "0.1", features = ["details"] }
+prometheus = { version = "0.13", features = ["process"] }
+audiopus_sys = { version = "0.2", features = ["static"] }
+tokio-metrics = { version = "0.3", features = ["rt"] }
+async-tempfile = { version = "0.5", features = ["uuid"] }
+dasp_interpolate = { version = "0.11", features = ["linear"] }
+tokio = { version = "1", features = ["parking_lot", "signal", "rt-multi-thread"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+sqlx = { version = "0.7", features = ["postgres", "macros", "migrate", "runtime-tokio-rustls", "time"] }
+
+# git deps
+scripty-common = { git = "https://github.com/scripty-bot/scripty-common" }
+poise = { git = "https://github.com/serenity-rs/poise", branch = "serenity-next", features = ["cache", "collector"] }
+fenrir-rs = { git = "https://github.com/tazz4843/fenrir-rs", branch = "json-logs", features = ["reqwest-async", "json-log-fmt"] }
+songbird = { git = "https://github.com/serenity-rs/songbird", branch = "serenity-next", features = [
+    "receive",
+    "rustls",
+    "serenity"
+] }
+serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", features = [
+    "voice",
+    "dashmap",
+    "rustls_backend",
+    "model",
+    "gateway",
+    "cache",
+    "builder",
+    "collector",
+    "utils",
+    "typesize",
+    "transport_compression_zstd"
+] }
+
 
 [patch.crates-io]
 serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next" }

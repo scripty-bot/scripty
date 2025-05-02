@@ -1,17 +1,18 @@
 [package]
 name = "scripty_botlists"
-version = "0.1.0"
-edition = "2024"
-license = "EUPL-1.2"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
 
 [dependencies]
-serde = "1"
-reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
-tracing = "0.1"
-serde-aux = "4"
-serde_json = "1"
-async-trait = "0.1"
-serde_derive = "1"
+serde.workspace = true
+reqwest.workspace = true
+tracing.workspace = true
+serde-aux.workspace = true
+serde_json.workspace = true
+async-trait.workspace = true
+serde_derive.workspace = true
+
 scripty_config = { path = "../scripty_config" }

@@ -1,15 +1,16 @@
 [package]
 name = "scripty_automod"
-version = "0.1.0"
-edition = "2024"
-license = "EUPL-1.2"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
 
 [dependencies]
-stfu = "0.1"
-tracing = "0.1"
+stfu.workspace = true
+sqlx.workspace = true
+poise.workspace = true
+tracing.workspace = true
+
 scripty_db = { path = "../scripty_db" }
 scripty_premium = { path = "../scripty_premium" }
-sqlx = { version = "0.7", features = ["postgres", "macros", "migrate", "runtime-tokio-rustls", "time"] }
-poise = { git = "https://github.com/serenity-rs/poise", branch = "serenity-next", features = ["cache", "collector"] }
