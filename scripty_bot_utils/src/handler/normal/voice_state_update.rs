@@ -278,8 +278,5 @@ async fn maybe_create_thread(
 			.await?
 	};
 
-	Ok((
-		target_channel_id,
-		Some(ThreadId::new(thread.id.widen().get())),
-	))
+	Ok((target_channel_id, Some(thread.id)))
 }

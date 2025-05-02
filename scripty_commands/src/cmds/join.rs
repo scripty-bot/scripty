@@ -124,8 +124,10 @@ pub async fn join(
 		.await?;
 		return Ok(());
 	} else if create_thread
-		&& [ChannelType::Voice, ChannelType::Stage].contains(&target_channel.base.kind)
-	{
+		&& matches!(
+			target_channel.base.kind,
+			ChannelType::Voice | ChannelType::Stage
+		) {
 		ctx.say(
 			format_message!(resolved_language, "join-create-thread-in-unsupported", targetMention: target_channel.mention().to_string()),
 		)
@@ -229,9 +231,7 @@ pub async fn join(
 	if voice_channel
 		.base
 		.guild(ctx.cache())
-		.ok_or(Error::custom(
-			"the current server was not found in the cache (Discord didn't send data)".to_string(),
-		))?
+		.ok_or_else(Error::expected_guild)?
 		.voice_states
 		.iter()
 		.filter(|state| state.channel_id == Some(voice_channel.id))
@@ -274,7 +274,7 @@ pub async fn join(
 				)
 				.await?;
 
-			(Some(ThreadId::new(thread.id.get())), target_channel.id)
+			(Some(thread.id), target_channel.id)
 		} else {
 			// creating a thread outside a forum
 
@@ -289,7 +289,7 @@ pub async fn join(
 				)
 				.await?;
 
-			(Some(ThreadId::new(thread.id.get())), target_channel.id)
+			(Some(thread.id), target_channel.id)
 		}
 	} else if let Some(target_thread) = target_thread {
 		// this channel is a thread
