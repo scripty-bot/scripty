@@ -8,6 +8,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER: clang
   RUSTFLAGS: "--cfg tokio_unstable -Clink-arg=-fuse-ld=mold -Zshare-generics=y"
 
 jobs:
@@ -16,6 +17,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - run: |
+          sudo apt update
+          sudo apt install -y mold clang pkgconf
 
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
