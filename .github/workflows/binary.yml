@@ -9,40 +9,22 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
-  RUSTFLAGS: "--cfg tokio_unstable -Zshare-generics=y"
-  CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
-
 jobs:
   build:
-    name: Rust project - latest
+    name: Build binary
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        target:
-          - x86_64-unknown-linux-gnu
-          - aarch64-unknown-linux-gnu
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          target: ${{ matrix.target }}
-
-      - if: matrix.target == 'x86_64-unknown-linux-gnu'
-        run: |
-          sudo apt update
-          sudo apt install -y --no-install-recommends pkgconf
-
-      - if: matrix.target == 'aarch64-unknown-linux-gnu'
-        run: |
-          sudo apt update
-          sudo apt install -y gcc-aarch64-linux-gnu pkgconf
+          target: x86_64-unknown-linux-gnu
 
       - name: Build
-        run: cargo build --release --target ${{ matrix.target }}
+        run: cargo build --release --target x86_64-unknown-linux-gnu
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: scripty_v2-${{ matrix.target }}
-          path: target/${{ matrix.target }}/release/scripty_v2
+          name: scripty_v2-x86_64-unknown-linux-gnu
+          path: target/x86_64-unknown-linux-gnu/release/scripty_v2
