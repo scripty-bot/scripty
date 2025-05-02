@@ -31,15 +31,15 @@ jobs:
       - if: matrix.target == 'x86_64-unknown-linux-gnu'
         run: |
           sudo apt update
-          sudo apt install -y --no-install-recommends mold clang pkgconf
+          sudo apt install -y --no-install-recommends pkgconf
 
       - if: matrix.target == 'aarch64-unknown-linux-gnu'
         run: |
           sudo apt update
-          sudo apt install -y gcc-aarch64-linux-gnu mold clang pkgconf
+          sudo apt install -y gcc-aarch64-linux-gnu pkgconf
 
       - name: Build
-        run: mold -run cargo build --release --target ${{ matrix.target }}
+        run: cargo build --release --target ${{ matrix.target }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
