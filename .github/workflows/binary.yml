@@ -8,6 +8,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  RUSTFLAGS: "--cfg tokio_unstable -Clink-arg=-fuse-ld=mold -Zshare-generics=y"
 
 jobs:
   build:
