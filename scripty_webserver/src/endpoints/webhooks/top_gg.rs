@@ -1,6 +1,5 @@
 use axum::{
 	Json,
-	async_trait,
 	extract::FromRequestParts,
 	http::{StatusCode, request::Parts},
 };
@@ -10,8 +9,10 @@ use scripty_botlists::top_gg::IncomingWebhook;
 use crate::errors::WebServerError;
 
 pub struct TopGgAuthorization;
-#[async_trait]
-impl<S> FromRequestParts<S> for TopGgAuthorization {
+impl<S> FromRequestParts<S> for TopGgAuthorization
+where
+	S: Send + Sync,
+{
 	type Rejection = (StatusCode, &'static str);
 
 	async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {

@@ -102,6 +102,14 @@ make_static_metric! {
 	}
 
 	pub label_enum RuntimeMetrics {
+		blocking_queue_depth,
+		blocking_threads_count,
+		budget_forced_yield_count,
+		elapsed,
+		global_queue_depth,
+		idle_blocking_threads_count,
+		io_driver_ready_count,
+		live_tasks_count,
 		workers_count,
 		total_park_count,
 		max_park_count,
@@ -131,13 +139,9 @@ make_static_metric! {
 		total_busy_duration,
 		max_busy_duration,
 		min_busy_duration,
-		injection_queue_depth,
 		total_local_queue_depth,
 		max_local_queue_depth,
 		min_local_queue_depth,
-		elapsed,
-		budget_forced_yield_count,
-		io_driver_ready_count,
 	}
 	pub struct RuntimeMetricsVec: IntGauge {
 		"runtime_metrics" => RuntimeMetrics,

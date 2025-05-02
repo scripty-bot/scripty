@@ -1,6 +1,5 @@
 use axum::{
 	Json,
-	async_trait,
 	extract::FromRequestParts,
 	http::{StatusCode, request::Parts},
 };
@@ -10,8 +9,10 @@ use scripty_botlists::wumpus_store::IncomingWebhook;
 use crate::errors::WebServerError;
 
 pub struct WumpusStoreAuthorization;
-#[async_trait]
-impl<S> FromRequestParts<S> for WumpusStoreAuthorization {
+impl<S> FromRequestParts<S> for WumpusStoreAuthorization
+where
+	S: Send + Sync,
+{
 	type Rejection = (StatusCode, &'static str);
 
 	async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {

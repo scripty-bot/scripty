@@ -15,7 +15,6 @@ pub struct Authentication {
 	pub user_id: u64,
 }
 
-#[axum::async_trait]
 impl<S> FromRequestParts<S> for Authentication
 where
 	S: Send + Sync,

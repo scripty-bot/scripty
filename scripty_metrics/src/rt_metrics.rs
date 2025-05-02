@@ -20,6 +20,14 @@ pub fn register_metrics(handle: &tokio::runtime::Handle) {
 		for interval in monitor.intervals() {
 			trace!("runtime metrics: {:?}", interval);
 			let RuntimeMetrics {
+				blocking_queue_depth,
+				blocking_threads_count,
+				budget_forced_yield_count,
+				elapsed,
+				global_queue_depth,
+				idle_blocking_threads_count,
+				io_driver_ready_count,
+				live_tasks_count,
 				workers_count,
 				total_park_count,
 				max_park_count,
@@ -49,15 +57,30 @@ pub fn register_metrics(handle: &tokio::runtime::Handle) {
 				total_busy_duration,
 				max_busy_duration,
 				min_busy_duration,
-				injection_queue_depth,
 				total_local_queue_depth,
 				max_local_queue_depth,
 				min_local_queue_depth,
-				elapsed,
-				budget_forced_yield_count,
-				io_driver_ready_count,
 				..
 			} = interval;
+			m.runtime_metrics
+				.blocking_queue_depth
+				.set(blocking_queue_depth as i64);
+			m.runtime_metrics
+				.blocking_threads_count
+				.set(blocking_threads_count as i64);
+			m.runtime_metrics
+				.budget_forced_yield_count
+				.set(budget_forced_yield_count as i64);
+			m.runtime_metrics.elapsed.set(elapsed.as_nanos() as i64);
+			m.runtime_metrics
+				.global_queue_depth
+				.set(global_queue_depth as i64);
+			m.runtime_metrics
+				.idle_blocking_threads_count
+				.set(idle_blocking_threads_count as i64);
+			m.runtime_metrics
+				.live_tasks_count
+				.set(live_tasks_count as i64);
 			m.runtime_metrics.workers_count.set(workers_count as i64);
 			m.runtime_metrics
 				.total_park_count
@@ -136,9 +159,6 @@ pub fn register_metrics(handle: &tokio::runtime::Handle) {
 				.min_busy_duration
 				.set(min_busy_duration.as_nanos() as i64);
 			m.runtime_metrics
-				.injection_queue_depth
-				.set(injection_queue_depth as i64);
-			m.runtime_metrics
 				.total_local_queue_depth
 				.set(total_local_queue_depth as i64);
 			m.runtime_metrics
@@ -147,10 +167,6 @@ pub fn register_metrics(handle: &tokio::runtime::Handle) {
 			m.runtime_metrics
 				.min_local_queue_depth
 				.set(min_local_queue_depth as i64);
-			m.runtime_metrics.elapsed.set(elapsed.as_nanos() as i64);
-			m.runtime_metrics
-				.budget_forced_yield_count
-				.set(budget_forced_yield_count as i64);
 			m.runtime_metrics
 				.io_driver_ready_count
 				.set(io_driver_ready_count as i64);

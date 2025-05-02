@@ -48,6 +48,7 @@ csv = "1"
 url = "2"
 num = "0.4"
 hex = "0.4"
+http = "1"
 stfu = "0.1"
 time = "0.3"
 rand = "0.9"
@@ -63,11 +64,11 @@ fluent = "0.16"
 base64 = "0.22"
 dashmap = "6"
 futures = "0.3"
-secrecy = "0.8"
+secrecy = "0.10"
 num_cpus = "1"
 indexmap = "2"
 bitflags = "2"
-deadpool = "0.11"
+deadpool = "0.12"
 once_cell = "1"
 byteorder = "1"
 rmp-serde = "1"
@@ -86,28 +87,28 @@ dasp_signal = "0.11"
 serde_derive = "1"
 futures-util = "0.3"
 intl-memoizer = "0.5"
-deadpool-redis = "0.15"
+deadpool-redis = "0.20"
 futures-channel = "0.3"
 small-fixed-array = "0.4"
 prometheus-static-metric = "0.5"
 
 # additional config deps
-axum = { version = "0.7", features = ["json"] }
-uuid = { version = "1", features = ["rand", "v4"] }
-fern = { version = "0.6", features = ["colored"] }
+axum = { version = "0.8", features = ["json"] }
+uuid = { version = "1", features = ["rng-rand", "v4"] }
+fern = { version = "0.7", features = ["colored"] }
 serde = { version = "1", features = ["derive"] }
-redis = { version = "0.25", features = ["tokio-rustls"] }
+redis = { version = "0.29", features = ["tokio-rustls-comp"] }
 tracing = { version = "0.1", features = ["log"] }
 aes-gcm = { version = "0.10", features = ["std"] }
 typesize = { version = "0.1", features = ["details"] }
-prometheus = { version = "0.13", features = ["process"] }
+prometheus = { version = "0.14", features = ["process"] }
 audiopus_sys = { version = "0.2", features = ["static"] }
-tokio-metrics = { version = "0.3", features = ["rt"] }
-async-tempfile = { version = "0.5", features = ["uuid"] }
+tokio-metrics = { version = "0.4", features = ["rt"] }
+async-tempfile = { version = "0.7", features = ["uuid"] }
 dasp_interpolate = { version = "0.11", features = ["linear"] }
 tokio = { version = "1", features = ["parking_lot", "signal", "rt-multi-thread"] }
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
-sqlx = { version = "0.7", features = ["postgres", "macros", "migrate", "runtime-tokio-rustls", "time"] }
+sqlx = { version = "0.8", features = ["postgres", "macros", "migrate", "runtime-tokio-rustls", "time"] }
 
 # git deps
 scripty-common = { git = "https://github.com/scripty-bot/scripty-common" }
@@ -131,12 +132,3 @@ serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next", f
     "typesize",
     "transport_compression_zstd"
 ] }
-
-
-[patch.crates-io]
-serenity = { git = "https://github.com/serenity-rs/serenity", branch = "next" }
-songbird = { git = "https://github.com/serenity-rs/songbird", branch = "serenity-next" }
-
-[patch.crates-io.serenity-voice-model]
-git = "https://github.com/serenity-rs/serenity"
-branch = "current"

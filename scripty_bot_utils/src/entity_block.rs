@@ -31,7 +31,7 @@ pub async fn init_blocked() -> Result<(), scripty_redis::redis::RedisError> {
 		}
 		blocked_user_pipe
 			.ignore()
-			.query_async::<_, ()>(&mut redis_pool)
+			.query_async::<()>(&mut redis_pool)
 			.await?;
 	}
 
@@ -52,7 +52,7 @@ pub async fn init_blocked() -> Result<(), scripty_redis::redis::RedisError> {
 
 		blocked_guild_pipe
 			.ignore()
-			.query_async::<_, ()>(&mut redis_pool)
+			.query_async::<()>(&mut redis_pool)
 			.await?;
 	}
 

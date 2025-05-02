@@ -7,13 +7,13 @@ homepage.workspace = true
 repository.workspace = true
 
 [dependencies]
+axum.workspace = true
 time.workspace = true
-tracing.workspace = true
-serde_json.workspace = true
+sqlx.workspace = true
 serde.workspace = true
 tokio.workspace = true
-axum.workspace = true
-sqlx.workspace = true
+tracing.workspace = true
+serde_json.workspace = true
 
 scripty_db = { path = "../scripty_db" }
 scripty_i18n = { path = "../scripty_i18n" }
