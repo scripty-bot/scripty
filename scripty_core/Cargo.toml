@@ -6,6 +6,10 @@ license.workspace = true
 homepage.workspace = true
 repository.workspace = true
 
+[[bin]]
+name = "scripty_v2"
+path = "src/main.rs"
+
 [dependencies]
 url.workspace = true
 fern.workspace = true
