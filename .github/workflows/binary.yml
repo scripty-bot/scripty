@@ -9,6 +9,9 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
+  CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
+  CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
+
 jobs:
   build:
     name: Rust project - latest
@@ -25,15 +28,15 @@ jobs:
         with:
           target: ${{ matrix.target }}
 
-      - if: matrix.target == 'x86_64-unknown-linux-musl'
+      - if: matrix.target == 'x86_64-unknown-linux-gnu'
         run: |
           sudo apt update
           sudo apt install -y --no-install-recommends mold clang pkgconf
 
-      - if: matrix.target == 'armv7-unknown-linux-musleabihf'
+      - if: matrix.target == 'armv7-unknown-linux-gnu'
         run: |
           sudo apt update
-          sudo apt install -y gcc-arm-linux-gnueabihf mold clang pkgconf
+          sudo apt install -y gcc-aarch64-linux-gnu mold clang pkgconf
 
       - name: Build
         run: cargo build --release --target ${{ matrix.target }}
