@@ -9,10 +9,7 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
-  RUSTFLAGS: "--cfg tokio_unstable -Clink-arg=-fuse-ld=mold -Zshare-generics=y"
-
-  CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: clang
-  CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER: clang
+  RUSTFLAGS: "--cfg tokio_unstable -Zshare-generics=y"
   CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
 
 jobs:
@@ -42,7 +39,7 @@ jobs:
           sudo apt install -y gcc-aarch64-linux-gnu mold clang pkgconf
 
       - name: Build
-        run: cargo build --release --target ${{ matrix.target }}
+        run: mold -run cargo build --release --target ${{ matrix.target }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
