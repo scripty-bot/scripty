@@ -265,5 +265,17 @@ fn format_transcript_msg<'a>(
 
 			msg
 		}
+
+		TranscriptResultEnum::DiscordError { error } => {
+			msg_content.push('\n');
+			msg_content.push_str(&format_message!(
+				resolved_language,
+				"transcribe-message-discord-error",
+				filename: filename.to_string(),
+				error: format!("{:?}", error)
+			));
+
+			msg
+		}
 	}
 }

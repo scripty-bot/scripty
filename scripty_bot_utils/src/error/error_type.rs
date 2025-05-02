@@ -5,6 +5,7 @@ use std::{
 };
 
 use backtrace::Backtrace;
+use http::header::ToStrError;
 use scripty_stt::{ModelError, OpusSourceError};
 use serenity::{http::JsonErrorCode, model::channel::ChannelType, prelude::SerenityError};
 
@@ -35,6 +36,8 @@ pub enum ErrorEnum {
 	ExpectedGuild,
 	ExpectedChannel,
 	Join(scripty_audio_handler::JoinError),
+	Reqwest(reqwest::Error),
+	ToStr(ToStrError),
 	ManualError,
 	Redis(scripty_redis::redis::RedisError),
 	RedisPool(scripty_redis::PoolError),
@@ -97,6 +100,20 @@ impl Error {
 		Error {
 			bt:  Backtrace::new_unresolved(),
 			err: ErrorEnum::Join(err),
+		}
+	}
+
+	pub fn reqwest(err: reqwest::Error) -> Self {
+		Error {
+			bt:  Backtrace::new_unresolved(),
+			err: ErrorEnum::Reqwest(err),
+		}
+	}
+
+	pub fn to_str(err: ToStrError) -> Self {
+		Error {
+			bt:  Backtrace::new_unresolved(),
+			err: ErrorEnum::ToStr(err),
 		}
 	}
 
@@ -245,6 +262,8 @@ impl Display for Error {
 			ExpectedGuild => "expected this to be in a guild".into(),
 			ExpectedChannel => "expected this to be in a channel".into(),
 			Join(e) => format!("failed to join VC: {}", e).into(),
+			Reqwest(e) => format!("error while sending http request: {}", e).into(),
+			ToStr(e) => format!("error decoding http headers into string: {}", e).into(),
 			ManualError => "manual error".into(),
 			Redis(e) => format!("Redis returned an error: {}", e).into(),
 			RedisPool(e) => format!("Redis pool returned an error: {}", e).into(),
@@ -283,6 +302,8 @@ impl StdError for Error {
 			ExpectedGuild => None,
 			ExpectedChannel => None,
 			Join(e) => Some(e),
+			Reqwest(e) => Some(e),
+			ToStr(e) => Some(e),
 			ManualError => None,
 			Redis(e) => Some(e),
 			RedisPool(e) => Some(e),
@@ -352,6 +373,24 @@ impl From<scripty_audio_handler::JoinError> for Error {
 		Self {
 			err: ErrorEnum::Join(e),
 			bt:  Backtrace::new(),
+		}
+	}
+}
+
+impl From<reqwest::Error> for Error {
+	fn from(e: reqwest::Error) -> Self {
+		Self {
+			err: ErrorEnum::Reqwest(e),
+			bt:  Backtrace::new_unresolved(),
+		}
+	}
+}
+
+impl From<ToStrError> for Error {
+	fn from(e: ToStrError) -> Self {
+		Self {
+			err: ErrorEnum::ToStr(e),
+			bt:  Backtrace::new_unresolved(),
 		}
 	}
 }

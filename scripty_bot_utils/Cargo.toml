@@ -8,6 +8,7 @@ repository.workspace = true
 
 [dependencies]
 uuid.workspace = true
+http.workspace = true
 time.workspace = true
 sqlx.workspace = true
 tokio.workspace = true

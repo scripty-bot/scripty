@@ -1,6 +1,7 @@
 use std::{fmt, num::ParseFloatError, time::Duration};
 
 use scripty_stt::{FfprobeParsingError, OpusSourceError};
+use serenity::Error as SerenityError;
 use small_fixed_array::FixedString;
 
 use super::error::FileTranscriptError;
@@ -41,12 +42,14 @@ pub enum TranscriptResultEnum {
 	Error {
 		error: FileTranscriptError,
 	},
+	DiscordError {
+		error: SerenityError,
+	},
 }
 impl From<FileTranscriptError> for TranscriptResultEnum {
 	fn from(error: FileTranscriptError) -> Self {
 		let cause = match error {
 			error @ (FileTranscriptError::Sqlx(_)
-			| FileTranscriptError::Serenity(_)
 			| FileTranscriptError::Model(_)
 			| FileTranscriptError::Io(_)
 			| FileTranscriptError::TempFile(_)
@@ -54,6 +57,7 @@ impl From<FileTranscriptError> for TranscriptResultEnum {
 			| FileTranscriptError::NoStderr
 			| FileTranscriptError::ExpectedAttachments
 			| FileTranscriptError::NoReceiver) => return Self::Error { error },
+			FileTranscriptError::Serenity(error) => return Self::DiscordError { error },
 
 			FileTranscriptError::Opus(e) => MalformedInputError::Opus(e),
 			FileTranscriptError::DurationParseError(e) => MalformedInputError::DurationParse(e),
@@ -91,6 +95,11 @@ impl fmt::Debug for TranscriptResult {
 				.finish(),
 			TranscriptResultEnum::Error { error } => f
 				.debug_struct("TranscriptResult::Error")
+				.field("filename", &self.filename)
+				.field("error", &error)
+				.finish(),
+			TranscriptResultEnum::DiscordError { error } => f
+				.debug_struct("TranscriptResult::DiscordError")
 				.field("filename", &self.filename)
 				.field("error", &error)
 				.finish(),
