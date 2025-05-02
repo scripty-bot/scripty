@@ -65,7 +65,10 @@ pub async fn connect_to_vc(
 			(
 				ChannelType::NewsThread | ChannelType::PublicThread | ChannelType::PrivateThread,
 				Some(parent),
-			) => (parent, Some(transcript_target_channel)),
+			) => (
+				parent,
+				Some(transcript_target_channel.widen().expect_thread()),
+			),
 
 			// a thread with no parent? i must inform my supervisor post-haste!
 			(
