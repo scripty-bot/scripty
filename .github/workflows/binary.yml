@@ -9,7 +9,10 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
-  CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
+  RUSTFLAGS: "--cfg tokio_unstable -Clink-arg=-fuse-ld=mold -Zshare-generics=y"
+
+  CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: clang
+  CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER: clang
   CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
 
 jobs:
