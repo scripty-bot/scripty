@@ -55,7 +55,6 @@ pub enum ErrorEnum {
 
 #[allow(dead_code)]
 impl Error {
-	#[inline]
 	pub fn serenity(err: serenity::Error) -> Self {
 		Error {
 			bt:  Backtrace::new_unresolved(),
@@ -63,7 +62,6 @@ impl Error {
 		}
 	}
 
-	#[inline]
 	pub fn invalid_channel_type(expected: Vec<ChannelType>, got: ChannelType) -> Self {
 		Error {
 			bt:  Backtrace::new_unresolved(),
@@ -71,7 +69,6 @@ impl Error {
 		}
 	}
 
-	#[inline]
 	pub fn db(err: sqlx::Error) -> Self {
 		Error {
 			bt:  Backtrace::new_unresolved(),
@@ -79,7 +76,6 @@ impl Error {
 		}
 	}
 
-	#[inline]
 	pub fn expected_guild() -> Self {
 		Error {
 			bt:  Backtrace::new_unresolved(),
@@ -87,7 +83,6 @@ impl Error {
 		}
 	}
 
-	#[inline]
 	pub fn expected_channel() -> Self {
 		Error {
 			bt:  Backtrace::new_unresolved(),
@@ -95,7 +90,6 @@ impl Error {
 		}
 	}
 
-	#[inline]
 	pub fn join(err: scripty_audio_handler::JoinError) -> Self {
 		Error {
 			bt:  Backtrace::new_unresolved(),
@@ -117,7 +111,6 @@ impl Error {
 		}
 	}
 
-	#[inline]
 	pub fn manual() -> Self {
 		Error {
 			bt:  Backtrace::new_unresolved(),
@@ -125,7 +118,6 @@ impl Error {
 		}
 	}
 
-	#[inline]
 	pub fn redis(err: scripty_redis::redis::RedisError) -> Self {
 		Error {
 			bt:  Backtrace::new_unresolved(),
@@ -133,7 +125,6 @@ impl Error {
 		}
 	}
 
-	#[inline]
 	pub fn redis_pool(err: scripty_redis::PoolError) -> Self {
 		Error {
 			bt:  Backtrace::new_unresolved(),
@@ -141,7 +132,6 @@ impl Error {
 		}
 	}
 
-	#[inline]
 	pub fn voice_message_decode(err: OpusSourceError) -> Self {
 		Error {
 			bt:  Backtrace::new_unresolved(),
@@ -149,7 +139,6 @@ impl Error {
 		}
 	}
 
-	#[inline]
 	pub fn transcription(err: ModelError) -> Self {
 		Error {
 			bt:  Backtrace::new_unresolved(),
@@ -157,7 +146,6 @@ impl Error {
 		}
 	}
 
-	#[inline]
 	pub fn expected_premium_value() -> Self {
 		Error {
 			bt:  Backtrace::new_unresolved(),
@@ -165,7 +153,6 @@ impl Error {
 		}
 	}
 
-	#[inline]
 	pub fn audio_transcription(err: FileTranscriptError) -> Self {
 		Error {
 			bt:  Backtrace::new_unresolved(),
@@ -173,7 +160,6 @@ impl Error {
 		}
 	}
 
-	#[inline]
 	pub fn custom(err: String) -> Self {
 		Error {
 			bt:  Backtrace::new_unresolved(),
@@ -181,7 +167,6 @@ impl Error {
 		}
 	}
 
-	#[inline]
 	pub fn call_already_exists() -> Self {
 		Error {
 			bt:  Backtrace::new_unresolved(),
@@ -189,7 +174,6 @@ impl Error {
 		}
 	}
 
-	#[inline]
 	pub fn no_guild_defaults() -> Self {
 		Error {
 			bt:  Backtrace::new_unresolved(),
@@ -197,7 +181,6 @@ impl Error {
 		}
 	}
 
-	#[inline]
 	pub fn background_task(err: tokio::task::JoinError) -> Self {
 		Error {
 			bt:  Backtrace::new_unresolved(),
@@ -205,7 +188,6 @@ impl Error {
 		}
 	}
 
-	#[inline]
 	pub fn backtrace(&mut self) -> &Backtrace {
 		self.bt.resolve();
 		&self.bt
@@ -322,7 +304,6 @@ impl StdError for Error {
 }
 
 impl From<serenity::Error> for Error {
-	#[inline]
 	fn from(e: serenity::Error) -> Self {
 		Self {
 			err: ErrorEnum::Serenity(e),
@@ -332,7 +313,6 @@ impl From<serenity::Error> for Error {
 }
 
 impl From<sqlx::Error> for Error {
-	#[inline]
 	fn from(e: sqlx::Error) -> Self {
 		Self {
 			err: ErrorEnum::Db(e),
@@ -342,7 +322,6 @@ impl From<sqlx::Error> for Error {
 }
 
 impl From<scripty_audio_handler::Error> for Error {
-	#[inline]
 	fn from(
 		scripty_audio_handler::Error { kind, backtrace }: scripty_audio_handler::Error,
 	) -> Self {
@@ -368,7 +347,6 @@ impl From<scripty_audio_handler::Error> for Error {
 }
 
 impl From<scripty_audio_handler::JoinError> for Error {
-	#[inline]
 	fn from(e: scripty_audio_handler::JoinError) -> Self {
 		Self {
 			err: ErrorEnum::Join(e),
@@ -396,7 +374,6 @@ impl From<ToStrError> for Error {
 }
 
 impl From<scripty_redis::redis::RedisError> for Error {
-	#[inline]
 	fn from(e: scripty_redis::redis::RedisError) -> Self {
 		Self {
 			err: ErrorEnum::Redis(e),
@@ -406,7 +383,6 @@ impl From<scripty_redis::redis::RedisError> for Error {
 }
 
 impl From<scripty_redis::PoolError> for Error {
-	#[inline]
 	fn from(e: scripty_redis::PoolError) -> Self {
 		Self {
 			err: ErrorEnum::RedisPool(e),
@@ -416,7 +392,6 @@ impl From<scripty_redis::PoolError> for Error {
 }
 
 impl From<String> for Error {
-	#[inline]
 	fn from(e: String) -> Self {
 		Self {
 			err: ErrorEnum::Custom(e),
@@ -426,7 +401,6 @@ impl From<String> for Error {
 }
 
 impl From<OpusSourceError> for Error {
-	#[inline]
 	fn from(e: OpusSourceError) -> Self {
 		Self {
 			err: ErrorEnum::VoiceMessageDecode(e),
@@ -436,7 +410,6 @@ impl From<OpusSourceError> for Error {
 }
 
 impl From<ModelError> for Error {
-	#[inline]
 	fn from(e: ModelError) -> Self {
 		Self {
 			err: ErrorEnum::Transcription(e),
@@ -446,7 +419,6 @@ impl From<ModelError> for Error {
 }
 
 impl From<FileTranscriptError> for Error {
-	#[inline]
 	fn from(e: FileTranscriptError) -> Self {
 		Self {
 			err: ErrorEnum::AudioTranscription(e),
@@ -456,7 +428,6 @@ impl From<FileTranscriptError> for Error {
 }
 
 impl From<scripty_redis::TransactionError> for Error {
-	#[inline]
 	fn from(e: scripty_redis::TransactionError) -> Self {
 		match e {
 			scripty_redis::TransactionError::Deadpool(e) => Self::from(e),

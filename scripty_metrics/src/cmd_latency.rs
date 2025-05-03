@@ -42,7 +42,6 @@ pub fn measure_end_latency(id: u64) {
 
 /// Call this function roughly every two minutes.
 /// This will clear all stored start times, to free up memory.
-#[inline]
 pub fn clear_latency_start_times() {
 	LATENCY_START_TIME.get_or_init(DashMap::new).clear();
 }

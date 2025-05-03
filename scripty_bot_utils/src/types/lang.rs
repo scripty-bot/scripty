@@ -28,19 +28,16 @@ impl ArgumentConvert for Language {
 }
 
 impl Default for Language {
-	#[inline]
 	fn default() -> Self {
 		Self("en".to_owned())
 	}
 }
 
 impl Language {
-	#[inline]
 	pub fn new_unchecked(s: String) -> Self {
 		Self(s)
 	}
 
-	#[inline]
 	#[allow(dead_code)]
 	pub fn new(s: String) -> Option<Self> {
 		if scripty_audio_handler::check_model_language(&s) {
@@ -50,21 +47,18 @@ impl Language {
 		}
 	}
 
-	#[inline]
 	pub fn into_inner(self) -> String {
 		self.0
 	}
 }
 
 impl Display for Language {
-	#[inline]
 	fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
 		f.write_str(self.0.as_str())
 	}
 }
 
 impl From<Language> for sqlx::types::JsonValue {
-	#[inline]
 	fn from(language: Language) -> Self {
 		Self::String(language.0)
 	}
@@ -77,7 +71,6 @@ impl From<Language> for sqlx::types::JsonValue {
 pub struct LanguageInvalid(String);
 
 impl Display for LanguageInvalid {
-	#[inline]
 	fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
 		f.write_str(format!(r#"language "{}" is invalid"#, self.0).as_str())
 	}

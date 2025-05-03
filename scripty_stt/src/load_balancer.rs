@@ -257,12 +257,10 @@ pub struct LoadBalancedStream {
 }
 
 impl LoadBalancedStream {
-	#[inline]
 	pub fn is_overloaded(&self) -> bool {
 		self.is_overloaded.load(Ordering::Relaxed)
 	}
 
-	#[inline]
 	pub fn is_in_error(&self) -> bool {
 		self.waiting_for_new_stream.load(Ordering::Relaxed)
 			|| self.is_errored.load(Ordering::Relaxed)

@@ -3,7 +3,6 @@ use std::simd::i16x64;
 use dasp_interpolate::linear::Linear;
 use dasp_signal::{Signal, from_iter, interpolate::Converter};
 
-#[inline]
 pub fn process_audio(
 	src: Vec<i16>,
 	src_sample_rate: f64,

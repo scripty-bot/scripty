@@ -190,7 +190,6 @@ pub async fn add_blocked_guild(guild_id: GuildId, reason: Option<String>) -> Res
 	Ok(())
 }
 
-#[inline]
 pub fn check_block(ctx: poise::Context<'_, Data, Error>) -> BoxFuture<Result<bool, Error>> {
 	Box::pin(_check_block(ctx))
 }

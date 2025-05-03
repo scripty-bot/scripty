@@ -454,7 +454,6 @@ async fn _on_error(error: FrameworkError<'_, Data, Error>) {
 	}
 }
 
-#[inline]
 pub fn on_error(error: FrameworkError<'_, Data, Error>) -> BoxFuture<'_, ()> {
 	Box::pin(_on_error(error))
 }

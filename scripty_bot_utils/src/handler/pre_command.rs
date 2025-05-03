@@ -32,7 +32,6 @@ async fn _pre_command(ctx: Context<'_>) {
 	ctx.set_invocation_data(invocation_data).await;
 }
 
-#[inline]
 pub fn pre_command(ctx: Context) -> BoxFuture<()> {
 	debug!("pre_command");
 	Box::pin(_pre_command(ctx))

@@ -86,7 +86,6 @@ impl From<i16> for PremiumTierList {
 }
 
 impl Default for PremiumTierList {
-	#[inline]
 	fn default() -> Self {
 		Self::None
 	}
