@@ -42,6 +42,12 @@ license = "EUPL-1.2"
 homepage = "https://scripty.org"
 repository = "https://github.com/scripty-bot/scripty"
 
+[workspace.lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(tokio_unstable)', 'cfg(ignore_os)'] }
+
+[workspace.lints.clippy]
+uninlined-format-args = "allow"
+
 [workspace.dependencies]
 # basic version deps
 csv = "1"

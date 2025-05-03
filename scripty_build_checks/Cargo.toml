@@ -6,7 +6,7 @@ license.workspace = true
 homepage.workspace = true
 repository.workspace = true
 
-[dependencies]
+[lints]
+workspace = true
 
-[lints.rust]
-unexpected_cfgs = { level = "warn", check-cfg = ['cfg(ignore_os)'] }
+[dependencies]

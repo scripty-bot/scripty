@@ -10,6 +10,9 @@ repository.workspace = true
 name = "scripty_v2"
 path = "src/main.rs"
 
+[lints]
+workspace = true
+
 [dependencies]
 url.workspace = true
 fern.workspace = true
