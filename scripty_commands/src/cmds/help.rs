@@ -37,10 +37,10 @@ async fn help_single_command(
 		if command.name.eq_ignore_ascii_case(command_name) {
 			return true;
 		}
-		if let Some(context_menu_name) = &command.context_menu_name {
-			if context_menu_name.eq_ignore_ascii_case(command_name) {
-				return true;
-			}
+		if let Some(context_menu_name) = &command.context_menu_name
+			&& context_menu_name.eq_ignore_ascii_case(command_name)
+		{
+			return true;
 		}
 
 		false

@@ -35,15 +35,15 @@ pub async fn config_server_language(
 		)
 		.fetch_optional(scripty_db::get_db())
 		.await?;
-		if let Some(row) = res {
-			if row.translate {
-				ctx.reply(format_message!(
-					resolved_language,
-					"guild-language-set-failure-translate-enabled"
-				))
-				.await?;
-				return Ok(());
-			}
+		if let Some(row) = res
+			&& row.translate
+		{
+			ctx.reply(format_message!(
+				resolved_language,
+				"guild-language-set-failure-translate-enabled"
+			))
+			.await?;
+			return Ok(());
 		}
 	}
 

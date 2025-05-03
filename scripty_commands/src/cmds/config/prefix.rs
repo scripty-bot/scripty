@@ -23,12 +23,12 @@ pub async fn config_prefix(
 	// if the prefix is 0 characters turn it into None
 	prefix.take_if(|p| p.is_empty());
 
-	if let Some(ref prefix) = prefix {
-		if prefix.len() > 8 {
-			ctx.say(format_message!(resolved_language, "config-prefix-too-long"))
-				.await?;
-			return Ok(());
-		}
+	if let Some(ref prefix) = prefix
+		&& prefix.len() > 8
+	{
+		ctx.say(format_message!(resolved_language, "config-prefix-too-long"))
+			.await?;
+		return Ok(());
 	}
 
 	let db = scripty_db::get_db();

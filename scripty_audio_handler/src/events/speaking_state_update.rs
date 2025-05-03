@@ -75,13 +75,12 @@ pub async fn speaking_state_update(
 	if let Some(old_user_id) = ssrc_state
 		.ssrc_user_id_map
 		.insert(state_update.ssrc, user_id)
+		&& old_user_id != user_id
 	{
-		if old_user_id != user_id {
-			warn!(
-				?state_update.speaking, ?state_update.ssrc, ?state_update.user_id,
-				"Old user ID mapped to this SSRC does not match new! old: {}, new: {}",
-				old_user_id, user_id
-			);
-		}
+		warn!(
+			?state_update.speaking, ?state_update.ssrc, ?state_update.user_id,
+			"Old user ID mapped to this SSRC does not match new! old: {}, new: {}",
+			old_user_id, user_id
+		);
 	}
 }

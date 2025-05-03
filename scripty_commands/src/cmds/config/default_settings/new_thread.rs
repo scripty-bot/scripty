@@ -21,12 +21,12 @@ pub async fn config_default_settings_new_thread(
 		scripty_i18n::get_resolved_language(ctx.author().id.get(), Some(guild_id.get())).await;
 	let db = scripty_db::get_db();
 
-	if new_thread {
-		if let Some(error_translation_key) = do_preflight_new_thread(&ctx, guild_id).await? {
-			ctx.say(format_message!(resolved_language, error_translation_key))
-				.await?;
-			return Ok(());
-		}
+	if new_thread
+		&& let Some(error_translation_key) = do_preflight_new_thread(&ctx, guild_id).await?
+	{
+		ctx.say(format_message!(resolved_language, error_translation_key))
+			.await?;
+		return Ok(());
 	}
 
 	super::ensure_guild_exists(guild_id, db).await?;

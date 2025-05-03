@@ -226,12 +226,9 @@ impl AudioHandler {
 			.store(guild_res.kiai_enabled, Ordering::Relaxed);
 
 		std::mem::swap(&mut *self.language.write(), &mut guild_res.language);
-		std::mem::swap(
-			&mut *self.transcribe_only_role.write(),
-			&mut guild_res
-				.transcript_only_role
-				.map(|x| RoleId::new(x as u64)),
-		);
+		*self.transcribe_only_role.write() = guild_res
+			.transcript_only_role
+			.map(|x| RoleId::new(x as u64));
 
 		Ok(())
 	}

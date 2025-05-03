@@ -1,5 +1,4 @@
 #![feature(let_chains)]
-#![feature(slice_as_chunks)]
 #[macro_use]
 extern crate tracing;
 #[macro_use]

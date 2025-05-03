@@ -7,7 +7,7 @@ use serenity::{
 	builder::{CreateEmbed, CreateEmbedFooter, CreateForumPost, CreateMessage, CreateThread},
 	model::{
 		channel::{AutoArchiveDuration, Channel, ChannelFlags, ChannelType, GuildChannel},
-		id::{GenericChannelId, ThreadId},
+		id::GenericChannelId,
 	},
 	prelude::Mentionable,
 };

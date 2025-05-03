@@ -65,36 +65,35 @@ async fn _check_block(ctx: poise::Context<'_, Data, Error>) -> Result<bool, Erro
 	let ctx_id = ctx.id();
 	trace!(%ctx_id, "checking if user is blocked");
 
-	if let Some(guild) = ctx.guild_id() {
-		if let Some(reason) = redis
+	if let Some(guild) = ctx.guild_id()
+		&& let Some(reason) = redis
 			.get::<_, Option<String>>(format!("guild:{{{}}}:blocked", guild))
 			.await?
-		{
-			trace!(%ctx_id, "guild is blocked");
-			let resolved_language = scripty_i18n::get_resolved_language(
-				ctx.author().id.get(),
-				ctx.guild_id().map(|g| g.get()),
-			)
-			.await;
+	{
+		trace!(%ctx_id, "guild is blocked");
+		let resolved_language = scripty_i18n::get_resolved_language(
+			ctx.author().id.get(),
+			ctx.guild_id().map(|g| g.get()),
+		)
+		.await;
 
-			let reason = if reason.is_empty() {
-				format_message!(resolved_language, "blocked-entity-no-reason-given")
-			} else {
-				format_message!(
-					resolved_language,
-					"blocked-entity-reason-given",
-					reason: reason
-				)
-			};
-			ctx.say(format_message!(
+		let reason = if reason.is_empty() {
+			format_message!(resolved_language, "blocked-entity-no-reason-given")
+		} else {
+			format_message!(
 				resolved_language,
-				"blocked-entity-guild",
-				reason: reason,
-				supportServerInvite: cfg.support_invite.to_string()
-			))
-			.await?;
-			return Ok(false);
-		}
+				"blocked-entity-reason-given",
+				reason: reason
+			)
+		};
+		ctx.say(format_message!(
+			resolved_language,
+			"blocked-entity-guild",
+			reason: reason,
+			supportServerInvite: cfg.support_invite.to_string()
+		))
+		.await?;
+		return Ok(false);
 	}
 
 	let hashed_user_id = scripty_utils::hash_user_id(ctx.author().id.get());

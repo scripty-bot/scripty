@@ -104,8 +104,7 @@ pub async fn driver_disconnect(
 			)
 			.await
 			.map_err(|x| x.kind)
-			{
-				if let Err(e) = webhook2
+				&& let Err(e) = webhook2
 					.execute(
 						&ctx3.http,
 						false,
@@ -113,12 +112,11 @@ pub async fn driver_disconnect(
 							.content(format!("Failed to reconnect due to: {}", e)),
 					)
 					.await
-				{
-					debug!(
-						?guild_id,
-						"failed to notify user about reconnect failure: {}", e
-					);
-				}
+			{
+				debug!(
+					?guild_id,
+					"failed to notify user about reconnect failure: {}", e
+				);
 			}
 		});
 	}

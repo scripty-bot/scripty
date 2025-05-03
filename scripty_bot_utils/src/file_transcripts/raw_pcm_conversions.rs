@@ -128,11 +128,11 @@ async fn convert_path_to_pcm(path: &Path) -> Result<Vec<i16>, FileTranscriptErro
 	// read the output from ffmpeg
 	debug!(?path, "finishing up ffmpeg process");
 	let res = command.wait().await?;
-	if let Some(code) = res.code() {
-		if code != 0 {
-			error!(?path, "ffmpeg exited with code {}", code);
-			return Err(FileTranscriptError::FfmpegExited(code));
-		}
+	if let Some(code) = res.code()
+		&& code != 0
+	{
+		error!(?path, "ffmpeg exited with code {}", code);
+		return Err(FileTranscriptError::FfmpegExited(code));
 	}
 
 	// need to convert the output to i16
