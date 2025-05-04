@@ -110,6 +110,48 @@ pub async fn voice_state_update(ctx: &Context, new: &VoiceState) {
 			return;
 		}
 
+		// is auto join temporarily disabled?
+		let auto_join_key_name = format!("guild_{{{}}}_auto_join_disabled", guild_id.get());
+		let r = scripty_redis::run_transaction::<i64>("PEXPIRETIME", |cmd| {
+			cmd.arg(&auto_join_key_name);
+		})
+		.await;
+		match r {
+			Ok(-1) => {
+				// key exists without expiration time: delete and continue because this is bad
+				if let Err(e) = scripty_redis::run_transaction::<i64>("DEL", |cmd| {
+					cmd.arg(&auto_join_key_name);
+				})
+				.await
+				{
+					error!(%guild_id, "failed to delete key that never expires: {}", e);
+				}
+			}
+			Ok(-2) => {
+				// key doesn't exist so continue normally
+			}
+			Ok(disabled_until) => {
+				// temporarily disabled
+				let disabled_until =
+					SystemTime::UNIX_EPOCH + Duration::from_millis(disabled_until as u64);
+				let delta_time = disabled_until.duration_since(SystemTime::now());
+				match delta_time {
+					Ok(time_left) => {
+						debug!(%guild_id, "guild auto join disabled for another {:?}", time_left);
+						return;
+					}
+					Err(time_since) => {
+						let time_since = time_since.duration();
+						warn!(%guild_id, "guild auto join was disabled, but it's been {:?} since auto join timeout expired", time_since);
+					}
+				}
+			}
+			Err(e) => {
+				error!(%guild_id, "error fetching temporarily disabled state: {}", e);
+				return;
+			}
+		}
+
 		// now we need to check the voice channel the user is joining
 		// discord doesn't give us the channel id, so we need to get it from the guild's voice states
 		let vs = {
@@ -194,6 +236,22 @@ pub async fn voice_state_update(ctx: &Context, new: &VoiceState) {
 		{
 			error!(%guild_id, "error joining voice channel: {:?}", e);
 
+			if e.is_dropped() || e.is_timed_out() {
+				debug!(%guild_id, "got a Dropped/TimedOut error, disabling auto join for five minutes");
+
+				// set a key that expires after 5 minutes to disable auto join temporarily
+				if let Err(e) = scripty_redis::run_transaction::<()>("SETEX", |cmd| {
+					cmd.arg(format!("guild_{{{}}}_auto_join_disabled", guild_id.get()))
+						.arg(true)
+						.arg("EX")
+						.arg(5 * 60);
+				})
+				.await
+				{
+					error!(%guild_id, "failed to set auto_join disable key: {}", e);
+				}
+			}
+
 			let target_channel = match sqlx::query!(
 				r#"SELECT target_channel AS "target_channel!"
 					FROM default_join_settings
@@ -217,8 +275,15 @@ pub async fn voice_state_update(ctx: &Context, new: &VoiceState) {
 					&ctx.http,
 					format!(
 						"Failed to join voice channel due to auto-join error: {}\nYou may want to \
-						 report this in our support server.",
-						e
+						 report this in our support server.{}",
+						e,
+						if e.is_dropped() || e.is_timed_out() {
+							"Because of the nature of this error, auto-join has been disabled for \
+							 five minutes. If you want Scripty to join anyway, run `/leave` and \
+							 `/join` manually."
+						} else {
+							""
+						}
 					),
 				)
 				.await;
