@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT reason FROM blocked_users WHERE user_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "reason",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea"
+      ]
+    },
+    "nullable": [
+      true
+    ]
+  },
+  "hash": "41bc5b9e1b49822c841bf923b635efa85b610aa16a603c7abaf6908e89e1d231"
+}
