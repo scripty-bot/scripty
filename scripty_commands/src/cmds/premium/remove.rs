@@ -22,7 +22,7 @@ pub async fn premium_remove(ctx: Context<'_>) -> Result<(), Error> {
 	sqlx::query!(
 		"UPDATE guilds SET premium_owner_id = nullif(premium_owner_id, $2) WHERE guild_id = $1",
 		guild_id,
-		hashed_user_id,
+		&hashed_user_id,
 	)
 	.execute(db)
 	.await?;

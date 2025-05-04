@@ -47,7 +47,7 @@ VALUES ($1)
      ON CONSTRAINT users_pkey
      DO NOTHING
      "#,
-		hashed_author_id
+		&hashed_author_id
 	)
 	.execute(db)
 	.await?;
@@ -65,7 +65,7 @@ VALUES ($1)
 				let store_audio: bool = !sqlx::query!(
 					"UPDATE users SET store_audio = NOT store_audio WHERE user_id = $1 RETURNING \
 					 store_audio",
-					hashed_author_id
+					&hashed_author_id
 				)
 				.fetch_one(db)
 				.await?
@@ -82,7 +82,7 @@ VALUES ($1)
 				let store_msgs: bool = sqlx::query!(
 					"UPDATE users SET store_msgs = NOT store_msgs WHERE user_id = $1 RETURNING \
 					 store_msgs",
-					hashed_author_id
+					&hashed_author_id
 				)
 				.fetch_one(db)
 				.await?
@@ -184,13 +184,13 @@ pub async fn delete_all_data(ctx: Context<'_>) -> Result<(), Error> {
 	if let Some(interaction) = one {
 		let status = match interaction.data.custom_id.as_str() {
 			"delete_data_confirm" => {
-				sqlx::query!("DELETE FROM users WHERE user_id = $1", hashed_author_id)
+				sqlx::query!("DELETE FROM users WHERE user_id = $1", &hashed_author_id)
 					.execute(db)
 					.await?;
 				Some(false)
 			}
 			"delete_data_confirm_with_ban" => {
-				sqlx::query!("DELETE FROM users WHERE user_id = $1", hashed_author_id)
+				sqlx::query!("DELETE FROM users WHERE user_id = $1", &hashed_author_id)
 					.execute(db)
 					.await?;
 				// add the user to the banned list
@@ -200,7 +200,7 @@ pub async fn delete_all_data(ctx: Context<'_>) -> Result<(), Error> {
 				sqlx::query!(
 					"INSERT INTO blocked_users (user_id, reason, blocked_since) VALUES ($1, $2, \
 					 localtimestamp)",
-					hashed_author_id,
+					&hashed_author_id,
 					"requested ban",
 				)
 				.execute(db)

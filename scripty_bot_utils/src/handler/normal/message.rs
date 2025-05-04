@@ -1,6 +1,3 @@
-use std::str::FromStr;
-
-use scripty_i18n::LanguageIdentifier;
 use serenity::{gateway::client::Context, model::prelude::Message};
 
 use crate::{
@@ -20,16 +17,11 @@ pub async fn message(ctx: &Context, msg: &Message) {
 		let channel_id = msg2.channel_id;
 		let reference_id = msg2.id;
 
-		let resolved_language = if let Some(guild_id) = msg2.guild_id {
-			scripty_i18n::get_guild_language(guild_id.get()).await
-		} else {
-			scripty_i18n::get_user_language(msg2.author.id.get())
-				.await
-				.unwrap_or_else(|| {
-					LanguageIdentifier::from_str("en")
-						.expect("en should always be a valid language")
-				})
-		};
+		let resolved_language = scripty_i18n::get_resolved_language(
+			msg2.author.id.get(),
+			msg2.guild_id.map(|g| g.get()),
+		)
+		.await;
 
 		if let Err(e) = transcribe_generic_message(
 			msg2,

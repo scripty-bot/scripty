@@ -2,6 +2,7 @@ use std::{
 	borrow::Cow,
 	sync::{
 		Arc,
+		RwLock,
 		atomic::{AtomicBool, Ordering},
 	},
 	time::Instant,
@@ -9,7 +10,6 @@ use std::{
 
 use ahash::RandomState;
 use dashmap::DashSet;
-use parking_lot::RwLock;
 use scripty_automod::types::{AutomodRuleAction, AutomodServerConfig};
 use scripty_integrations::kiai::{KiaiApiClient, KiaiPostVirtualMessage};
 use scripty_metrics::Metrics;
@@ -172,7 +172,13 @@ async fn handle_silent_speakers<'a>(
 		};
 
 		// finalize the stream
-		let lang = language.read().clone();
+		let lang = language
+			.read()
+			.unwrap_or_else(|poisoned| {
+				warn!(%guild_id, "language is poisoned");
+				poisoned.into_inner()
+			})
+			.clone();
 		let _typing = thread_id
 			.map_or_else(|| channel_id.widen(), ThreadId::widen)
 			.start_typing(ctx.http.clone());
@@ -288,7 +294,13 @@ async fn handle_silent_speakers<'a>(
 					let username = &user_details.0;
 					format!("[{}]: {}", username, final_result)
 				};
-				transcript_results.write().push(fmt_transcript);
+				transcript_results
+					.write()
+					.unwrap_or_else(|poisoned| {
+						warn!(%guild_id, "transcript results are poisoned");
+						poisoned.into_inner()
+					})
+					.push(fmt_transcript);
 			}
 		}
 

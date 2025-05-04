@@ -20,7 +20,6 @@ songbird.workspace = true
 serenity.workspace = true
 backtrace.workspace = true
 async-trait.workspace = true
-parking_lot.workspace = true
 
 scripty_db = { path = "../scripty_db" }
 scripty_stt = { path = "../scripty_stt" }

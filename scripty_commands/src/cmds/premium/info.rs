@@ -72,7 +72,7 @@ pub async fn premium_info(ctx: Context<'_>) -> Result<(), Error> {
 		{
 			let user_has_premium = sqlx::query!(
 				r#"SELECT coalesce(premium_level != 0, false) AS "has_premium!" FROM users WHERE user_id = $1"#,
-				hash_user_id(ctx.author().id.get())
+				&hash_user_id(ctx.author().id.get())
 			)
 			.fetch_optional(db)
 			.await?

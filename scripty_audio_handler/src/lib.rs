@@ -1,3 +1,4 @@
+#![deny(clippy::unwrap_used, clippy::expect_used)]
 #![feature(let_chains)]
 #[macro_use]
 extern crate tracing;
@@ -40,13 +41,16 @@ pub async fn get_voice_channel_id(guild_id: GuildId) -> Option<ChannelId> {
 }
 
 pub fn set_songbird(sb: Arc<Songbird>) {
-	SONGBIRD
-		.set(sb)
-		.expect("should not call set_songbird more than once");
+	if SONGBIRD.set(sb).is_err() {
+		warn!("set_songbird was called more than once");
+	}
 }
 
 pub fn get_songbird() -> Arc<Songbird> {
-	SONGBIRD.get().expect("songbird not registered").clone()
+	match SONGBIRD.get() {
+		Some(sb) => sb.clone(),
+		None => panic!("you must set get_songbird before calling get_songbird"),
+	}
 }
 
 static AUTO_LEAVE_TASKS: OnceCell<DashMap<GuildId, Sender<()>, ahash::RandomState>> =
@@ -110,6 +114,15 @@ pub fn get_internal_state(guild_id: &GuildId) -> Option<InternalSsrcStateDetails
 			.collect(),
 		ssrcs_actively_speaking_this_tick: v.ssrc_speaking_set.iter().map(|x| *x).collect(),
 		actively_transcribed_ssrcs: v.active_user_set.iter().map(|x| *x).collect(),
-		next_ssrcs: v.next_user_list.read().iter().copied().collect(),
+		next_ssrcs: v
+			.next_user_list
+			.read()
+			.unwrap_or_else(|poisoned| {
+				warn!("next ssrc list is poisoned");
+				poisoned.into_inner()
+			})
+			.iter()
+			.copied()
+			.collect(),
 	})
 }

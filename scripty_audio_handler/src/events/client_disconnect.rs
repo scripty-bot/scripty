@@ -63,7 +63,15 @@ pub async fn client_disconnect(
 		&& ssrc_state.active_user_set.len() < max_users
 	{
 		debug!(?ssrc, "there is space for another active user");
-		if let Some(next) = ssrc_state.next_user_list.write().pop_front() {
+		if let Some(next) = ssrc_state
+			.next_user_list
+			.write()
+			.unwrap_or_else(|poisoned| {
+				warn!("next user list is poisoned");
+				poisoned.into_inner()
+			})
+			.pop_front()
+		{
 			debug!(?ssrc, "inserting new user into map");
 			ssrc_state.active_user_set.insert(next);
 		}
@@ -81,7 +89,12 @@ pub async fn client_disconnect(
 	}
 
 	if let Some(transcript_results) = transcript_results {
-		let mut transcript_results = transcript_results.write();
-		transcript_results.push(format!("[{}] - event: disconnected", username));
+		transcript_results
+			.write()
+			.unwrap_or_else(|poisoned| {
+				warn!("transcript results are poisoned");
+				poisoned.into_inner()
+			})
+			.push(format!("[{}] - event: disconnected", username));
 	}
 }

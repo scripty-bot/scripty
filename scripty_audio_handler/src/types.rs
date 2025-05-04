@@ -1,8 +1,10 @@
-use std::{collections::VecDeque, sync::Arc};
+use std::{
+	collections::VecDeque,
+	sync::{Arc, RwLock},
+};
 
 use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
-use parking_lot::RwLock;
 use scripty_data_storage::VoiceIngest;
 use scripty_stt::Stream;
 

@@ -10,7 +10,7 @@ pub async fn change_text_state(user_id: u64, state: bool) -> Result<(), sqlx::Er
 	sqlx::query!(
 		"UPDATE users SET store_msgs = $1 WHERE user_id = $2",
 		state,
-		user_id
+		&user_id
 	)
 	.execute(scripty_db::get_db())
 	.await?;
@@ -41,10 +41,7 @@ pub async fn get_text_state(raw_user_id: u64) -> bool {
 
 	// check cache
 	let res = scripty_redis::run_transaction("GET", |con| {
-		con.arg(format!(
-			"user:{{{}}}:store_msgs",
-			hex::encode(user_id.clone())
-		));
+		con.arg(format!("user:{{{}}}:store_msgs", hex::encode(user_id)));
 	})
 	.await;
 	match res {
@@ -55,7 +52,7 @@ pub async fn get_text_state(raw_user_id: u64) -> bool {
 	}
 
 	// not cached, fall back to db
-	let state = sqlx::query!("SELECT store_msgs FROM users WHERE user_id = $1", user_id)
+	let state = sqlx::query!("SELECT store_msgs FROM users WHERE user_id = $1", &user_id)
 		.fetch_optional(scripty_db::get_db())
 		.await;
 
@@ -63,12 +60,9 @@ pub async fn get_text_state(raw_user_id: u64) -> bool {
 		Ok(Some(state)) => {
 			// cache value
 			let _ = scripty_redis::run_transaction::<Option<String>>("SETEX", |con| {
-				con.arg(format!(
-					"user:{{{}}}:store_msgs",
-					hex::encode(user_id.clone())
-				))
-				.arg(60 * 60 * 24)
-				.arg(state.store_msgs);
+				con.arg(format!("user:{{{}}}:store_msgs", hex::encode(user_id)))
+					.arg(60 * 60 * 24)
+					.arg(state.store_msgs);
 			})
 			.await;
 			state.store_msgs
@@ -76,12 +70,9 @@ pub async fn get_text_state(raw_user_id: u64) -> bool {
 		Ok(None) => {
 			// user not found, cache false
 			let _ = scripty_redis::run_transaction::<Option<String>>("SETEX", |con| {
-				con.arg(format!(
-					"user:{{{}}}:store_msgs",
-					hex::encode(user_id.clone())
-				))
-				.arg(60 * 60 * 24)
-				.arg(false);
+				con.arg(format!("user:{{{}}}:store_msgs", hex::encode(user_id)))
+					.arg(60 * 60 * 24)
+					.arg(false);
 			})
 			.await;
 			false

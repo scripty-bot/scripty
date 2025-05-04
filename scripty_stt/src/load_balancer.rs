@@ -3,6 +3,7 @@ use std::{
 	net::SocketAddr,
 	sync::{
 		Arc,
+		Mutex,
 		atomic::{AtomicBool, AtomicUsize, Ordering},
 	},
 	time::Duration,
@@ -11,7 +12,6 @@ use std::{
 use byteorder::NetworkEndian;
 use dashmap::DashMap;
 use once_cell::sync::OnceCell;
-use parking_lot::Mutex;
 use scripty_common::stt_transport_models::{
 	ClientToServerMessage,
 	ServerToClientMessage,
@@ -100,7 +100,13 @@ impl LoadBalancer {
 		tokio::spawn(async move {
 			loop {
 				if purge_rx.recv_async().await.is_ok() {
-					t3.queued_workers.lock().clear();
+					t3.queued_workers
+						.lock()
+						.unwrap_or_else(|poisoned| {
+							warn!("queued workers lock was poisoned!");
+							poisoned.into_inner()
+						})
+						.clear();
 					// request the queue be refilled
 					if t3.new_worker_tx.send_async(()).await.is_err() {
 						break error!(
@@ -190,7 +196,15 @@ impl LoadBalancer {
 		loop {
 			{
 				// check if we have reached the maximum queue size
-				if self.queued_workers.lock().len() >= MAXIMUM_QUEUE_SIZE {
+				if self
+					.queued_workers
+					.lock()
+					.unwrap_or_else(|poisoned| {
+						warn!("queued workers lock was poisoned!");
+						poisoned.into_inner()
+					})
+					.len() >= MAXIMUM_QUEUE_SIZE
+				{
 					// wait for a new worker to be requested
 					if new_worker_rx.recv_async().await.is_err() {
 						error!("all clients disconnected (should never happen)");
@@ -199,7 +213,13 @@ impl LoadBalancer {
 				}
 				debug!(
 					"got request for new worker, {} queued",
-					self.queued_workers.lock().len()
+					self.queued_workers
+						.lock()
+						.unwrap_or_else(|poisoned| {
+							warn!("queued workers lock was poisoned!");
+							poisoned.into_inner()
+						})
+						.len()
 				);
 			}
 
@@ -211,14 +231,23 @@ impl LoadBalancer {
 					continue;
 				}
 			};
-			self.queued_workers.lock().push_back(new_worker);
+			self.queued_workers
+				.lock()
+				.unwrap_or_else(|poisoned| {
+					warn!("queued workers lock was poisoned!");
+					poisoned.into_inner()
+				})
+				.push_back(new_worker);
 		}
 	}
 
 	pub async fn get_stream(&self) -> Result<Stream, ModelError> {
 		// check if we have any queued workers
 		{
-			let mut queued_workers = self.queued_workers.lock();
+			let mut queued_workers = self.queued_workers.lock().unwrap_or_else(|poisoned| {
+				warn!("queued workers lock was poisoned!");
+				poisoned.into_inner()
+			});
 			if let Some(worker) = queued_workers.pop_front() {
 				// request a new worker to be queued up
 				let new_worker_queue = self.new_worker_tx.clone();

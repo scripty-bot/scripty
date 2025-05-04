@@ -84,7 +84,7 @@ ON CONFLICT
         premium_level = 1,
         premium_expiry = to_timestamp($2)
 "#,
-					hashed_user_id,
+					&hashed_user_id,
 					trial_end.unwrap_or(0) as f64
 				)
 				.execute(db)
@@ -118,7 +118,7 @@ ON CONFLICT
         premium_level = 0,
         premium_expiry = NULL,
         is_trialing = false"#,
-				hashed_user_id
+				&hashed_user_id
 			)
 			.execute(db)
 			.await?;
@@ -255,7 +255,7 @@ ON CONFLICT
         premium_expiry = $3,
         is_trialing = false
 "#,
-						hashed_user_id,
+						&hashed_user_id,
 						tier as i16,
 						OffsetDateTime::from_unix_timestamp(evt.current_period_end as i64)?,
 					)
@@ -297,7 +297,7 @@ ON CONFLICT
         premium_expiry = NULL,
         is_trialing = false
 "#,
-						hashed_user_id
+						&hashed_user_id
 					)
 					.execute(db)
 					.await?;
@@ -334,7 +334,7 @@ ON CONFLICT
         premium_expiry = NULL,
         is_trialing = false
         "#,
-						hashed_user_id
+						&hashed_user_id
 					)
 					.execute(db)
 					.await?;
@@ -372,7 +372,7 @@ ON CONFLICT
         premium_level = 1,
         premium_expiry = now() + INTERVAL '1 day'
 "#,
-						hashed_user_id
+						&hashed_user_id
 					)
 					.execute(db)
 					.await?;
@@ -407,7 +407,7 @@ ON CONFLICT
         premium_expiry = NULL,
         is_trialing = false
         "#,
-						hashed_user_id
+						&hashed_user_id
 					)
 					.execute(db)
 					.await?;
@@ -462,7 +462,7 @@ VALUES
 ON CONFLICT
 	DO NOTHING
 				"#,
-				hashed_user_id
+				&hashed_user_id
 			)
 			.execute(db)
 			.await?;

@@ -20,28 +20,25 @@ pub async fn entrypoint() {
 	// fetch the config
 	let cfg = scripty_config::get_config();
 
-	// initialize the blocked entity list
-	info!("fetching blocked entities");
-	scripty_bot_utils::entity_block::init_blocked()
-		.await
-		.expect("failed to init blocked entities");
-
 	// initialize the framework
+	info!("loading framework");
 	let framework = FrameworkBuilder::default()
 		.options(framework_opts::get_framework_opts())
 		.build();
+	info!("setting global data");
 	let data = Arc::new(Data::new());
 	if CLIENT_DATA.set(data.clone()).is_err() {
 		unreachable!("client data set more than once: bug?")
 	}
 
+	info!("initializing songbird");
 	let songbird = scripty_audio_handler::Songbird::serenity_from_config(
 		scripty_audio_handler::get_songbird_config(),
 	);
 	scripty_audio_handler::set_songbird(songbird.clone());
 
+	info!("initializing HTTP client");
 	let token = Token::from_str(&cfg.tokens.discord).expect("failed to parse token");
-
 	let mut http = serenity::http::HttpBuilder::new(token.clone());
 	if let Some(proxy) = &cfg.proxy {
 		http = http.proxy(proxy).ratelimiter_disabled(true);
@@ -51,6 +48,7 @@ pub async fn entrypoint() {
 		ratelimiter.set_ratelimit_callback(Box::new(handler::ratelimit));
 	}
 
+	info!("building serenity client");
 	let mut client =
 		ClientBuilder::new_with_http(token, Arc::new(http), framework_opts::get_gateway_intents())
 			.compression(TransportCompression::None)
@@ -68,5 +66,6 @@ pub async fn entrypoint() {
 		.set(client.shard_manager.runners.clone())
 		.expect("no other task should set shard manager");
 
+	info!("starting scripty");
 	client.start_autosharded().await.expect("failed to run bot");
 }

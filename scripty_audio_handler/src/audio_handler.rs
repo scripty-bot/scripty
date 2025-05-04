@@ -2,13 +2,13 @@ use std::{
 	collections::VecDeque,
 	sync::{
 		Arc,
+		RwLock,
 		atomic::{AtomicBool, AtomicU8, Ordering},
 	},
 };
 
 use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
-use parking_lot::RwLock;
 use scripty_automod::types::AutomodServerConfig;
 use scripty_data_type::{CallDeath, get_data};
 use scripty_integrations::kiai::KiaiApiClient;
@@ -225,8 +225,20 @@ impl AudioHandler {
 		self.kiai_enabled
 			.store(guild_res.kiai_enabled, Ordering::Relaxed);
 
-		std::mem::swap(&mut *self.language.write(), &mut guild_res.language);
-		*self.transcribe_only_role.write() = guild_res
+		std::mem::swap(
+			&mut *self.language.write().unwrap_or_else(|poisoned| {
+				warn!(%self.guild_id, "language was poisoned");
+				poisoned.into_inner()
+			}),
+			&mut guild_res.language,
+		);
+		*self
+			.transcribe_only_role
+			.write()
+			.unwrap_or_else(|poisoned| {
+				warn!(%self.guild_id, "language was poisoned");
+				poisoned.into_inner()
+			}) = guild_res
 			.transcript_only_role
 			.map(|x| RoleId::new(x as u64));
 
@@ -244,7 +256,10 @@ impl EventHandler for AudioHandler {
 				Arc::clone(&self.ssrc_state),
 				self.seen_users.clone(),
 				self.guild_id,
-				*self.transcribe_only_role.read(),
+				*self.transcribe_only_role.read().unwrap_or_else(|poisoned| {
+					warn!("transcribe only role is poisoned");
+					poisoned.into_inner()
+				}),
 			)),
 			EventContext::VoiceTick(voice_data) => tokio::spawn(voice_tick(VoiceTickContext {
 				voice_data:         voice_data.clone(),

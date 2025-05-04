@@ -62,7 +62,7 @@ pub async fn top_gg_incoming_webhook(
 	// check if the user is opted out of notifications
 	let reminders_enabled = sqlx::query!(
 		"SELECT vote_reminder_enabled FROM users WHERE user_id = $1",
-		scripty_utils::hash_user_id(user)
+		&scripty_utils::hash_user_id(user)
 	)
 	.fetch_optional(scripty_db::get_db())
 	.await?

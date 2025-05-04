@@ -7,11 +7,18 @@ async fn _pre_command(ctx: Context<'_>) {
 
 	let metrics = scripty_metrics::get_metrics();
 	metrics.total_commands.inc();
-	metrics
+	match metrics
 		.commands
 		.get_metric_with_label_values(&[&ctx.command().qualified_name])
-		.expect("exactly one label")
-		.inc();
+	{
+		Ok(cmd_counter) => cmd_counter.inc(),
+		Err(e) => {
+			error!(
+				"invalid number of arguments passed to get_metric_with_label_values: {}",
+				e
+			);
+		}
+	};
 
 	match ctx {
 		Context::Prefix(..) => {

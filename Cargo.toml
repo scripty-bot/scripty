@@ -87,7 +87,6 @@ serde_json = "1"
 systemstat = "0.2"
 num-format = "0.4"
 async-trait = "0.1"
-parking_lot = "0.12"
 unic-langid = "0.9"
 dasp_signal = "0.11"
 serde_derive = "1"
@@ -112,7 +111,7 @@ audiopus_sys = { version = "0.2", features = ["static"] }
 tokio-metrics = { version = "0.4", features = ["rt"] }
 async-tempfile = { version = "0.7", features = ["uuid"] }
 dasp_interpolate = { version = "0.11", features = ["linear"] }
-tokio = { version = "1", features = ["parking_lot", "signal", "rt-multi-thread"] }
+tokio = { version = "1", features = ["signal", "rt-multi-thread"] }
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 sqlx = { version = "0.8", features = ["postgres", "macros", "migrate", "runtime-tokio-rustls", "time"] }
 

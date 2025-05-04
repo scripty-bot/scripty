@@ -21,7 +21,7 @@ pub async fn premium_claim(ctx: Context<'_>) -> Result<(), Error> {
 
 	let lvl: i16 = sqlx::query!(
 		"SELECT premium_level FROM users WHERE user_id = $1",
-		hashed_author_id
+		&hashed_author_id
 	)
 	.fetch_optional(db)
 	.await?
@@ -43,7 +43,7 @@ pub async fn premium_claim(ctx: Context<'_>) -> Result<(), Error> {
 	// fetch the number of guilds this user has linked to their account
 	let guild_count = sqlx::query!(
 		r#"SELECT count(*) AS "guild_count!" FROM guilds WHERE premium_owner_id = $1"#,
-		hashed_author_id
+		&hashed_author_id
 	)
 	.fetch_one(db)
 	.await?
@@ -63,7 +63,7 @@ pub async fn premium_claim(ctx: Context<'_>) -> Result<(), Error> {
 	sqlx::query!(
 		"INSERT INTO guilds (premium_owner_id, guild_id) VALUES ($1, $2) ON CONFLICT ON \
 		 CONSTRAINT guilds_pkey DO UPDATE SET premium_owner_id = $1",
-		hashed_author_id,
+		&hashed_author_id,
 		guild_id
 	)
 	.execute(db)

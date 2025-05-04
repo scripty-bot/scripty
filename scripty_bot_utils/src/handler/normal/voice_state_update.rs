@@ -253,7 +253,14 @@ async fn maybe_create_thread(
 		let discord_timestamp = format!(
 			"<t:{}>",
 			now.duration_since(SystemTime::UNIX_EPOCH)
-				.expect("system clock shouldn't roll back")
+				.unwrap_or_else(|e| {
+					let res = e.duration();
+					warn!(
+						"system clock rolled back to pre-unix epoch! time delta from epoch -{:?}",
+						res
+					);
+					res
+				})
 				.as_secs()
 		);
 		let starter_message = format_message!(resolved_language, "join-forum-thread-content-auto", timestamp: discord_timestamp);

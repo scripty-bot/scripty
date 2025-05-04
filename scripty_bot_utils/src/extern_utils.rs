@@ -1,7 +1,10 @@
-use std::{collections::HashMap, sync::Arc, time::Instant};
+use std::{
+	collections::HashMap,
+	sync::{Arc, Mutex},
+	time::Instant,
+};
 
 use once_cell::sync::OnceCell;
-use parking_lot::Mutex;
 pub use serenity::{
 	Error as SerenityError,
 	builder::{CreateEmbed, CreateEmbedFooter, CreateMessage},
@@ -28,15 +31,15 @@ pub fn get_guild_count() -> Result<usize, CacheNotInitializedError> {
 static CACHED_USER_COUNT: OnceCell<Mutex<(usize, Instant)>> = OnceCell::new();
 
 pub fn get_user_count() -> Result<usize, CacheNotInitializedError> {
-	if let Some(cache) = CACHED_USER_COUNT.get() {
-		let lock = cache.lock();
+	let cached_user_count = CACHED_USER_COUNT.get_or_init(|| Mutex::new((0, Instant::now())));
+	{
+		let lock = cached_user_count.lock().unwrap_or_else(|poisoned| {
+			warn!("shard guild count is poisoned");
+			poisoned.into_inner()
+		});
 		if lock.1.elapsed().as_secs() < 120 {
 			return Ok(lock.0);
 		}
-	} else {
-		CACHED_USER_COUNT
-			.set(Mutex::new((0, Instant::now())))
-			.expect("checked cache was not set, but it was?");
 	}
 
 	let cache = CLIENT_CACHE.get().ok_or(CacheNotInitializedError)?;
@@ -46,12 +49,14 @@ pub fn get_user_count() -> Result<usize, CacheNotInitializedError> {
 		.filter_map(|g| g.to_guild_cached(cache).map(|g| g.member_count as usize))
 		.sum();
 	let current_time = Instant::now();
-	let mut lock = CACHED_USER_COUNT
-		.get()
-		.expect("checked cache was set, but it was not?")
-		.lock();
-	lock.0 = count;
-	lock.1 = current_time;
+	{
+		let mut lock = cached_user_count.lock().unwrap_or_else(|poisoned| {
+			warn!("shard guild count is poisoned");
+			poisoned.into_inner()
+		});
+		lock.0 = count;
+		lock.1 = current_time;
+	}
 
 	Ok(count)
 }
@@ -73,15 +78,15 @@ pub fn get_channel_count() -> Result<usize, CacheNotInitializedError> {
 static CACHED_VOICE_CHANNEL_COUNT: OnceCell<Mutex<(usize, Instant)>> = OnceCell::new();
 
 pub fn get_voice_channel_count() -> Result<usize, CacheNotInitializedError> {
-	if let Some(cache) = CACHED_VOICE_CHANNEL_COUNT.get() {
-		let lock = cache.lock();
+	let vc_count_cache = CACHED_VOICE_CHANNEL_COUNT.get_or_init(|| Mutex::new((0, Instant::now())));
+	{
+		let lock = vc_count_cache.lock().unwrap_or_else(|poisoned| {
+			warn!("shard guild count is poisoned");
+			poisoned.into_inner()
+		});
 		if lock.1.elapsed().as_secs() < 120 {
 			return Ok(lock.0);
 		}
-	} else {
-		CACHED_VOICE_CHANNEL_COUNT
-			.set(Mutex::new((0, Instant::now())))
-			.expect("checked cache was not set, but it was?");
 	}
 	// update the cache
 	let cache = CLIENT_CACHE.get().ok_or(CacheNotInitializedError)?;
@@ -101,10 +106,10 @@ pub fn get_voice_channel_count() -> Result<usize, CacheNotInitializedError> {
 		})
 		.sum();
 	let current_time = Instant::now();
-	let current = CACHED_VOICE_CHANNEL_COUNT
-		.get()
-		.expect("checked cache is set, but it is not?");
-	let mut lock = current.lock();
+	let mut lock = vc_count_cache.lock().unwrap_or_else(|poisoned| {
+		warn!("shard guild count is poisoned");
+		poisoned.into_inner()
+	});
 	lock.0 = count;
 	lock.1 = current_time;
 
@@ -144,8 +149,15 @@ pub async fn get_shard_info() -> Result<HashMap<u16, ShardInfo>, CacheNotInitial
 	let should_update = {
 		let guard = CACHED_SHARD_GUILD_COUNT.get();
 		if let Some(guard) = guard {
-			let data = guard.lock();
-			data.1.elapsed().as_secs() > 120
+			guard
+				.lock()
+				.unwrap_or_else(|poisoned| {
+					warn!("shard guild count is poisoned");
+					poisoned.into_inner()
+				})
+				.1
+				.elapsed()
+				.as_secs() > 120
 		} else {
 			true
 		}
@@ -168,24 +180,29 @@ pub async fn get_shard_info() -> Result<HashMap<u16, ShardInfo>, CacheNotInitial
 
 		let last_updated = Instant::now();
 
-		let guard = CACHED_SHARD_GUILD_COUNT.get();
-		if let Some(guard) = guard {
-			let mut guard = guard.lock();
-			*guard = (shard_guild_count, last_updated);
-		} else {
-			CACHED_SHARD_GUILD_COUNT
-				.set(Mutex::new((shard_guild_count, last_updated)))
-				.expect("asserted guard is already unset, but it was set?");
+		let guild_count_lock =
+			CACHED_SHARD_GUILD_COUNT.get_or_init(|| Mutex::new((HashMap::new(), Instant::now())));
+		{
+			let mut guild_count_guard = guild_count_lock.lock().unwrap_or_else(|poisoned| {
+				warn!("shard guild count is poisoned");
+				poisoned.into_inner()
+			});
+			*guild_count_guard = (shard_guild_count, last_updated);
 		}
 	}
 
 	// clone shard_guild_count to avoid holding the lock for a long time
 	let shard_guild_count = {
-		let guard = CACHED_SHARD_GUILD_COUNT
-			.get()
-			.expect("cache should be initialized");
-		let data = guard.lock();
-		data.0.clone()
+		let guild_count_lock =
+			CACHED_SHARD_GUILD_COUNT.get_or_init(|| Mutex::new((HashMap::new(), Instant::now())));
+		guild_count_lock
+			.lock()
+			.unwrap_or_else(|poisoned| {
+				warn!("shard guild count is poisoned");
+				poisoned.into_inner()
+			})
+			.0
+			.clone()
 	};
 
 	Ok(shard_runners
@@ -221,7 +238,7 @@ static HTTP_CLIENT: OnceCell<CacheHttpWrapper> = OnceCell::new();
 pub fn get_cache_http() -> &'static CacheHttpWrapper {
 	HTTP_CLIENT
 		.get()
-		.expect("http should be set before calling get_http")
+		.unwrap_or_else(|| panic!("http should be set before calling get_cache_http"))
 }
 
 #[derive(Clone)]

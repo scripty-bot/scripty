@@ -15,14 +15,14 @@ pub async fn vote_reminder(
 	let hashed_user_id = scripty_utils::hash_user_id(user_id);
 	sqlx::query!(
 		"INSERT INTO users (user_id) VALUES ($1) ON CONFLICT ON CONSTRAINT users_pkey DO NOTHING",
-		hashed_user_id,
+		&hashed_user_id,
 	)
 	.execute(db)
 	.await?;
 	sqlx::query!(
 		"UPDATE users SET vote_reminder_enabled = $1 WHERE user_id = $2",
 		enabled,
-		hashed_user_id,
+		&hashed_user_id,
 	)
 	.execute(db)
 	.await?;

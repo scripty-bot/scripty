@@ -78,7 +78,7 @@ pub async fn get_user_language(user_id: u64) -> Option<LanguageIdentifier> {
 	let db = scripty_db::get_db();
 	let user_language = sqlx::query!(
 		"SELECT language FROM users WHERE user_id = $1",
-		hashed_user_id
+		&hashed_user_id
 	)
 	.fetch_optional(db)
 	.await
@@ -118,7 +118,7 @@ pub async fn set_user_language(user_id: u64, language: &str) -> Result<(), Inval
 	sqlx::query!(
 		"INSERT INTO users (user_id, language) VALUES ($1, $2) ON CONFLICT (user_id) DO UPDATE \
 		 SET language = $2",
-		hashed_user_id,
+		&hashed_user_id,
 		language
 	)
 	.execute(db)

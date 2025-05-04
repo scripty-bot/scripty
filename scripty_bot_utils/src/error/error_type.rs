@@ -50,6 +50,8 @@ pub enum ErrorEnum {
 	NoGuildDefaults,
 	BadDiscordState,
 	BackgroundTaskFailure(tokio::task::JoinError),
+	MissingInteractionContext,
+	MissingGlobalData,
 	Custom(String),
 }
 
@@ -160,6 +162,20 @@ impl Error {
 		}
 	}
 
+	pub fn missing_interaction_context() -> Self {
+		Error {
+			bt:  Backtrace::new_unresolved(),
+			err: ErrorEnum::MissingInteractionContext,
+		}
+	}
+
+	pub fn missing_global_data() -> Self {
+		Error {
+			bt:  Backtrace::new_unresolved(),
+			err: ErrorEnum::MissingGlobalData,
+		}
+	}
+
 	pub fn custom(err: String) -> Self {
 		Error {
 			bt:  Backtrace::new_unresolved(),
@@ -260,6 +276,8 @@ impl Display for Error {
 			ExpectedPremiumValue => {
 				"Expected a response from Premium service, got none. Try again later.".into()
 			}
+			MissingGlobalData => "missing global data".into(),
+			MissingInteractionContext => "missing interaction context".into(),
 			Custom(e) => format!("Custom error: {}", e).into(),
 			AudioTranscription(e) => format!("Failed to transcribe audio message: {}", e).into(),
 			KiaiError(e) => format!("Kiai API error: {}", e).into(),
@@ -295,6 +313,8 @@ impl StdError for Error {
 			AudioTranscription(e) => Some(e),
 			KiaiError(e) => Some(e),
 			CallAlreadyExists => None,
+			MissingInteractionContext => None,
+			MissingGlobalData => None,
 			Custom(_) => None,
 			NoGuildDefaults => None,
 			BadDiscordState => None,

@@ -10,6 +10,7 @@ repository.workspace = true
 workspace = true
 
 [dependencies]
+hex.workspace = true
 uuid.workspace = true
 http.workspace = true
 time.workspace = true
@@ -27,7 +28,6 @@ backtrace.workspace = true
 serde_json.workspace = true
 num-format.workspace = true
 async-trait.workspace = true
-parking_lot.workspace = true
 futures-util.workspace = true
 async-tempfile.workspace = true
 small-fixed-array.workspace = true

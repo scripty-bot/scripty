@@ -1,8 +1,7 @@
-use std::io::Cursor;
+use std::{io::Cursor, sync::Mutex};
 
 use hound::{SampleFormat, WavSpec, WavWriter};
 use ouroboros::self_referencing;
-use parking_lot::Mutex;
 
 #[self_referencing]
 struct Audio {
@@ -16,7 +15,7 @@ pub struct VoiceIngest {
 	language: String,
 	audio:    Audio,
 	/// Hashed user ID.
-	user_id:  Vec<u8>,
+	user_id:  [u8; 64],
 }
 
 impl VoiceIngest {
@@ -60,7 +59,9 @@ impl VoiceIngest {
 	/// Append incoming audio to the buffer.
 	pub fn ingest(&self, audio: &[i16]) {
 		self.audio.with_audio_writer(|f| {
-			let mut writer = f.lock();
+			let Ok(mut writer) = f.lock() else {
+				return;
+			};
 			for sample in audio {
 				if let Err(e) = writer.write_sample(*sample) {
 					error!("failed to write audio sample: {}", e);
@@ -89,7 +90,7 @@ impl VoiceIngest {
 		let res = sqlx::query!(
 			"INSERT INTO audio_store (source_id, audio_data, transcript, transcript_language) \
 			 VALUES ($1, $2, $3, $4)",
-			user_id,
+			&user_id,
 			audio_buffer,
 			transcription,
 			language

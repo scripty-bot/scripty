@@ -70,10 +70,21 @@ impl RunTimings {
 }
 impl Drop for RunTimings {
 	fn drop(&mut self) {
-		debug!(
-			guild_id = %self.guild_id,
-			"took {:?} to query prefix for guild",
-			self.start_time.elapsed().expect("clock rolled backwards")
-		);
+		match self.start_time.elapsed() {
+			Ok(elapsed) => {
+				debug!(
+					guild_id = %self.guild_id,
+					"took {:?} to query prefix for guild",
+					elapsed
+				)
+			}
+			Err(e) => {
+				warn!(
+					guild_id = %self.guild_id,
+					"system clock rolled back while querying prefix: time delta -{:?}",
+					e.duration()
+				)
+			}
+		}
 	}
 }

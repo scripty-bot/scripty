@@ -239,7 +239,7 @@ impl FileTranscriptionHandler {
             	'en'
        		) AS "language!""#,
 			self.msg.guild_id.map_or(0, |g| g.get()) as i64,
-			hash_user_id(
+			&hash_user_id(
 				self.invoking_user
 					.map_or_else(|| self.msg.author.id.get(), |u| u.get())
 			)

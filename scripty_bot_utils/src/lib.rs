@@ -1,3 +1,4 @@
+#![deny(clippy::expect_used, clippy::unwrap_used)]
 #![feature(let_chains)]
 #[macro_use]
 extern crate tracing;

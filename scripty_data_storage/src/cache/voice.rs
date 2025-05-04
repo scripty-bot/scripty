@@ -10,7 +10,7 @@ pub async fn change_voice_state(user_id: u64, state: bool) -> Result<(), sqlx::E
 	sqlx::query!(
 		"UPDATE users SET store_audio = $1 WHERE user_id = $2",
 		state,
-		user_id
+		&user_id
 	)
 	.execute(scripty_db::get_db())
 	.await?;
@@ -40,10 +40,7 @@ pub async fn get_voice_state(raw_user_id: u64) -> bool {
 
 	// check cache
 	let res = scripty_redis::run_transaction("GET", |con| {
-		con.arg(format!(
-			"user:{{{}}}:store_audio",
-			hex::encode(user_id.clone())
-		));
+		con.arg(format!("user:{{{}}}:store_audio", hex::encode(user_id)));
 	})
 	.await;
 	match res {
@@ -54,7 +51,7 @@ pub async fn get_voice_state(raw_user_id: u64) -> bool {
 	}
 
 	// not cached, fall back to db
-	let state = sqlx::query!("SELECT store_audio FROM users WHERE user_id = $1", user_id)
+	let state = sqlx::query!("SELECT store_audio FROM users WHERE user_id = $1", &user_id)
 		.fetch_optional(scripty_db::get_db())
 		.await;
 
@@ -62,11 +59,8 @@ pub async fn get_voice_state(raw_user_id: u64) -> bool {
 		Ok(Some(state)) => {
 			// cache value
 			let _ = scripty_redis::run_transaction::<Option<String>>("SET", |con| {
-				con.arg(format!(
-					"user:{{{}}}:store_audio",
-					hex::encode(user_id.clone())
-				))
-				.arg(state.store_audio);
+				con.arg(format!("user:{{{}}}:store_audio", hex::encode(user_id)))
+					.arg(state.store_audio);
 			})
 			.await;
 			state.store_audio
@@ -74,11 +68,8 @@ pub async fn get_voice_state(raw_user_id: u64) -> bool {
 		Ok(None) => {
 			// user not found, cache false
 			let _ = scripty_redis::run_transaction::<Option<String>>("SET", |con| {
-				con.arg(format!(
-					"user:{{{}}}:store_audio",
-					hex::encode(user_id.clone())
-				))
-				.arg(false);
+				con.arg(format!("user:{{{}}}:store_audio", hex::encode(user_id)))
+					.arg(false);
 			})
 			.await;
 			false

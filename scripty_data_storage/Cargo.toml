@@ -23,7 +23,6 @@ tracing.workspace = true
 serenity.workspace = true
 once_cell.workspace = true
 ouroboros.workspace = true
-parking_lot.workspace = true
 
 scripty_db = { path = "../scripty_db" }
 scripty_utils = { path = "../scripty_utils" }

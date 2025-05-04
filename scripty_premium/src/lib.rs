@@ -116,7 +116,7 @@ pub async fn get_user(user_id: u64) -> Option<PremiumUserInfo> {
 
 	let res = sqlx::query!(
 		"SELECT premium_level, premium_expiry, is_trialing FROM users WHERE user_id = $1",
-		scripty_utils::hash_user_id(user_id)
+		&scripty_utils::hash_user_id(user_id)
 	)
 	.fetch_optional(db)
 	.await;
