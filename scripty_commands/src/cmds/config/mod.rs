@@ -33,6 +33,7 @@ use serenity::builder::CreateEmbed;
 		"transcribe_only_role::config_transcribe_only_role",
 		"transcribe_video::config_transcribe_video",
 		"transcribe_voice_messages::config_transcribe_voice_messages",
+		"translate::config_translate",
 		"verbose::config_verbose"
 	),
 	subcommand_required
