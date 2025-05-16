@@ -5,7 +5,7 @@ mod message_updater;
 mod raw_pcm_conversions;
 mod state;
 
-use std::time::Duration;
+use std::{fmt::Write, time::Duration};
 
 use poise::CreateReply;
 use scripty_i18n::LanguageIdentifier;
@@ -29,6 +29,7 @@ pub async fn transcribe_generic_message(
 	resolved_language: LanguageIdentifier,
 ) -> Result<(), Error> {
 	let target_msg_id = target_msg.id;
+	let target_guild_id = target_msg.guild_id;
 
 	let (tx, mut rx) = tokio::sync::mpsc::channel(5);
 	let file_transcript = FileTranscriptionHandler::new(target_msg, tx, invoking_user, false);
@@ -92,13 +93,29 @@ pub async fn transcribe_generic_message(
 	};
 
 	let final_transcripts = final_transcript_result??;
-	send_final_transcript_edit(final_transcripts, reply_msg, &resolved_language).await
+
+	let verbose = if let Some(guild_id) = target_guild_id {
+		let db = scripty_db::get_db();
+		sqlx::query!(
+			"SELECT be_verbose FROM guilds WHERE guild_id = $1",
+			guild_id.get() as i64
+		)
+		.fetch_optional(db)
+		.await?
+		.is_some_and(|r| r.be_verbose)
+	} else {
+		// always be verbose in DMs
+		true
+	};
+
+	send_final_transcript_edit(final_transcripts, reply_msg, &resolved_language, verbose).await
 }
 
 async fn send_final_transcript_edit(
 	mut final_transcripts: Vec<TranscriptResult>,
 	mut reply_msg: MessageUpdater<'_>,
 	resolved_language: &LanguageIdentifier,
+	verbose: bool,
 ) -> Result<(), Error> {
 	let edit_msg = if final_transcripts.is_empty() {
 		CreateReply::new().content(format_message!(
@@ -116,6 +133,7 @@ async fn send_final_transcript_edit(
 			transcript_result,
 			resolved_language,
 			true,
+			verbose,
 		);
 		edit_msg.content(msg_content)
 	} else {
@@ -128,6 +146,7 @@ async fn send_final_transcript_edit(
 				transcript,
 				resolved_language,
 				false,
+				verbose,
 			);
 		}
 		edit_msg.content(msg_content)
@@ -144,6 +163,7 @@ fn format_transcript_msg<'a>(
 	TranscriptResult { filename, state }: TranscriptResult,
 	resolved_language: &LanguageIdentifier,
 	is_single: bool,
+	verbose: bool,
 ) -> CreateReply<'a> {
 	match state {
 		TranscriptResultEnum::Success {
@@ -152,29 +172,45 @@ fn format_transcript_msg<'a>(
 			transcript,
 		} if transcript.len() <= 1800 && is_single => {
 			// this is the sole transcript, and it is under 1800 characters, so we can send it inline
-			msg_content.push_str(&format_message!(
-				resolved_language,
-				"transcribe-message-inline-header"
-			));
-			msg_content.push('\n');
+			if verbose {
+				msg_content.push_str(&format_message!(
+					resolved_language,
+					"transcribe-message-inline-header"
+				));
+				msg_content.push('\n');
+			}
 			for line in transcript.split_inclusive('\n') {
 				msg_content.push_str("> ");
 				msg_content.push_str(line);
 			}
 
 			msg_content.push('\n');
-			msg_content.push_str(&format_message!(
-				resolved_language,
-				"transcribe-message-time-taken-single-file",
-				timeTaken: format!("{:.3}", took.as_secs_f64()),
-				fileLength: format!("{:.3}", file_length)
-			));
-			msg_content.push('\n');
-			if took.as_secs_f64() > file_length {
+
+			let took_f64 = took.as_secs_f64();
+			let unusually_long = took_f64 > file_length;
+			if verbose {
 				msg_content.push_str(&format_message!(
 					resolved_language,
-					"transcribe-message-unusually-long"
+					"transcribe-message-time-taken-single-file",
+					timeTaken: format!("{:.3}", took.as_secs_f64()),
+					fileLength: format!("{:.3}", file_length)
 				));
+				msg_content.push('\n');
+				if unusually_long {
+					msg_content.push_str(&format_message!(
+						resolved_language,
+						"transcribe-message-unusually-long"
+					));
+				}
+			} else {
+				write!(
+					msg_content,
+					"-# {:.3} ({:.3}){}",
+					took.as_secs_f64(),
+					file_length,
+					if unusually_long { " ⚠" } else { "" }
+				)
+				.expect("writing to string should be infallible")
 			}
 
 			msg
