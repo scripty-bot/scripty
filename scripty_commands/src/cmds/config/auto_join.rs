@@ -31,7 +31,8 @@ pub async fn config_auto_join(ctx: Context<'_>, auto_join: bool) -> Result<(), E
 		if !target_channel_set {
 			ctx.say(format_message!(
 				resolved_language,
-				"config-auto-join-needs-target-channel"
+				"config-auto-join-needs-target-channel",
+				contextPrefix: ctx.prefix()
 			))
 			.await?;
 			return Ok(());
