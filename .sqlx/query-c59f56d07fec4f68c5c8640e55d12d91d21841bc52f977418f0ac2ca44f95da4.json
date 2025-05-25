@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO default_join_settings (guild_id, target_channel)\n\t\t\t\tVALUES ($1, $2)\n\t\t\t\tON CONFLICT ON CONSTRAINT default_join_settings_pkey\n\t\t\t\t    DO UPDATE SET target_channel = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c59f56d07fec4f68c5c8640e55d12d91d21841bc52f977418f0ac2ca44f95da4"
+}

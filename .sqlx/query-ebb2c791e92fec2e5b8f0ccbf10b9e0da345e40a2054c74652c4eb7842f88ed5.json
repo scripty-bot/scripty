@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO per_voice_channel_settings (channel_id, target_channel)\n\t\t\t\tVALUES ($1, $2)\n\t\t\t \tON CONFLICT ON CONSTRAINT per_voice_channel_settings_pkey\n\t\t\t \t    DO UPDATE SET target_channel = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ebb2c791e92fec2e5b8f0ccbf10b9e0da345e40a2054c74652c4eb7842f88ed5"
+}
