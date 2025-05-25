@@ -36,7 +36,7 @@ config-transcribe-video-disabled = Scripty больше не будет расш
 premium-not-premium = Ты не премиум пользователь. Подпишись на https://scripty.org/premium. Если ты уверен, что у тебя есть премиум, пожалуйста, напиши боту в ЛС таким образом, мы сможем восстановить твой премиум.
 # join command
 # If the user specifies they would like to create a forum post, this is the contents of the initial message. { $timestamp } is the current timestamp, in ISO format, and { $authorMention } is the mention of the user who ran the command.
-join-forum-thread-content = { $authorMention } начал расшифровку в { $timestamp }.
+join-forum-thread-content = { $authorMention } начал транскрипцию { $timestamp }.
 # config - translate command
 config-translate-enabled = Теперь Scripty будет переводить расшифровки на английский.
 # join command
@@ -177,7 +177,7 @@ voice-connection-error-ws-closed-unknown-encryption-mode = Discord не расп
 language-set-failure-title-unsupported = Указанный вами язык не поддерживается ботом.
 guild-language-set-success = Язык гильдии установлен на `{ $language }`.
 guild-language-set-success-description = Чтобы вернуться на английский, введите `{ $contextPrefix }language guild_language en`.
-no-channel-specified = Вы не в голосовом чате и не указали мне канал, к которому можно присоединиться. Попробуйте { $contextPrefix }  войти в канал, чтобы указать голосовой чат, или присоединитесь к голосовому чату самостоятельно и повторите эту команду.
+no-channel-specified = Вы не находитесь в голосовом чате и не указали мне канал, к которому нужно присоединиться. Попробуйте `{ $contextPrefix }join <channel>`, чтобы указать голосовой чат, или присоединитесь к голосовому чату сами и повторно выполните эту команду.
 automod-setup-embed-complete-description = You can now use `{ $contextPrefix }automod rule add` to add an automod rule. { $extraDetails }
 automod-list-rules-footer = Страница { $page } из { $maxPage }
 voice-connection-error-ws-closed-session-timeout = сеанс истек
@@ -276,18 +276,18 @@ data-storage-embed-description =
 
     Вы можете переключать свой выбор с помощью кнопок ниже.
 cmds_add_rule = add_rule
-    .description = Добавьте правило автомода.
+    .description = Добавить правило автомода.
     .rule_type = rule_type
-    .rule_type-description = Тип правила для добавления. См. `/automod rule_help` для получения дополнительной информации.
-    .rule_type-choice-Regular = Regular
-    .content = content
-    .content-description = Содержание правила для добавления.
-    .action = action
-    .action-description = Действие, которое следует предпринять при срабатывании правила.
-    .action-choice-SilentDelete = Silent delete
-    .action-choice-DeleteAndLog = Delete and log
-    .action-choice-DeleteLogAndKick = Delete, log, and remove user from voice
-    .action-choice-DeleteLogAndSilence = Delete, log, and mute user
+    .rule_type-description = Тип добавляемого правила. Дополнительную информацию см. в `/automod rule_help`.
+    .rule_type-choice-Regular = Регулярный
+    .content = содержимое
+    .content-description = Содержание правила, которое нужно добавить.
+    .action = действие
+    .action-description = Действие, которое нужно предпринять при срабатывании правила.
+    .action-choice-SilentDelete = Бесшумное удаление
+    .action-choice-DeleteAndLog = Удалять журнал
+    .action-choice-DeleteLogAndKick = Удалить, журнал и удалить пользователя из голоса
+    .action-choice-DeleteLogAndSilence = Удалить, журнал и отключить звук
 cmds_ping = ping
     .description = Получите задержку бота.
 transcribe-message-initial-reply = Загрузка...
@@ -343,3 +343,102 @@ cmds_config_prefix = префикс
     .language-description = Язык, который вы хотите установить для этого сервера.
 config-prefix-too-long = Префиксы должны содержать не более 8 символов. Попробуйте еще раз, используя более короткий префикс.
 config-prefix-unset = Пользовательский префикс для этого сервера был удалён. Теперь будет применяться стандартный префикс (`{ $updatedPrefix }`).
+automod-remove-rule-embed-failure-description-invalid-id = Неверный идентификатор правила. Дополнительную информацию см. в разделе `{ $contextPrefix }automod list`.
+general-error-cooldown-hit-title = Время восстановления по { $command }
+config-default-ephemeral-disabled = Scripty больше не будет делать все транскрипты эфемерными.
+cmds_config_default_settings_new_thread = new_thread
+    .description = Должен ли Scripty по умолчанию создавать новую тему для всех транскрипций?
+    .new_thread = new_thread
+    .new_thread-description = Значение по умолчанию для new_thread в команде join
+cmds_config_default_settings_record_transcriptions = record_transcriptions
+    .description = Должен ли Scripty по умолчанию записывать все транскрипции в текстовый файл?
+    .record_transcriptions = record_transcriptions
+    .record_transcriptions-description = Значение по умолчанию для record_transcriptions в команде join
+debug-info-message = Перешлите это сообщение тому, кто на сервере поддержки Scripty просит вас об этом.
+general-error-command-process-title = При обработке { $command } произошла ошибка.
+voice-connection-error-msg-no-reconnect = У меня возникла проблема ({ $reason }), и я отключился от голосового чата.
+transcription-info-transcription-error =
+    Внутренняя ошибка: запуск алгоритма stt завершился с ошибкой: { $error }
+    SSRC: { $ssrc }
+    Эта ошибка была зарегистрирована и будет исправлена как можно скорее.
+    Если это возможно, пожалуйста, свяжитесь с разработчиками ядра на сервере поддержки: { $supportServerInvite }.
+    Спасибо!
+delete-data-title = Удалить данные
+general-error-command-check-failed-description-no-reason = причина не указана
+transcription-info-transcription-title = Транскрипт
+cmds_delete_all_data = delete_all_data
+    .description = Удалить все ваши данные.
+automod-remove-rule-embed-success-description = { $rulesLeft } правила, оставшиеся после { $maxRules }.
+automod-list-rules-embed-description = { $rulesLeft } правила, оставшиеся после { $maxRules }.
+cmds_debug = debug
+    .description = Вывод отладочной информации о внутреннем состоянии Scripty.
+join-failed-dropped = Похоже, что в Discord возникли проблемы, мы не можем ничего с этим поделать. Пожалуйста, повторите попытку позже.
+cmds_remove_rule = remove_rule
+    .description = Удалить правило automod.
+    .rule_id = rule_id
+    .rule_id-description = Идентификатор правила для удаления.
+general-error-invalid-structure-description =
+    { $description }
+
+    { "**" }Note**: this is a Discord error.
+    The only fix for this is to wait for Discord to propagate slash commands, which can take up to one hour.
+    If you do not want to wait this hour, you should use the prefix commands: run this command with `~{ $qualifiedName } { $args }`.
+config-default-new-thread-cant-make-thread-in-vc = Голосовые каналы не могут иметь потоков. Либо выберите другой целевой канал по умолчанию, либо не включайте new_thread.
+config-default-new-thread-enabled = Scripty теперь будет создавать новую тему для всех транскрипций.
+delete-data-confirm-banned = Да, удалить все данные и забанить себя
+debug-not-in-call = Эта команда бесполезна, если Scripty не находится в VC.
+automod-add-rule-embed-failure-description-invalid-type = Неверный тип правила. Дополнительную информацию см. в разделе `{ $contextPrefix }automod rule_help`.
+delete-data-confirm = Да, удалите все данные
+config-default-target-channel-need-permissions = Scripty нужны Send Messages и Manage Webhooks в целевом канале. Дайте ему эти разрешения и попробуйте снова.
+general-error-invalid-args-description = Не удалось разобрать `{ $input }`, потому что `{ $error }`
+general-error-command-process-description =
+    ```
+    { $errorFmt }
+    ```
+    Сообщение об ошибке было получено автоматически. Пожалуйста, не пытайтесь повторно использовать эту команду.
+general-error-command-check-failed-title = Предварительное условие для { $command } не выполнено.
+transcription-info-transcription-confidence = Уверенность
+transcription-info-transcript-count = Транскрипт 1 из { $count }.
+transcription-info-transcription-ssrc = SSRC { $ssrc }
+join-no-one-in-channel = В { $targetMention } никого нет. Я не присоединяюсь, если там никого нет, так как это пустая трата ограниченных ресурсов.
+general-error-invalid-structure-title = Неверная структура из Discord при разборе { $command }.
+config-default-new-thread-disabled = Scripty больше не будет создавать новую тему для всех транскрипций.
+join-no-permission = У меня нет разрешения присоединиться к { $targetMention }. Пожалуйста, предоставьте мне права на просмотр канала и присоединение или присоединитесь к другому голосовому чату, где у меня есть права.
+general-error-user-missing-perms-description-unknown = Я не уверен, каких разрешений вам не хватает.
+delete-data-description =
+    Это приведет к удалению всех ваших данных. Это действие является постоянным, необратимым и не может быть отменено.
+
+    Когда мы говорим «все ваши данные», мы имеем в виду *все* данные. Сюда входят ваши голосовые данные и ваш пользователь в базе данных.
+    Однако сюда не входят сообщения, которые мы могли сохранить, если вы согласились на это. Мы не можем удалить эти сообщения, просто потому что не знаем, какой пользователь отправил то или иное сообщение.
+
+    Если вы хотите, чтобы после этого действия вам также запретили пользоваться ботом, чтобы вы случайно не прочитали себя, вы можете нажать соответствующую кнопку ниже.
+    Обратите внимание, что для этого нам потребуется сохранить ваш идентификатор пользователя, чтобы вести учет забаненных пользователей.
+    Если в любой момент после этого действия вы захотите снять с себя запрет, вы можете связаться с сервером поддержки и попросить снять запрет вручную.
+
+    Вы уверены, что хотите удалить все свои данные?
+join-create-thread-in-thread = Я не могу создать поток, находясь в потоке. Пожалуйста, выполните эту команду в обычном канале, скорее всего { $parentChannelMention }.
+config-default-new-thread-cant-make-thread-in-thread = Вы не можете создать поток в потоке. Либо выберите другой целевой канал по умолчанию, либо не включайте new_thread.
+config-default-record-transcriptions-enabled = Scripty теперь будет записывать все транскрипции в текстовый файл.
+config-default-record-transcriptions-disabled = Scripty больше не будет записывать все транскрипции в текстовый файл.
+cmds_config_default_settings_target_channel = target_channel
+    .description = Установите целевой канал по умолчанию, на который Scripty будет выводить транскрипты, если ни один из них не указан.
+    .target_channel = target_channel
+    .target_channel-description = Значение по умолчанию для target_channel в команде join
+config-default-target-channel-enabled = Теперь Scripty по умолчанию будет отправлять все транскрипты на { $targetChannelMention }.
+config-default-target-channel-disabled = Теперь Scripty по умолчанию будет отправлять все транскрипты на канал, на котором выполняется `/join`.
+config-default-target-channel-cant-disable-with-auto-join = Вы не можете удалить целевой канал по умолчанию, если включено авто соединение. Либо отключите авто соединение, либо измените целевой канал вместо его удаления.
+automod-add-rule-embed-failure-description-not-setup = Перед добавлением правил необходимо выполнить команду `{ $contextPrefix }automod setup`.
+automod-remove-rule-embed-failure-description-not-setup = Перед удалением правил необходимо выполнить команду `{ $contextPrefix }automod setup`.
+cmds_list_rules = list_rules
+    .description = Список всех правил автомода.
+    .filter_by = filter_by
+    .filter_by-description = Фильтровать правила по их содержанию. Оставьте пустым, чтобы показать все правила.
+voice-connection-error-ws-closed-server-crashed = Голосовой сервер discord потерпел крах
+voice-connection-error-unknown = отключен по неизвестной причине
+voice-connection-error-msg-reconnect = У меня возникла проблема ({ $reason }), и я отключился от голосового чата. Я попробую подключиться снова через 30 секунд.
+general-error-invalid-args-title = Недопустимые аргументы при разборе { $command }.
+general-error-user-missing-perms-title = Вам не хватает разрешений на выполнение { $command }.
+general-error-user-missing-perms-description-known = Разрешения отсутствуют: { $perms }
+general-error-cooldown-hit-description = Осталось { $time } секунд до окончания действия.
+general-error-user-missing-perms-description-not-owner = Не являюсь владельцем этого бота.
+delete-data-cancel = Нет, отменить
