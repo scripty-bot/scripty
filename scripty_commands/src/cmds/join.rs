@@ -54,6 +54,30 @@ pub async fn join(
 	let db = scripty_db::get_db();
 	let cfg = scripty_config::get_config();
 
+	let (guild_id, voice_channel) = {
+		let guild = ctx.guild().ok_or_else(Error::expected_guild)?;
+		(
+			guild.id,
+			voice_channel.ok_or_else(|| {
+				guild
+					.voice_states
+					.get(&ctx.author().id)
+					.and_then(|state| state.channel_id)
+			}),
+		)
+	};
+	let voice_channel = match voice_channel {
+		Ok(vc) => vc,
+		Err(Some(state)) => state.to_guild_channel(&ctx, ctx.guild_id()).await?,
+		Err(None) => {
+			ctx.say(
+				format_message!(resolved_language, "no-channel-specified", contextPrefix: ctx.prefix()),
+			)
+			.await?;
+			return Ok(());
+		}
+	};
+
 	let defaults = sqlx::query!(
 		"SELECT record_transcriptions, target_channel, new_thread, ephemeral FROM \
 		 default_join_settings WHERE guild_id = $1",
@@ -66,12 +90,17 @@ pub async fn join(
 	let target_channel = match target_channel {
 		Some(target_channel) => target_channel,
 		None => {
-			defaults
-				.as_ref()
-				.and_then(|x| {
-					x.target_channel
-						.map(|target_channel| GenericChannelId::new(target_channel as u64))
-				})
+			let maybe_target = sqlx::query!(
+				"SELECT target_channel FROM per_voice_channel_settings WHERE channel_id = $1",
+				voice_channel.id.get() as i64
+			)
+			.fetch_optional(db)
+			.await?
+			.and_then(|r| r.target_channel);
+
+			maybe_target
+				.or_else(|| defaults.as_ref().and_then(|r| r.target_channel))
+				.map(|cid| GenericChannelId::new(cid as u64))
 				.unwrap_or_else(|| ctx.channel_id())
 				.to_channel(&ctx, Some(guild_id))
 				.await?
@@ -162,19 +191,6 @@ pub async fn join(
 		return Ok(());
 	}
 
-	let (guild_id, voice_channel) = {
-		let guild = ctx.guild().ok_or_else(Error::expected_guild)?;
-		(
-			guild.id,
-			voice_channel.ok_or_else(|| {
-				guild
-					.voice_states
-					.get(&ctx.author().id)
-					.and_then(|state| state.channel_id)
-			}),
-		)
-	};
-
 	let res = sqlx::query!(
 		"SELECT trial_used FROM guilds WHERE guild_id = $1",
 		guild_id.get() as i64
@@ -182,18 +198,6 @@ pub async fn join(
 	.fetch_optional(db)
 	.await?;
 	let trial_used = res.as_ref().is_some_and(|row| row.trial_used);
-
-	let voice_channel = match voice_channel {
-		Ok(vc) => vc,
-		Err(Some(state)) => state.to_guild_channel(&ctx, ctx.guild_id()).await?,
-		Err(None) => {
-			ctx.say(
-				format_message!(resolved_language, "no-channel-specified", contextPrefix: ctx.prefix()),
-			)
-			.await?;
-			return Ok(());
-		}
-	};
 
 	match voice_channel.base.kind {
 		ChannelType::Voice | ChannelType::Stage => {}

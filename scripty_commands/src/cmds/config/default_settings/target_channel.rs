@@ -15,17 +15,26 @@ use serenity::model::{
 )]
 pub async fn config_default_settings_target_channel(
 	ctx: Context<'_>,
-	#[channel_types("Text", "Forum", "Voice", "Stage", "News")] target_channel: Option<
-		GuildChannel,
-	>,
+	#[description = "Default value for target_channel on the join command"]
+	#[channel_types("Text", "Forum", "Voice", "Stage", "News")]
+	target_channel: Option<GuildChannel>,
+	#[description = "If this is set, this target channel will only apply when Scripty joins this \
+	                 voice channel"]
+	#[channel_types("Voice", "Stage")]
+	modify_channel: Option<GuildChannel>,
 ) -> Result<(), Error> {
 	let guild_id = ctx.guild_id().ok_or_else(Error::expected_guild)?;
 	let resolved_language =
 		scripty_i18n::get_resolved_language(ctx.author().id.get(), Some(guild_id.get())).await;
 	let db = scripty_db::get_db();
 
-	if let Some(error_translation_key) =
-		do_preflight_target_channel(&ctx, guild_id, target_channel.as_ref()).await?
+	if let Some(error_translation_key) = do_preflight_target_channel(
+		&ctx,
+		guild_id,
+		target_channel.as_ref(),
+		modify_channel.is_some(),
+	)
+	.await?
 	{
 		ctx.say(format_message!(resolved_language, error_translation_key))
 			.await?;
@@ -33,21 +42,60 @@ pub async fn config_default_settings_target_channel(
 	}
 
 	super::ensure_guild_exists(guild_id, db).await?;
-	sqlx::query!(
-		"INSERT INTO default_join_settings (guild_id, target_channel)
-			VALUES ($1, $2)
-			ON CONFLICT ON CONSTRAINT default_join_settings_pkey
-			    DO UPDATE SET target_channel = $2",
-		guild_id.get() as i64,
-		target_channel.as_ref().map(|x| x.id.get() as i64),
-	)
-	.execute(db)
-	.await?;
-
-	let resp_str = if let Some(ref target_channel) = target_channel {
-		format_message!(resolved_language, "config-default-target-channel-enabled", targetChannelMention: target_channel.mention().to_string())
+	if let Some(ref modify_channel) = modify_channel {
+		sqlx::query!(
+			"INSERT INTO per_voice_channel_settings (channel_id, target_channel)
+				VALUES ($1, $2)
+			 	ON CONFLICT ON CONSTRAINT per_voice_channel_settings_pkey
+			 	    DO UPDATE SET target_channel = $2",
+			modify_channel.id.get() as i64,
+			target_channel.as_ref().map(|x| x.id.get() as i64)
+		)
+		.execute(db)
+		.await?;
 	} else {
-		format_message!(resolved_language, "config-default-target-channel-disabled")
+		sqlx::query!(
+			"INSERT INTO default_join_settings (guild_id, target_channel)
+				VALUES ($1, $2)
+				ON CONFLICT ON CONSTRAINT default_join_settings_pkey
+				    DO UPDATE SET target_channel = $2",
+			guild_id.get() as i64,
+			target_channel.as_ref().map(|x| x.id.get() as i64),
+		)
+		.execute(db)
+		.await?;
+	}
+
+	let resp_str = match (&target_channel, &modify_channel) {
+		(Some(target_channel), Some(modify_channel)) => {
+			// modifying modify_channel to send transcripts to target_channel by default
+			format_message!(
+				resolved_language,
+				"config-default-target-channel-enabled-per-channel",
+				targetChannelMention: target_channel.mention().to_string(),
+				modifyChannelMention: modify_channel.mention().to_string()
+			)
+		}
+		(None, Some(modify_channel)) => {
+			// modifying modify_channel to send transcripts to the guild default
+			format_message!(
+				resolved_language,
+				"config-default-target-channel-disabled-per-channel",
+				modifyChannelMention: modify_channel.mention().to_string()
+			)
+		}
+		(Some(target_channel), None) => {
+			// setting the guild default to target_channel
+			format_message!(
+				resolved_language,
+				"config-default-target-channel-enabled",
+				targetChannelMention: target_channel.mention().to_string()
+			)
+		}
+		(None, None) => {
+			// resetting the guild default to empty
+			format_message!(resolved_language, "config-default-target-channel-disabled")
+		}
 	};
 	ctx.say(resp_str).await?;
 
@@ -58,6 +106,7 @@ async fn do_preflight_target_channel(
 	_ctx: &Context<'_>,
 	guild_id: GuildId,
 	target_channel: Option<&GuildChannel>,
+	is_channel_level: bool,
 ) -> Result<Option<&'static str>, Error> {
 	let db = scripty_db::get_db();
 
@@ -95,7 +144,7 @@ async fn do_preflight_target_channel(
 				_ => {}
 			}
 		}
-	} else {
+	} else if !is_channel_level {
 		let auto_join = sqlx::query!(
 			"SELECT auto_join FROM guilds WHERE guild_id = $1",
 			guild_id.get() as i64

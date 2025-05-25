@@ -185,22 +185,36 @@ pub async fn voice_state_update(ctx: &Context, new: &VoiceState) {
 		.fetch_optional(db)
 		.await
 		{
-			Ok(res) => res,
+			Ok(Some(res)) => res,
+			Ok(None) => {
+				warn!(%guild_id, "guild has auto join enabled with no default settings: something's wrong");
+				return;
+			}
 			Err(e) => {
 				error!(%guild_id, "failed to fetch default settings for guild: {}", e);
 				return;
 			}
 		};
-
-		let Some(defaults) = defaults else {
-			warn!(%guild_id, "guild has auto join enabled with no default settings: something's wrong");
-			return;
+		let maybe_target = match sqlx::query!(
+			"SELECT target_channel FROM per_voice_channel_settings WHERE channel_id = $1",
+			voice_channel_id.get() as i64
+		)
+		.fetch_optional(db)
+		.await
+		.map(|maybe_row| maybe_row.and_then(|r| r.target_channel))
+		{
+			Ok(maybe_target) => maybe_target.map(|cid| ChannelId::new(cid as u64)),
+			Err(e) => {
+				error!(%guild_id, "error fetching target channel from per_voice_channel_settings: {}", e);
+				return;
+			}
 		};
 
-		let Some(target_channel_id) = defaults
-			.target_channel
-			.map(|target_channel| ChannelId::new(target_channel as u64))
-		else {
+		let Some(target_channel_id) = maybe_target.or_else(|| {
+			defaults
+				.target_channel
+				.map(|target_channel| ChannelId::new(target_channel as u64))
+		}) else {
 			warn!(%guild_id, "guild has no default target channel, ignoring join");
 			return;
 		};
