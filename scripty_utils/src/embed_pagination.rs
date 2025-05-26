@@ -50,7 +50,7 @@ pub async fn do_paginate(
 		CreateMessage::new()
 			.embed(embed)
 			.components(build_components())
-			.execute(&ctx.http, target_channel, None)
+			.execute(&ctx.http, target_channel)
 			.await?
 			.id
 	};
