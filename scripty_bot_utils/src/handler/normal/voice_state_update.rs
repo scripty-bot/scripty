@@ -196,14 +196,21 @@ pub async fn voice_state_update(ctx: &Context, new: &VoiceState) {
 			}
 		};
 		let maybe_target = match sqlx::query!(
-			"SELECT target_channel FROM per_voice_channel_settings WHERE channel_id = $1",
+			"SELECT auto_join_enabled, target_channel
+			FROM per_voice_channel_settings
+			WHERE channel_id = $1",
 			voice_channel_id.get() as i64
 		)
 		.fetch_optional(db)
 		.await
-		.map(|maybe_row| maybe_row.and_then(|r| r.target_channel))
+		.map(|maybe_row| maybe_row.map(|r| (r.target_channel, r.auto_join_enabled)))
 		{
-			Ok(maybe_target) => maybe_target.map(|cid| ChannelId::new(cid as u64)),
+			// auto-join disabled at the channel level
+			Ok(Some((_, false))) => return,
+			// auto join enabled, has a target
+			Ok(Some((Some(target_id), true))) => Some(ChannelId::new(target_id as u64)),
+			// no special settings, or no target
+			Ok(None | Some((None, true))) => None,
 			Err(e) => {
 				error!(%guild_id, "error fetching target channel from per_voice_channel_settings: {}", e);
 				return;

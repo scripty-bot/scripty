@@ -166,8 +166,13 @@ cmds_config_auto_join = auto_join
     .description = Should Scripty automatically join a voice channel when someone joins it?
     .auto_join = auto_join
     .auto_join-description = Defaults to false
+    .modify_channel = modify_channel
+    .modify_channel-description = Optionally set a channel this setting should apply to. If not set, the server setting is modified.
 config-auto-join-enabled = Scripty will now automatically join VCs when a user does.
 config-auto-join-disabled = Scripty will no longer automatically join VCs when a use does.
+config-auto-join-enabled-channel = Scripty will now automatically join { $modifyChannelMention } when a user does.
+config-auto-join-disabled-channel = Scripty will no longer automatically join { $modifyChannelMention } when a user does.
+config-auto-join-modify-channel-must-be-vc = { $modifyChannelMention } isn't a voice channel. Try again with a voice channel.
 config-auto-join-needs-target-channel = Enabling auto-join requires a default target channel be set. Do that with `{ $contextPrefix }config default target_channel`.
 
 ## config - transcribe only role command
