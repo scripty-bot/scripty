@@ -42,6 +42,9 @@ join-forum-requires-tags = The forum channel you tried to make me use requires t
 join-target-not-text-based = The channel you told me to send transcripts to ({ $targetMention }) is not a text-based channel. Please use a text-based channel, or pick a different channel in the `target_channel` argument.
 # This message is shown when the user requests the bot create a new thread in a channel, but the channel doesn't support threads being created (usually voice channels)
 join-create-thread-in-unsupported = Discord does not support threads in { $targetMention }. Please use a different channel, or do not create a thread.
+join-ephemeral-with-thread-target-warn = You're trying to use { $targetThreadMention } as an ephemeral thread. This will delete it after Scripty leaves! Are you sure you want to do this?
+join-ephemeral-with-thread-target-timed-out = Timed out. Rerun if you still want to try again.
+join-ephemeral-with-thread-target-cancelled = You selected not to proceed, cancelling.
 
 ## Leave command
 # This and all attributes show up exclusively in the slash command picker when `leave` is selected.
@@ -561,3 +564,8 @@ delete-data-cancel = No, cancel
 ## generic strings
 # Message shown if a guild has not claimed their free trial of premium. Always appears on its own standalone line in the surrounding message.
 free-trial-upsell = We offer 3-day trials of Scripty Premium if you would like to try it out and see if it is right for you. Send the bot a DM to get started with a free trial.
+
+# Generic string for yes
+generic-yes = Yes
+# Generic string for no
+generic-no = No

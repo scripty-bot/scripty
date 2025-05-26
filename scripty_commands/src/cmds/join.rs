@@ -1,11 +1,21 @@
-use std::time::SystemTime;
+use std::time::{Duration, SystemTime};
 
 use humantime::format_rfc3339_seconds;
 use poise::CreateReply;
 use scripty_bot_utils::checks::is_guild;
 use serenity::{
-	builder::{CreateEmbed, CreateEmbedFooter, CreateForumPost, CreateMessage, CreateThread},
+	builder::{
+		CreateActionRow,
+		CreateButton,
+		CreateEmbed,
+		CreateEmbedFooter,
+		CreateForumPost,
+		CreateMessage,
+		CreateThread,
+	},
+	collector::ComponentInteractionCollector,
 	model::{
+		application::ButtonStyle,
 		channel::{AutoArchiveDuration, Channel, ChannelFlags, ChannelType, GuildChannel},
 		id::GenericChannelId,
 	},
@@ -42,7 +52,7 @@ pub async fn join(
 	target_channel: Option<Channel>,
 
 	#[description = "Create a new thread for this transcription? Defaults to false."]
-	create_thread: Option<bool>,
+    create_thread: Option<bool>,
 
 	#[description = "Delete the transcript after the last user has left? Defaults to false."]
 	ephemeral: Option<bool>,
@@ -127,13 +137,64 @@ pub async fn join(
 		_ => return Err(Error::expected_guild()),
 	};
 
-	if !(create_thread || target_thread.is_none()) && ephemeral {
-		ctx.say(format_message!(
-			resolved_language,
-			"join-ephemeral-not-thread",
-		))
-		.await?;
-		return Ok(());
+	if ephemeral && let Some(target_thread) = &target_thread {
+		const TWO_MINUTES: Duration = Duration::from_secs(2 * 60);
+
+		// wants to make an ephemeral thread using an existing one
+		// this is dangerous, ask before continuing
+		let resp = ctx
+			.send(
+				CreateReply::new()
+					.content(format_message!(
+						resolved_language,
+						"join-ephemeral-with-thread-target-warn",
+						targetThreadMention: target_thread.mention().to_string()
+					))
+					.components(&[CreateActionRow::buttons(&[
+						CreateButton::new("join-ephemeral-with-thread-target-yes")
+							.style(ButtonStyle::Danger)
+							.label(format_message!(resolved_language, "generic-yes")),
+						CreateButton::new("join-ephemeral-with-thread-target-no")
+							.style(ButtonStyle::Secondary)
+							.label(format_message!(resolved_language, "generic-no")),
+					])]),
+			)
+			.await?;
+		let msg_id = resp.message().await?.id;
+		let resp = ComponentInteractionCollector::new(ctx.serenity_context())
+			.author_id(ctx.author().id)
+			.message_id(msg_id)
+			.timeout(TWO_MINUTES)
+			.await;
+
+		let resp = match resp {
+			Some(resp) => resp,
+			None => {
+				ctx.send(CreateReply::new().content(format_message!(
+					resolved_language,
+					"join-ephemeral-with-thread-target-timed-out"
+				)))
+				.await?;
+				return Ok(());
+			}
+		};
+		resp.defer(ctx.http()).await?;
+		resp.delete_response(ctx.http()).await?;
+		let cid = resp.data.custom_id;
+		if cid == "join-ephemeral-with-thread-target-yes" {
+			// do nothing :3
+		} else if cid == "join-ephemeral-with-thread-target-no" {
+			ctx.send(CreateReply::new().content(format_message!(
+				resolved_language,
+				"join-ephemeral-with-thread-target-cancelled"
+			)))
+			.await?;
+			return Ok(());
+		} else {
+			return Err(Error::custom(
+				"got unknown custom data field on boolean question".to_string(),
+			));
+		}
 	}
 
 	if target_channel.base.kind == ChannelType::Forum {
@@ -158,9 +219,9 @@ pub async fn join(
 			ChannelType::Voice | ChannelType::Stage
 		) {
 		ctx.say(
-			format_message!(resolved_language, "join-create-thread-in-unsupported", targetMention: target_channel.mention().to_string()),
-		)
-		.await?;
+            format_message!(resolved_language, "join-create-thread-in-unsupported", targetMention: target_channel.mention().to_string()),
+        )
+            .await?;
 		return Ok(());
 	}
 
@@ -180,14 +241,14 @@ pub async fn join(
 		&& target_channel.flags.contains(ChannelFlags::REQUIRE_TAG)
 	{
 		ctx.say(
-			format_message!(resolved_language, "join-forum-requires-tags", targetMention: target_channel.mention().to_string()),
-		)
-			.await?;
+            format_message!(resolved_language, "join-forum-requires-tags", targetMention: target_channel.mention().to_string()),
+        )
+            .await?;
 		return Ok(());
 	} else if !is_text_based {
 		ctx.say(
-			format_message!(resolved_language, "join-target-not-text-based", targetMention: target_channel.mention().to_string()),
-		).await?;
+            format_message!(resolved_language, "join-target-not-text-based", targetMention: target_channel.mention().to_string()),
+        ).await?;
 		return Ok(());
 	}
 
@@ -224,9 +285,9 @@ pub async fn join(
 	// do we have permission to view and connect to the channel?
 	if !permissions.connect() || !permissions.view_channel() {
 		ctx.say(
-			format_message!(resolved_language, "join-no-permission", targetMention: voice_channel.mention().to_string()),
-		)
-		.await?;
+            format_message!(resolved_language, "join-no-permission", targetMention: voice_channel.mention().to_string()),
+        )
+            .await?;
 		return Ok(());
 	}
 
@@ -243,9 +304,9 @@ pub async fn join(
 		== 0
 	{
 		ctx.say(
-			format_message!(resolved_language, "join-no-one-in-channel", targetMention: voice_channel.mention().to_string()),
-		)
-		.await?;
+            format_message!(resolved_language, "join-no-one-in-channel", targetMention: voice_channel.mention().to_string()),
+        )
+            .await?;
 		return Ok(());
 	}
 
@@ -298,10 +359,7 @@ pub async fn join(
 	} else if let Some(target_thread) = target_thread {
 		// this channel is a thread
 
-		let parent_id = target_channel
-			.parent_id
-			.ok_or(Error::custom("thread has no parent".to_string()))?;
-		(Some(target_thread.id), parent_id)
+		(Some(target_thread.id), target_thread.parent_id)
 	} else {
 		// no threads here
 		(None, target_channel.id)
