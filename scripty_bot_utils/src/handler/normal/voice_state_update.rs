@@ -254,7 +254,7 @@ pub async fn voice_state_update(ctx: &Context, new: &VoiceState) {
 				debug!(%guild_id, "got a Dropped/TimedOut error, disabling auto join for five minutes");
 
 				// set a key that expires after 5 minutes to disable auto join temporarily
-				if let Err(e) = scripty_redis::run_transaction::<()>("SETEX", |cmd| {
+				if let Err(e) = scripty_redis::run_transaction::<()>("SET", |cmd| {
 					cmd.arg(format!("guild_{{{}}}_auto_join_disabled", guild_id.get()))
 						.arg(true)
 						.arg("EX")
