@@ -257,7 +257,7 @@ pub async fn voice_state_update(ctx: &Context, new: &VoiceState) {
 		{
 			error!(%guild_id, "error joining voice channel: {:?}", e);
 
-			if e.is_dropped() || e.is_timed_out() {
+			if e.is_dropped_or_timed_out() {
 				debug!(%guild_id, "got a Dropped/TimedOut error, disabling auto join for five minutes");
 
 				// set a key that expires after 5 minutes to disable auto join temporarily
@@ -298,7 +298,7 @@ pub async fn voice_state_update(ctx: &Context, new: &VoiceState) {
 						"Failed to join voice channel due to auto-join error: {}\nYou may want to \
 						 report this in our support server.{}",
 						e,
-						if e.is_dropped() || e.is_timed_out() {
+						if e.is_dropped_or_timed_out() {
 							"Because of the nature of this error, auto-join has been disabled for \
 							 five minutes. If you want Scripty to join anyway, run `/leave` and \
 							 `/join` manually."

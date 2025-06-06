@@ -12,6 +12,7 @@ use poise::{
 	PartialContext,
 	serenity_prelude::StatusCode,
 };
+use scripty_error::{Error, ErrorEnum};
 use serenity::{
 	all::{CommandInteraction, DiscordJsonError, InteractionResponseFlags, Message},
 	builder::{
@@ -28,8 +29,7 @@ use tokio::sync::Mutex;
 use crate::{
 	Context,
 	Data,
-	Error,
-	error::{error_type::ErrorEnum, log_error_message, message::send_err_msg},
+	error::{log_error_message, message::send_err_msg},
 	types::InvocationData,
 };
 
@@ -128,14 +128,14 @@ async fn handle_command_error(ctx: Context<'_>, error: Error) -> Result<(), Erro
 	let cmd_name = &ctx.command().qualified_name;
 
 	// if this is a 403 error, it's probably because the bot doesn't have permissions
-	match error.err {
+	match error.peek_inner() {
 		ErrorEnum::Serenity(serenity::Error::Http(http::HttpError::UnsuccessfulRequest(
 			http::ErrorResponse {
 				status_code,
 				error: DiscordJsonError { code, message, .. },
 				..
 			},
-		))) if status_code == http::StatusCode::FORBIDDEN => {
+		))) if status_code == &StatusCode::FORBIDDEN => {
 			send_err_msg(
 				ctx,
 				format!("Missing permissions for {}!", cmd_name),
@@ -153,7 +153,7 @@ async fn handle_command_error(ctx: Context<'_>, error: Error) -> Result<(), Erro
 				error: DiscordJsonError { .. },
 				..
 			},
-		))) if status_code == http::StatusCode::BAD_GATEWAY => {
+		))) if status_code == &StatusCode::BAD_GATEWAY => {
 			send_err_msg(
 				ctx,
 				"Discord broke!",
@@ -340,7 +340,7 @@ async fn handle_command_check_failed(ctx: Context<'_>, error: Option<Error>) -> 
 		ctx,
 		format!("A precondition for {} failed", ctx.command().qualified_name),
 		match error {
-			Some(e) => Cow::from(format!("{:?}", e.err)),
+			Some(e) => Cow::from(format!("{}", e)),
 			None => Cow::from("no reason provided"),
 		},
 	)
@@ -440,7 +440,7 @@ async fn handle_nsfw_only(ctx: Context<'_>) -> Result<(), Error> {
 	let resolved_language = &ctx
 		.invocation_data::<InvocationData>()
 		.await
-		.ok_or_else(Error::missing_interaction_context)?
+		.ok_or_else(Error::expected_interaction_context)?
 		.resolved_language;
 
 	if let Err(e) = ctx

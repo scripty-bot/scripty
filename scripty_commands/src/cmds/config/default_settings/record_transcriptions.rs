@@ -1,4 +1,5 @@
-use scripty_bot_utils::{Context, Error};
+use scripty_bot_utils::Context;
+use scripty_error::Error;
 
 /// Should Scripty, by default, record all transcriptions to a text file?
 #[poise::command(

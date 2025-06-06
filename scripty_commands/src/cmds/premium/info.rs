@@ -1,5 +1,4 @@
 use poise::CreateReply;
-use scripty_bot_utils::checks::is_guild;
 use scripty_premium::PremiumTierList;
 use scripty_utils::hash_user_id;
 use serenity::builder::CreateEmbed;
@@ -7,7 +6,7 @@ use serenity::builder::CreateEmbed;
 use crate::{Context, Error};
 
 /// Check your Premium status in this server.
-#[poise::command(prefix_command, slash_command, check = "is_guild", rename = "info")]
+#[poise::command(prefix_command, slash_command, guild_only, rename = "info")]
 pub async fn premium_info(ctx: Context<'_>) -> Result<(), Error> {
 	let guild_id = ctx.guild_id().ok_or_else(Error::expected_guild)?;
 	let resolved_language =

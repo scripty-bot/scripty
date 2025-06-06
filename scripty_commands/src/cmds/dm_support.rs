@@ -1,4 +1,4 @@
-use scripty_bot_utils::{checks::is_guild, globals::DM_SUPPORT_GLOBAL};
+use scripty_bot_utils::globals::DM_SUPPORT_GLOBAL;
 
 use crate::{Context, Error};
 
@@ -9,7 +9,7 @@ pub async fn ps_root(ctx: Context<'_>) -> Result<(), Error> {
 	Ok(())
 }
 
-#[poise::command(prefix_command, hide_in_help, check = "is_guild", rename = "close")]
+#[poise::command(prefix_command, hide_in_help, guild_only, rename = "close")]
 pub async fn ps_close(ctx: Context<'_>) -> Result<(), Error> {
 	if let Some(st) = DM_SUPPORT_GLOBAL.get() {
 		st.close_ticket(

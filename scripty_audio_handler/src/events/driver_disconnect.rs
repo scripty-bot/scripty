@@ -12,7 +12,6 @@ use songbird::{events::context_data::DisconnectReason, id::GuildId, model::Close
 
 use crate::{
 	connect_to_vc,
-	error::ErrorKind,
 	types::{SeenUsers, TranscriptResults},
 };
 
@@ -93,7 +92,7 @@ pub async fn driver_disconnect(
 			tokio::time::sleep(std::time::Duration::from_secs(30)).await;
 			debug!(?guild_id, "attempting reconnect");
 
-			if let Err(ErrorKind::Join(e)) = connect_to_vc(
+			if let Err(e) = connect_to_vc(
 				ctx2,
 				serenity::all::GuildId::new(guild_id.get()),
 				channel_id,
@@ -102,16 +101,13 @@ pub async fn driver_disconnect(
 				record_transcriptions,
 				ephemeral,
 			)
-			.await
-			.map_err(|x| x.kind)
-				&& let Err(e) = webhook2
-					.execute(
-						&ctx3.http,
-						false,
-						ExecuteWebhook::default()
-							.content(format!("Failed to reconnect due to: {}", e)),
-					)
-					.await
+			.await && let Err(e) = webhook2
+				.execute(
+					&ctx3.http,
+					false,
+					ExecuteWebhook::default().content(format!("Failed to reconnect due to: {}", e)),
+				)
+				.await
 			{
 				debug!(
 					?guild_id,

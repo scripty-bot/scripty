@@ -11,9 +11,10 @@ use std::{
 use ahash::RandomState;
 use dashmap::DashSet;
 use scripty_automod::types::{AutomodRuleAction, AutomodServerConfig};
+use scripty_error::{SttServerError, SttServerErrorEnum};
 use scripty_integrations::kiai::{KiaiApiClient, KiaiPostVirtualMessage};
 use scripty_metrics::Metrics;
-use scripty_stt::{ModelError, Stream};
+use scripty_stt::Stream;
 use serenity::{
 	builder::{CreateEmbed, CreateMessage, EditMember, ExecuteWebhook},
 	gateway::client::Context,
@@ -536,54 +537,66 @@ async fn finalize_stream<'a>(
 	))
 }
 
-fn handle_error<'a>(error: ModelError, ssrc: u32) -> ExecuteWebhook<'a> {
-	let user_error = match error {
-		ModelError::Io(io_err) => {
-			error!(%ssrc, "STT IO error: {}", io_err);
+fn handle_error<'a>(error: SttServerError, ssrc: u32) -> ExecuteWebhook<'a> {
+	let user_error = match error.peek_inner() {
+		SttServerErrorEnum::Io(io_err) => {
+			error!(%ssrc, "upstream STT IO error: {}", io_err);
 			format!("internal IO error (SSRC {})", ssrc)
 		}
-		ModelError::SttsServer(code) => {
-			error!(%ssrc, "STTS error: code {}", code);
+		SttServerErrorEnum::UpstreamServer(code) => {
+			error!(%ssrc, "upstream STT error: code {}", code);
 			format!("internal STT service error (SSRC {})", ssrc)
 		}
-		ModelError::NoAvailableServers => {
-			error!(%ssrc, "STTS error: no available servers");
+		SttServerErrorEnum::NoAvailableServers => {
+			error!(%ssrc, "upstream STT error: no available servers");
 			format!("no available STT servers (SSRC {})", ssrc)
 		}
-		ModelError::MessagePackDecode(e) => {
-			error!(%ssrc, "STTS error: failed to decode messagepack: {}", e);
-			format!("internal STT service error (SSRC {})", ssrc)
+		SttServerErrorEnum::MessagePackDecode(e) => {
+			error!(%ssrc, "upstream STT error: failed to decode messagepack: {}", e);
+			format!(
+				"internal STT service error (failed to decode, SSRC {})",
+				ssrc
+			)
 		}
-		ModelError::MessagePackEncode(e) => {
-			error!(%ssrc, "STTS error: failed to encode messagepack: {}", e);
-			format!("internal STT service error (SSRC {})", ssrc)
+		SttServerErrorEnum::MessagePackEncode(e) => {
+			error!(%ssrc, "upstream STT error: failed to encode messagepack: {}", e);
+			format!(
+				"internal STT service error (failed to encode, SSRC {})",
+				ssrc
+			)
 		}
-		ModelError::InvalidMagicBytes(e) => {
-			error!(%ssrc, "STTS error: invalid magic bytes: {:?}", e);
-			format!("internal STT service error (SSRC {})", ssrc)
+		SttServerErrorEnum::InvalidMagicBytes(e) => {
+			error!(%ssrc, "upstream STT error: invalid magic bytes: got {:?} when expected signature", e);
+			format!("internal STT service error (invalid magic, SSRC {})", ssrc)
 		}
-		ModelError::PayloadOutOfOrder => {
-			error!(%ssrc, "STTS error: payload received out of order");
-			format!("internal STT service error (SSRC {})", ssrc)
+		SttServerErrorEnum::PayloadOutOfOrder => {
+			error!(%ssrc, "upstream STT error: payload received out of order");
+			format!(
+				"internal STT service error (payload out of order, SSRC {})",
+				ssrc
+			)
 		}
-		ModelError::InvalidPayload { expected, got } => {
-			error!(%ssrc, "STTS error: invalid payload: expected {:?}, got {:?}", expected, got);
-			format!("internal STT service error (SSRC {})", ssrc)
+		SttServerErrorEnum::InvalidPayload { expected, got } => {
+			error!(%ssrc, "upstream STT error: invalid payload: expected {:?}, got {:?}", expected, got);
+			format!(
+				"internal STT service error (invalid payload, SSRC {})",
+				ssrc
+			)
 		}
-		ModelError::OverloadedRemote => {
-			error!(%ssrc, "STTS error: remote overloaded");
+		SttServerErrorEnum::RemoteOverloaded => {
+			error!(%ssrc, "upstream STT error: remote overloaded");
 			format!("STT service overloaded (SSRC {})", ssrc)
 		}
-		ModelError::InitializationTimedOut => {
-			error!(%ssrc, "STTS error: initialization timed out");
+		SttServerErrorEnum::InitializationTimedOut => {
+			error!(%ssrc, "upstream STT error: initialization timed out");
 			format!("STT service initialization timed out (SSRC {})", ssrc)
 		}
-		ModelError::RemoteDisconnected => {
-			error!(%ssrc, "STTS error: remote disconnected");
+		SttServerErrorEnum::RemoteDisconnected => {
+			error!(%ssrc, "upstream STT error: remote disconnected");
 			format!("STT service disconnected (SSRC {})", ssrc)
 		}
-		ModelError::TimedOutWaitingForResult { session_id } => {
-			error!(%ssrc, %session_id, "STTS error: timed out waiting for result");
+		SttServerErrorEnum::TimedOutWaitingForResult { session_id } => {
+			error!(%ssrc, %session_id, "upstream STT error: timed out waiting for result");
 			format!(
 				"STT service timed out (SSRC {}, session ID {})",
 				ssrc, session_id

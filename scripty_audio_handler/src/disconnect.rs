@@ -2,10 +2,9 @@ use std::time::Duration;
 
 use dashmap::DashMap;
 use scripty_data_type::get_data;
+use scripty_error::Error;
 use serenity::{gateway::client::Context, model::id::GuildId};
 use songbird::error::JoinError;
-
-use crate::error::Error;
 
 pub async fn disconnect_from_vc(ctx: &Context, guild_id: GuildId) -> Result<bool, Error> {
 	let sb = crate::get_songbird();

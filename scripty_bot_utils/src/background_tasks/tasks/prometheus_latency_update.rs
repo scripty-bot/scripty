@@ -1,9 +1,10 @@
 use std::{sync::Arc, time::Duration};
 
+use scripty_error::Error;
 use scripty_metrics::Metrics;
 use serenity::{gateway::client::Context, model::id::GenericChannelId};
 
-use crate::{Error, background_tasks::core::BackgroundTask};
+use crate::background_tasks::core::BackgroundTask;
 
 /// Updates Prometheus latency metrics every 10 seconds.
 pub struct LatencyUpdater {

@@ -8,7 +8,7 @@ use scripty_bot_utils::{
 use scripty_commands::build_commands;
 use serenity::{builder::CreateAllowedMentions, model::id::UserId, prelude::GatewayIntents};
 
-pub fn get_framework_opts() -> FrameworkOptions<scripty_bot_utils::Data, scripty_bot_utils::Error> {
+pub fn get_framework_opts() -> FrameworkOptions<scripty_bot_utils::Data, scripty_error::Error> {
 	let commands = build_commands();
 
 	FrameworkOptions {

@@ -10,7 +10,6 @@ extern crate core;
 
 mod available_language_autocomplete;
 pub mod background_tasks;
-pub mod checks;
 pub mod dm_support;
 pub mod entity_block;
 pub mod error;
@@ -22,6 +21,5 @@ pub mod prefix_handling;
 pub mod types;
 
 pub use available_language_autocomplete::available_language_autocomplete;
-pub use error::error_type::Error;
 pub use scripty_data_type::Data;
 pub use types::Context;

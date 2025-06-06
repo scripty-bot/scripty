@@ -1,4 +1,5 @@
-use scripty_bot_utils::{Context, Error};
+use scripty_bot_utils::Context;
+use scripty_error::Error;
 
 /// Toggle whether Scripty transcribes arbitrary video files posted. Requires Premium, tier 2.
 #[poise::command(

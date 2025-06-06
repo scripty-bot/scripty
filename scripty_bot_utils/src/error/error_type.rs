@@ -6,10 +6,9 @@ use std::{
 
 use backtrace::Backtrace;
 use http::header::ToStrError;
-use scripty_stt::{ModelError, OpusSourceError};
+use scripty_error::{FileTranscriptError, SttServerError};
+use scripty_stt::OpusSourceError;
 use serenity::{http::JsonErrorCode, model::channel::ChannelType, prelude::SerenityError};
-
-use crate::file_transcripts::FileTranscriptError;
 
 pub struct Error {
 	bt:             Backtrace,
@@ -42,7 +41,7 @@ pub enum ErrorEnum {
 	Redis(scripty_redis::redis::RedisError),
 	RedisPool(scripty_redis::PoolError),
 	VoiceMessageDecode(OpusSourceError),
-	Transcription(ModelError),
+	Transcription(SttServerError),
 	ExpectedPremiumValue,
 	AudioTranscription(FileTranscriptError),
 	CallAlreadyExists,
@@ -141,7 +140,7 @@ impl Error {
 		}
 	}
 
-	pub fn transcription(err: ModelError) -> Self {
+	pub fn transcription(err: SttServerError) -> Self {
 		Error {
 			bt:  Backtrace::new_unresolved(),
 			err: ErrorEnum::Transcription(err),
@@ -429,8 +428,8 @@ impl From<OpusSourceError> for Error {
 	}
 }
 
-impl From<ModelError> for Error {
-	fn from(e: ModelError) -> Self {
+impl From<SttServerError> for Error {
+	fn from(e: SttServerError) -> Self {
 		Self {
 			err: ErrorEnum::Transcription(e),
 			bt:  Backtrace::new(),

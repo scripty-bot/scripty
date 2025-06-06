@@ -38,8 +38,10 @@ join-forum-thread-content-auto = An automatic transcript was started { $timestam
 join-ephemeral-not-thread = To use the ephemeral parameter, you must select a thread as the target, by either setting `create_thread` to true or by targeting a thread with `target_channel`.
 # This message is shown when the user has told a bot to join a forum channel, but the forum requires tags. This is not possible for the bot to work around as it has no way of knowing what tags to use.
 join-forum-requires-tags = The forum channel you tried to make me use requires tags. I have no way of knowing what tags to use, so I cannot join that channel. Please use a different channel, or ask an admin to remove the tag requirement.
-# This message is shown when the user has told the bot to send transcripts to a non-text-based channel (ie category). `target_channel` should be translated, as slash command arguments are localized.
+# This message is shown when the user has told the bot to send transcripts to a non-text-based channel (ie category).
 join-target-not-text-based = The channel you told me to send transcripts to ({ $targetMention }) is not a text-based channel. Please use a text-based channel, or pick a different channel in the `target_channel` argument.
+# This message is shown when the user has told Scripty to join a channel that isn't a voice channel.
+join-voice-channel-not-voice = The channel you told me to join ({ $targetMention }) isn't a voice channel. Try again with a voice channel.
 # This message is shown when the user requests the bot create a new thread in a channel, but the channel doesn't support threads being created (usually voice channels)
 join-create-thread-in-unsupported = Discord does not support threads in { $targetMention }. Please use a different channel, or do not create a thread.
 join-ephemeral-with-thread-target-warn = You're trying to use { $targetThreadMention } as an ephemeral thread. This will delete it after Scripty leaves! Are you sure you want to do this?

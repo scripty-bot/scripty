@@ -5,16 +5,14 @@ use std::{
 	str::FromStr,
 };
 
+use scripty_error::FileTranscriptError;
 use serenity::all::Attachment;
 use tokio::{
 	io::{AsyncReadExt, AsyncWriteExt},
 	sync::mpsc,
 };
 
-use super::{
-	error::FileTranscriptError,
-	state::{TranscriptionState, TranscriptionStateEnum},
-};
+use super::state::{TranscriptionState, TranscriptionStateEnum};
 
 pub async fn convert_voice_message_to_pcm(
 	attachment: &Attachment,
@@ -23,7 +21,7 @@ pub async fn convert_voice_message_to_pcm(
 ) -> Result<Vec<i16>, FileTranscriptError> {
 	let filename = attachment.filename.clone();
 	let Some(file_length) = attachment.duration_secs else {
-		return Err(FileTranscriptError::NoFileLength);
+		return Err(FileTranscriptError::no_file_length());
 	};
 	tx.send(TranscriptionState {
 		filename,
@@ -121,7 +119,10 @@ async fn convert_path_to_pcm(path: &Path) -> Result<Vec<i16>, FileTranscriptErro
 
 	// read from ffmpeg
 	debug!(?path, "reading from ffmpeg");
-	let mut stdout = command.stdout.take().ok_or(FileTranscriptError::NoStdout)?;
+	let mut stdout = command
+		.stdout
+		.take()
+		.ok_or_else(FileTranscriptError::no_stdout)?;
 	let mut stdout_buf = Vec::with_capacity(64 * 1024);
 	stdout.read_to_end(&mut stdout_buf).await?;
 
@@ -132,7 +133,7 @@ async fn convert_path_to_pcm(path: &Path) -> Result<Vec<i16>, FileTranscriptErro
 		&& code != 0
 	{
 		error!(?path, "ffmpeg exited with code {}", code);
-		return Err(FileTranscriptError::FfmpegExited(code));
+		return Err(FileTranscriptError::ffmpeg_exited(code));
 	}
 
 	// need to convert the output to i16

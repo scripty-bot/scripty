@@ -3,6 +3,7 @@
 use base64::{Engine, prelude::BASE64_STANDARD};
 use dashmap::DashMap;
 use reqwest::header::CONTENT_TYPE;
+use scripty_error::Error;
 use serenity::{
 	all::ImageData,
 	builder::{
@@ -23,8 +24,6 @@ use serenity::{
 		webhook::Webhook,
 	},
 };
-
-use crate::Error;
 
 pub struct DmSupportStatus {
 	webhook_cache: DashMap<ChannelId, Webhook>,

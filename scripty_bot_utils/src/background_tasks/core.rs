@@ -1,8 +1,9 @@
 use once_cell::sync::OnceCell;
+use scripty_error::Error;
 use serenity::gateway::client::Context;
 
 pub trait BackgroundTask: Sized {
-	async fn init(ctx: Context) -> Result<Self, crate::Error>;
+	async fn init(ctx: Context) -> Result<Self, Error>;
 
 	/// How often the task should be run. This gets called after every call to `run()`.
 	fn interval(&mut self) -> std::time::Duration;

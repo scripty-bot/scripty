@@ -2,6 +2,7 @@ use std::borrow::Cow;
 
 use poise::CreateReply;
 use scripty_data_type::Data;
+use scripty_error::Error;
 use serenity::{
 	builder::{CreateAllowedMentions, CreateMessage, EditMessage},
 	gateway::client::Context as SerenityContext,
@@ -11,7 +12,7 @@ use serenity::{
 	},
 };
 
-use crate::{Context as ScriptyContext, Error};
+use crate::Context as ScriptyContext;
 
 pub enum MessageUpdater<'a> {
 	ReplyHandle {

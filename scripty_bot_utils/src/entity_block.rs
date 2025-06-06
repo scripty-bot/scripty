@@ -1,9 +1,10 @@
 use poise::BoxFuture;
+use scripty_error::Error;
 use scripty_i18n::LanguageIdentifier;
 use serenity::model::id::{GuildId, UserId};
 use sqlx::types::time::OffsetDateTime;
 
-use crate::{Data, Error};
+use crate::Data;
 
 const BLOCKED_ENTITY_REDIS_CACHE_TTL: u32 = 3600;
 
@@ -209,7 +210,6 @@ impl BlockedEntityKind {
 				.arg(BLOCKED_ENTITY_REDIS_CACHE_TTL);
 		})
 		.await
-		.map_err(Error::from)
 	}
 
 	async fn get_block_reason_from_redis(&self) -> Result<Option<String>, Error> {
@@ -219,7 +219,6 @@ impl BlockedEntityKind {
 				.arg(BLOCKED_ENTITY_REDIS_CACHE_TTL);
 		})
 		.await
-		.map_err(Error::from)
 	}
 
 	async fn check_db_block(

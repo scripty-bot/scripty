@@ -24,6 +24,7 @@ num-format.workspace = true
 
 scripty_db = { path = "../scripty_db" }
 scripty_i18n = { path = "../scripty_i18n" }
+scripty_error = { path = "../scripty_error" }
 scripty_utils = { path = "../scripty_utils" }
 scripty_redis = { path = "../scripty_redis" }
 scripty_config = { path = "../scripty_config" }

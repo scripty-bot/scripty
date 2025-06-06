@@ -1,4 +1,4 @@
-pub(super) mod error_type;
+// pub(super) mod error_type;
 pub mod handler;
 mod message;
 

@@ -2,17 +2,18 @@ use std::{borrow::Cow, time::SystemTime};
 
 use poise::PartialContext;
 use scripty_data_type::Data;
+use scripty_error::Error;
 use serenity::model::id::GuildId;
 
 pub fn dynamic_prefix(
-	ctx: PartialContext<Data, crate::Error>,
-) -> poise::BoxFuture<'_, Result<Option<Cow<'static, str>>, crate::Error>> {
+	ctx: PartialContext<Data, Error>,
+) -> poise::BoxFuture<'_, Result<Option<Cow<'static, str>>, Error>> {
 	Box::pin(_dynamic_prefix(ctx))
 }
 
 async fn _dynamic_prefix(
-	ctx: PartialContext<'_, Data, crate::Error>,
-) -> Result<Option<Cow<'static, str>>, crate::Error> {
+	ctx: PartialContext<'_, Data, Error>,
+) -> Result<Option<Cow<'static, str>>, Error> {
 	let Some(guild_id) = ctx.guild_id else {
 		return Ok(Some(Cow::Borrowed(
 			scripty_config::get_config().prefix.as_str(),

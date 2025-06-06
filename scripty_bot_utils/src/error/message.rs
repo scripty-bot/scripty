@@ -1,12 +1,20 @@
 use std::borrow::Cow;
 
 use poise::CreateReply;
+use scripty_error::Error;
 use serenity::{
-	builder::{CreateAttachment, CreateEmbed, CreateEmbedAuthor, CreateMessage, ExecuteWebhook},
+	builder::{
+		CreateAttachment,
+		CreateEmbed,
+		CreateEmbedAuthor,
+		CreateEmbedFooter,
+		CreateMessage,
+		ExecuteWebhook,
+	},
 	model::webhook::Webhook,
 };
 
-use crate::{Context, Error};
+use crate::Context;
 
 pub async fn send_err_msg<'a>(
 	ctx: Context<'_>,
@@ -16,6 +24,7 @@ pub async fn send_err_msg<'a>(
 	let embed = CreateEmbed::default()
 		.title(title)
 		.color((255, 0, 0))
+		.footer(CreateEmbedFooter::new(format!("Error ID: {}", ctx.id())))
 		.description(description);
 
 	let response = ctx.send(CreateReply::default().embed(embed.clone())).await;
@@ -37,6 +46,8 @@ pub async fn log_error_message(
 	mut err: Error,
 	invocation_context: Option<String>,
 ) {
+	let error_id = ctx.id();
+
 	// build embed
 	let mut e = CreateEmbed::default();
 	// build message
@@ -61,6 +72,7 @@ pub async fn log_error_message(
 
 	e = e.field("Error (debug)", format!("{:?}", err), false);
 	e = e.field("Error (display)", err.to_string(), false);
+	e = e.field("Error ID", error_id.to_string(), false);
 
 	// cache the cache
 	let cache = ctx.serenity_context().cache.clone();
@@ -107,5 +119,5 @@ pub async fn log_error_message(
 		error!("failed to log error to discord: {}", e);
 	}
 
-	error!(?guild_id, ?guild_name, %channel_id, %author_id, %author_name, "error while doing something: {}", err);
+	error!(?error_id, ?guild_id, ?guild_name, %channel_id, %author_id, %author_name, "error while doing something: {}", err);
 }

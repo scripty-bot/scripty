@@ -34,4 +34,5 @@ pub fn build_commands() -> Vec<poise::Command<Data, Error>> {
 	cmds
 }
 
-use scripty_bot_utils::{Context, Data, Error};
+use scripty_bot_utils::{Context, Data};
+use scripty_error::Error;

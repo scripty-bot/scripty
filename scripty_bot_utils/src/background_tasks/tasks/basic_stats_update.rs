@@ -1,9 +1,10 @@
 use std::{sync::Arc, time::Duration};
 
+use scripty_error::Error;
 use scripty_metrics::Metrics;
 use serenity::gateway::client::Context;
 
-use crate::{Error, background_tasks::core::BackgroundTask};
+use crate::background_tasks::core::BackgroundTask;
 
 /// Updates bot stats in Prometheus every 20 seconds.
 pub struct BasicStatsUpdater(Arc<Metrics>, Context);

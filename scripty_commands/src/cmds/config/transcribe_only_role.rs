@@ -1,5 +1,6 @@
 use poise::CreateReply;
-use scripty_bot_utils::{Context, Error};
+use scripty_bot_utils::Context;
+use scripty_error::Error;
 use serenity::{all::RoleId, builder::CreateAllowedMentions, prelude::Mentionable};
 
 /// Limit Scripty's transcriptions to only users with this role in a voice chat.

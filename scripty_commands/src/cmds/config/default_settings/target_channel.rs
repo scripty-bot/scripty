@@ -1,4 +1,5 @@
-use scripty_bot_utils::{Context, Error};
+use scripty_bot_utils::Context;
+use scripty_error::Error;
 use serenity::model::{
 	channel::{ChannelType, GuildChannel},
 	id::GuildId,

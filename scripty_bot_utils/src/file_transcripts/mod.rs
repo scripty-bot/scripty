@@ -1,5 +1,4 @@
 mod consts;
-mod error;
 mod handler;
 mod message_updater;
 mod raw_pcm_conversions;
@@ -8,6 +7,7 @@ mod state;
 use std::{fmt::Write, time::Duration};
 
 use poise::CreateReply;
+use scripty_error::Error;
 use scripty_i18n::LanguageIdentifier;
 use serenity::{
 	builder::CreateAttachment,
@@ -15,12 +15,10 @@ use serenity::{
 };
 
 pub use self::{
-	error::FileTranscriptError,
 	handler::FileTranscriptionHandler,
 	message_updater::MessageUpdater,
 	state::{TranscriptResult, TranscriptResultEnum, TranscriptionState, TranscriptionStateEnum},
 };
-use crate::Error;
 
 pub async fn transcribe_generic_message(
 	target_msg: Message,

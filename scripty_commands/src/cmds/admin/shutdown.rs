@@ -1,5 +1,6 @@
 use poise::CreateReply;
-use scripty_bot_utils::{Context, Error};
+use scripty_bot_utils::Context;
+use scripty_error::Error;
 use serenity::{
 	all::{Webhook, WebhookId},
 	builder::ExecuteWebhook,

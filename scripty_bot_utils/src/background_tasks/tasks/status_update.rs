@@ -1,12 +1,13 @@
 use std::time::Duration;
 
+use scripty_error::Error;
 use serenity::{
 	all::{ActivityType, OnlineStatus},
 	gateway::{ActivityData, ShardRunnerMessage, client::Context as SerenityContext},
 	small_fixed_array::FixedString,
 };
 
-use crate::{Error, background_tasks::core::BackgroundTask};
+use crate::background_tasks::core::BackgroundTask;
 
 /// Updates the bot status every minute.
 pub struct StatusUpdater {

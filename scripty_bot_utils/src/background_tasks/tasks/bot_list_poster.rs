@@ -16,9 +16,10 @@ use scripty_botlists::{
 	voidbots_net::VoidBotsNet,
 };
 use scripty_config::BotListsConfig;
+use scripty_error::Error;
 use serenity::gateway::client::Context;
 
-use crate::{Error, background_tasks::core::BackgroundTask};
+use crate::background_tasks::core::BackgroundTask;
 
 pub struct BotListUpdater {
 	ctx:       Context,

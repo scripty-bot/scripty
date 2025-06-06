@@ -1,5 +1,6 @@
 use poise::CreateReply;
-use scripty_bot_utils::{Context, Error, available_language_autocomplete};
+use scripty_bot_utils::{Context, available_language_autocomplete};
+use scripty_error::Error;
 use scripty_i18n::InvalidLanguageError;
 use serenity::builder::CreateEmbed;
 

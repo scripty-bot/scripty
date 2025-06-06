@@ -11,6 +11,7 @@ use ahash::RandomState;
 use dashmap::{DashMap, DashSet};
 use scripty_automod::types::AutomodServerConfig;
 use scripty_data_type::{CallDeath, get_data};
+use scripty_error::Error;
 use scripty_integrations::kiai::KiaiApiClient;
 use serenity::{
 	builder::ExecuteWebhook,
@@ -23,7 +24,6 @@ use serenity::{
 use songbird::{Event, EventContext, EventHandler};
 
 use crate::{
-	error::Error,
 	events::{
 		VoiceTickContext,
 		client_disconnect,
@@ -113,7 +113,7 @@ impl AudioHandler {
 			guild_id,
 			voice_channel_id,
 		)
-		.ok_or_else(Error::already_exists)?;
+		.ok_or_else(Error::call_already_exists)?;
 
 		let this = Self {
 			ssrc_state,

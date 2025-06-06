@@ -7,7 +7,6 @@ mod audio_handler;
 mod connect;
 mod consts;
 mod disconnect;
-mod error;
 mod events;
 mod types;
 
@@ -17,7 +16,6 @@ pub use audio_handler::AudioHandler;
 pub use connect::connect_to_vc;
 use dashmap::DashMap;
 pub use disconnect::disconnect_from_vc;
-pub use error::{Error, ErrorKind};
 pub use scripty_stt::{check_model_language, get_model_languages};
 use serenity::all::{ChannelId, GuildId};
 use songbird::{Config, driver::DecodeMode};

@@ -1,10 +1,9 @@
 use std::{fmt, num::ParseFloatError, time::Duration};
 
-use scripty_stt::{FfprobeParsingError, OpusSourceError};
+use scripty_error::{FfprobeParsingErrorEnum, FileTranscriptError, FileTranscriptErrorEnum};
+use scripty_stt::OpusSourceError;
 use serenity::Error as SerenityError;
 use small_fixed_array::FixedString;
-
-use super::error::FileTranscriptError;
 
 pub struct TranscriptionState {
 	pub filename: FixedString,
@@ -48,22 +47,33 @@ pub enum TranscriptResultEnum {
 }
 impl From<FileTranscriptError> for TranscriptResultEnum {
 	fn from(error: FileTranscriptError) -> Self {
-		let cause = match error {
-			error @ (FileTranscriptError::Sqlx(_)
-			| FileTranscriptError::Model(_)
-			| FileTranscriptError::Io(_)
-			| FileTranscriptError::TempFile(_)
-			| FileTranscriptError::NoStdout
-			| FileTranscriptError::NoStderr
-			| FileTranscriptError::ExpectedAttachments
-			| FileTranscriptError::NoReceiver) => return Self::Error { error },
-			FileTranscriptError::Serenity(error) => return Self::DiscordError { error },
+		if matches!(
+			error.peek_inner(),
+			FileTranscriptErrorEnum::Sqlx(_)
+				| FileTranscriptErrorEnum::Model(_)
+				| FileTranscriptErrorEnum::Io(_)
+				| FileTranscriptErrorEnum::TempFile(_)
+				| FileTranscriptErrorEnum::NoStdout
+				| FileTranscriptErrorEnum::NoStderr
+				| FileTranscriptErrorEnum::ExpectedAttachments
+				| FileTranscriptErrorEnum::NoReceiver
+		) {
+			return Self::Error { error };
+		}
 
-			FileTranscriptError::Opus(e) => MalformedInputError::Opus(e),
-			FileTranscriptError::DurationParseError(e) => MalformedInputError::DurationParse(e),
-			FileTranscriptError::Ffprobe(e) => MalformedInputError::Ffprobe(e),
-			FileTranscriptError::FfmpegExited(code) => MalformedInputError::FfmpegExitCode(code),
-			FileTranscriptError::NoFileLength => MalformedInputError::NoFileLength,
+		let (_, error) = error.into_parts();
+
+		let cause = match error {
+			FileTranscriptErrorEnum::Serenity(error) => return Self::DiscordError { error },
+
+			FileTranscriptErrorEnum::Opus(e) => MalformedInputError::Opus(e),
+			FileTranscriptErrorEnum::DurationParseError(e) => MalformedInputError::DurationParse(e),
+			FileTranscriptErrorEnum::Ffprobe(e) => MalformedInputError::Ffprobe(e),
+			FileTranscriptErrorEnum::FfmpegExited(code) => {
+				MalformedInputError::FfmpegExitCode(code)
+			}
+			FileTranscriptErrorEnum::NoFileLength => MalformedInputError::NoFileLength,
+			_ => unreachable!("these variants have been handled by prior match"),
 		};
 
 		Self::MalformedInput { cause }
@@ -111,7 +121,7 @@ impl fmt::Debug for TranscriptResult {
 pub enum MalformedInputError {
 	Opus(OpusSourceError),
 	DurationParse(ParseFloatError),
-	Ffprobe(FfprobeParsingError),
+	Ffprobe(FfprobeParsingErrorEnum),
 	FfmpegExitCode(i32),
 	NoFileLength,
 }

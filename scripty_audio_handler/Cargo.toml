@@ -24,6 +24,7 @@ async-trait.workspace = true
 scripty_db = { path = "../scripty_db" }
 scripty_stt = { path = "../scripty_stt" }
 #scripty_tts = { path = "../scripty_tts" }
+scripty_error = { path = "../scripty_error" }
 scripty_utils = { path = "../scripty_utils" }
 scripty_redis = { path = "../scripty_redis" }
 scripty_automod = { path = "../scripty_automod" }

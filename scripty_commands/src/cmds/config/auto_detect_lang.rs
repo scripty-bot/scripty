@@ -1,4 +1,5 @@
-use scripty_bot_utils::{Context, Error};
+use scripty_bot_utils::Context;
+use scripty_error::Error;
 
 /// Try to automatically detect the language being spoken?
 /// Very inaccurate vs setting a language.

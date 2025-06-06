@@ -1,5 +1,3 @@
-use scripty_bot_utils::checks::is_guild;
-
 use crate::{Context, Error};
 
 /// Remove your premium from this guild.
@@ -7,7 +5,7 @@ use crate::{Context, Error};
 	prefix_command,
 	slash_command,
 	guild_cooldown = 15,
-	check = "is_guild",
+	guild_only,
 	rename = "remove"
 )]
 pub async fn premium_remove(ctx: Context<'_>) -> Result<(), Error> {

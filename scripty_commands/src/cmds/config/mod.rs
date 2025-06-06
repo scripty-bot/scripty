@@ -12,7 +12,8 @@ mod translate;
 mod verbose;
 
 use poise::CreateReply;
-use scripty_bot_utils::{Context, Error};
+use scripty_bot_utils::Context;
+use scripty_error::Error;
 use serenity::builder::CreateEmbed;
 
 /// Configure Scripty's settings

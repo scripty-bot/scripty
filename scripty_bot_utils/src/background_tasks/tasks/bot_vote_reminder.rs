@@ -1,12 +1,13 @@
 use std::{fmt, time::Duration};
 
+use scripty_error::Error;
 use serenity::{
 	all::UserId,
 	builder::{CreateEmbed, CreateMessage},
 	gateway::client::Context as SerenityContext,
 };
 
-use crate::{Error, background_tasks::core::BackgroundTask};
+use crate::background_tasks::core::BackgroundTask;
 
 /// Sends vote reminders to users every minute.
 pub struct VoteReminderTask {

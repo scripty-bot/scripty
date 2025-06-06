@@ -1,6 +1,7 @@
 use ahash::RandomState;
 use dashmap::DashMap;
 use scripty_data_type::get_data;
+use scripty_error::Error;
 use scripty_premium::PremiumTierList;
 use serenity::{
 	builder::{CreateWebhook, ExecuteWebhook},
@@ -11,8 +12,6 @@ use serenity::{
 	prelude::Context,
 };
 use songbird::{CoreEvent, error::JoinError, events::Event};
-
-use crate::Error;
 
 /// Kick off the process of connecting Scripty to a voice channel.
 ///
@@ -46,7 +45,7 @@ pub async fn connect_to_vc(
 		if existing_id == voice_channel_id {
 			// attempting to rejoin the same channel, so return early
 			debug!(%voice_channel_id, %guild_id, "attempting to rejoin the same channel that we were already in, refusing to do so");
-			return Err(Error::already_exists());
+			return Err(Error::call_already_exists());
 		}
 	}
 
@@ -111,7 +110,7 @@ pub async fn connect_to_vc(
 		}
 	};
 	let Some(ref webhook_token) = webhook.token else {
-		return Err(Error::no_webhook_token());
+		return Err(Error::expected_webhook_token());
 	};
 	let webhook_id = webhook.id;
 

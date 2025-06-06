@@ -1,4 +1,5 @@
-use scripty_bot_utils::{Context, Error};
+use scripty_bot_utils::Context;
+use scripty_error::Error;
 
 /// Automatically translate transcriptions to English?
 #[poise::command(

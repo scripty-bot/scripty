@@ -1,5 +1,5 @@
 use poise::CreateReply;
-use scripty_bot_utils::{checks::is_guild, file_transcripts::transcribe_generic_message};
+use scripty_bot_utils::file_transcripts::transcribe_generic_message;
 use serenity::{
 	builder::{CreateAllowedMentions, CreateMessage},
 	model::channel::Message,
@@ -8,7 +8,7 @@ use serenity::{
 use crate::{Context, Error};
 
 /// Transcribe the replied message.
-#[poise::command(prefix_command, check = "is_guild")]
+#[poise::command(prefix_command, guild_only)]
 pub async fn transcribe_message(ctx: Context<'_>) -> Result<(), Error> {
 	let resolved_language =
 		scripty_i18n::get_resolved_language(ctx.author().id.get(), ctx.guild_id().map(|x| x.get()))

@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use scripty_error::FileTranscriptError;
 use scripty_premium::PremiumTierList;
 use scripty_utils::hash_user_id;
 use serenity::model::{
@@ -10,7 +11,6 @@ use tokio::sync::mpsc;
 
 use super::{
 	consts::{AUDIO_EXTENSIONS, VIDEO_EXTENSIONS},
-	error::FileTranscriptError,
 	raw_pcm_conversions::{convert_generic_file_to_pcm, convert_voice_message_to_pcm},
 	state::{TranscriptResult, TranscriptResultEnum, TranscriptionState, TranscriptionStateEnum},
 };
@@ -68,7 +68,7 @@ impl FileTranscriptionHandler {
 		// so we can just defer straight to the requisite functions
 		let Some(attachment) = self.msg.attachments.first() else {
 			warn!(%self.msg.id, "found voice message with no attached files");
-			return Err(FileTranscriptError::ExpectedAttachments);
+			return Err(FileTranscriptError::expected_attachments());
 		};
 		let filename = attachment.filename.clone();
 		let state = self

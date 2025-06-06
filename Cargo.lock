@@ -3159,6 +3159,7 @@ dependencies = [
  "scripty_data_storage",
  "scripty_data_type",
  "scripty_db",
+ "scripty_error",
  "scripty_integrations",
  "scripty_metrics",
  "scripty_premium",
@@ -3195,6 +3196,7 @@ dependencies = [
  "scripty_botlists",
  "scripty_commands",
  "scripty_config",
+ "scripty_error",
  "serenity",
  "sqlx",
  "tokio",
@@ -3224,6 +3226,7 @@ dependencies = [
  "scripty_data_storage",
  "scripty_data_type",
  "scripty_db",
+ "scripty_error",
  "scripty_i18n",
  "scripty_integrations",
  "scripty_metrics",
@@ -3275,6 +3278,7 @@ dependencies = [
  "scripty_config",
  "scripty_data_storage",
  "scripty_db",
+ "scripty_error",
  "scripty_i18n",
  "scripty_integrations",
  "scripty_premium",
@@ -3365,6 +3369,22 @@ dependencies = [
 [[package]]
 name = "scripty_error"
 version = "1.0.0"
+dependencies = [
+ "async-tempfile",
+ "backtrace",
+ "deadpool-redis",
+ "magnum",
+ "redis",
+ "reqwest 0.12.15",
+ "rmp-serde",
+ "scripty_integrations",
+ "serde_json",
+ "serenity",
+ "songbird",
+ "sqlx",
+ "tokio",
+ "uuid",
+]
 
 [[package]]
 name = "scripty_i18n"
@@ -3433,6 +3453,7 @@ dependencies = [
  "once_cell",
  "redis",
  "scripty_config",
+ "scripty_error",
  "tracing",
 ]
 
@@ -3451,6 +3472,7 @@ dependencies = [
  "rmp-serde",
  "scripty-common",
  "scripty_config",
+ "scripty_error",
  "scripty_metrics",
  "serde",
  "serde_json",

@@ -2,7 +2,6 @@ use std::time::{Duration, SystemTime};
 
 use humantime::format_rfc3339_seconds;
 use poise::CreateReply;
-use scripty_bot_utils::checks::is_guild;
 use serenity::{
 	builder::{
 		CreateActionRow,
@@ -26,7 +25,7 @@ use crate::{Context, Error};
 
 /// Join a voice chat.
 /// Transcripts will be logged to the channel you run this command in.
-#[poise::command(prefix_command, slash_command, guild_cooldown = 15, check = "is_guild")]
+#[poise::command(prefix_command, slash_command, guild_cooldown = 15, guild_only)]
 pub async fn join(
 	ctx: Context<'_>,
 	#[description = "Voice chat to bind to. Defaults to the one you're in."]
@@ -260,14 +259,17 @@ pub async fn join(
 	.await?;
 	let trial_used = res.as_ref().is_some_and(|row| row.trial_used);
 
-	match voice_channel.base.kind {
-		ChannelType::Voice | ChannelType::Stage => {}
-		_ => {
-			return Err(Error::invalid_channel_type(
-				vec![ChannelType::Voice, ChannelType::Stage],
-				voice_channel.base.kind,
-			));
-		}
+	if !matches!(
+		voice_channel.base.kind,
+		ChannelType::Voice | ChannelType::Stage
+	) {
+		ctx.say(format_message!(
+			resolved_language,
+			"join-voice-channel-not-voice",
+			targetMention: voice_channel.mention().to_string()
+		))
+		.await?;
+		return Ok(());
 	}
 
 	// resolve our permissions in the channel
@@ -412,15 +414,13 @@ pub async fn join(
 
 			ctx.send(CreateReply::new().embed(embed)).await?;
 		}
-		Err(ref err @ scripty_audio_handler::Error { .. })
-			if err.is_dropped() || err.is_timed_out() =>
-		{
+		Err(ref err) if err.is_dropped_or_timed_out() => {
 			ctx.say(
 				format_message!(resolved_language, "join-failed-dropped", contextPrefix: ctx.prefix()),
 			)
 			.await?;
 		}
-		Err(e) => return Err(e.into()),
+		Err(e) => return Err(e),
 	}
 
 	Ok(())

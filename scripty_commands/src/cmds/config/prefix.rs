@@ -1,4 +1,5 @@
-use scripty_bot_utils::{Context, Error};
+use scripty_bot_utils::Context;
+use scripty_error::Error;
 
 /// Set a new prefix for prefix commands for this server. Overrides the built in prefix.
 #[poise::command(

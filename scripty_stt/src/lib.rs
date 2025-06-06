@@ -15,6 +15,7 @@ pub use init::init_stt;
 pub use magnum::error::OpusSourceError;
 pub use models::*;
 pub use process_audio::process_audio;
+use scripty_error::SttServerError;
 
 /// Number of times to try to find an available STT service before giving up.
 const NUM_STT_SERVICE_TRIES: usize = 1024;
@@ -33,7 +34,7 @@ pub fn get_model_languages() -> Vec<String> {
 }
 
 /// Get a new stream.
-pub async fn get_stream() -> Result<Stream, ModelError> {
+pub async fn get_stream() -> Result<Stream, SttServerError> {
 	load_balancer::LOAD_BALANCER
 		.get()
 		.expect("initialize load balancer before trying to get stream")

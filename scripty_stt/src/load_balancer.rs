@@ -19,6 +19,7 @@ use scripty_common::stt_transport_models::{
 	StatusConnectionOpen,
 };
 use scripty_config::SttServiceDefinition;
+use scripty_error::SttServerError;
 use tokio::{
 	io::{AsyncReadExt, AsyncWriteExt},
 	net::{
@@ -29,7 +30,7 @@ use tokio::{
 	sync::broadcast::{Receiver, Sender},
 };
 
-use crate::{ModelError, NUM_STT_SERVICE_TRIES, Stream};
+use crate::{NUM_STT_SERVICE_TRIES, Stream};
 
 /// Maximum number of workers to queue up.
 ///
@@ -64,7 +65,7 @@ pub struct LoadBalancer {
 }
 
 impl LoadBalancer {
-	pub async fn new() -> Result<Self, ModelError> {
+	pub async fn new() -> Result<Self, SttServerError> {
 		let stt_services = scripty_config::get_config().stt_services.clone();
 		let mut peer_addresses: Vec<SocketAddr> = Vec::new();
 		for service in stt_services {
@@ -131,7 +132,7 @@ impl LoadBalancer {
 			.expect("get_next_worker_idx::{closure} should never return None")
 	}
 
-	fn find_worker(&self) -> Result<usize, ModelError> {
+	fn find_worker(&self) -> Result<usize, SttServerError> {
 		let mut idx = self.get_next_worker_idx();
 		let mut iter_count: usize = 0;
 		let mut allow_overload = false;
@@ -170,12 +171,12 @@ impl LoadBalancer {
 					"no available STT servers after {} tries",
 					NUM_STT_SERVICE_TRIES
 				);
-				return Err(ModelError::NoAvailableServers);
+				return Err(SttServerError::no_servers());
 			}
 		}
 	}
 
-	async fn spawn_new_stream(&self) -> Result<Stream, ModelError> {
+	async fn spawn_new_stream(&self) -> Result<Stream, SttServerError> {
 		let worker_id = self.find_worker()?;
 		let worker = self.workers.get(&worker_id).expect("worker should exist");
 
@@ -241,7 +242,7 @@ impl LoadBalancer {
 		}
 	}
 
-	pub async fn get_stream(&self) -> Result<Stream, ModelError> {
+	pub async fn get_stream(&self) -> Result<Stream, SttServerError> {
 		// check if we have any queued workers
 		{
 			let mut queued_workers = self.queued_workers.lock().unwrap_or_else(|poisoned| {
@@ -295,9 +296,9 @@ impl LoadBalancedStream {
 			|| self.is_errored.load(Ordering::Relaxed)
 	}
 
-	pub async fn open_connection(&self) -> Result<Stream, ModelError> {
+	pub async fn open_connection(&self) -> Result<Stream, SttServerError> {
 		if !self.can_overload && self.is_overloaded() {
-			return Err(ModelError::OverloadedRemote);
+			return Err(SttServerError::remote_overloaded());
 		}
 
 		let res = Stream::new(
@@ -314,7 +315,7 @@ impl LoadBalancedStream {
 	pub async fn new(
 		peer_address: SocketAddr,
 		purge_tx: flume::Sender<()>,
-	) -> Result<Self, ModelError> {
+	) -> Result<Self, SttServerError> {
 		// open a connection to the remote
 		info!("trying to connect to STT service at {}", peer_address);
 		let peer_stream = TcpStream::connect(peer_address).await?;
@@ -329,7 +330,7 @@ impl LoadBalancedStream {
 		else {
 			// got something other than a StatusConnectionOpen message
 			// should never happen
-			return Err(ModelError::PayloadOutOfOrder);
+			return Err(SttServerError::payload_out_of_order());
 		};
 
 		info!(
@@ -351,7 +352,7 @@ impl LoadBalancedStream {
 		struct ReadStreamTask {
 			stream_read:         OwnedReadHalf,
 			server_to_client_tx: tokio::sync::broadcast::Sender<ServerToClientMessage>,
-			stream_error_tx:     tokio::sync::mpsc::Sender<ModelError>,
+			stream_error_tx:     tokio::sync::mpsc::Sender<SttServerError>,
 			new_read_stream_rx:  tokio::sync::mpsc::Receiver<OwnedReadHalf>,
 		}
 		let mut read_stream_task = ReadStreamTask {
@@ -429,7 +430,7 @@ impl LoadBalancedStream {
 		struct WriteStreamTask {
 			stream_write:        OwnedWriteHalf,
 			client_to_server_rx: tokio::sync::broadcast::Receiver<ClientToServerMessage>,
-			stream_error_tx:     tokio::sync::mpsc::Sender<ModelError>,
+			stream_error_tx:     tokio::sync::mpsc::Sender<SttServerError>,
 			new_write_stream_rx: tokio::sync::mpsc::Receiver<OwnedWriteHalf>,
 		}
 		let mut write_stream_task = WriteStreamTask {
@@ -621,12 +622,12 @@ impl LoadBalancedStream {
 
 async fn read_socket_message(
 	socket: &mut OwnedReadHalf,
-) -> Result<ServerToClientMessage, ModelError> {
+) -> Result<ServerToClientMessage, SttServerError> {
 	// read the magic bytes
 	let mut magic = [0; 4];
 	socket.read_exact(&mut magic).await?;
 	if magic != scripty_common::MAGIC_BYTES {
-		return Err(ModelError::InvalidMagicBytes(magic));
+		return Err(SttServerError::invalid_magic_bytes(magic));
 	}
 
 	// read the data length
@@ -648,7 +649,7 @@ async fn read_socket_message(
 async fn write_socket_message(
 	socket: &mut OwnedWriteHalf,
 	message: &ClientToServerMessage,
-) -> Result<(), ModelError> {
+) -> Result<(), SttServerError> {
 	// serialize the message
 	let mut data = Vec::new();
 	rmp_serde::encode::write(&mut data, message)?;

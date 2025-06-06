@@ -1,7 +1,8 @@
 use std::borrow::Cow;
 
 use poise::Command;
-use scripty_bot_utils::{Data, Error};
+use scripty_bot_utils::Data;
+use scripty_error::Error;
 use scripty_i18n::LanguageIdentifier;
 
 const DISCORD_SUPPORTED_LOCALES: [&str; 31] = [

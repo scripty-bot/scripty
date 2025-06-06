@@ -1,14 +1,10 @@
-pub fn add(left: usize, right: usize) -> usize {
-	left + right
-}
+mod ffprobe;
+mod file_transcript;
+mod global;
+mod internal;
+mod model;
 
-#[cfg(test)]
-mod tests {
-	use super::*;
-
-	#[test]
-	fn it_works() {
-		let result = add(2, 2);
-		assert_eq!(result, 4);
-	}
-}
+pub use ffprobe::{FfprobeParsingError, FfprobeParsingErrorEnum};
+pub use file_transcript::{FileTranscriptError, FileTranscriptErrorEnum};
+pub use global::{Error, ErrorEnum};
+pub use model::{SttServerError, SttServerErrorEnum};

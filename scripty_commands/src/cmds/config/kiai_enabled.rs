@@ -1,4 +1,5 @@
-use scripty_bot_utils::{Context, Error};
+use scripty_bot_utils::Context;
+use scripty_error::Error;
 use scripty_integrations::kiai::{Permissions as KiaiPermissions, get_kiai_api_client};
 
 /// Enable Scripty's Kiai integration. You should disable Kiai's voice XP levelling if you use this.
