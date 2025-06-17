@@ -1,3 +1,6 @@
+# ARCHIVED
+visit https://codeberg.org/scripty-bot/scripty for any new code
+
 # Scripty (v2)
 
 rewrite of the [old Scripty](https://github.com/tazz4843/scripty) in general
